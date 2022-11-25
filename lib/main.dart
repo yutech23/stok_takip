@@ -11,7 +11,7 @@ import 'package:stok_takip/screen/user_setting.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
-  setPathUrlStrategy();
+  // setPathUrlStrategy();
   DbHelper.dbBaslat();
   runApp(const MyApp());
 }
