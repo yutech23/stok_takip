@@ -182,7 +182,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                         .write(key: 'role', value: item?.role);
                   });
 
-                  Navigator.of(context).pushNamed('/stockEdit');
+                  Navigator.of(context).pushNamed('/signUp');
                 } else {
                   _controllerSifre.clear();
                 }

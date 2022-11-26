@@ -48,11 +48,9 @@ class DbHelper {
     });
 
     if (error != null) {
-      // ignore: use_build_context_synchronously
       context.extensionShowErrorSnackBar(message: error.message);
       return userSessionMap;
     } else {
-      // ignore: use_build_context_synchronously
       context.extenionShowSnackBar(message: 'Giriş başarılı.');
       return userSessionMap;
     }
@@ -86,8 +84,8 @@ class DbHelper {
 
     if (formKey.currentState!.validate()) {
       //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
-      final resAuth =
-          await db.supabase.auth.signUp(kullanici.email!, kullanici.password!);
+      final resAuth = await db.supabase.auth.api
+          .signUpWithEmail(kullanici.email!, kullanici.password!);
 
       final error = resAuth.error;
       if (error != null) {
@@ -104,6 +102,14 @@ class DbHelper {
             .toString()
             .replaceAll(RegExp(r"[)(]"), '');
 
+        print("**********");
+        print(kullanici.name);
+        print(kullanici.lastName);
+        print(kullanici.email);
+        print(kullanici.password);
+        print(roleIdString);
+        print(resAuth.data!.user!.id);
+        print("***********");
         final resUserRegister = await db.supabase.from('users').insert([
           {
             'name': kullanici.name,

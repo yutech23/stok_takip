@@ -209,6 +209,11 @@ class _ScreenSignUpState extends State with Validation {
           kullanici.password = _controllerPassword.text;
           kullanici.role = _role;
         });
+        print(kullanici.name);
+        print(kullanici.lastName);
+        print(kullanici.email);
+        print(kullanici.password);
+        print(kullanici.role);
 
         db.signUp(context, formKey, kullanici).then((value) {
           if (value == true) {
