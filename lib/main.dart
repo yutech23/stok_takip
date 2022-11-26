@@ -61,15 +61,15 @@ class MyApp extends StatelessWidget {
           dividerColor: Colors.transparent),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{
-        '/': (_) => ScreenLogin(),
+        '/': (context) => ScreenLogin(),
         // '/': (_) => ScreenStockEdit(),
-        '/signUp': (_) => const ScreenSignUp(),
-        '/customerRegister': (_) => const ScreenCustomerRegister(),
-        '/productAdd': (_) => const ScreenProductAdd(),
-        '/categoryEdit': (_) => const ScreenCategoryEdit(),
-        '/stockEdit': (_) => const ScreenStockEdit(),
-        '/test': (_) => const Test(),
-        '/userSetting': (_) => ScreenUserSetting(),
+        '/signUp': (context) => const ScreenSignUp(),
+        '/customerRegister': (context) => const ScreenCustomerRegister(),
+        '/productAdd': (context) => const ScreenProductAdd(),
+        '/categoryEdit': (context) => const ScreenCategoryEdit(),
+        '/stockEdit': (context) => const ScreenStockEdit(),
+        '/test': (context) => const Test(),
+        '/userSetting': (context) => ScreenUserSetting(),
       },
     );
   }

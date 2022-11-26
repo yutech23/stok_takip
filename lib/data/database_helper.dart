@@ -33,6 +33,7 @@ class DbHelper {
     bool status = false;
     final res =
         await db.supabase.auth.signIn(email: setEmail, password: setPassword);
+    print("database'den access_token degeri : ${res.data!.accessToken}");
     final error = res.error;
     if (res.error == null) {
       status = true;
@@ -40,7 +41,11 @@ class DbHelper {
       status = false;
     }
 
-    userSessionMap.addAll({'id': res.user?.id, 'status': status.toString()});
+    userSessionMap.addAll({
+      'id': res.user?.id,
+      'access_token': res.data!.accessToken,
+      'status': status.toString()
+    });
 
     if (error != null) {
       // ignore: use_build_context_synchronously

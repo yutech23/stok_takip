@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/user.dart';
+import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
 
@@ -166,8 +167,11 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                   .singIn(context, _controllerEmail.text, _controllerSifre.text)
                   .then((value) {
                 if (value['status'] == 'true') {
+                  print("login içinden : ${value['access_token']}");
                   Sabitler.sessionStorageSecurty
                       .write(key: 'security_id', value: value['id']);
+                  Sabitler.sessionStorageSecurty
+                      .write(key: 'access_token', value: value['access_token']);
 
                   db.fetchNameSurnameRole(value['id']).then((item) {
                     Sabitler.sessionStorageSecurty
