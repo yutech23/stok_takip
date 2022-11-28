@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -57,13 +58,13 @@ class DbHelper {
   }
 
   Future<String?> signOut() async {
-    final res = await supabase.auth.signOut();
+    final res = await db.supabase.auth.signOut();
     final error = res.error?.message;
     return error;
   }
 
   Future<String?> updateUserInformation(String newPassword) async {
-    final res = await supabase.auth.update(
+    final res = await db.supabase.auth.update(
       UserAttributes(
         password: newPassword,
       ),
@@ -412,7 +413,7 @@ class DbHelper {
   }
 
   Future deleteProduct(String productCode) async {
-    final res = await supabase
+    final res = await db.supabase
         .from('product')
         .delete()
         .match({'product_code': productCode}).execute();
@@ -465,7 +466,7 @@ class DbHelper {
     } else {
       final res = await supabase
           .from('users')
-          .select('*')
+          .select('name,last_name,role')
           .match({'user_uuid': uuid}).execute();
 
       selectedKullanici = Kullanici.nameSurnameRole(

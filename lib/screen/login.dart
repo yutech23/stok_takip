@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/user.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
@@ -18,7 +19,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
   final _controllerEmail = TextEditingController();
   final _controllerSifre = TextEditingController();
   final FocusNode _loginButtonFocus = FocusNode();
-
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   @override
   void initState() {
     super.initState();
@@ -162,6 +163,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               shadowColor: Colors.transparent,
             ),
             onPressed: () async {
+              final SharedPreferences prefs = await _prefs;
+
               Kullanici loginKullanici = Kullanici.nameSurnameRole();
               db
                   .singIn(context, _controllerEmail.text, _controllerSifre.text)
@@ -170,6 +173,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                   print("login içinden : ${value['access_token']}");
                   Sabitler.sessionStorageSecurty
                       .write(key: 'security_id', value: value['id']);
+                  prefs.setString('access_token', value['access_token']!);
                   Sabitler.sessionStorageSecurty
                       .write(key: 'access_token', value: value['access_token']);
 
@@ -182,7 +186,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                         .write(key: 'role', value: item?.role);
                   });
 
-                  Navigator.of(context).pushNamed('/signUp');
+                  Navigator.of(context).pushNamed('/stockEdit');
                 } else {
                   _controllerSifre.clear();
                 }

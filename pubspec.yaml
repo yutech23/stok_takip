@@ -32,7 +32,7 @@ dependencies:
   flutter_profile_picture: ^2.0.0
   adaptivex: ^0.0.1+5
   cupertino_icons: ^1.0.2
-  
+  shared_preferences: ^2.0.15
   flutter_secure_storage: ^6.0.0
   http_interceptor: ^1.0.2
   envied: ^0.2.4

@@ -203,6 +203,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _sourceList.add(_sourceProductTableSearch);
     _sourceList.add(_sourceProductTableSearchRange);
 
+    if (Sabitler.token != null) {
+      db.supabase.auth.setAuth(Sabitler.token!);
+    }
     _stream = db.fetchProductDetail();
 
     _headers.add(DatatableHeader(

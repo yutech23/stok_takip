@@ -8,11 +8,15 @@ import 'package:stok_takip/screen/sign_up.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/screen/test.dart';
 import 'package:stok_takip/screen/user_setting.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
   // setPathUrlStrategy();
   DbHelper.dbBaslat();
+  Sabitler.token =
+      await Sabitler.sessionStorageSecurty.read(key: 'access_token');
+  print(Sabitler.token);
   runApp(const MyApp());
 }
 

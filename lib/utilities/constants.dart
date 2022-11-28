@@ -9,6 +9,7 @@ class Sabitler {
   static int deger = 0;
 
   static final sessionStorageSecurty = FlutterSecureStorage();
+  static String? token;
 }
 
 final Sabitler sabitler = Sabitler();
