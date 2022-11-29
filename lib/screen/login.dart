@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/user.dart';
-import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
-
 import '../utilities/constants.dart';
 
 class ScreenLogin extends StatefulWidget {

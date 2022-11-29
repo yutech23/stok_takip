@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -8,8 +7,6 @@ import '../models/category.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import 'package:turkish/turkish.dart';
-
-import '../utilities/constants.dart';
 
 class DbHelper {
   DbHelper._intenat();
@@ -34,7 +31,7 @@ class DbHelper {
     bool status = false;
     final res =
         await db.supabase.auth.signIn(email: setEmail, password: setPassword);
-    print("database'den access_token degeri : ${res.data!.accessToken}");
+    //print("database'den access_token degeri : ${res.data!.accessToken}");
     final error = res.error;
     if (res.error == null) {
       status = true;

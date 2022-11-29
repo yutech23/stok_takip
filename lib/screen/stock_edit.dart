@@ -883,6 +883,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                   selecteds: _selected,
                   expanded: _expanded,
                   autoHeight: false,
+                  /* commonMobileView: true,
+                  dropContainer: (value) {
+                    return Text(value['productCode'] +
+                        value['amountOfStock'].toString());
+                  }, */
 
                   footers: [
                     Container(
