@@ -12,6 +12,7 @@ import 'package:stok_takip/utilities/custom_dropdown/widget_dropdown_map_type.da
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../data/database_helper.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
@@ -151,20 +152,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   Stream<List<Map<String, dynamic>>>? _stream;
   String? _selectedSearchValue;
 
-  String? access_token;
-
-  Future<String?> getToken() async {
-    await Sabitler.sessionStorageSecurty
-        .read(key: 'access_token')
-        .then((value) {
-      print("stockEdit sayfasından : ${value}");
-      access_token = value;
-    });
-    /*  Session ses = await db.supabase.auth.setAuth(access_token!);
-    print("içerden : ${ses.accessToken}"); */
-    return access_token;
-  }
-
   @override
   void initState() {
     /*   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -204,6 +191,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _sourceList.add(_sourceProductTableSearchRange);
 
     if (Sabitler.token != null) {
+      print(Sabitler.token);
       db.supabase.auth.setAuth(Sabitler.token!);
     }
     _stream = db.fetchProductDetail();
@@ -308,6 +296,16 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         textAlign: TextAlign.center));
     super.initState();
     //  getToken();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (Sabitler.token != null) {
+      print(Sabitler.token);
+      db.supabase.auth.setAuth(Sabitler.token!);
+      _stream = db.fetchProductDetail();
+    }
+    super.didChangeDependencies();
   }
 
   @override

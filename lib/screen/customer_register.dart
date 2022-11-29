@@ -45,7 +45,11 @@ class _ScreenCustomerSave extends State with Validation {
   Customer? _customer;
 
   //Müşteri Tipi Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
-  var customerTypeitems = <String>["Şahıs Firma", "Kurumsal Firma"];
+  var customerTypeitems = <String>[
+    "Şahıs Firma",
+    "Kurumsal Firma",
+    "Tedarikci"
+  ];
   String? _customerType;
   void _getCustomerType(String value) {
     setState(() {
@@ -81,9 +85,10 @@ class _ScreenCustomerSave extends State with Validation {
       if (_customerType == "Şahıs Firma") {
         listCustomerRegister.clear();
         listeEklemeSahis();
-      } else if (_customerType == "Kurumsal Firma") {
+      } else if (_customerType == "Kurumsal Firma" ||
+          _customerType == "Tedarikci") {
         listCustomerRegister.clear();
-        listeEklemeCompany();
+        listeEklemeCompanyAndSupplier();
       }
     });
   }
@@ -367,7 +372,7 @@ class _ScreenCustomerSave extends State with Validation {
         validationFunc: validateFirstAndLastName));
   }
 
-  listeEklemeCompany() {
+  listeEklemeCompanyAndSupplier() {
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         controller: _controllerCompanyName,
         etiket: "Fima adını giriniz",

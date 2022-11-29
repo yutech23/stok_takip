@@ -163,8 +163,6 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               shadowColor: Colors.transparent,
             ),
             onPressed: () async {
-              final SharedPreferences prefs = await _prefs;
-
               Kullanici loginKullanici = Kullanici.nameSurnameRole();
               db
                   .singIn(context, _controllerEmail.text, _controllerSifre.text)
@@ -173,7 +171,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                   print("login içinden : ${value['access_token']}");
                   Sabitler.sessionStorageSecurty
                       .write(key: 'security_id', value: value['id']);
-                  prefs.setString('access_token', value['access_token']!);
+
                   Sabitler.sessionStorageSecurty
                       .write(key: 'access_token', value: value['access_token']);
 

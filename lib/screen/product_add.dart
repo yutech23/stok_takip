@@ -12,6 +12,7 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
+import '../utilities/constants.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/upper_case_text_format.dart';
 
@@ -55,6 +56,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
 
   @override
   void initState() {
+    if (Sabitler.token != null) {
+      db.supabase.auth.setAuth(Sabitler.token!);
+    }
     _productCodeList = [];
     _product = Product(
         productCodeAndQrCode: null,

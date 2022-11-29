@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Sabitler {
@@ -8,8 +7,8 @@ class Sabitler {
   static String countryCode = "90";
   static int deger = 0;
 
-  static final sessionStorageSecurty = FlutterSecureStorage();
+  static const sessionStorageSecurty = FlutterSecureStorage();
   static String? token;
 }
 
-final Sabitler sabitler = Sabitler();
+Sabitler sabitler = Sabitler();

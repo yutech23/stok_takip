@@ -12,11 +12,10 @@ import 'package:stok_takip/utilities/constants.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
-  // setPathUrlStrategy();
   DbHelper.dbBaslat();
-  Sabitler.token =
-      await Sabitler.sessionStorageSecurty.read(key: 'access_token');
-  print(Sabitler.token);
+  /* Sabitler.token =
+      await Sabitler.sessionStorageSecurty.read(key: 'access_token'); */
+
   runApp(const MyApp());
 }
 
