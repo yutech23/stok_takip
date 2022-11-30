@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-
-import '../utilities/constants.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
 
   @override
-  State<MyDrawer> createState() => _MyDrawerState();
+  State<MyDrawer> createState() {
+    return _MyDrawerState();
+  }
 }
 
 class _MyDrawerState extends State<MyDrawer> {
@@ -15,38 +17,34 @@ class _MyDrawerState extends State<MyDrawer> {
 
   @override
   void initState() {
-    getFirstLetters().then((value) => nameAndLastnameFirstLatter = value!);
-
     super.initState();
+  }
+
+  Future storageData() async {
+    String name = await SecurityStorageUser.getUserName() ?? 'N';
+    String lastName = await SecurityStorageUser.getUserLastName() ?? 'O';
+
+    setState(() {
+      nameAndLastnameFirstLatter =
+          name[0].toUpperCase() + lastName[0].toUpperCase();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    storageData();
     return Drawer(
       child: ListView(children: [
         DrawerHeader(
           decoration: BoxDecoration(color: Colors.blueGrey.shade900),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            FutureBuilder(
-              builder: (context, snapshot) {
-                if (snapshot.hasData && !snapshot.hasError) {
-                  return CircleAvatar(
-                    backgroundColor: Colors.white,
-                    // ignore: sort_child_properties_last
-                    child: Text(snapshot.data!,
-                        style: context.theme.headline4!.copyWith(
-                            letterSpacing: 1, fontWeight: FontWeight.bold)),
-                    radius: 40,
-                  );
-                } else {
-                  return const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Text(""),
-                    radius: 40,
-                  );
-                }
-              },
-              future: getFirstLetters(),
+            CircleAvatar(
+              backgroundColor: Colors.white,
+              // ignore: sort_child_properties_last
+              child: Text(nameAndLastnameFirstLatter,
+                  style: context.theme.headline4!
+                      .copyWith(letterSpacing: 1, fontWeight: FontWeight.bold)),
+              radius: 40,
             ),
             Divider(),
             Text("Firma ismi",
@@ -77,27 +75,5 @@ class _MyDrawerState extends State<MyDrawer> {
             child: Text("Test")),
       ]),
     );
-  }
-
-  Future<String?> getFirstLetters() async {
-    String? name;
-    String? lastName;
-
-    await Sabitler.sessionStorageSecurty
-        .read(key: 'name')
-        .then((value) => name = value);
-
-    await Sabitler.sessionStorageSecurty
-        .read(key: 'lastName')
-        .then((value) => lastName = value);
-
-    if (name != null && lastName != null) {
-      nameAndLastnameFirstLatter =
-          name![0].toUpperCase() + lastName![0].toUpperCase();
-    } else {
-      nameAndLastnameFirstLatter = "N.N";
-    }
-
-    return nameAndLastnameFirstLatter;
   }
 }

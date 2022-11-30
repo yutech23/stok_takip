@@ -6,9 +6,6 @@ class Sabitler {
   ///tutuyoruz. Sayfalar arası veri taşımak içinde yapıldı.
   static String countryCode = "90";
   static int deger = 0;
-
-  static const sessionStorageSecurty = FlutterSecureStorage();
-  static String? token;
 }
 
 Sabitler sabitler = Sabitler();

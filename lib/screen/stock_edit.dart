@@ -154,8 +154,15 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   @override
   void initState() {
-    /*   WidgetsBinding.instance.addPostFrameCallback((_) {
-      getToken();
+    /* if (Sabitler.token != null) {
+      print(Sabitler.token);
+      db.supabase.auth.setAuth(Sabitler.token!);
+    } */
+
+    /*  WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (db.supabase.auth.session() == null) {
+        Navigator.of(context).pushNamed('/');
+      }
     }); */
 
     /*    print("---------------------------");
@@ -190,10 +197,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _sourceList.add(_sourceProductTableSearch);
     _sourceList.add(_sourceProductTableSearchRange);
 
-    if (Sabitler.token != null) {
-      print(Sabitler.token);
-      db.supabase.auth.setAuth(Sabitler.token!);
-    }
     _stream = db.fetchProductDetail();
 
     _headers.add(DatatableHeader(
@@ -295,17 +298,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         },
         textAlign: TextAlign.center));
     super.initState();
-    //  getToken();
-  }
-
-  @override
-  void didChangeDependencies() {
-    if (Sabitler.token != null) {
-      print(Sabitler.token);
-      db.supabase.auth.setAuth(Sabitler.token!);
-      _stream = db.fetchProductDetail();
-    }
-    super.didChangeDependencies();
   }
 
   @override

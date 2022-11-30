@@ -9,13 +9,10 @@ import 'package:stok_takip/screen/splash.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/screen/test.dart';
 import 'package:stok_takip/screen/user_setting.dart';
-import 'package:stok_takip/utilities/constants.dart';
 
 Future<void> main() async {
   DbHelper.dbBaslat();
-  Sabitler.token =
-      await Sabitler.sessionStorageSecurty.read(key: 'access_token');
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -64,8 +61,8 @@ class MyApp extends StatelessWidget {
           dividerColor: Colors.transparent),
       initialRoute: '/',
       routes: <String, WidgetBuilder>{
-        //   '/': (context) => ScreenSplash(),
-        '/': (context) => ScreenLogin(),
+        '/': (context) => ScreenSplash(),
+        '/login': (context) => ScreenLogin(),
         '/signUp': (context) => const ScreenSignUp(),
         '/customerRegister': (context) => const ScreenCustomerRegister(),
         '/productAdd': (context) => const ScreenProductAdd(),

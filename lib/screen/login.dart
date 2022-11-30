@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/user.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
@@ -160,25 +161,19 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               shadowColor: Colors.transparent,
             ),
             onPressed: () async {
-              Kullanici loginKullanici = Kullanici.nameSurnameRole();
               db
                   .singIn(context, _controllerEmail.text, _controllerSifre.text)
                   .then((value) {
                 if (value['status'] == 'true') {
-                  print("login içinden : ${value['access_token']}");
-                  Sabitler.sessionStorageSecurty
-                      .write(key: 'security_id', value: value['id']);
+                  SecurityStorageUser.setUserId(value['id']!);
+                  SecurityStorageUser.setUserAccessToken(value['accessToken']!);
+                  SecurityStorageUser.sertUserRefleshToken(
+                      value['refreshToken']!);
 
-                  Sabitler.sessionStorageSecurty
-                      .write(key: 'access_token', value: value['access_token']);
-
-                  db.fetchNameSurnameRole(value['id']).then((item) {
-                    Sabitler.sessionStorageSecurty
-                        .write(key: 'name', value: item?.name);
-                    Sabitler.sessionStorageSecurty
-                        .write(key: 'lastName', value: item?.lastName);
-                    Sabitler.sessionStorageSecurty
-                        .write(key: 'role', value: item?.role);
+                  db.fetchNameSurnameRole(value['id']).then((userData) {
+                    SecurityStorageUser.setUserName(userData.name!);
+                    SecurityStorageUser.setUserLastName(userData.lastName!);
+                    SecurityStorageUser.setUserRole(userData.role!);
                   });
 
                   Navigator.of(context).pushNamed('/stockEdit');
@@ -197,4 +192,27 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               ),
             )));
   }
+
+  /* Future<String> getFirstLetters() async {
+    await Future.delayed(Duration(microseconds: 1000));
+    String? name;
+    String? lastName;
+
+    await Sabitler.sessionStorageSecurty
+        .read(key: 'name')
+        .then((value) => name = value);
+
+    await Sabitler.sessionStorageSecurty
+        .read(key: 'lastName')
+        .then((value) => lastName = value);
+
+    if (name != null && lastName != null) {
+      nameAndLastnameFirstLatter =
+          name![0].toUpperCase() + lastName![0].toUpperCase();
+    } else {
+      nameAndLastnameFirstLatter = "N.N";
+    }
+
+    return nameAndLastnameFirstLatter;
+  } */
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import '../data/database_helper.dart';
@@ -32,7 +33,7 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
         db.signOut().then((value) {
           Navigator.of(context).pushNamed('/');
           //Chrome Store tutulan verileri siliyor.
-          Sabitler.sessionStorageSecurty.deleteAll();
+          SecurityStorageUser.deleteStorege();
         });
     }
   }

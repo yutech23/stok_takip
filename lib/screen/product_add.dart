@@ -56,9 +56,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
 
   @override
   void initState() {
-    if (Sabitler.token != null) {
+    /* if (Sabitler.token != null) {
       db.supabase.auth.setAuth(Sabitler.token!);
-    }
+    } */
     _productCodeList = [];
     _product = Product(
         productCodeAndQrCode: null,

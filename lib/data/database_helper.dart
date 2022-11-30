@@ -35,15 +35,15 @@ class DbHelper {
     final error = res.error;
     if (res.error == null) {
       status = true;
+      userSessionMap.addAll({
+        'id': res.user?.id,
+        'accessToken': res.data!.accessToken,
+        'refreshToken': res.data!.refreshToken,
+        'status': status.toString()
+      });
     } else {
       status = false;
     }
-
-    userSessionMap.addAll({
-      'id': res.user?.id,
-      'access_token': res.data!.accessToken,
-      'status': status.toString()
-    });
 
     if (error != null) {
       context.extensionShowErrorSnackBar(message: error.message);
@@ -453,7 +453,7 @@ class DbHelper {
     print(error);
   }
 
-  Future<Kullanici?> fetchNameSurnameRole(String? uuid) async {
+  Future<Kullanici> fetchNameSurnameRole(String? uuid) async {
     Kullanici selectedKullanici;
 
     if (uuid == null) {
