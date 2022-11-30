@@ -20,7 +20,6 @@ class DbHelper {
   final supabase = Supabase.instance.client;
 
   static Future dbBaslat() async {
-    WidgetsFlutterBinding.ensureInitialized();
     await Supabase.initialize(url: Env.url, anonKey: Env.apiKey);
   }
 

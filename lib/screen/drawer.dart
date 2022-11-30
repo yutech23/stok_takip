@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 
@@ -18,6 +17,7 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   void initState() {
     super.initState();
+    storageData();
   }
 
   Future storageData() async {
@@ -25,14 +25,19 @@ class _MyDrawerState extends State<MyDrawer> {
     String lastName = await SecurityStorageUser.getUserLastName() ?? 'O';
 
     setState(() {
+      print(" deger : $name");
       nameAndLastnameFirstLatter =
           name[0].toUpperCase() + lastName[0].toUpperCase();
     });
   }
 
   @override
+  void didUpdateWidget(covariant MyDrawer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    storageData();
     return Drawer(
       child: ListView(children: [
         DrawerHeader(

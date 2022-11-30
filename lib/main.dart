@@ -11,8 +11,8 @@ import 'package:stok_takip/screen/test.dart';
 import 'package:stok_takip/screen/user_setting.dart';
 
 Future<void> main() async {
-  DbHelper.dbBaslat();
   WidgetsFlutterBinding.ensureInitialized();
+  await DbHelper.dbBaslat();
   runApp(const MyApp());
 }
 

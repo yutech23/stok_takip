@@ -176,7 +176,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         .get("refreshToken")
         .then((value) => print(value));
     print("---------------------------"); */
-
+    print("gel-111");
     _category1 = [];
     _category2 = [];
     _category3 = [];
@@ -331,7 +331,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         ],
       ),
       body: buildStockEdit(),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(),
     );
   }
 

@@ -20,7 +20,7 @@ class _ScreenSplashState extends State<ScreenSplash> {
   Future _navigator() async {
     await Future.delayed(const Duration(milliseconds: 1500), () {});
     if (db.supabase.auth.session() != null) {
-      print('a');
+      print('splash - a');
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
