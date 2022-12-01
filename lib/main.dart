@@ -1,14 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/screen/category_edit.dart';
-import 'package:stok_takip/screen/customer_register.dart';
-import 'package:stok_takip/screen/login.dart';
-import 'package:stok_takip/screen/product_add.dart';
-import 'package:stok_takip/screen/sign_up.dart';
-import 'package:stok_takip/screen/splash.dart';
-import 'package:stok_takip/screen/stock_edit.dart';
-import 'package:stok_takip/screen/test.dart';
-import 'package:stok_takip/screen/user_setting.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
+
+import 'utilities/navigation/auth_guard.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,15 +11,14 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-final navigatorKey = GlobalKey<NavigatorState>();
+final _appRouter = AppRouter(authGuard: AuthGuard());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -59,18 +53,9 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
-      initialRoute: '/',
-      routes: <String, WidgetBuilder>{
-        '/': (context) => ScreenSplash(),
-        '/login': (context) => ScreenLogin(),
-        '/signUp': (context) => const ScreenSignUp(),
-        '/customerRegister': (context) => const ScreenCustomerRegister(),
-        '/productAdd': (context) => const ScreenProductAdd(),
-        '/categoryEdit': (context) => const ScreenCategoryEdit(),
-        '/stockEdit': (context) => const ScreenStockEdit(),
-        '/test': (context) => const Test(),
-        '/userSetting': (context) => ScreenUserSetting(),
-      },
+      routerDelegate:
+          AutoRouterDelegate(_appRouter, initialRoutes: [const RouteSplash()]),
+      routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }
 }

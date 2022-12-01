@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 
+import '../service/exchange_rate_api.dart';
+
 class Test extends StatefulWidget {
   const Test({super.key});
 
@@ -26,7 +28,14 @@ class _TestState extends State<Test> {
               child: Text(
                 "getir",
               ),
-              onPressed: () async {},
+              onPressed: () async {
+                //   String? deger = await dioService.getExchangeRate();
+                //String? usd = await dioService.getExchangeRateUSD();
+                String? euro = await dioService.getExchangeRateEUR();
+                //  print("dio deger : $deger");
+                //  print("dio USD : $usd");
+                print("dio Euro : $euro");
+              },
             ),
             SizedBox(
               height: 20,

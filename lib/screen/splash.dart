@@ -1,6 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import '../data/database_helper.dart';
 
 class ScreenSplash extends StatefulWidget {
@@ -17,22 +19,24 @@ class _ScreenSplashState extends State<ScreenSplash> {
     _navigator();
   }
 
-  Future _navigator() async {
-    await Future.delayed(const Duration(milliseconds: 1500), () {});
+  Future _navigator() {
+    // await Future.delayed(const Duration(milliseconds: 1500), () {});
     if (db.supabase.auth.session() != null) {
       print('splash - a');
-      Navigator.pushReplacement(
+      return context.router.push(const RouteStockEdit());
+      /*  Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ScreenStockEdit(),
-          ));
+          )); */
     } else {
       print('b');
-      Navigator.pushReplacement(
+      return context.router.push(const RouteLogin());
+      /*  Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ScreenLogin(),
-          ));
+          )); */
     }
   }
 
