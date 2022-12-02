@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
-import 'package:stok_takip/models/user.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
-import '../utilities/constants.dart';
 
 class ScreenLogin extends StatefulWidget {
   @override
@@ -17,7 +14,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
   final _controllerEmail = TextEditingController();
   final _controllerSifre = TextEditingController();
   final FocusNode _loginButtonFocus = FocusNode();
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   @override
   void initState() {
     super.initState();
@@ -59,15 +56,11 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                Icon(
+                const Icon(
                   Icons.dashboard,
                   color: Colors.white,
                   size: 100,
                 ),
-                /* Image.asset(
-                  'images/stock.png',
-                  scale: 4,
-                ), */
                 context.extensionHighSizedBox20(),
                 widgetTextLogo(),
                 context.extensionHighSizedBox20(),
@@ -192,27 +185,4 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               ),
             )));
   }
-
-  /* Future<String> getFirstLetters() async {
-    await Future.delayed(Duration(microseconds: 1000));
-    String? name;
-    String? lastName;
-
-    await Sabitler.sessionStorageSecurty
-        .read(key: 'name')
-        .then((value) => name = value);
-
-    await Sabitler.sessionStorageSecurty
-        .read(key: 'lastName')
-        .then((value) => lastName = value);
-
-    if (name != null && lastName != null) {
-      nameAndLastnameFirstLatter =
-          name![0].toUpperCase() + lastName![0].toUpperCase();
-    } else {
-      nameAndLastnameFirstLatter = "N.N";
-    }
-
-    return nameAndLastnameFirstLatter;
-  } */
 }
