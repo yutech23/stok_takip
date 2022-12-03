@@ -1,6 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -57,27 +60,31 @@ class _MyDrawerState extends State<MyDrawer> {
           ]),
         ),
         TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/'),
-            child: Text("Giriş Ekranı")),
-        TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/signUp'),
+            onPressed: () => context.router.push(const RouteSignUp()),
             child: Text("Kayıt Ekranı")),
         TextButton(
-            onPressed: () =>
-                Navigator.of(context).pushNamed('/customerRegister'),
+            onPressed: () => context.router.push(const RouteCustomerRegister()),
             child: Text("Müşteri Kayıt")),
         TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/categoryEdit'),
+            onPressed: () => context.router.push(const RouteCategoryEdit()),
             child: Text("Categori Düzenleme")),
         TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/productAdd'),
+            onPressed: () => context.router.push(const RouteProductAdd()),
             child: Text("Yeni Ürün Ekleme")),
         TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/stockEdit'),
+            onPressed: () => context.router.push(const RouteStockEdit()),
             child: Text("Stok Güncelleme Ekranı")),
         TextButton(
-            onPressed: () => Navigator.of(context).pushNamed('/test'),
+            onPressed: () => context.router.push(const Test()),
             child: Text("Test")),
+        ElevatedButton(
+            onPressed: () async {
+              String? refleshToken =
+                  await SecurityStorageUser.getUserRefleshToken();
+              print("ilke geken deger : $refleshToken");
+              db.refleshToken(refleshToken!);
+            },
+            child: Text("Session"))
       ]),
     );
   }

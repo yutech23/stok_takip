@@ -4,9 +4,11 @@ class Sabitler {
   ///tutuyoruz. Sayfalar arası veri taşımak içinde yapıldı.
   static String countryCode = "90";
   static int deger = 0;
+  static String dbHiveBoxName = 'necessaryData';
 }
 
 class RouteConsts {
+  static const String initName = 'initName';
   static const String init = '/';
   static const String login = '/login';
   static const String stockEdit = '/stockEdit';

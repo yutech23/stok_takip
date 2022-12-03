@@ -1,10 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import '../data/database_helper.dart';
-import '../screen/login.dart';
-import '../screen/user_setting.dart';
 
 class ShareWidgetAppbarSetting extends StatelessWidget {
   const ShareWidgetAppbarSetting({Key? key}) : super(key: key);
@@ -24,17 +24,17 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
     );
   }
 
-  settingOnSelected(BuildContext context, item) {
+  settingOnSelected(BuildContext context, item) async {
     switch (item) {
       case 0:
-        Navigator.of(context).pushNamed('/userSetting');
+        context.router.pushNamed(RouteConsts.userSetting);
         break;
       case 1:
-        db.signOut().then((value) {
-          Navigator.of(context).pushNamed('/');
-          //Chrome Store tutulan verileri siliyor.
-          SecurityStorageUser.deleteStorege();
-        });
+        await db.signOut();
+        context.router.pushNamed(RouteConsts.init);
+
+        //Chrome Store tutulan verileri siliyor.
+        SecurityStorageUser.deleteStorege();
     }
   }
 }

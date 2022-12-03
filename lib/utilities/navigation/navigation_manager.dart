@@ -12,8 +12,12 @@ import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
-  AutoRoute(page: ScreenSplash, path: RouteConsts.init),
-  AutoRoute(page: ScreenLogin, path: RouteConsts.login),
+  AutoRoute(
+      page: ScreenSplash, path: RouteConsts.init, name: RouteConsts.initName),
+  AutoRoute(
+    page: ScreenLogin,
+    path: RouteConsts.login,
+  ),
   AutoRoute(
       page: ScreenStockEdit, path: RouteConsts.stockEdit, guards: [AuthGuard]),
   AutoRoute(

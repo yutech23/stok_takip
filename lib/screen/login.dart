@@ -1,8 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import 'package:stok_takip/validations/validation.dart';
 
 class ScreenLogin extends StatefulWidget {
@@ -169,7 +172,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                     SecurityStorageUser.setUserRole(userData.role!);
                   });
 
-                  Navigator.of(context).pushNamed('/stockEdit');
+                  context.router.pushNamed(RouteConsts.stockEdit);
                 } else {
                   _controllerSifre.clear();
                 }

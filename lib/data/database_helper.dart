@@ -53,6 +53,12 @@ class DbHelper {
     }
   }
 
+  Future refleshToken(String refleshToken) async {
+    final res = await db.supabase.auth.setSession(refleshToken);
+    final data = res.data;
+    print("Yeni session : $data");
+  }
+
   Future<String?> signOut() async {
     final res = await db.supabase.auth.signOut();
     final error = res.error?.message;
