@@ -10,6 +10,7 @@ import '../../screen/customer_register.dart';
 import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
+import 'auth_guard_role.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
   AutoRoute(
@@ -23,7 +24,7 @@ import '../../screen/user_setting.dart';
   AutoRoute(
       page: ScreenProductAdd,
       path: RouteConsts.productAdd,
-      guards: [AuthGuard]),
+      guards: [AuthGuard, AuthGuardRole]),
   AutoRoute(page: ScreenSignUp, path: RouteConsts.signUp, guards: [AuthGuard]),
   AutoRoute(
       page: ScreenCategoryEdit,

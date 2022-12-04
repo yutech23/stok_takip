@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
@@ -161,12 +162,14 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                   .singIn(context, _controllerEmail.text, _controllerSifre.text)
                   .then((value) {
                 if (value['status'] == 'true') {
+                  authController.loginLocalStorageIsEmpty();
                   SecurityStorageUser.setUserId(value['id']!);
                   SecurityStorageUser.setUserAccessToken(value['accessToken']!);
                   SecurityStorageUser.sertUserRefleshToken(
                       value['refreshToken']!);
 
                   db.fetchNameSurnameRole(value['id']).then((userData) {
+                    authController.role = userData.role!;
                     SecurityStorageUser.setUserName(userData.name!);
                     SecurityStorageUser.setUserLastName(userData.lastName!);
                     SecurityStorageUser.setUserRole(userData.role!);
