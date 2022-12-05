@@ -24,6 +24,7 @@ import '../../screen/stock_edit.dart' as _i3;
 import '../../screen/test.dart' as _i9;
 import '../../screen/user_setting.dart' as _i8;
 import 'auth_guard.dart' as _i12;
+import 'custom_router_builder.dart' as _i13;
 
 class AppRouter extends _i10.RootStackRouter {
   AppRouter({
@@ -35,7 +36,7 @@ class AppRouter extends _i10.RootStackRouter {
 
   @override
   final Map<String, _i10.PageFactory> pagesMap = {
-    RouteSplash.name: (routeData) {
+    InitName.name: (routeData) {
       return _i10.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i1.ScreenSplash(),
@@ -86,9 +87,12 @@ class AppRouter extends _i10.RootStackRouter {
       );
     },
     Test.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i9.Test(),
+        customRouteBuilder: _i13.CustomRouter.myCustomRouteBuilder,
+        opaque: true,
+        barrierDismissible: false,
       );
     },
   };
@@ -96,8 +100,8 @@ class AppRouter extends _i10.RootStackRouter {
   @override
   List<_i10.RouteConfig> get routes => [
         _i10.RouteConfig(
-          RouteSplash.name,
-          path: '/',
+          InitName.name,
+          path: '/splash',
         ),
         _i10.RouteConfig(
           RouteLogin.name,
@@ -135,21 +139,21 @@ class AppRouter extends _i10.RootStackRouter {
         ),
         _i10.RouteConfig(
           Test.name,
-          path: '/test',
+          path: '/Test',
         ),
       ];
 }
 
 /// generated route for
 /// [_i1.ScreenSplash]
-class RouteSplash extends _i10.PageRouteInfo<void> {
-  const RouteSplash()
+class InitName extends _i10.PageRouteInfo<void> {
+  const InitName()
       : super(
-          RouteSplash.name,
-          path: '/',
+          InitName.name,
+          path: '/splash',
         );
 
-  static const String name = 'RouteSplash';
+  static const String name = 'InitName';
 }
 
 /// generated route for
@@ -254,7 +258,7 @@ class Test extends _i10.PageRouteInfo<void> {
   const Test()
       : super(
           Test.name,
-          path: '/test',
+          path: '/Test',
         );
 
   static const String name = 'Test';

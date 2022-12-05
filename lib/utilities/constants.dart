@@ -9,7 +9,7 @@ class Sabitler {
 
 class RouteConsts {
   static const String initName = 'initName';
-  static const String init = '/';
+  static const String init = '/splash';
   static const String login = '/login';
   static const String stockEdit = '/stockEdit';
   static const String productAdd = '/productAdd';

@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/screen/drawer.dart';
@@ -12,7 +14,6 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
-import '../utilities/constants.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/upper_case_text_format.dart';
 
@@ -40,7 +41,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   final _productTaxList = <String>['% 8', '% 18'];
   String? _selectedTax;
   bool _isThereProductCode = true;
-  FocusNode _searchFocus = FocusNode();
+  final FocusNode _searchFocus = FocusNode();
   late List<String>? _productCodeList;
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
@@ -54,11 +55,22 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
         int.parse(_selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
   }
 
+  roleCheck() async {
+    String? role = await SecurityStorageUser.getUserRole();
+    print("rol değeri : $role");
+    if (role == '1') {
+      print("rol için girdi");
+      print("navigator ilk : ${context.router.stack}");
+      // context.router.removeLast();
+      print("navigator degiştikden sonra : ${context.router.stack}");
+      print("path degeri : ${context.router.stack.last.routeData.path}");
+      context.router.pop(context.router.stack.last.routeData.path);
+    }
+  }
+
   @override
   void initState() {
-    /* if (Sabitler.token != null) {
-      db.supabase.auth.setAuth(Sabitler.token!);
-    } */
+    //   roleCheck();
     _productCodeList = [];
     _product = Product(
         productCodeAndQrCode: null,

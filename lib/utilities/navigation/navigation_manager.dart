@@ -5,12 +5,12 @@ import 'package:stok_takip/screen/splash.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/navigation/auth_guard.dart';
+import 'package:stok_takip/utilities/navigation/custom_router_builder.dart';
 import '../../screen/category_edit.dart';
 import '../../screen/customer_register.dart';
 import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
-import 'auth_guard_role.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
   AutoRoute(
@@ -24,7 +24,7 @@ import 'auth_guard_role.dart';
   AutoRoute(
       page: ScreenProductAdd,
       path: RouteConsts.productAdd,
-      guards: [AuthGuard, AuthGuardRole]),
+      guards: [AuthGuard]),
   AutoRoute(page: ScreenSignUp, path: RouteConsts.signUp, guards: [AuthGuard]),
   AutoRoute(
       page: ScreenCategoryEdit,
@@ -38,6 +38,9 @@ import 'auth_guard_role.dart';
       page: ScreenUserSetting,
       path: RouteConsts.userSetting,
       guards: [AuthGuard]),
-  AutoRoute(page: Test, path: RouteConsts.test),
+  // AutoRoute(page: Test, path: RouteConsts.test),
+  CustomRoute(
+      page: Test, customRouteBuilder: CustomRouter.myCustomRouteBuilder),
+//  CustomRoute(page: Test, path:RouteConsts.test, customRouteBuilder: customRouter.myCustomRouteBuilder(context, child, page) )
 ])
 class $AppRouter {}

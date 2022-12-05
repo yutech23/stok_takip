@@ -57,8 +57,27 @@ class MyApp extends StatelessWidget {
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
       routerDelegate:
-          AutoRouterDelegate(_appRouter, initialRoutes: [const RouteSplash()]),
+          AutoRouterDelegate(_appRouter, initialRoutes: [InitName()]),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }
 }
+
+/* class MyObserve extends AutoRouterObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    print('New route pushed: ${route.settings.name}');
+  }
+
+  // only override to observer tab routes
+  @override
+  void didInitTabRoute(TabPageRoute route, TabPageRoute? previousRoute) {
+    print('Tab route visited: ${route.name}');
+  }
+
+  @override
+  void didChangeTabRoute(TabPageRoute route, TabPageRoute previousRoute) {
+    print('Tab route re-visited: ${route.name}');
+  }
+}
+ */
