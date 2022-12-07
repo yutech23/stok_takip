@@ -28,12 +28,6 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
       case 0:
         context.router.pushNamed(RouteConsts.userSetting);
         break;
-      case 1:
-        await db.signOut();
-        context.router.pushNamed(RouteConsts.init);
-
-        //Chrome Store tutulan verileri siliyor.
-        SecurityStorageUser.deleteStorege();
     }
   }
 }

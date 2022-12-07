@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
 extension DimensionFont on BuildContext {
-  double dynamicHeigh(double val) => MediaQuery.of(this).size.height;
+  double dynamicHeight(double val) => MediaQuery.of(this).size.height;
   double dynamicWidth(double val) => MediaQuery.of(this).size.width;
 
   double get extendFixedWightContainer => 750;
   double get extendFixedHeighContainer => 800;
+  double get extensionButtonHeight => 50;
 
   TextTheme get theme => Theme.of(this).textTheme;
 
-  EdgeInsets extensionPaddingAllLow() => EdgeInsets.all(dynamicHeigh(0.01));
+  EdgeInsets extensionPaddingAllLow() => EdgeInsets.all(dynamicHeight(0.01));
 
   EdgeInsets extensionPadding20() => const EdgeInsets.all(20);
   EdgeInsets extensionMargin20() => const EdgeInsets.all(20);
@@ -21,6 +22,8 @@ extension DimensionFont on BuildContext {
   SizedBox extensionHighSizedBox20() => const SizedBox(height: 20);
 
   double extensionSpacingDrawer20() => 20;
+
+  Color extensionBlueGreyColor() => Colors.blueGrey.shade900;
 
   void extenionShowSnackBar({
     required String message,
