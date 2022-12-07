@@ -24,9 +24,9 @@ class DbHelper {
   }
 
   //Giriş Ekran Sorgulama
-  Future<Map<String, String?>> singIn(
+  Future<Map<String, dynamic>> singIn(
       BuildContext context, String setEmail, String setPassword) async {
-    Map<String, String?> userSessionMap = {};
+    Map<String, dynamic> userSessionMap = {};
     bool status = false;
     final res =
         await db.supabase.auth.signIn(email: setEmail, password: setPassword);
@@ -38,7 +38,7 @@ class DbHelper {
         'id': res.user?.id,
         'accessToken': res.data!.accessToken,
         'refreshToken': res.data!.refreshToken,
-        'status': status.toString()
+        'status': status
       });
     } else {
       status = false;

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import '../data/database_helper.dart';
 
 class ShareWidgetAppbarSetting extends StatelessWidget {
@@ -12,7 +11,7 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      icon: Icon(Icons.settings),
+      icon: const Icon(Icons.settings),
       onSelected: (item) => settingOnSelected(context, item),
       itemBuilder: (context) => [
         PopupMenuItem(

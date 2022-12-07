@@ -158,28 +158,28 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               shadowColor: Colors.transparent,
             ),
             onPressed: () async {
-              db
-                  .singIn(context, _controllerEmail.text, _controllerSifre.text)
-                  .then((value) {
-                if (value['status'] == 'true') {
-                  authController.loginLocalStorageIsEmpty();
-                  SecurityStorageUser.setUserId(value['id']!);
-                  SecurityStorageUser.setUserAccessToken(value['accessToken']!);
-                  SecurityStorageUser.sertUserRefleshToken(
-                      value['refreshToken']!);
+              final userInfo = await db.singIn(
+                  context, _controllerEmail.text, _controllerSifre.text);
+              if (userInfo['status'] == true) {
+                authController.setAuthTrue();
+                SecurityStorageUser.setUserId(userInfo['id']!);
+                SecurityStorageUser.setUserAccessToken(
+                    userInfo['accessToken']!);
+                SecurityStorageUser.sertUserRefleshToken(
+                    userInfo['refreshToken']!);
 
-                  db.fetchNameSurnameRole(value['id']).then((userData) {
-                    authController.role = userData.role!;
-                    SecurityStorageUser.setUserName(userData.name!);
-                    SecurityStorageUser.setUserLastName(userData.lastName!);
-                    SecurityStorageUser.setUserRole(userData.role!);
-                  });
+                final userNameSurnameRole =
+                    await db.fetchNameSurnameRole(userInfo['id']);
 
-                  context.router.pushNamed(RouteConsts.stockEdit);
-                } else {
-                  _controllerSifre.clear();
-                }
-              });
+                authController.role = userNameSurnameRole.role!;
+                SecurityStorageUser.setUserName(userNameSurnameRole.name!);
+                SecurityStorageUser.setUserLastName(
+                    userNameSurnameRole.lastName!);
+                SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
+                context.router.pushNamed(RouteConsts.stockEdit);
+              } else {
+                _controllerSifre.clear();
+              }
             },
             child: Container(
               alignment: Alignment.center,

@@ -10,10 +10,7 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 */
 
 Widget nonPermissionScreen(BuildContext context) {
-  Duration(microseconds: 500);
-  return Container(
-    child: Center(child: Text("İzniniz Yok", style: context.theme.headline1)),
-  );
+  return Center(child: Text("İzniniz Yok", style: context.theme.headline1));
 }
 
 class RolePermissionCustomRouter {
@@ -23,7 +20,6 @@ class RolePermissionCustomRouter {
       fullscreenDialog: page.fullscreenDialog,
       settings: page,
       pageBuilder: (context, animation, secondaryAnimation) {
-        print("role degeri : ${authController.role}");
         if (authController.role == '1') {
           return child;
         } else {
@@ -39,7 +35,6 @@ class RolePermissionCustomRouter {
       fullscreenDialog: page.fullscreenDialog,
       settings: page,
       pageBuilder: (context, animation, secondaryAnimation) {
-        print("role degeri : ${authController.role}");
         if (authController.role == '1' || authController.role == '2') {
           return child;
         } else {

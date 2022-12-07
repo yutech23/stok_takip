@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:stok_takip/utilities/dimension_font.dart';
 import '../bloc/bloc_category.dart';
 import '../models/category.dart';
 

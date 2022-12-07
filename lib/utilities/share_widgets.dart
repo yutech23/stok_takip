@@ -66,7 +66,7 @@ class ShareWidget with Validation {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp("[0-9,-]")),
       ],
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Telefon Numarısı Giriniz',
         border: OutlineInputBorder(
           borderSide: BorderSide(),

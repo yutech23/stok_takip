@@ -2,8 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
-import 'package:stok_takip/screen/login.dart';
-import 'package:stok_takip/screen/product_add.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 
@@ -18,27 +16,24 @@ class MyDrawer extends StatefulWidget {
 
 class _MyDrawerState extends State<MyDrawer> {
   String nameAndLastnameFirstLatter = '';
+  String nameAndLastNameCapitalFirst = '';
+  Color backGround = Colors.transparent;
 
   @override
   void initState() {
     super.initState();
-    storageData();
+    getNameAndSurenameFromStorage();
   }
 
-  Future storageData() async {
+  Future getNameAndSurenameFromStorage() async {
     String name = await SecurityStorageUser.getUserName() ?? 'N';
     String lastName = await SecurityStorageUser.getUserLastName() ?? 'O';
 
     setState(() {
-      print(" deger : $name");
+      nameAndLastNameCapitalFirst = name.inCaps + ' ' + lastName.inCaps;
       nameAndLastnameFirstLatter =
           name[0].toUpperCase() + lastName[0].toUpperCase();
     });
-  }
-
-  @override
-  void didUpdateWidget(covariant MyDrawer oldWidget) {
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -57,25 +52,44 @@ class _MyDrawerState extends State<MyDrawer> {
               radius: 40,
             ),
             Divider(),
-            Text("Firma ismi",
+            Text(nameAndLastNameCapitalFirst,
                 style: context.theme.headline5!.copyWith(color: Colors.white)),
           ]),
         ),
+        InkWell(
+          onTap: () {
+            context.router.push(const RouteCustomerRegister());
+          },
+          onHover: (value) {
+            backGround = Colors.grey.shade200;
+          },
+          child: Container(
+            decoration: BoxDecoration(
+                color: backGround,
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey.shade300))),
+            padding: context.extensionPadding10(),
+            child: Wrap(spacing: context.extensionSpacingDrawer20(), children: [
+              const Icon(Icons.people_alt),
+              Text(
+                'Müşteri Kayıt',
+                style: context.theme.headline6!
+                    .copyWith(fontWeight: FontWeight.bold),
+              )
+            ]),
+          ),
+        ),
         TextButton(
-            onPressed: () => context.router.push<bool>(const RouteSignUp()),
-            child: Text("Kayıt Ekranı")),
-        TextButton(
-            onPressed: () =>
-                context.router.push<bool>(const RouteCustomerRegister()),
-            child: Text("Müşteri Kayıt")),
+            onPressed: () => context.router.push(const RouteSignUp()),
+            child: const Text("Kayıt Ekranı")),
         TextButton(
             onPressed: () => context.router.push(const RouteCategoryEdit()),
-            child: Text("Categori Düzenleme")),
+            child: const Text("Categori Düzenleme")),
         TextButton(
-            onPressed: () => context.router.push<bool>(const RouteProductAdd()),
+            onPressed: () => context.router.push(const RouteProductAdd()),
             child: Text("Yeni Ürün Ekleme")),
         TextButton(
-            onPressed: () => context.router.push<bool>(const RouteStockEdit()),
+            onPressed: () => context.router.push(const RouteStockEdit()),
             child: Text("Stok Güncelleme Ekranı")),
         TextButton(
             onPressed: () => context.router.push(const Test()),

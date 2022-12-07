@@ -13,8 +13,9 @@ class UpperCaseCapitalEachWordTextFormatter extends TextInputFormatter {
 
 String capitalize(String value) {
   if (value.trim().isEmpty) return "";
+
   ///Sadece il Harfi büyütüyor.
-//  return "${value[0].toUpperCase()}${value.substring(1).toLowerCase()}";
+  ///return "${value[0].toUpperCase()}${value.substring(1).toLowerCase()}";
 
   var result = value[0].toUpperCase();
   for (int i = 1; i < value.length; i++) {
@@ -25,5 +26,4 @@ String capitalize(String value) {
     }
   }
   return result;
-
 }

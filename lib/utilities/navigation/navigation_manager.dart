@@ -13,36 +13,40 @@ import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
 
-@MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <
-    AutoRoute<bool>>[
+@MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
   AutoRoute(
       page: ScreenSplash, path: RouteConsts.init, name: RouteConsts.initName),
   AutoRoute(
     page: ScreenLogin,
     path: RouteConsts.login,
   ),
-  AutoRoute(
-      page: ScreenStockEdit, path: RouteConsts.stockEdit, guards: [AuthGuard]),
+  CustomRoute(
+      page: ScreenStockEdit,
+      path: RouteConsts.stockEdit,
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: ScreenProductAdd,
       path: RouteConsts.productAdd,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
-
-  AutoRoute(page: ScreenSignUp, path: RouteConsts.signUp, guards: [AuthGuard]),
-  AutoRoute(
+  CustomRoute(
+      page: ScreenSignUp,
+      path: RouteConsts.signUp,
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+  CustomRoute(
       page: ScreenCategoryEdit,
       path: RouteConsts.categoryEdit,
-      guards: [AuthGuard]),
-  AutoRoute(
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+  CustomRoute(
       page: ScreenCustomerRegister,
       path: RouteConsts.customerRegister,
-      guards: [AuthGuard]),
-  AutoRoute(
-    page: ScreenUserSetting,
-    path: RouteConsts.userSetting,
-    guards: [AuthGuard],
-  ),
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: ScreenUserSetting,
       path: RouteConsts.userSetting,
@@ -53,6 +57,5 @@ import '../../screen/user_setting.dart';
       page: Test,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
-//  CustomRoute(page: Test, path:RouteConsts.test, customRouteBuilder: customRouter.myCustomRouteBuilder(context, child, page) )
 ])
 class $AppRouter {}

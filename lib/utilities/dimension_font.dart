@@ -11,14 +11,16 @@ extension DimensionFont on BuildContext {
 
   EdgeInsets extensionPaddingAllLow() => EdgeInsets.all(dynamicHeigh(0.01));
 
-  EdgeInsets extensionPadding20() => EdgeInsets.all(20);
-  EdgeInsets extensionMargin20() => EdgeInsets.all(20);
+  EdgeInsets extensionPadding20() => const EdgeInsets.all(20);
+  EdgeInsets extensionMargin20() => const EdgeInsets.all(20);
 
-  EdgeInsets extensionPadding10() => EdgeInsets.all(10);
-  EdgeInsets extensionMargin10() => EdgeInsets.all(10);
+  EdgeInsets extensionPadding10() => const EdgeInsets.all(10);
+  EdgeInsets extensionMargin10() => const EdgeInsets.all(10);
 
   SizedBox extensionWidhSizedBox20() => const SizedBox(width: 20);
   SizedBox extensionHighSizedBox20() => const SizedBox(height: 20);
+
+  double extensionSpacingDrawer20() => 20;
 
   void extenionShowSnackBar({
     required String message,
@@ -28,7 +30,7 @@ extension DimensionFont on BuildContext {
       content: Container(
           alignment: Alignment.center,
           height: 50,
-          child: Text(message, style: TextStyle(fontSize: 20))),
+          child: Text(message, style: const TextStyle(fontSize: 20))),
       backgroundColor: backgroundColor,
       duration: Duration(seconds: 4),
     ));
@@ -77,7 +79,8 @@ extension DimensionFont on BuildContext {
           boxShadow: const [
             BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
           ]);
-  dynamic extensionGetPercentageOfNumber(dynamic number,dynamic percentage) => number * (1+percentage/100);
+  dynamic extensionGetPercentageOfNumber(dynamic number, dynamic percentage) =>
+      number * (1 + percentage / 100);
 }
 
 extension ExtensionPadding on TextStyle {
@@ -87,6 +90,6 @@ extension ExtensionPadding on TextStyle {
 }
 
 extension CapExtension on String {
-  String get inCaps => '${this[0].toUpperCase()}${this.substring(1)}';
-  String get allInCaps => this.toUpperCase();
+  String get inCaps => '${this[0].toUpperCase()}${substring(1)}';
+  String get allInCaps => toUpperCase();
 }

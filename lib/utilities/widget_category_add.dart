@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_category.dart';
 import 'package:stok_takip/data/database_category.dart';
-import 'package:stok_takip/utilities/dimension_font.dart';
 import '../validations/validation.dart';
 import '../models/category.dart';
 import '../validations/upper_case_capital_text_format.dart';
@@ -13,7 +12,7 @@ class WidgetCategoryAdd extends StatefulWidget {
 }
 
 class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
-  Category _category = Category();
+  final Category _category = Category();
 
   ///Oluşturlan Listelerin Scroll Kontrolu için oluşturuldu.
   late final List<ScrollController> _controllerScrollList = [];
