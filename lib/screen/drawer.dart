@@ -62,19 +62,20 @@ class _MyDrawerState extends State<MyDrawer> {
           ]),
         ),
         TextButton(
-            onPressed: () => context.router.push(const RouteSignUp()),
+            onPressed: () => context.router.push<bool>(const RouteSignUp()),
             child: Text("Kayıt Ekranı")),
         TextButton(
-            onPressed: () => context.router.push(const RouteCustomerRegister()),
+            onPressed: () =>
+                context.router.push<bool>(const RouteCustomerRegister()),
             child: Text("Müşteri Kayıt")),
         TextButton(
             onPressed: () => context.router.push(const RouteCategoryEdit()),
             child: Text("Categori Düzenleme")),
         TextButton(
-            onPressed: () => context.router.push(const RouteProductAdd()),
+            onPressed: () => context.router.push<bool>(const RouteProductAdd()),
             child: Text("Yeni Ürün Ekleme")),
         TextButton(
-            onPressed: () => context.router.push(const RouteStockEdit()),
+            onPressed: () => context.router.push<bool>(const RouteStockEdit()),
             child: Text("Stok Güncelleme Ekranı")),
         TextButton(
             onPressed: () => context.router.push(const Test()),
@@ -86,7 +87,17 @@ class _MyDrawerState extends State<MyDrawer> {
               print("ilke geken deger : $refleshToken");
               db.refleshToken(refleshToken!);
             },
-            child: Text("Session"))
+            child: Text("Session")),
+        ElevatedButton(
+            onPressed: () {
+              context.router.pop();
+            },
+            child: Text("pop")),
+        ElevatedButton(
+            onPressed: () {
+              print(context.router.stack);
+            },
+            child: Text("stack ver"))
       ]),
     );
   }

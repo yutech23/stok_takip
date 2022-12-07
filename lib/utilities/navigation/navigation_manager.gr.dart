@@ -37,43 +37,47 @@ class AppRouter extends _i10.RootStackRouter {
   @override
   final Map<String, _i10.PageFactory> pagesMap = {
     InitName.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: const _i1.ScreenSplash(),
       );
     },
     RouteLogin.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: _i2.ScreenLogin(),
       );
     },
     RouteStockEdit.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: const _i3.ScreenStockEdit(),
       );
     },
     RouteProductAdd.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.CustomPage<bool>(
         routeData: routeData,
         child: const _i4.ScreenProductAdd(),
+        customRouteBuilder:
+            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
+        opaque: true,
+        barrierDismissible: false,
       );
     },
     RouteSignUp.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: const _i5.ScreenSignUp(),
       );
     },
     RouteCategoryEdit.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: const _i6.ScreenCategoryEdit(),
       );
     },
     RouteCustomerRegister.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.MaterialPageX<bool>(
         routeData: routeData,
         child: const _i7.ScreenCustomerRegister(),
       );
@@ -81,16 +85,21 @@ class AppRouter extends _i10.RootStackRouter {
     RouteUserSetting.name: (routeData) {
       final args = routeData.argsAs<RouteUserSettingArgs>(
           orElse: () => const RouteUserSettingArgs());
-      return _i10.MaterialPageX<dynamic>(
+      return _i10.CustomPage<bool>(
         routeData: routeData,
         child: _i8.ScreenUserSetting(key: args.key),
+        customRouteBuilder:
+            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+        opaque: true,
+        barrierDismissible: false,
       );
     },
     Test.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i10.CustomPage<bool>(
         routeData: routeData,
         child: const _i9.Test(),
-        customRouteBuilder: _i13.CustomRouter.myCustomRouteBuilder,
+        customRouteBuilder:
+            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
@@ -138,8 +147,14 @@ class AppRouter extends _i10.RootStackRouter {
           guards: [authGuard],
         ),
         _i10.RouteConfig(
+          RouteUserSetting.name,
+          path: '/userSetting',
+          guards: [authGuard],
+        ),
+        _i10.RouteConfig(
           Test.name,
           path: '/Test',
+          guards: [authGuard],
         ),
       ];
 }

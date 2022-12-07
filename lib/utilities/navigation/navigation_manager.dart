@@ -1,4 +1,5 @@
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/product_add.dart';
 import 'package:stok_takip/screen/splash.dart';
@@ -12,7 +13,8 @@ import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
 
-@MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
+@MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <
+    AutoRoute<bool>>[
   AutoRoute(
       page: ScreenSplash, path: RouteConsts.init, name: RouteConsts.initName),
   AutoRoute(
@@ -21,10 +23,12 @@ import '../../screen/user_setting.dart';
   ),
   AutoRoute(
       page: ScreenStockEdit, path: RouteConsts.stockEdit, guards: [AuthGuard]),
-  AutoRoute(
+  CustomRoute(
       page: ScreenProductAdd,
       path: RouteConsts.productAdd,
-      guards: [AuthGuard]),
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+
   AutoRoute(page: ScreenSignUp, path: RouteConsts.signUp, guards: [AuthGuard]),
   AutoRoute(
       page: ScreenCategoryEdit,
@@ -35,12 +39,20 @@ import '../../screen/user_setting.dart';
       path: RouteConsts.customerRegister,
       guards: [AuthGuard]),
   AutoRoute(
+    page: ScreenUserSetting,
+    path: RouteConsts.userSetting,
+    guards: [AuthGuard],
+  ),
+  CustomRoute(
       page: ScreenUserSetting,
       path: RouteConsts.userSetting,
-      guards: [AuthGuard]),
-  // AutoRoute(page: Test, path: RouteConsts.test),
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
-      page: Test, customRouteBuilder: CustomRouter.myCustomRouteBuilder),
+      page: Test,
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
 //  CustomRoute(page: Test, path:RouteConsts.test, customRouteBuilder: customRouter.myCustomRouteBuilder(context, child, page) )
 ])
 class $AppRouter {}
