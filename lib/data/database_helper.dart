@@ -478,6 +478,18 @@ class DbHelper {
       return selectedKullanici;
     }
   }
+
+  Future fetchPageInfoByRole(String isRole) async {
+    final res = await db.supabase
+        .from('path_role_permission')
+        .select('class_name,icon_name,text_name')
+        .eq('role_id', int.parse(isRole))
+        .execute();
+
+    final data = res.data;
+
+    print(data);
+  }
 }
 
 final db = DbHelper();

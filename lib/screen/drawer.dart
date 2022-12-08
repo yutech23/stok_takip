@@ -62,7 +62,10 @@ class _MyDrawerState extends State<MyDrawer> {
               widgetMenuItem(
                   context, const RouteStockEdit(), Icons.edit_note, _stockEdit),
               widgetMenuItem(context, const Test(), Icons.try_sms_star, _test),
-
+              ElevatedButton(
+                  onPressed: () async => db.fetchPageInfoByRole(
+                      await SecurityStorageUser.getUserRole() ?? '2'),
+                  child: Text("role Bağlı"))
               /*   ElevatedButton(
                   onPressed: () async {
                     String? refleshToken =
