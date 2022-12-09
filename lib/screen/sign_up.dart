@@ -25,11 +25,11 @@ class _ScreenSignUpState extends State with Validation {
   */
   final formKey = GlobalKey<FormState>();
 
-  late final _controllerName;
-  late final _controllerLastName;
-  late final _controllerEmail;
-  late final _controllerPassword;
-  late final _controllerRePassword;
+  late final TextEditingController _controllerName;
+  late final TextEditingController _controllerLastName;
+  late final TextEditingController _controllerEmail;
+  late final TextEditingController _controllerPassword;
+  late final TextEditingController _controllerRePassword;
 
   //Role Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
   String? _role;
@@ -39,7 +39,7 @@ class _ScreenSignUpState extends State with Validation {
     });
   }
 
-  late Kullanici kullanici;
+  late final Kullanici kullanici;
   bool obscureValue = true, confirmObscureValue = true;
 
   @override

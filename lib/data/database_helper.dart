@@ -402,7 +402,7 @@ class DbHelper {
   }
 
   Future<List<dynamic>> fetchProductDetailFuture() async {
-    List<Map<String, dynamic>>? _mapList = [];
+    List<Map<String, dynamic>>? mapList = [];
     final resProduct = await db.supabase.from('product').select().execute();
 
     final data = resProduct.data;
@@ -479,16 +479,16 @@ class DbHelper {
     }
   }
 
-  Future fetchPageInfoByRole(String isRole) async {
+  Future<List<dynamic>> fetchPageInfoByRole(String isRole) async {
     final res = await db.supabase
         .from('path_role_permission')
-        .select('class_name,icon_name,text_name')
+        .select('class_name')
         .eq('role_id', int.parse(isRole))
         .execute();
 
     final data = res.data;
 
-    print(data);
+    return data;
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -25,11 +26,34 @@ class _MyDrawerState extends State<MyDrawer> {
   final String _stockEdit = 'Stok Düzenleme';
   final String _test = 'Test';
   final String _exit = 'Güvenli Çıkış';
+  //Menü Sırasını belirliyorum.
+  final List<String> _orderMenu = <String>[
+    'RouteCustomerRegister',
+    'RouteSignUp',
+    'RouteCategoryEdit',
+    'RouteProductAdd',
+    'RouteStockEdit',
+    'Test'
+  ];
+
+  final List<Widget> listWidgetMenuByRole = [];
 
   @override
   void initState() {
     super.initState();
     getNameAndSurenameFromStorage();
+    //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
+    db.fetchPageInfoByRole(authController.role).then((value) {
+      setState(() {
+        listFuncForRole(value);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listWidgetMenuByRole.clear();
   }
 
   Future getNameAndSurenameFromStorage() async {
@@ -51,39 +75,7 @@ class _MyDrawerState extends State<MyDrawer> {
           Expanded(
             child: ListView(children: [
               widgetAvatarAndNameTage(context),
-              widgetMenuItem(context, const RouteCustomerRegister(),
-                  Icons.people_alt, _customerSave),
-              widgetMenuItem(context, const RouteSignUp(), Icons.add_reaction,
-                  _newUserAdd),
-              widgetMenuItem(context, const RouteCategoryEdit(), Icons.category,
-                  _categoryAdd),
-              widgetMenuItem(context, const RouteProductAdd(), Icons.add_box,
-                  _newProductAdd),
-              widgetMenuItem(
-                  context, const RouteStockEdit(), Icons.edit_note, _stockEdit),
-              widgetMenuItem(context, const Test(), Icons.try_sms_star, _test),
-              ElevatedButton(
-                  onPressed: () async => db.fetchPageInfoByRole(
-                      await SecurityStorageUser.getUserRole() ?? '2'),
-                  child: Text("role Bağlı"))
-              /*   ElevatedButton(
-                  onPressed: () async {
-                    String? refleshToken =
-                        await SecurityStorageUser.getUserRefleshToken();
-                    print("ilke geken deger : $refleshToken");
-                    db.refleshToken(refleshToken!);
-                  },
-                  child: Text("Session")),
-              ElevatedButton(
-                  onPressed: () {
-                    context.router.pop();
-                  },
-                  child: Text("pop")),
-              ElevatedButton(
-                  onPressed: () {
-                    print(context.router.stack);
-                  },
-                  child: Text("stack ver")) */
+              for (Widget itemWidget in listWidgetMenuByRole) itemWidget,
             ]),
           ),
           widgetContainerExit(context),
@@ -112,6 +104,7 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 
+  //Menu Widgetların yapısı.
   InkWell widgetMenuItem(BuildContext context, PageRouteInfo<dynamic> route,
       IconData? icon, String listItemName) {
     Color backGround = Colors.transparent;
@@ -162,10 +155,44 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 
-  listFuncForRole(String role) {
-    List<Widget> listWidget = <Widget>[];
-
-    if (role == '1') {
-    } else {}
+//Veri tabanındaki Role göre Menü Listesini otomatik oluşturuyor.
+  listFuncForRole(List<dynamic> listPathMenuByRole) {
+    //Buradaki for döngüleri menü sıralaması belirlenen sırada olması sağlıyor.
+    for (var orderMenuItem in _orderMenu) {
+      for (var element in listPathMenuByRole) {
+        if (orderMenuItem == element['class_name']) {
+          switch (element['class_name']) {
+            case "RouteCustomerRegister":
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context,
+                  const RouteCustomerRegister(),
+                  Icons.people_alt,
+                  _customerSave));
+              break;
+            case "RouteSignUp":
+              listWidgetMenuByRole.add(widgetMenuItem(context,
+                  const RouteSignUp(), Icons.add_reaction, _newUserAdd));
+              break;
+            case "RouteProductAdd":
+              listWidgetMenuByRole.add(widgetMenuItem(context,
+                  const RouteProductAdd(), Icons.add_box, _newProductAdd));
+              break;
+            case "RouteStockEdit":
+              listWidgetMenuByRole.add(widgetMenuItem(context,
+                  const RouteStockEdit(), Icons.edit_note, _stockEdit));
+              break;
+            case "RouteCategoryEdit":
+              listWidgetMenuByRole.add(widgetMenuItem(context,
+                  const RouteCategoryEdit(), Icons.category, _categoryAdd));
+              break;
+            case "Test":
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context, const Test(), Icons.try_sms_star, _test));
+              break;
+            default:
+          }
+        }
+      }
+    }
   }
 }

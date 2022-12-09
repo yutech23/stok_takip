@@ -10,7 +10,7 @@ import 'utilities/navigation/auth_guard.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbBaslat();
-  await dbHive.initDbHive(Sabitler.dbHiveBoxName);
+  // await dbHive.initDbHive(Sabitler.dbHiveBoxName);
   runApp(const MyApp());
 }
 
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
       routerDelegate:
-          AutoRouterDelegate(_appRouter, initialRoutes: [RouteStockEdit()]),
+          AutoRouterDelegate(_appRouter, initialRoutes: [RouteProductAdd()]),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }

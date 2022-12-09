@@ -115,7 +115,7 @@ class AppRouter extends _i10.RootStackRouter {
         routeData: routeData,
         child: const _i9.Test(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );

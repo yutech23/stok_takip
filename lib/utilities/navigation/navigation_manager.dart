@@ -56,6 +56,7 @@ import '../../screen/user_setting.dart';
   CustomRoute(
       page: Test,
       guards: [AuthGuard],
-      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
 ])
 class $AppRouter {}

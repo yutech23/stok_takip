@@ -41,6 +41,7 @@ dependencies:
   dio: ^4.0.6
   hive_flutter: ^1.1.0
   fluttericon: ^2.0.0
+  function_tree: ^0.8.13
 
 
 dev_dependencies:
