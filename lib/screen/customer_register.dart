@@ -97,9 +97,9 @@ class _ScreenCustomerSave extends State with Validation {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Yeni Müşteri Kayıt Formu"),
+        title: const Text("Yeni Müşteri Kayıt Formu"),
         actions: [
-          ShareWidgetAppbarSetting(),
+          const ShareWidgetAppbarSetting(),
         ],
       ),
       body: buildCustomerRegister(),
@@ -121,7 +121,7 @@ class _ScreenCustomerSave extends State with Validation {
               padding: context.extensionPadding20(),
               alignment: Alignment.center,
               decoration: context.extensionThemaWhiteContainer(),
-              constraints: BoxConstraints(minWidth: 360, maxWidth: 750),
+              constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
               child: Column(children: [
                 const Divider(),
                 ShareDropdown(
@@ -199,7 +199,7 @@ class _ScreenCustomerSave extends State with Validation {
               hintText: "Lütfen İl Seçiniz",
               hintStyle: context.theme.headline6!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
         ),
         onChanged: (value) {
@@ -253,7 +253,7 @@ class _ScreenCustomerSave extends State with Validation {
               hintText: "İlk Önce İl Seçiniz",
               hintStyle: context.theme.headline6!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
         ),
         onChanged: (value) {
@@ -277,7 +277,7 @@ class _ScreenCustomerSave extends State with Validation {
               Expanded(child: widgetSearchDropdownDistrict()),
             ],
           ),
-          Divider(color: Colors.transparent),
+          const Divider(color: Colors.transparent),
           shareWidget.widgetTextFieldInput(
               controller: _controllerAdress,
               etiket: "Adres",
@@ -324,7 +324,7 @@ class _ScreenCustomerSave extends State with Validation {
               hintText: "Vergi Dairesini Seçiniz",
               hintStyle: context.theme.headline6!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
         ),
         onChanged: (value) {
@@ -439,8 +439,8 @@ class _ScreenCustomerSave extends State with Validation {
                   adress: _controllerAdress.text,
                   taxOffice: _selectedTaxOffice,
                   taxNumber: _controllerTaxNumber.text,
-                  CargoName: _controllerCargoName.text,
-                  CargoNumber: _controllerCargoCode.text);
+                  cargoName: _controllerCargoName.text,
+                  cargoNumber: _controllerCargoCode.text);
 
               ///Telefon Bölümünde alan kodu otamatik olarak geldiği için ve
               /// en az 4 karakter gelebiliyor.Bu yüzden Telefon bölümü validate
@@ -449,24 +449,25 @@ class _ScreenCustomerSave extends State with Validation {
                 db.saveCustomerSoleTrader(context, _customer!).then((value) {
                   if (value == null) {
                     Duration(seconds: 2);
-                    _controllerName.text = "";
-                    _controllerLastName.text = "";
-                    _controllerCompanyName.text = "";
-                    _controllerPhoneNumber.text = "";
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
                     _selectDistrict = "";
                     _selectedCity = "";
                     _selectedTaxOffice = "";
-                    _controllerAdress.text = "";
-                    _controllerTaxNumber.text = "";
-                    _controllerCargoName.text = "";
-                    _controllerCargoCode.text = "";
+                    _controllerAdress.clear();
+                    _controllerTaxNumber.clear();
+                    _controllerCargoName.clear();
+                    _controllerCargoCode.clear();
                   }
                 });
               } else {
                 context.extensionShowErrorSnackBar(
                     message: "Lütfen Telefon Numarısını Giriniz.");
               }
-            } else if (_customerType == 'Kurumsal Firma') {
+            } else if (_customerType == 'Kurumsal Firma' ||
+                _customerType == "Tedarikci") {
               _customer = Customer.company(
                   type: _customerType!,
                   companyName: _controllerCompanyName.text,
@@ -476,27 +477,29 @@ class _ScreenCustomerSave extends State with Validation {
                   adress: _controllerAdress.text,
                   taxOffice: _selectedTaxOffice,
                   taxNumber: _controllerTaxNumber.text,
-                  CargoName: _controllerCargoName.text,
-                  CargoNumber: _controllerCargoCode.text);
+                  cargoName: _controllerCargoName.text,
+                  cargoNumber: _controllerCargoCode.text);
+
               if (_controllerPhoneNumber.text.length > 4 &&
                   _controllerCompanyName.text.isNotEmpty &&
                   _controllerTaxNumber.text.isNotEmpty) {
                 db.saveCustomerCompany(context, _customer!).then((value) {
-                  Duration(seconds: 2);
+                  const Duration(seconds: 2);
                   if (value == null) {
-                    _controllerName.text = "";
-                    _controllerLastName.text = "";
-                    _controllerCompanyName.text = "";
-                    _controllerPhoneNumber.text = "";
-                    _controllerAdress.text = "";
-                    _controllerTaxNumber.text = "";
-                    _controllerCargoName.text = "";
-                    _controllerCargoCode.text = "";
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
+                    _controllerAdress.clear();
+                    _controllerTaxNumber.clear();
+                    _controllerCargoName.clear();
+                    _controllerCargoCode.clear();
                   }
                 });
-              } else
+              } else {
                 context.extensionShowErrorSnackBar(
                     message: "Zorunlu Alanları Doldurunuz");
+              }
             } else if (_customerType == null) {
               context.extensionShowErrorSnackBar(
                   message: "Lütfen Firma Türünü Seçiniz");

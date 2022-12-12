@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:searchfield/searchfield.dart';
@@ -29,7 +28,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
 
   final _valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
-  final _controlerProductCode = TextEditingController();
+  final _controllerProductCode = TextEditingController();
+  final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
   final _controllerBuyingPriceWithoutTax = TextEditingController();
   final _controllerSallingPriceWithoutTax = TextEditingController();
@@ -41,8 +41,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   final _productTaxList = <String>['% 8', '% 18'];
   String? _selectedTax;
   bool _isThereProductCode = true;
+  bool _isThereSupplier = true;
   final FocusNode _searchFocus = FocusNode();
+  final FocusNode _searchFocusSupplier = FocusNode();
   late List<String>? _productCodeList;
+  late List<String>? _suppleirsList;
+  final double _searchWith = 250;
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -57,21 +61,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
 
   roleCheck() async {
     String? role = await SecurityStorageUser.getUserRole();
-    print("rol değeri : $role");
-    if (role == '1') {
-      print("rol için girdi");
-      print("navigator ilk : ${context.router.stack}");
-      // context.router.removeLast();
-      print("navigator degiştikden sonra : ${context.router.stack}");
-      print("path degeri : ${context.router.stack.last.routeData.path}");
-      context.router.pop(context.router.stack.last.routeData.path);
-    }
   }
 
   @override
   void initState() {
     //   roleCheck();
     _productCodeList = [];
+    _suppleirsList = [];
     _product = Product(
         productCodeAndQrCode: null,
         amountOfStock: null,
@@ -86,7 +82,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   @override
   void dispose() {
     _formKey.currentState!.dispose();
-    _controlerProductCode.dispose();
+    _controllerProductCode.dispose();
     _controllerBuyingPriceWithoutTax.dispose();
     _controllerProductAmountOfStock.dispose();
     _controllerSallingPriceWithoutTax.dispose();
@@ -123,8 +119,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
             decoration: context.extensionThemaWhiteContainer(),
             child: Column(
               children: [
-                widgetSearchTextFieldProductCodeUpperCase(),
-                Divider(),
+                Wrap(
+                    alignment: WrapAlignment.start,
+                    direction: Axis.horizontal,
+                    spacing: 20,
+                    runSpacing: 20,
+                    children: [
+                      widgetSearchTextFieldProductCodeUpperCase(),
+                      widgetSearchTextFieldSupplier(),
+                    ]),
+                const Divider(),
                 Wrap(
                   alignment: WrapAlignment.start,
                   direction: Axis.horizontal,
@@ -151,45 +155,85 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
         ));
   }
 
-  String? _selectedDataBaseSearchProductCode;
-
 //Widget Ürün Kodu Giriniz Search
   widgetSearchTextFieldProductCodeUpperCase() {
     return FutureBuilder(
       builder: (context, snapshot) {
         if (!snapshot.hasError && snapshot.hasData) {
           _productCodeList = snapshot.data;
-
-          return SearchField(
-            controller: _controlerProductCode,
-            searchInputDecoration: const InputDecoration(
-                label: Text("Ürün Kodunu Giriniz"),
-                prefixIcon: Icon(Icons.search, color: Colors.black),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                )),
-            inputFormatters: [UpperCaseTextFormatter()],
-            suggestions: snapshot.data!.map((e) {
-              return SearchFieldListItem(e);
-            }).toList(),
-            focusNode: _searchFocus,
-            onSuggestionTap: (selectedValue) {
-              if (selectedValue.searchKey.isNotEmpty &&
-                  selectedValue.searchKey != null) {
-                _selectedDataBaseSearchProductCode = selectedValue.searchKey;
-                _searchFocus.unfocus();
-                setState(() {
-                  _isThereProductCode = false;
-                });
-                buildPopupDialog(context);
-              }
-            },
-            maxSuggestionsInViewPort: 6,
+          return SizedBox(
+            width: _searchWith,
+            child: SearchField(
+              controller: _controllerProductCode,
+              searchInputDecoration: const InputDecoration(
+                  label: Text("Ürün Kodunu Giriniz"),
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              inputFormatters: [UpperCaseTextFormatter()],
+              suggestions: snapshot.data!.map((e) {
+                return SearchFieldListItem(e);
+              }).toList(),
+              focusNode: _searchFocus,
+              onSuggestionTap: (selectedValue) {
+                if (selectedValue.searchKey.isNotEmpty &&
+                    selectedValue.searchKey != null) {
+                  _searchFocus.unfocus();
+                  setState(() {
+                    _isThereProductCode = false;
+                  });
+                  buildPopupDialog(context);
+                }
+              },
+              maxSuggestionsInViewPort: 6,
+            ),
           );
         }
         return Container();
       },
       future: db.getProductCode(),
+    );
+  }
+
+  widgetSearchTextFieldSupplier() {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        if (!snapshot.hasError && snapshot.hasData) {
+          _suppleirsList = snapshot.data;
+
+          return SizedBox(
+            width: _searchWith,
+            child: SearchField(
+              controller: _controllerSupplier,
+              searchInputDecoration: const InputDecoration(
+                  label: Text("Tedarikci İsmini Giriniz"),
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              inputFormatters: [UpperCaseTextFormatter()],
+              suggestions: snapshot.data!.map((e) {
+                return SearchFieldListItem(e);
+              }).toList(),
+              focusNode: _searchFocusSupplier,
+              onSuggestionTap: (selectedValue) {
+                if (selectedValue.searchKey.isNotEmpty &&
+                    selectedValue.searchKey != null) {
+                  _searchFocusSupplier.unfocus();
+                  setState(() {
+                    _isThereSupplier = false;
+                  });
+                  //  buildPopupDialog(context);
+                }
+              },
+              maxSuggestionsInViewPort: 6,
+            ),
+          );
+        }
+        return Container();
+      },
+      future: db.getSuppliers(),
     );
   }
 
@@ -208,7 +252,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
           decoration: BoxDecoration(border: Border.all()),
           child: _visibleQrCode
               ? QrImage(
-                  data: _controlerProductCode.text,
+                  data: _controllerProductCode.text,
                   version: QrVersions.auto,
                   size: 200.0,
                 )
@@ -227,19 +271,22 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(minimumSize: const Size(220, 50)),
         onPressed: () {
-          bool _isThereProductCodeByProductList =
-              _productCodeList!.contains(_controlerProductCode.text);
-          if (_selectedDataBaseSearchProductCode !=
-                  _controlerProductCode.text &&
-              !_isThereProductCodeByProductList) {
+          bool isThereProductCodeByProductList =
+              _productCodeList!.contains(_controllerProductCode.text);
+
+          if (isThereProductCodeByProductList == false &&
+              _controllerProductCode.text.isNotEmpty) {
             _searchFocus.unfocus();
             setState(() {
               _isThereProductCode = true;
               _visibleQrCode = true;
             });
-          } else if (_controlerProductCode.text.isEmpty) {
-            _visibleQrCode = false;
-          } else if (_isThereProductCodeByProductList) {
+          } else if (_controllerProductCode.text.isEmpty ||
+              isThereProductCodeByProductList == true) {
+            setState(() {
+              _visibleQrCode = false;
+            });
+          } else if (isThereProductCodeByProductList) {
             context.extensionShowErrorSnackBar(
                 message: 'Kayıtlı bir ürün kodu girdiniz.');
           }
@@ -250,7 +297,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   }
 
   widgetCategorySelectSection() {
-    return Container(
+    return SizedBox(
       height: 300,
       width: 220,
       child: Column(
@@ -308,7 +355,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
           ///dolmuyor.
           _category.category1 != null
               ? Container(
-                  margin: EdgeInsets.only(top: 10),
+                  margin: const EdgeInsets.only(top: 10),
                   decoration: BoxDecoration(border: Border.all()),
                   height: 220,
                   child: ListView.separated(
@@ -351,7 +398,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                   ),
                 )
               : Container(
-                  margin: EdgeInsets.only(top: 10),
+                  margin: const EdgeInsets.only(top: 10),
                   alignment: Alignment.center,
                   height: 220,
                   decoration: BoxDecoration(border: Border.all()),
@@ -567,13 +614,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
           ? () async {
               if (_formKey.currentState!.validate() &&
                   _category.category1 != null &&
-                  _controlerProductCode.text.isNotEmpty) {
+                  _controllerProductCode.text.isNotEmpty) {
                 bool isThereProductCodeByProductList =
-                    _productCodeList!.contains(_controlerProductCode.text);
+                    _productCodeList!.contains(_controllerProductCode.text);
 
                 if (isThereProductCodeByProductList == false) {
                   _product = Product(
-                      productCodeAndQrCode: _controlerProductCode.text,
+                      productCodeAndQrCode: _controllerProductCode.text,
                       amountOfStock:
                           int.parse(_controllerProductAmountOfStock.text),
                       taxRate: _selectedTaxToInt,
@@ -591,7 +638,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                       _valueNotifierProductSaleWithTax.value = 0;
                       _valueNotifierProductBuyWithTax.value = 0;
                       setState(() {
-                        _controlerProductCode.clear();
+                        _controllerProductCode.clear();
                         _visibleQrCode = false;
                         _categoryList.clear();
                       });

@@ -215,6 +215,7 @@ class DbHelper {
     return tax_offices_name;
   }
 
+  ///*****************Müşteri kayıt İşlemleri************************
   Future saveCustomerSoleTrader(
       BuildContext context, Customer customerSoleTrader) async {
     final res = await supabase.from('customer_sole_trader').insert([
@@ -227,8 +228,8 @@ class DbHelper {
         'adress': customerSoleTrader.adress,
         'tax_office': customerSoleTrader.taxOffice,
         'tax_number': customerSoleTrader.taxNumber,
-        'cargo_company': customerSoleTrader.CargoName,
-        'cargo_number': customerSoleTrader.CargoNumber
+        'cargo_company': customerSoleTrader.cargoName,
+        'cargo_number': customerSoleTrader.cargoNumber
       }
     ]).execute();
     final error = res.error;
@@ -245,7 +246,7 @@ class DbHelper {
     BuildContext context,
     Customer customerCompany,
   ) async {
-    final res = await supabase.from('customer_company').insert([
+    final res = await supabase.from('customer_company_suppliers').insert([
       {
         'name': customerCompany.companyName,
         'phone': customerCompany.phone,
@@ -254,8 +255,37 @@ class DbHelper {
         'adress': customerCompany.adress,
         'tax_office': customerCompany.taxOffice,
         'tax_number': customerCompany.taxNumber,
-        'cargo_company': customerCompany.CargoName,
-        'cargo_number': customerCompany.CargoNumber
+        'cargo_company': customerCompany.cargoName,
+        'cargo_number': customerCompany.cargoNumber,
+        'type': customerCompany.type
+      }
+    ]).execute();
+    final error = res.error;
+
+    if (error != null) {
+      context.extensionShowErrorSnackBar(message: error.message);
+    } else {
+      context.extenionShowSnackBar(message: 'Kayıt Başarılı');
+    }
+    return error;
+  }
+
+  Future saveSuppliers(
+    BuildContext context,
+    Customer customerCompany,
+  ) async {
+    print(customerCompany.companyName);
+    final res = await supabase.from('suppliers').insert([
+      {
+        'name': customerCompany.companyName,
+        'phone': customerCompany.phone,
+        'city': customerCompany.city,
+        'district': customerCompany.district,
+        'adress': customerCompany.adress,
+        'tax_office': customerCompany.taxOffice,
+        'tax_number': customerCompany.taxNumber,
+        'cargo_company': customerCompany.cargoName,
+        'cargo_number': customerCompany.cargoNumber
       }
     ]).execute();
     final error = res.error;
@@ -272,7 +302,25 @@ class DbHelper {
   Future<List<String>> getProductCode() async {
     final res = await supabase.from('product').select('product_code').execute();
     final data = res.data;
-    final error = res.error;
+    final productCode = <String>[];
+    // Burada veritabanından gelen "data" değişkenine atanıyor.
+    // Liste içinde map geliyor.
+    for (var item in data) {
+      //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
+      //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
+      productCode.add(
+          Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
+    }
+    return productCode;
+  }
+
+  Future<List<String>> getSuppliers() async {
+    final res = await supabase
+        .from('customer_company_suppliers')
+        .select('name')
+        .eq('type', 'Tedarikci')
+        .execute();
+    final data = res.data;
     final productCode = <String>[];
     // Burada veritabanından gelen "data" değişkenine atanıyor.
     // Liste içinde map geliyor.

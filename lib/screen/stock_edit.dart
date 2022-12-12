@@ -7,12 +7,9 @@ import 'package:stok_takip/bloc/bloc_product_filtre.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/product.dart';
-import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../data/database_helper.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
@@ -29,7 +26,7 @@ class ScreenStockEdit extends StatefulWidget {
 }
 
 class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late final List<Map<int, String>> _category1;
   late final List<Map<int, String>> _category2;
@@ -331,7 +328,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         ],
       ),
       body: buildStockEdit(),
-      drawer: MyDrawer(),
+      drawer: const MyDrawer(),
     );
   }
 
@@ -353,9 +350,10 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                   "KATEGORİ FİLTRE",
                   style: context.theme.headlineMedium,
                 ),
-                Divider(),
+                const Divider(),
                 widgetCategoryFiltreSection(),
-                Divider(color: Colors.blueGrey, thickness: 2.5, height: 40),
+                const Divider(
+                    color: Colors.blueGrey, thickness: 2.5, height: 40),
                 widgetProductTableAndUpdateTable(),
               ],
             ),
@@ -561,9 +559,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetProductTableAndUpdateTable() {
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.all(0),
-      constraints: BoxConstraints(
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(
         maxHeight: 600,
       ),
       child: Card(
@@ -939,11 +937,10 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     int? oldStockValue = selectedProduct.amountOfStock;
     double? oldBuyingPriceWithoutTax = selectedProduct.buyingpriceWithoutTax;
     int newStockValue;
-    double newBuyingPriceWithoutTax;
 
     ///KDV seçilip Seçilmediğini kontrol ediyorum.
     int selectedTaxToInt = 0;
-    void _getProductTax(String value) {
+    void getProductTax(String value) {
       setState(() {
         selectedTax = value;
       });
@@ -952,12 +949,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     }
 
     ///Gelen Değerler Atanıyor
-
     controllerBuyingPriceWithoutTax.text =
         selectedProduct.buyingpriceWithoutTax.toString();
     controllerSallingPriceWithoutTax.text =
         selectedProduct.sallingPriceWithoutTax.toString();
-    _getProductTax("% ${selectedProduct.taxRate}");
+
     valueNotifierProductBuyWithTax.value =
         selectedProduct.buyingpriceWithoutTax!;
     valueNotifierProductSaleWithTax.value =
@@ -979,7 +975,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               child: SingleChildScrollView(
                 child: Container(
                   width: 600,
-                  constraints: BoxConstraints(maxHeight: 500),
+                  constraints: const BoxConstraints(maxHeight: 500),
                   child: Wrap(
                     direction: Axis.horizontal,
                     verticalDirection: VerticalDirection.down,
@@ -1011,7 +1007,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                                   )
                                 ])),
                       ),
-                      Divider(),
+                      const Divider(),
                       Container(
                         width: 230,
                         height: 70,
@@ -1041,7 +1037,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             hint: 'KDV Oranın Seçiniz',
                             itemList: productTaxList,
                             selectValue: selectedTax,
-                            getShareDropdownCallbackFunc: _getProductTax,
+                            getShareDropdownCallbackFunc: getProductTax,
                           )),
                       SizedBox(
                         width: 230,
@@ -1269,7 +1265,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                       ///Eğer 3 sn beklemezse hata veriyor.çünkü
                       ///noticeBar gözüktü widget yok oluyor.
-                      Timer(Duration(seconds: 1, milliseconds: 20), () {
+                      Timer(const Duration(seconds: 1, milliseconds: 20), () {
                         Navigator.pop(context);
                       });
                       _editState = true;
@@ -1460,12 +1456,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   List<Widget> widgetFooters() {
     List<Widget> footerList = [];
     footerList.add(Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Text("Sayfa Satır Sayısı:"),
     ));
     if (_rowPerPages.isNotEmpty) {
       footerList.add(Container(
-        padding: EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         child: DropdownButton<int>(
           value: _numberOfRowsPerPage,
           items: _rowPerPages
@@ -1495,12 +1491,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     }
 
     footerList.add(Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Text("$_lowerBound - $_upperBound"),
     ));
 
     footerList.add(IconButton(
-      icon: Icon(
+      icon: const Icon(
         Icons.arrow_back_ios,
         size: 16,
       ),
@@ -1520,10 +1516,10 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     : _listEnd -= _numberOfRowsPerPage!;
               });
             },
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
     ));
     footerList.add(IconButton(
-      icon: Icon(Icons.arrow_forward_ios, size: 16),
+      icon: const Icon(Icons.arrow_forward_ios, size: 16),
       onPressed: _upperBound + 1 > _listLength
           ? null
           : () {
@@ -1536,7 +1532,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     : _listEnd += _numberOfRowsPerPage!;
               });
             },
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
     ));
 
     return footerList;

@@ -10,8 +10,8 @@ class Customer {
   late String? adress;
   late String? taxOffice;
   late String? taxNumber;
-  late String? CargoName;
-  late String? CargoNumber;
+  late String? cargoName;
+  late String? cargoNumber;
 
   Customer.soleTrader(
       {required this.type,
@@ -23,17 +23,18 @@ class Customer {
       this.adress,
       this.taxOffice,
       this.taxNumber,
-      this.CargoName,
-      this.CargoNumber});
-  Customer.company(
-      {required this.type,
-      required this.companyName,
-      required this.phone,
-      required this.city,
-      required this.district,
-      required this.adress,
-      required this.taxOffice,
-      required this.taxNumber,
-      this.CargoName,
-      this.CargoNumber});
+      this.cargoName,
+      this.cargoNumber});
+  Customer.company({
+    required this.type,
+    required this.companyName,
+    required this.phone,
+    required this.city,
+    required this.district,
+    required this.adress,
+    required this.taxOffice,
+    required this.taxNumber,
+    this.cargoName,
+    this.cargoNumber,
+  });
 }
