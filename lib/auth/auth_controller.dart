@@ -1,3 +1,5 @@
+import 'package:stok_takip/data/database_helper.dart';
+
 class AuthController {
   AuthController.init();
 
@@ -12,6 +14,16 @@ class AuthController {
 
   setAuthTrue() {
     isAuth = true;
+  }
+
+  controllerAuth() async {
+    // final user = await db.supabase.auth.currentUser;
+    final userSession = await db.supabase.auth.currentSession;
+
+    if (userSession?.accessToken != null) {
+      print("session : ${userSession?.accessToken}");
+    } else
+      print("Session YOKK");
   }
 }
 

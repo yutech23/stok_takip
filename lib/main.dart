@@ -1,8 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/data/database_mango.dart';
-import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 
 import 'utilities/navigation/auth_guard.dart';
@@ -10,6 +9,7 @@ import 'utilities/navigation/auth_guard.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbBaslat();
+  await authController.controllerAuth();
   // await dbHive.initDbHive(Sabitler.dbHiveBoxName);
   runApp(const MyApp());
 }
