@@ -161,33 +161,30 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
       builder: (context, snapshot) {
         if (!snapshot.hasError && snapshot.hasData) {
           _productCodeList = snapshot.data;
-          return SizedBox(
-            width: _searchWith,
-            child: SearchField(
-              controller: _controllerProductCode,
-              searchInputDecoration: const InputDecoration(
-                  label: Text("Ürün Kodunu Giriniz"),
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  )),
-              inputFormatters: [UpperCaseTextFormatter()],
-              suggestions: snapshot.data!.map((e) {
-                return SearchFieldListItem(e);
-              }).toList(),
-              focusNode: _searchFocus,
-              onSuggestionTap: (selectedValue) {
-                if (selectedValue.searchKey.isNotEmpty &&
-                    selectedValue.searchKey != null) {
-                  _searchFocus.unfocus();
-                  setState(() {
-                    _isThereProductCode = false;
-                  });
-                  buildPopupDialog(context);
-                }
-              },
-              maxSuggestionsInViewPort: 6,
-            ),
+          return SearchField(
+            controller: _controllerProductCode,
+            searchInputDecoration: const InputDecoration(
+                label: Text("Ürün Kodunu Giriniz"),
+                prefixIcon: Icon(Icons.search, color: Colors.black),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(),
+                )),
+            inputFormatters: [UpperCaseTextFormatter()],
+            suggestions: snapshot.data!.map((e) {
+              return SearchFieldListItem(e);
+            }).toList(),
+            focusNode: _searchFocus,
+            onSuggestionTap: (selectedValue) {
+              if (selectedValue.searchKey.isNotEmpty &&
+                  selectedValue.searchKey != null) {
+                _searchFocus.unfocus();
+                setState(() {
+                  _isThereProductCode = false;
+                });
+                buildPopupDialog(context);
+              }
+            },
+            maxSuggestionsInViewPort: 6,
           );
         }
         return Container();
@@ -197,43 +194,53 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   }
 
   widgetSearchTextFieldSupplier() {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        if (!snapshot.hasError && snapshot.hasData) {
-          _suppleirsList = snapshot.data;
-
-          return SizedBox(
-            width: _searchWith,
-            child: SearchField(
-              controller: _controllerSupplier,
-              searchInputDecoration: const InputDecoration(
-                  label: Text("Tedarikci İsmini Giriniz"),
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  )),
-              inputFormatters: [UpperCaseTextFormatter()],
-              suggestions: snapshot.data!.map((e) {
-                return SearchFieldListItem(e);
-              }).toList(),
-              focusNode: _searchFocusSupplier,
-              onSuggestionTap: (selectedValue) {
-                if (selectedValue.searchKey.isNotEmpty &&
-                    selectedValue.searchKey != null) {
-                  _searchFocusSupplier.unfocus();
-                  setState(() {
-                    _isThereSupplier = false;
-                  });
-                  //  buildPopupDialog(context);
-                }
-              },
-              maxSuggestionsInViewPort: 6,
-            ),
-          );
-        }
-        return Container();
-      },
-      future: db.getSuppliers(),
+    return Row(
+      children: [
+        SizedBox(
+          height: 50,
+          child: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () {},
+          ),
+        ),
+        context.extensionWidhSizedBox20(),
+        Expanded(
+          child: FutureBuilder(
+            builder: (context, snapshot) {
+              if (!snapshot.hasError && snapshot.hasData) {
+                _suppleirsList = snapshot.data;
+                return SearchField(
+                  controller: _controllerSupplier,
+                  searchInputDecoration: const InputDecoration(
+                      label: Text("Tedarikci İsmini Giriniz"),
+                      prefixIcon: Icon(Icons.search, color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      )),
+                  inputFormatters: [UpperCaseTextFormatter()],
+                  suggestions: snapshot.data!.map((e) {
+                    return SearchFieldListItem(e);
+                  }).toList(),
+                  focusNode: _searchFocusSupplier,
+                  onSuggestionTap: (selectedValue) {
+                    if (selectedValue.searchKey.isNotEmpty &&
+                        selectedValue.searchKey != null) {
+                      _searchFocusSupplier.unfocus();
+                      setState(() {
+                        _isThereSupplier = false;
+                      });
+                      //  buildPopupDialog(context);
+                    }
+                  },
+                  maxSuggestionsInViewPort: 6,
+                );
+              }
+              return Container();
+            },
+            future: db.getSuppliers(),
+          ),
+        ),
+      ],
     );
   }
 

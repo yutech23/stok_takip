@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
-
 import 'utilities/navigation/auth_guard.dart';
 
 Future<void> main() async {
@@ -43,8 +42,8 @@ class MyApp extends StatelessWidget {
                   fontSize: 24)),
           elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                  primary: Colors.blueGrey.shade900,
-                  minimumSize: Size(300, 50),
+                  backgroundColor: Colors.blueGrey.shade900,
+                  minimumSize: const Size(300, 50),
                   textStyle: Theme.of(context)
                       .textTheme
                       .headline6!
@@ -56,8 +55,8 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
-      routerDelegate:
-          AutoRouterDelegate(_appRouter, initialRoutes: [RouteProductAdd()]),
+      routerDelegate: AutoRouterDelegate(_appRouter,
+          initialRoutes: [const RouteProductAdd()]),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }
