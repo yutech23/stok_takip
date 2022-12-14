@@ -25,10 +25,10 @@ class _ScreenSplashState extends State<ScreenSplash> {
     // await Future.delayed(const Duration(milliseconds: 1500), () {});
     if (db.supabase.auth.session() != null) {
       print('splash - a');
-      return context.router.pushNamed(RouteConsts.stockEdit);
+      return context.router.pushNamed(ConstRoute.stockEdit);
     } else {
       print('b');
-      return context.router.pushNamed(RouteConsts.login);
+      return context.router.pushNamed(ConstRoute.login);
     }
   }
 

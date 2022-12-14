@@ -314,11 +314,11 @@ class DbHelper {
     return productCode;
   }
 
-  Future<List<String>> getSuppliers() async {
+  Future<List<String?>> getSuppliersName() async {
     final res = await supabase
         .from('customer_company_suppliers')
         .select('name')
-        .eq('type', 'Tedarikci')
+        .eq('type', 'Tedarikçi')
         .execute();
     final data = res.data;
     final productCode = <String>[];
@@ -331,6 +331,20 @@ class DbHelper {
           Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
     }
     return productCode;
+  }
+
+  Future<bool> isThereOnSupplierName(String supplierName) async {
+    final res = await supabase
+        .from('customer_company_suppliers')
+        .select('name')
+        .eq('type', 'Tedarikçi')
+        .match({'name': supplierName}).execute();
+    final List<dynamic> data = res.data;
+    if (data.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<bool> saveProduct(BuildContext context, Product product) async {

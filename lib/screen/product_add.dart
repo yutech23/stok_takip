@@ -9,6 +9,7 @@ import 'package:stok_takip/screen/drawer.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
@@ -45,8 +46,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _searchFocusSupplier = FocusNode();
   late List<String>? _productCodeList;
-  late List<String>? _suppleirsList;
+  late List<String?>? _suppleirsList;
   final double _searchWith = 250;
+  final String _suppleirHeaderName = "Tedarik Bölümü";
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -97,7 +99,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
       appBar: AppBar(
         title: const Text("Yeni Ürün Ekleme"),
         actions: [
-          ShareWidgetAppbarSetting(),
+          const ShareWidgetAppbarSetting(),
         ],
       ),
       body: buildProductAdd(),
@@ -123,9 +125,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                     alignment: WrapAlignment.start,
                     direction: Axis.horizontal,
                     spacing: 20,
-                    runSpacing: 20,
+                    runSpacing: 10,
                     children: [
                       widgetSearchTextFieldProductCodeUpperCase(),
+                      widgetDividerHeader(),
                       widgetSearchTextFieldSupplier(),
                     ]),
                 const Divider(),
@@ -199,8 +202,15 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
         SizedBox(
           height: 50,
           child: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () {},
+            child: const Icon(Icons.add),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return PopupSupplierRegister();
+                },
+              );
+            },
           ),
         ),
         context.extensionWidhSizedBox20(),
@@ -219,7 +229,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                       )),
                   inputFormatters: [UpperCaseTextFormatter()],
                   suggestions: snapshot.data!.map((e) {
-                    return SearchFieldListItem(e);
+                    return SearchFieldListItem(e!);
                   }).toList(),
                   focusNode: _searchFocusSupplier,
                   onSuggestionTap: (selectedValue) {
@@ -237,7 +247,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
               }
               return Container();
             },
-            future: db.getSuppliers(),
+            future: db.getSuppliersName(),
           ),
         ),
       ],
@@ -715,6 +725,28 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
           ],
         );
       },
+    );
+  }
+
+  widgetDividerHeader() {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            color: Colors.blueGrey.shade600,
+            thickness: 2.5,
+            endIndent: 10,
+          ),
+        ),
+        Text(_suppleirHeaderName,
+            style: context.theme.subtitle1!.copyWith(color: Colors.black)),
+        Expanded(
+            child: Divider(
+          color: Colors.blueGrey.shade600,
+          thickness: 2.5,
+          indent: 10,
+        ))
+      ],
     );
   }
 }

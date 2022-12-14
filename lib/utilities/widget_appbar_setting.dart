@@ -22,7 +22,7 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
   settingOnSelected(BuildContext context, item) async {
     switch (item) {
       case 0:
-        context.router.pushNamed(RouteConsts.userSetting);
+        context.router.pushNamed(ConstRoute.userSetting);
         break;
     }
   }

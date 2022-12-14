@@ -7,7 +7,7 @@ class Sabitler {
   static String dbHiveBoxName = 'necessaryData';
 }
 
-class RouteConsts {
+class ConstRoute {
   static const String initName = 'initName';
   static const String init = '/splash';
   static const String login = '/login';

@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 
 extension DimensionFont on BuildContext {
@@ -84,6 +85,40 @@ extension DimensionFont on BuildContext {
           ]);
   dynamic extensionGetPercentageOfNumber(dynamic number, dynamic percentage) =>
       number * (1 + percentage / 100);
+
+  Future noticeBarError(String message, int durationSeconds) async {
+    return await Flushbar(
+      backgroundColor: Colors.red,
+      titleText: Text(
+        'HATA MESAJI',
+        textAlign: TextAlign.center,
+        style: theme.headline6!.copyWith(
+            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
+      ),
+      messageText: Text(message,
+          style: theme.headline6!.copyWith(color: Colors.white),
+          textAlign: TextAlign.center),
+      duration: Duration(seconds: durationSeconds),
+    ).show(this);
+  }
+
+  Future noticeBarTrue(String message, int durationSeconds) async {
+    return await Flushbar(
+      backgroundColor: Colors.green,
+      titleText: Text(
+        'BAŞARILI',
+        textAlign: TextAlign.center,
+        style: theme.headline6!.copyWith(
+            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
+      ),
+      messageText: Text(
+        message,
+        style: theme.headline6!.copyWith(color: Colors.white),
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: durationSeconds),
+    ).show(this);
+  }
 }
 
 extension ExtensionPadding on TextStyle {

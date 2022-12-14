@@ -15,41 +15,41 @@ import '../../screen/user_setting.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
   AutoRoute(
-      page: ScreenSplash, path: RouteConsts.init, name: RouteConsts.initName),
+      page: ScreenSplash, path: ConstRoute.init, name: ConstRoute.initName),
   AutoRoute(
     page: ScreenLogin,
-    path: RouteConsts.login,
+    path: ConstRoute.login,
   ),
   CustomRoute(
       page: ScreenStockEdit,
-      path: RouteConsts.stockEdit,
+      path: ConstRoute.stockEdit,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: ScreenProductAdd,
-      path: RouteConsts.productAdd,
+      path: ConstRoute.productAdd,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
   CustomRoute(
       page: ScreenSignUp,
-      path: RouteConsts.signUp,
+      path: ConstRoute.signUp,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
   CustomRoute(
       page: ScreenCategoryEdit,
-      path: RouteConsts.categoryEdit,
+      path: ConstRoute.categoryEdit,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
   CustomRoute(
       page: ScreenCustomerRegister,
-      path: RouteConsts.customerRegister,
+      path: ConstRoute.customerRegister,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: ScreenUserSetting,
-      path: RouteConsts.userSetting,
+      path: ConstRoute.userSetting,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),

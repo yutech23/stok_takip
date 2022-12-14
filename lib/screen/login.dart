@@ -6,10 +6,11 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import 'package:stok_takip/validations/validation.dart';
 
 class ScreenLogin extends StatefulWidget {
+  const ScreenLogin({super.key});
+
   @override
   State<ScreenLogin> createState() => _ScreenLoginState();
 }
@@ -176,7 +177,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.setUserLastName(
                     userNameSurnameRole.lastName!);
                 SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
-                context.router.pushNamed(RouteConsts.stockEdit);
+                context.router.pushNamed(ConstRoute.stockEdit);
               } else {
                 _controllerSifre.clear();
               }

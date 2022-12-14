@@ -144,7 +144,7 @@ class _MyDrawerState extends State<MyDrawer> {
       child: InkWell(
         onTap: () async {
           await db.signOut();
-          context.router.pushNamed(RouteConsts.init);
+          context.router.pushNamed(ConstRoute.init);
           //Chrome Store tutulan verileri siliyor.
           SecurityStorageUser.deleteStorege();
         },

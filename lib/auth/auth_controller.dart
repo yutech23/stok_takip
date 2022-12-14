@@ -1,4 +1,5 @@
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 
 class AuthController {
   AuthController.init();
@@ -24,6 +25,10 @@ class AuthController {
       print("session : ${userSession?.accessToken}");
     } else
       print("Session YOKK");
+    //Browser Bulunan Local Storage veriler temizleniyor.
+    SecurityStorageUser.deleteStorege();
+    // Login Sayfasına yönlendiriliyor
+    
   }
 }
 
