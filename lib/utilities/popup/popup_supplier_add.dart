@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,16 +12,15 @@ import '../constants.dart';
 import '../share_widgets.dart';
 
 class PopupSupplierRegister extends StatefulWidget {
-  const PopupSupplierRegister({Key? key}) : super(key: key);
+  String newSupplier;
+  PopupSupplierRegister(this.newSupplier, {super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    return _ScreenCustomerSave();
-  }
+  State<PopupSupplierRegister> createState() => _ScreenCustomerSave();
 }
 
-class _ScreenCustomerSave extends State with Validation {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
+  final GlobalKey<FormState> _formKeySupplier = GlobalKey<FormState>();
   final _controllerCargoName = TextEditingController();
   final _controllerPhoneNumber = TextEditingController();
   final _controllerAdress = TextEditingController();
@@ -32,16 +32,13 @@ class _ScreenCustomerSave extends State with Validation {
   String? _selectDistrict;
   String? _selectedTaxOffice;
   late bool _visibleDistrict;
-
   Customer? _customer;
-
   final String _headerSupplier = "Yeni Tedarikçi Ekleme";
   final String _type = "Tedarikçi";
 
   @override
   void initState() {
     super.initState();
-
     _visibleDistrict = false;
   }
 
@@ -53,7 +50,7 @@ class _ScreenCustomerSave extends State with Validation {
     _controllerCargoCode.dispose();
     _controllerCargoName.dispose();
     _controllerCompanyName.dispose();
-    _formKey.currentState!.dispose();
+    _formKeySupplier.currentState!.dispose();
     super.dispose();
   }
 
@@ -72,7 +69,7 @@ class _ScreenCustomerSave extends State with Validation {
       ),
       content: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: _formKeySupplier,
           child: Container(
             padding: context.extensionPadding20(),
             alignment: Alignment.center,
@@ -341,8 +338,9 @@ class _ScreenCustomerSave extends State with Validation {
             context.noticeBarError("Aynı isimde Tedarikçi bulunmaktadır", 5);
           }
           setState(() {
-            if (_formKey.currentState!.validate() &&
+            if (_formKeySupplier.currentState!.validate() &&
                 isThereSupplierName == false) {
+              widget.newSupplier = _controllerCompanyName.text;
               _customer = Customer.company(
                   type: _type,
                   companyName: _controllerCompanyName.text,
@@ -369,7 +367,12 @@ class _ScreenCustomerSave extends State with Validation {
                   }
                 });
               }
-              context.noticeBarTrue("Kayıt Başarılı", 3);
+
+              ///Navigator Kapanması için noticeBar işleminin bitmesi gerekiyor.
+              ///Yoksa Hata veriyor.
+
+              context.noticeBarTrue("Kayıt Başarılı", 2).then((value) =>
+                  Navigator.of(context).pop(_controllerCompanyName.text));
             }
           });
         },

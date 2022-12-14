@@ -4,7 +4,7 @@ import '../models/category.dart';
 
 class WidgetCategoryShow extends StatefulWidget {
   Category _category = Category();
-  WidgetCategoryShow(this._category);
+  WidgetCategoryShow(this._category, {super.key});
 
   ///Category Bilgilerini almak için nesne buradan oluşturuyoruz. parametre geçerek
   /// verileri alıyoruz.

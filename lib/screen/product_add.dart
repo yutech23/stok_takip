@@ -42,13 +42,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   final _productTaxList = <String>['% 8', '% 18'];
   String? _selectedTax;
   bool _isThereProductCode = true;
-  bool _isThereSupplier = true;
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _searchFocusSupplier = FocusNode();
   late List<String>? _productCodeList;
-  late List<String?>? _suppleirsList;
-  final double _searchWith = 250;
+
   final String _suppleirHeaderName = "Tedarik Bölümü";
+  String _newSuppleirAdd = "";
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -69,7 +68,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
   void initState() {
     //   roleCheck();
     _productCodeList = [];
-    _suppleirsList = [];
+
     _product = Product(
         productCodeAndQrCode: null,
         amountOfStock: null,
@@ -124,11 +123,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                 Wrap(
                     alignment: WrapAlignment.start,
                     direction: Axis.horizontal,
-                    spacing: 20,
+                    spacing: 30,
                     runSpacing: 10,
                     children: [
                       widgetSearchTextFieldProductCodeUpperCase(),
-                      widgetDividerHeader(),
+                      // widgetDividerHeader(),
                       widgetSearchTextFieldSupplier(),
                     ]),
                 const Divider(),
@@ -207,7 +206,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return PopupSupplierRegister();
+                  return PopupSupplierRegister(_newSuppleirAdd);
                 },
               );
             },
@@ -215,10 +214,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
         ),
         context.extensionWidhSizedBox20(),
         Expanded(
-          child: FutureBuilder(
+          child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: db.getSuppliersNameStream(),
             builder: (context, snapshot) {
-              if (!snapshot.hasError && snapshot.hasData) {
-                _suppleirsList = snapshot.data;
+              if (!snapshot.hasError &&
+                  snapshot.hasData &&
+                  snapshot.data!.isNotEmpty) {
                 return SearchField(
                   controller: _controllerSupplier,
                   searchInputDecoration: const InputDecoration(
@@ -227,19 +228,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(),
                       )),
-                  inputFormatters: [UpperCaseTextFormatter()],
-                  suggestions: snapshot.data!.map((e) {
-                    return SearchFieldListItem(e!);
-                  }).toList(),
+                  suggestions: searchFieldListItemSupplierName(snapshot.data!),
                   focusNode: _searchFocusSupplier,
                   onSuggestionTap: (selectedValue) {
                     if (selectedValue.searchKey.isNotEmpty &&
                         selectedValue.searchKey != null) {
                       _searchFocusSupplier.unfocus();
-                      setState(() {
-                        _isThereSupplier = false;
-                      });
-                      //  buildPopupDialog(context);
                     }
                   },
                   maxSuggestionsInViewPort: 6,
@@ -247,7 +241,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
               }
               return Container();
             },
-            future: db.getSuppliersName(),
           ),
         ),
       ],
@@ -748,5 +741,17 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
         ))
       ],
     );
+  }
+
+  List<SearchFieldListItem<dynamic>> searchFieldListItemSupplierName(
+      List<Map<String, dynamic>> snapshotData) {
+    List<SearchFieldListItem> listSupplier = [];
+    for (var item in snapshotData) {
+      if (item['type'] == "Tedarikçi") {
+        listSupplier
+            .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
+      }
+    }
+    return listSupplier;
   }
 }

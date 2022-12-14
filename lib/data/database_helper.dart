@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
@@ -314,11 +316,22 @@ class DbHelper {
     return productCode;
   }
 
+  Stream<List<Map<String, dynamic>>> getSuppliersNameStream() {
+    final resProduct = db.supabase
+        .from('customer_company_suppliers')
+        .stream(['customer_id'])
+        .order('name', ascending: true)
+        .execute();
+
+    return resProduct;
+  }
+
   Future<List<String?>> getSuppliersName() async {
     final res = await supabase
         .from('customer_company_suppliers')
         .select('name')
         .eq('type', 'Tedarikçi')
+        .order('name', ascending: true)
         .execute();
     final data = res.data;
     final productCode = <String>[];
