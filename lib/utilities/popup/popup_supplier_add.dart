@@ -370,7 +370,6 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 
               ///Navigator Kapanması için noticeBar işleminin bitmesi gerekiyor.
               ///Yoksa Hata veriyor.
-
               context.noticeBarTrue("Kayıt Başarılı", 2).then((value) =>
                   Navigator.of(context).pop(_controllerCompanyName.text));
             }

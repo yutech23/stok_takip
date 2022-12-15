@@ -24,7 +24,8 @@ class ScreenProductAdd extends StatefulWidget {
   State<ScreenProductAdd> createState() => _ScreenProductAddState();
 }
 
-class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
+class _ScreenProductAddState extends State<ScreenProductAdd>
+    with Validation, SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
 
   final _valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
@@ -48,6 +49,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
 
   final String _suppleirHeaderName = "Tedarik Bölümü";
   String _newSuppleirAdd = "";
+  late final _controllerTabPaymentOptions =
+      TabController(length: 3, vsync: this);
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -148,9 +151,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
                     indent: 105,
                     thickness: 2.5,
                     height: 40),
-                widgetProductUnitAndStockValue(),
+                widgetPaymentOptions(),
+                /*  widgetProductUnitAndStockValue(),
                 Divider(),
-                widgetSaveProduct(),
+                widgetSaveProduct(), */
               ],
             ),
           )),
@@ -513,7 +517,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
             width: 230,
             height: 70,
             child: shareWidget.widgetTextFieldInput(
-              etiket: 'Vergiler Hariç Alış',
+              etiket: 'Vergiler Hariç Alış (Birim Fiyat)',
               inputFormat: <TextInputFormatter>[
                 InputFormatterDecimalLimit(decimalRange: 2)
               ],
@@ -535,7 +539,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
             width: 230,
             height: 70,
             child: shareWidget.widgetTextFieldInput(
-              etiket: 'Vergiler Hariç Satış',
+              etiket: 'Vergiler Hariç Satış (Birim Fiyat)',
               inputFormat: [
                 InputFormatterDecimalLimit(decimalRange: 2),
               ],
@@ -753,5 +757,46 @@ class _ScreenProductAddState extends State<ScreenProductAdd> with Validation {
       }
     }
     return listSupplier;
+  }
+
+  Widget widgetPaymentOptions() {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          Container(
+            width: 400,
+            child: TabBar(
+                labelColor: Colors.green,
+                unselectedLabelColor: Colors.grey.shade300,
+                tabs: [
+                  Tab(
+                    text: "Nakit Ödeme",
+                  ),
+                  Tab(
+                    text: "Kart Ödeme",
+                  ),
+                  Tab(
+                    text: "Banka Ödemesi",
+                  )
+                ]),
+          ),
+          Container(
+            height: 100,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(30),
+            color: Colors.blueGrey.shade50,
+            child: TabBarView(children: [
+              shareWidget.widgetTextFieldInput(etiket: "Nakit Fiyat"),
+              ElevatedButton(
+                  onPressed: () {
+                    _isThereProductCode = true;
+                  },
+                  child: Text("data")),
+            ]),
+          ),
+        ],
+      ),
+    );
   }
 }
