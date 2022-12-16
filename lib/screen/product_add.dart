@@ -151,10 +151,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     indent: 105,
                     thickness: 2.5,
                     height: 40),
-                widgetPaymentOptions(),
-                /*  widgetProductUnitAndStockValue(),
+                //  widgetPaymentOptions(),
+
+                widgetProductUnitAndStockValue(),
+                widgetPaymentOptions1(),
                 Divider(),
-                widgetSaveProduct(), */
+                widgetSaveProduct(),
               ],
             ),
           )),
@@ -765,10 +767,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       child: Column(
         children: [
           Container(
-            width: 400,
+            color: Colors.blueGrey.shade900,
+            width: 500,
             child: TabBar(
                 labelColor: Colors.green,
-                unselectedLabelColor: Colors.grey.shade300,
+                unselectedLabelColor: Colors.white,
                 tabs: [
                   Tab(
                     text: "Nakit Ödeme",
@@ -783,18 +786,50 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           ),
           Container(
             height: 100,
+            width: 500,
             alignment: Alignment.center,
-            padding: EdgeInsets.all(30),
-            color: Colors.blueGrey.shade50,
+            color: Colors.grey.shade100,
             child: TabBarView(children: [
-              shareWidget.widgetTextFieldInput(etiket: "Nakit Fiyat"),
-              ElevatedButton(
-                  onPressed: () {
-                    _isThereProductCode = true;
-                  },
-                  child: Text("data")),
+              SizedBox(
+                width: 150,
+                child: Padding(
+                    padding: EdgeInsets.all(30),
+                    child: shareWidget.widgetTextFieldInput(
+                        etiket: "Nakit Ödeme")),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: shareWidget.widgetTextFieldInput(etiket: "Kart Ödeme"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: shareWidget.widgetTextFieldInput(etiket: "Banka Ödeme"),
+              ),
             ]),
           ),
+        ],
+      ),
+    );
+  }
+
+  widgetPaymentOptions1() {
+    return Container(
+      width: 300,
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Toplam Tutar : ",
+                style: context.theme.labelLarge,
+              ),
+              Expanded(child: TextField())
+            ],
+          ),
+          shareWidget.widgetTextFieldInput(etiket: "Nakit Ödeme"),
+          shareWidget.widgetTextFieldInput(etiket: "Kart Ödeme"),
+          shareWidget.widgetTextFieldInput(etiket: "Banka Ödeme"),
         ],
       ),
     );
