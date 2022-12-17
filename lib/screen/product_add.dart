@@ -12,7 +12,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
-import 'package:stok_takip/validations/input_format_decimal_limit%20copy.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/widget_appbar_setting.dart';
@@ -32,10 +31,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
   final _valueNotifierPaid = ValueNotifier<double>(0);
   final _valueNotifierBalance = ValueNotifier<double>(0);
-  final _valueNotifierEftHavale = ValueNotifier<double>(0);
-
-  final _valueNotifierCash = ValueNotifier<double>(0);
-  final _valueNotifierBankCard = ValueNotifier<double>(0);
+  final _valueNotifierDateTime = ValueNotifier<DateTime>(DateTime(2000, 1, 1));
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -56,8 +52,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _searchFocusSupplier = FocusNode();
   late List<String>? _productCodeList;
-
-  final String _suppleirHeaderName = "Tedarik Bölümü";
+  final String _paymentSections = "Ödeme Bölümü";
   String _newSuppleirAdd = "";
   final String _totalPayment = "Ödeme Tutarını Giriniz";
   final String _balance = "Kalan Ödeme : ";
@@ -65,14 +60,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final String _cash = "Nakit Ödeme";
   final String _eftHavale = "EFT/HAVALE";
   final String _bankCard = "Banka Kartı";
-  final double _shareTextFormFieldPaymentSystemWidth = 150;
+  final double _shareTextFormFieldPaymentSystemWidth = 200;
   final double _shareTextFormFieldPaymentSystemSpace = 20;
-  late double _cashValue, _bankValue, _eftHavaleValue;
+  double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
+  double _paidValue = 0;
   double _totalPaymentValue = 0;
+
+  DateTime dateTime = DateTime.now();
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
-
   void _getProductTax(String value) {
     setState(() {
       _selectedTax = value;
@@ -164,17 +161,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     widgetCategorySelectSection()
                   ],
                 ),
+                widgetStockValueSection(),
+                widgetDividerHeader(_paymentSections),
+                widgetPaymentOptions(),
                 Divider(
                     color: Colors.blueGrey.shade600,
-                    endIndent: 105,
-                    indent: 105,
+                    endIndent: 30,
+                    indent: 30,
                     thickness: 2.5,
-                    height: 40),
-                //  widgetPaymentOptions(),
-
-                widgetProductUnitAndStockValue(),
-                widgetPaymentOptions1(),
-                Divider(),
+                    height: 20),
+                widgetProductUnitSection(),
                 widgetSaveProduct(),
               ],
             ),
@@ -493,7 +489,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  widgetProductUnitAndStockValue() {
+  widgetStockValueSection() {
     return Container(
       width: 500,
       child: Wrap(
@@ -507,18 +503,26 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             width: 230,
             height: 70,
             child: shareWidget.widgetTextFieldInput(
-                etiket: "Stok Miktarı (Adet)",
-                maxCharacter: 7,
-                inputFormat: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  TextInputFormatter.withFunction((oldValue, newValue) {
-                    return TextEditingValue(
-                        text: newValue.text, selection: newValue.selection);
-                  }),
-                ],
-                keyboardInputType: TextInputType.number,
-                controller: _controllerProductAmountOfStock,
-                validationFunc: validatenNotEmpty),
+              etiket: "Stok Miktarı (Adet)",
+              maxCharacter: 7,
+              inputFormat: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  return TextEditingValue(
+                      text: newValue.text, selection: newValue.selection);
+                }),
+              ],
+              keyboardInputType: TextInputType.number,
+              controller: _controllerProductAmountOfStock,
+              validationFunc: validatenNotEmpty,
+              onChanged: (p0) {
+                //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
+                if (_controllerPaymentValue.text.isNotEmpty) {
+                  _valueNotifierProductBuyWithTax.value =
+                      _totalPaymentValue / double.parse(p0);
+                }
+              },
+            ),
           ),
           Container(
               padding: const EdgeInsets.symmetric(vertical: 2),
@@ -531,27 +535,249 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 selectValue: _selectedTax,
                 getShareDropdownCallbackFunc: _getProductTax,
               )),
-          Divider(color: Colors.blueGrey.shade600, thickness: 2.5, height: 40),
-          SizedBox(
-            width: 230,
-            height: 70,
-            child: shareWidget.widgetTextFieldInput(
-              etiket: 'Vergiler Hariç Alış (Birim Fiyat)',
-              inputFormat: <TextInputFormatter>[
-                InputFormatterDecimalLimit(decimalRange: 2)
-              ],
-              controller: _controllerBuyingPriceWithoutTax,
-              validationFunc: validatenNotEmpty,
-              onChanged: (value) {
-                ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
-                ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
-                ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
-                ///hesabı yapılıyor.
-                value.isEmpty
-                    ? _valueNotifierProductBuyWithTax.value = 0
-                    : _valueNotifierProductBuyWithTax.value =
-                        double.parse(value);
+        ],
+      ),
+    );
+  }
+
+  buildPopupDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('UYARI',
+              textAlign: TextAlign.center,
+              style: context.theme.headline4!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                    text: "Kayıtlı olan ürün kodu seçtiniz.",
+                    style: context.theme.headline6!
+                        .copyWith(fontWeight: FontWeight.bold),
+                    children: [
+                      TextSpan(
+                          text:
+                              "\nEğer stok güncellemesi yapacaksanız. Lütfen ",
+                          style: context.theme.headline6!
+                              .copyWith(color: Colors.redAccent)),
+                      TextSpan(
+                          text: "\"Stok Güncelleme Ekranın'dan\"",
+                          style: context.theme.headline6!.copyWith(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: " yapınız.",
+                          style: context.theme.headline6!
+                              .copyWith(color: Colors.redAccent))
+                    ]),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            CloseButton(
+              onPressed: () {
+                Navigator.of(context).pop();
               },
+              color: Colors.blueGrey,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  widgetDividerHeader(String header) {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            color: Colors.blueGrey.shade600,
+            thickness: 2.5,
+            indent: 30,
+            endIndent: 10,
+          ),
+        ),
+        Text(header,
+            style: context.theme.headline6!.copyWith(
+                color: Colors.blueGrey.shade900, fontWeight: FontWeight.bold)),
+        Expanded(
+            child: Divider(
+          color: Colors.blueGrey.shade600,
+          thickness: 2.5,
+          indent: 10,
+          endIndent: 30,
+        ))
+      ],
+    );
+  }
+
+  List<SearchFieldListItem<dynamic>> searchFieldListItemSupplierName(
+      List<Map<String, dynamic>> snapshotData) {
+    List<SearchFieldListItem> listSupplier = [];
+    for (var item in snapshotData) {
+      if (item['type'] == "Tedarikçi") {
+        listSupplier
+            .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
+      }
+    }
+    return listSupplier;
+  }
+
+  widgetPaymentOptions() {
+    double insideContainerWidth = 250;
+    return Container(
+      padding: context.extensionPadding20(),
+      width: context.extendFixedWightContainer,
+      alignment: Alignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        direction: Axis.horizontal,
+        spacing: _shareTextFormFieldPaymentSystemSpace,
+        runSpacing: _shareTextFormFieldPaymentSystemSpace,
+        children: [
+          Container(
+            alignment: Alignment.center,
+            width: insideContainerWidth,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              direction: Axis.vertical,
+              spacing: _shareTextFormFieldPaymentSystemSpace,
+              children: [
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _totalPayment,
+                  controller: _controllerPaymentValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _totalPaymentValue = 0
+                        : _totalPaymentValue = double.parse(value);
+                    if (_controllerProductAmountOfStock.text.isNotEmpty) {
+                      _valueNotifierProductBuyWithTax.value =
+                          _totalPaymentValue /
+                              double.parse(
+                                  _controllerProductAmountOfStock.text);
+                    }
+                  },
+                ),
+                shareValueListenableBuilder(
+                    valueListenable: _valueNotifierPaid, firstText: _paid),
+                shareValueListenableBuilder(
+                    valueListenable: _valueNotifierBalance, firstText: _balance)
+              ],
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            width: insideContainerWidth,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              direction: Axis.vertical,
+              spacing: _shareTextFormFieldPaymentSystemSpace,
+              children: [
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _cash,
+                  controller: _controllerCashValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _cashValue = 0
+                        : _cashValue = double.parse(value);
+                  },
+                ),
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _bankCard,
+                  controller: _controllerBankValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _bankValue = 0
+                        : _bankValue = double.parse(value);
+                  },
+                ),
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _eftHavale,
+                  controller: _controllerEftHavaleValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _eftHavaleValue = 0
+                        : _eftHavaleValue = double.parse(value);
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: _shareTextFormFieldPaymentSystemWidth,
+            child: shareWidget.widgetElevatedButton(
+                onPressedDoSomething: () async {
+                  final data = await pickDate();
+                  if (data == null) return; //pressed Cancel
+
+                  setState(() {
+                    //pressed OK
+                    dateTime = data;
+                  });
+                },
+                label: "${dateTime.day}/${dateTime.month}/${dateTime.year}"),
+          ),
+          SizedBox(
+            width: _shareTextFormFieldPaymentSystemWidth,
+            child: shareWidget.widgetElevatedButton(
+                onPressedDoSomething: () {
+                  _valueNotifierPaid.value =
+                      _cashValue + _bankValue + _eftHavaleValue;
+                  _valueNotifierBalance.value =
+                      _totalPaymentValue - _valueNotifierPaid.value;
+                },
+                label: "Hesapla"),
+          )
+        ],
+      ),
+    );
+  }
+
+  widgetProductUnitSection() {
+    return Container(
+      width: 500,
+      child: Wrap(
+        direction: Axis.horizontal,
+        verticalDirection: VerticalDirection.down,
+        alignment: WrapAlignment.center,
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          Container(
+            width: 300,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10)),
+            child: ValueListenableBuilder<double>(
+              valueListenable: _valueNotifierProductBuyWithTax,
+              builder: (context, value, child) => RichText(
+                text: TextSpan(
+                    text: 'Birim Başı Maliyet : ',
+                    style: context.theme.labelLarge!.copyWith(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1),
+                    children: [
+                      TextSpan(
+                          text: value.toStringAsFixed(2),
+                          style: context.theme.labelLarge!.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1))
+                    ]),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           SizedBox(
@@ -574,36 +800,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     : _valueNotifierProductSaleWithTax.value =
                         double.parse(value);
               },
-            ),
-          ),
-          Container(
-            width: 230,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10)),
-            child: ValueListenableBuilder<double>(
-              valueListenable: _valueNotifierProductBuyWithTax,
-              builder: (context, value, child) => RichText(
-                text: TextSpan(
-                    text: 'Vergiler Dahil Alış : ',
-                    style: context.theme.labelLarge!.copyWith(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1),
-                    children: [
-                      TextSpan(
-                          text: _selectedTaxToInt == 0
-                              ? 'KDV Seçilmedi'
-                              : '${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)}',
-                          style: context.theme.labelLarge!.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1))
-                    ]),
-                textAlign: TextAlign.center,
-              ),
             ),
           ),
           Container(
@@ -693,272 +889,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  buildPopupDialog(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('UYARI',
-              textAlign: TextAlign.center,
-              style: context.theme.headline4!
-                  .copyWith(fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                text: TextSpan(
-                    text: "Kayıtlı olan ürün kodu seçtiniz.",
-                    style: context.theme.headline6!
-                        .copyWith(fontWeight: FontWeight.bold),
-                    children: [
-                      TextSpan(
-                          text:
-                              "\nEğer stok güncellemesi yapacaksanız. Lütfen ",
-                          style: context.theme.headline6!
-                              .copyWith(color: Colors.redAccent)),
-                      TextSpan(
-                          text: "\"Stok Güncelleme Ekranın'dan\"",
-                          style: context.theme.headline6!.copyWith(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.bold)),
-                      TextSpan(
-                          text: " yapınız.",
-                          style: context.theme.headline6!
-                              .copyWith(color: Colors.redAccent))
-                    ]),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            CloseButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              color: Colors.blueGrey,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  widgetDividerHeader() {
-    return Row(
-      children: [
-        Expanded(
-          child: Divider(
-            color: Colors.blueGrey.shade600,
-            thickness: 2.5,
-            endIndent: 10,
-          ),
-        ),
-        Text(_suppleirHeaderName,
-            style: context.theme.subtitle1!.copyWith(color: Colors.black)),
-        Expanded(
-            child: Divider(
-          color: Colors.blueGrey.shade600,
-          thickness: 2.5,
-          indent: 10,
-        ))
-      ],
-    );
-  }
-
-  List<SearchFieldListItem<dynamic>> searchFieldListItemSupplierName(
-      List<Map<String, dynamic>> snapshotData) {
-    List<SearchFieldListItem> listSupplier = [];
-    for (var item in snapshotData) {
-      if (item['type'] == "Tedarikçi") {
-        listSupplier
-            .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
-      }
-    }
-    return listSupplier;
-  }
-
-  Widget widgetPaymentOptions() {
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          Container(
-            color: Colors.blueGrey.shade900,
-            width: 500,
-            child: TabBar(
-                labelColor: Colors.green,
-                unselectedLabelColor: Colors.white,
-                tabs: [
-                  Tab(
-                    text: "Nakit Ödeme",
-                  ),
-                  Tab(
-                    text: "Kart Ödeme",
-                  ),
-                  Tab(
-                    text: "Banka Ödemesi",
-                  )
-                ]),
-          ),
-          Container(
-            height: 100,
-            width: 500,
-            alignment: Alignment.center,
-            color: Colors.grey.shade100,
-            child: TabBarView(children: [
-              SizedBox(
-                width: 150,
-                child: Padding(
-                    padding: EdgeInsets.all(30),
-                    child: shareWidget.widgetTextFieldInput(
-                        etiket: "Nakit Ödeme")),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: shareWidget.widgetTextFieldInput(etiket: "Kart Ödeme"),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: shareWidget.widgetTextFieldInput(etiket: "Banka Ödeme"),
-              ),
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  widgetPaymentOptions1() {
-    double insideContainerWidth = 250;
-
-    return Container(
-      padding: context.extensionPadding10(),
-      decoration: BoxDecoration(
-          border: Border.all(), borderRadius: BorderRadius.circular(2)),
-      child: Wrap(
-        direction: Axis.horizontal,
-        spacing: _shareTextFormFieldPaymentSystemSpace,
-        runSpacing: _shareTextFormFieldPaymentSystemSpace,
-        children: [
-          Container(
-            width: insideContainerWidth,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              direction: Axis.vertical,
-              spacing: _shareTextFormFieldPaymentSystemSpace,
-              children: [
-                sharedSizeBoxTextFormField(
-                  width: _shareTextFormFieldPaymentSystemWidth,
-                  labelText: _totalPayment,
-                  controller: _controllerPaymentValue,
-                  onChanged: (value) {
-                    value.isEmpty
-                        ? _totalPaymentValue = 0
-                        : _totalPaymentValue = double.parse(value);
-                  },
-                ),
-                ValueListenableBuilder<double>(
-                  valueListenable: _valueNotifierPaid,
-                  builder: (context, value, child) {
-                    print(value);
-                    return SizedBox(
-                      height: 40,
-                      child: RichText(
-                        text: TextSpan(
-                            text: _paid,
-                            style: context.theme.labelLarge!.copyWith(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1),
-                            children: [
-                              TextSpan(
-                                  text: value.toString(),
-                                  style: context.theme.labelLarge!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1))
-                            ]),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  },
-                ),
-                ValueListenableBuilder<double>(
-                  valueListenable: _valueNotifierProductBuyWithTax,
-                  builder: (context, value, child) {
-                    return SizedBox(
-                      height: 40,
-                      child: RichText(
-                        text: TextSpan(
-                            text: _balance,
-                            style: context.theme.labelLarge!.copyWith(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1),
-                            children: [
-                              TextSpan(
-                                  text: _selectedTaxToInt == 0
-                                      ? 'KDV Seçilmedi'
-                                      : '${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)}',
-                                  style: context.theme.labelLarge!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1))
-                            ]),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: insideContainerWidth,
-            child: Wrap(
-              direction: Axis.vertical,
-              spacing: _shareTextFormFieldPaymentSystemSpace,
-              children: [
-                sharedSizeBoxTextFormField(
-                  width: _shareTextFormFieldPaymentSystemWidth,
-                  labelText: _cash,
-                  controller: _controllerCashValue,
-                  onChanged: (value) {
-                    value.isEmpty
-                        ? _cashValue = 0
-                        : _cashValue = double.parse(value);
-                  },
-                ),
-                sharedSizeBoxTextFormField(
-                  width: _shareTextFormFieldPaymentSystemWidth,
-                  labelText: _bankCard,
-                  controller: _controllerBankValue,
-                  onChanged: (value) {
-                    value.isEmpty
-                        ? _bankValue = 0
-                        : _bankValue = double.parse(value);
-                  },
-                ),
-                sharedSizeBoxTextFormField(
-                  width: _shareTextFormFieldPaymentSystemWidth,
-                  labelText: _eftHavale,
-                  controller: _controllerEftHavaleValue,
-                  onChanged: (value) {
-                    value.isEmpty
-                        ? _valueNotifierEftHavale.value = 0
-                        : _valueNotifierEftHavale.value = double.parse(value);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  sharedSizeBoxTextFormField(
+  sharedTextFormField(
       {required double width,
       required String labelText,
       required TextEditingController controller,
@@ -973,10 +904,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           //InputFormatterDecimalLimitOnly(decimalRange: 3)
         ],
         keyboardType: TextInputType.number,
-        style: context.theme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
+        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Colors.blue),
+          labelStyle: TextStyle(color: Colors.blueGrey.shade900),
           isDense: true,
           errorBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -985,34 +916,39 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  paidTotalMethod1() {
-    _valueNotifierPaid.value = _valueNotifierCash.value +
-        _valueNotifierBankCard.value +
-        _valueNotifierEftHavale.value;
+  shareValueListenableBuilder(
+      {required ValueNotifier<double> valueListenable,
+      required String firstText}) {
+    return ValueListenableBuilder<double>(
+      valueListenable: valueListenable,
+      builder: (context, value, child) {
+        return SizedBox(
+          height: 40,
+          child: RichText(
+            text: TextSpan(
+                text: firstText,
+                style: context.theme.titleMedium!.copyWith(
+                    color: Colors.blueGrey.shade900,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
+                children: [
+                  TextSpan(
+                      text: value.toString(),
+                      style: context.theme.titleMedium!.copyWith(
+                          color: Colors.red.shade900,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1))
+                ]),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
+    );
   }
 
-  void paidTotalMethod(
-      {String? cashValue, String? bankValue, String? eftHavale}) {
-    print(cashValue);
-
-    if (cashValue == null) {
-      _cashValue = 0;
-    } else {
-      _cashValue = double.parse(cashValue);
-    }
-    if (bankValue == null) {
-      _bankValue = 0;
-    } else {
-      _bankValue = double.parse(bankValue);
-    }
-    if (eftHavale == null) {
-      _eftHavaleValue = 0;
-    } else {
-      _eftHavaleValue = double.parse(eftHavale);
-    }
-
-    print("deger1 :  $_cashValue");
-    print("deger2 : $_bankValue");
-    print("deger3 :  $_eftHavaleValue");
-  }
+  Future<DateTime?> pickDate() => showDatePicker(
+      context: context,
+      initialDate: dateTime,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2050));
 }
