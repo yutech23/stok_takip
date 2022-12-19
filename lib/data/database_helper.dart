@@ -264,12 +264,12 @@ class DbHelper {
     ]).execute();
     final error = res.error;
 
-    if (error != null) {
+    /*  if (error != null) {
       context.extensionShowErrorSnackBar(message: error.message);
     } else {
       context.extenionShowSnackBar(message: 'Kayıt Başarılı');
     }
-    return error;
+    return error; */
   }
 
   Future saveSuppliers(

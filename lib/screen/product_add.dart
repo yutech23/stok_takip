@@ -65,6 +65,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
   double _paidValue = 0;
   double _totalPaymentValue = 0;
+  bool _disableOrEnablePostDatePayment = false;
 
   DateTime dateTime = DateTime.now();
 
@@ -715,16 +716,18 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           SizedBox(
             width: _shareTextFormFieldPaymentSystemWidth,
             child: shareWidget.widgetElevatedButton(
-                onPressedDoSomething: () async {
-                  final data = await pickDate();
-                  if (data == null) return; //pressed Cancel
+                onPressedDoSomething: _disableOrEnablePostDatePayment
+                    ? () async {
+                        final data = await pickDate();
+                        if (data == null) return; //pressed Cancel
 
-                  setState(() {
-                    //pressed OK
-                    dateTime = data;
-                  });
-                },
-                label: "${dateTime.day}/${dateTime.month}/${dateTime.year}"),
+                        setState(() {
+                          //pressed OK
+                          dateTime = data;
+                        });
+                      }
+                    : null,
+                label: "Ödeme Tarihi Ekle"),
           ),
           SizedBox(
             width: _shareTextFormFieldPaymentSystemWidth,
@@ -734,6 +737,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       _cashValue + _bankValue + _eftHavaleValue;
                   _valueNotifierBalance.value =
                       _totalPaymentValue - _valueNotifierPaid.value;
+                  if (_valueNotifierBalance.value > 0) {
+                    _disableOrEnablePostDatePayment = true;
+                  }
                 },
                 label: "Hesapla"),
           )

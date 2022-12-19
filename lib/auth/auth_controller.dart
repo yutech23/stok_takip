@@ -28,7 +28,6 @@ class AuthController {
     //Browser Bulunan Local Storage veriler temizleniyor.
     SecurityStorageUser.deleteStorege();
     // Login Sayfasına yönlendiriliyor
-    
   }
 }
 
