@@ -953,8 +953,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   }
 
   Future<DateTime?> pickDate() => showDatePicker(
-      context: context,
-      initialDate: dateTime,
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2050));
+        context: context,
+        initialDate: dateTime,
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
 }

@@ -4,6 +4,7 @@ import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import 'utilities/navigation/auth_guard.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
