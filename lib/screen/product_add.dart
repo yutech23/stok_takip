@@ -31,7 +31,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
   final _valueNotifierPaid = ValueNotifier<double>(0);
   final _valueNotifierBalance = ValueNotifier<double>(0);
-  final _valueNotifierDateTime = ValueNotifier<DateTime>(DateTime(2000, 1, 1));
+  final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -63,9 +63,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final double _shareTextFormFieldPaymentSystemWidth = 200;
   final double _shareTextFormFieldPaymentSystemSpace = 20;
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
-  double _paidValue = 0;
   double _totalPaymentValue = 0;
-  bool _disableOrEnablePostDatePayment = false;
 
   DateTime dateTime = DateTime.now();
 
@@ -490,6 +488,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Stok Ve KDV
   widgetStockValueSection() {
     return Container(
       width: 500,
@@ -541,6 +540,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Stok Kodu aynı girildiğinde Ekran Hatası için.
   buildPopupDialog(BuildContext context) {
     return showDialog(
       context: context,
@@ -592,6 +592,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  /// Bölüm Başlığı Orta kısmında Başlık yazılı.
   widgetDividerHeader(String header) {
     return Row(
       children: [
@@ -629,6 +630,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return listSupplier;
   }
 
+  ///Ödeme verilerin alındığı yer.
   widgetPaymentOptions() {
     double insideContainerWidth = 250;
     return Container(
@@ -713,21 +715,25 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ],
             ),
           ),
-          SizedBox(
-            width: _shareTextFormFieldPaymentSystemWidth,
-            child: shareWidget.widgetElevatedButton(
-                onPressedDoSomething: _disableOrEnablePostDatePayment
-                    ? () async {
-                        final data = await pickDate();
-                        if (data == null) return; //pressed Cancel
-
-                        setState(() {
-                          //pressed OK
-                          dateTime = data;
-                        });
-                      }
-                    : null,
-                label: "Ödeme Tarihi Ekle"),
+          ValueListenableBuilder(
+            valueListenable: _valueNotifierButtonDateTimeState,
+            builder: (context, value, child) {
+              return SizedBox(
+                width: _shareTextFormFieldPaymentSystemWidth,
+                child: shareWidget.widgetElevatedButton(
+                    onPressedDoSomething:
+                        _valueNotifierButtonDateTimeState.value
+                            ? () async {
+                                final data = await pickDate();
+                                if (data == null) return; //pressed Cancel
+                                dateTime = data;
+                              }
+                            : null,
+                    label: value
+                        ? "Seçilen Tarih \n ${dateTime.day}/${dateTime.month}/${dateTime.year}"
+                        : "Ödeme Tarihi Ekle"),
+              );
+            },
           ),
           SizedBox(
             width: _shareTextFormFieldPaymentSystemWidth,
@@ -737,8 +743,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       _cashValue + _bankValue + _eftHavaleValue;
                   _valueNotifierBalance.value =
                       _totalPaymentValue - _valueNotifierPaid.value;
+                  _valueNotifierButtonDateTimeState.value = false;
                   if (_valueNotifierBalance.value > 0) {
-                    _disableOrEnablePostDatePayment = true;
+                    _valueNotifierButtonDateTimeState.value = true;
                   }
                 },
                 label: "Hesapla"),
@@ -748,6 +755,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Maliyet ve Birim Satışı Bölümü.
   widgetProductUnitSection() {
     return Container(
       width: 500,
@@ -843,6 +851,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Ürün Kaydı yapıldı yer.
   widgetSaveProduct() {
     return ElevatedButton(
       onPressed: _isThereProductCode
@@ -952,6 +961,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Tarih seçildiği yer.
   Future<DateTime?> pickDate() => showDatePicker(
         context: context,
         initialDate: dateTime,
