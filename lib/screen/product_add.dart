@@ -15,6 +15,7 @@ import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/widget_appbar_setting.dart';
+import '../validations/input_format_decimal_limit copy.dart';
 import '../validations/upper_case_text_format.dart';
 
 class ScreenProductAdd extends StatefulWidget {
@@ -54,18 +55,18 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   late List<String>? _productCodeList;
   final String _paymentSections = "Ödeme Bölümü";
   String _newSuppleirAdd = "";
-  final String _totalPayment = "Ödeme Tutarını Giriniz";
-  final String _balance = "Kalan Ödeme : ";
-  final String _paid = "Ödenen Miktar : ";
-  final String _cash = "Nakit Ödeme";
-  final String _eftHavale = "EFT/HAVALE";
-  final String _bankCard = "Banka Kartı";
-  final double _shareTextFormFieldPaymentSystemWidth = 200;
+  final String _totalPayment = "Toplam Tutarı Giriniz";
+  final String _balance = "Kalan Tutar : ";
+  final String _paid = "Ödenen Toplam Tutar : ";
+  final String _cash = "Nakit İle Ödenen Tutar";
+  final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
+  final String _bankCard = "Kart İle Ödenen Tutar";
+  final double _shareTextFormFieldPaymentSystemWidth = 220;
   final double _shareTextFormFieldPaymentSystemSpace = 20;
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
   double _totalPaymentValue = 0;
-
-  DateTime dateTime = DateTime.now();
+  String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+  DateTime selectDateTime = DateTime.now();
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -618,6 +619,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  /// Tedarikçi Search Listesini burada düzenliyor. Gösterim şekli.
   List<SearchFieldListItem<dynamic>> searchFieldListItemSupplierName(
       List<Map<String, dynamic>> snapshotData) {
     List<SearchFieldListItem> listSupplier = [];
@@ -726,12 +728,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                             ? () async {
                                 final data = await pickDate();
                                 if (data == null) return; //pressed Cancel
-                                dateTime = data;
+                                selectDateTime = data;
+                                if (data != null) {
+                                  setState(() {
+                                    _buttonDateTimeLabel =
+                                        "Seçilen Tarih \n ${selectDateTime.day}/${selectDateTime.month}/${selectDateTime.year}";
+                                  });
+                                }
                               }
                             : null,
-                    label: value
-                        ? "Seçilen Tarih \n ${dateTime.day}/${dateTime.month}/${dateTime.year}"
-                        : "Ödeme Tarihi Ekle"),
+                    label: _buttonDateTimeLabel),
               );
             },
           ),
@@ -745,6 +751,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       _totalPaymentValue - _valueNotifierPaid.value;
                   _valueNotifierButtonDateTimeState.value = false;
                   if (_valueNotifierBalance.value > 0) {
+                    _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
                     _valueNotifierButtonDateTimeState.value = true;
                   }
                 },
@@ -915,9 +922,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         onChanged: onChanged,
         controller: controller,
         autovalidateMode: AutovalidateMode.always,
-        inputFormatters: [
-          //InputFormatterDecimalLimitOnly(decimalRange: 3)
-        ],
+        inputFormatters: [InputFormatterDecimalLimitOnly()],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
@@ -964,7 +969,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   ///Tarih seçildiği yer.
   Future<DateTime?> pickDate() => showDatePicker(
         context: context,
-        initialDate: dateTime,
+        initialDate: selectDateTime,
         firstDate: DateTime(2022),
         lastDate: DateTime(2050),
       );
