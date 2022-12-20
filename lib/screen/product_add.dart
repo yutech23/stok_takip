@@ -6,6 +6,7 @@ import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/screen/drawer.dart';
+import 'package:stok_takip/utilities/convert_string_currency_digits.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -15,7 +16,7 @@ import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/input_format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/input_format_decimal_limit copy.dart';
+import '../validations/input_format_decimal_3by3.dart';
 import '../validations/upper_case_text_format.dart';
 
 class ScreenProductAdd extends StatefulWidget {
@@ -508,10 +509,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               maxCharacter: 7,
               inputFormat: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  return TextEditingValue(
-                      text: newValue.text, selection: newValue.selection);
-                }),
               ],
               keyboardInputType: TextInputType.number,
               controller: _controllerProductAmountOfStock,
@@ -660,7 +657,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   onChanged: (value) {
                     value.isEmpty
                         ? _totalPaymentValue = 0
-                        : _totalPaymentValue = double.parse(value);
+                        : _totalPaymentValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+
                     if (_controllerProductAmountOfStock.text.isNotEmpty) {
                       _valueNotifierProductBuyWithTax.value =
                           _totalPaymentValue /
@@ -691,7 +690,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   onChanged: (value) {
                     value.isEmpty
                         ? _cashValue = 0
-                        : _cashValue = double.parse(value);
+                        : _cashValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
                 ),
                 sharedTextFormField(
@@ -701,7 +701,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   onChanged: (value) {
                     value.isEmpty
                         ? _bankValue = 0
-                        : _bankValue = double.parse(value);
+                        : _bankValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
                 ),
                 sharedTextFormField(
@@ -711,7 +712,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   onChanged: (value) {
                     value.isEmpty
                         ? _eftHavaleValue = 0
-                        : _eftHavaleValue = double.parse(value);
+                        : _eftHavaleValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
                 ),
               ],
@@ -922,7 +924,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         onChanged: onChanged,
         controller: controller,
         autovalidateMode: AutovalidateMode.always,
-        inputFormatters: [InputFormatterDecimalLimitOnly()],
+        inputFormatters: [
+          InputFormatterDecimalThreeByThree(),
+        ],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
@@ -953,7 +957,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     letterSpacing: 1),
                 children: [
                   TextSpan(
-                      text: value.toString(),
+                      text: convertStringToCurrencyDigitThreeByThree
+                          .convertStringToDigit3By3(value.toString()),
                       style: context.theme.titleMedium!.copyWith(
                           color: Colors.red.shade900,
                           fontWeight: FontWeight.bold,
