@@ -120,7 +120,7 @@ class _MyDrawerState extends State<MyDrawer> {
             color: backGround,
             border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
         padding: context.extensionPadding10(),
-        child: Wrap(spacing: context.extensionSpacingDrawer20(), children: [
+        child: Wrap(spacing: context.extensionWrapSpacing20(), children: [
           Icon(
             icon,
             size: 30,

@@ -38,7 +38,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _valueNotifierPaid = ValueNotifier<double>(0);
   final _valueNotifierBalance = ValueNotifier<double>(0);
   final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
-  final _valueNotifierCurrencyState = ValueNotifier<int>(0);
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -69,6 +68,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final String _bankCard = "Kart İle Ödenen Tutar";
   final double _shareTextFormFieldPaymentSystemWidth = 220;
   final double _shareTextFormFieldPaymentSystemSpace = 20;
+
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
@@ -79,6 +79,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   Color _colorBackgroundCurrencyTRY = Colors.blueGrey.shade900;
   Color _colorBackgroundCurrencyEUR = Colors.blueGrey.shade900;
   String _selectCurrency = "";
+  final String _labelCurrencySelect = "Para Birimi Seçiniz";
+  final String _labelAmountOfStock = "Stok Miktarı (Adet)";
+  final String _labelKDV = "KDV Oranın Seçiniz";
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -505,41 +508,101 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   widgetStockValueSection() {
     return Container(
       width: 500,
+      color: Colors.red,
       child: Wrap(
         direction: Axis.horizontal,
         verticalDirection: VerticalDirection.down,
         alignment: WrapAlignment.center,
-        spacing: 10,
-        runSpacing: 10,
+        spacing: context.extensionWrapSpacing10(),
+        runSpacing: context.extensionWrapSpacing10(),
         children: [
-          Container(
-            width: 230,
-            height: 70,
-            child: shareWidget.widgetTextFieldInput(
-              etiket: "Stok Miktarı (Adet)",
-              maxCharacter: 7,
-              inputFormat: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-              ],
-              keyboardInputType: TextInputType.number,
-              controller: _controllerProductAmountOfStock,
-              validationFunc: validatenNotEmpty,
-              onChanged: (p0) {
-                //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
-                if (_controllerPaymentValue.text.isNotEmpty) {
-                  _valueNotifierProductBuyWithTax.value =
-                      _totalPaymentValue / double.parse(p0);
-                }
-              },
-            ),
+          ///Para Birimi Seçilen yer.
+          Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Positioned(
+                left: 50,
+                top: 0,
+                child: Container(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    textAlign: TextAlign.center,
+                    _labelCurrencySelect,
+                    style: context.theme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey.shade900),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: 230,
+                height: 50,
+                decoration: BoxDecoration(border: Border.all()),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "TL";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyEnable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyDisable;
+                          });
+                        },
+                        sembol: '₺',
+                        backgroundColor: _colorBackgroundCurrencyTRY),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "USD";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyEnable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyDisable;
+                          });
+                        },
+                        sembol: '\$',
+                        backgroundColor: _colorBackgroundCurrencyUSD),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "EUR";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyEnable;
+                          });
+                        },
+                        sembol: '€',
+                        backgroundColor: _colorBackgroundCurrencyEUR),
+                  ],
+                ),
+              ),
+            ],
           ),
+          //KDV Bölümü.
           Container(
               padding: const EdgeInsets.symmetric(vertical: 2),
               width: 230,
               height: 74,
               child: ShareDropdown(
                 validator: validatenNotEmpty,
-                hint: 'KDV Oranın Seçiniz',
+                hint: _labelKDV,
                 itemList: _productTaxList,
                 selectValue: _selectedTax,
                 getShareDropdownCallbackFunc: _getProductTax,
@@ -679,8 +742,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     }
                   },
                 ),
+
+                ///Ödenen Toplam Tutar yeri.
                 shareValueListenableBuilder(
                     valueListenable: _valueNotifierPaid, firstText: _paid),
+
+                ///Kalan Tutarın Bölümü.
                 shareValueListenableBuilder(
                     valueListenable: _valueNotifierBalance, firstText: _balance)
               ],
@@ -730,81 +797,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: Colors.blueGrey.shade900,
-                )),
-            width: 150,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  textAlign: TextAlign.center,
-                  "Para Birimi Seçiniz",
-                  style: context.theme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey.shade900),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectCurrency = "TL";
-                            _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyEnable;
-                            _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyDisable;
-                            _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyDisable;
-                          });
-                        },
-                        sembol: '₺',
-                        backgroundColor: _colorBackgroundCurrencyTRY),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectCurrency = "USD";
-                            _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyDisable;
-                            _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyEnable;
-                            _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyDisable;
-                          });
-                        },
-                        sembol: '\$',
-                        backgroundColor: _colorBackgroundCurrencyUSD),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectCurrency = "EUR";
-                            _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyDisable;
-                            _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyDisable;
-                            _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyEnable;
-                          });
-                        },
-                        sembol: '€',
-                        backgroundColor: _colorBackgroundCurrencyEUR),
-                  ],
-                ),
-              ],
-            ),
-          ),
+
+          ///İleri Ödeme Tarihi Belirlenen button.
           ValueListenableBuilder(
             valueListenable: _valueNotifierButtonDateTimeState,
             builder: (context, value, child) {
@@ -829,6 +823,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               );
             },
           ),
+
+          ///Tutar Ve Ödemenin Yapsının Hesaplayan Button.
           SizedBox(
             width: _shareTextFormFieldPaymentSystemWidth,
             child: shareWidget.widgetElevatedButton(
@@ -862,7 +858,28 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         runSpacing: 10,
         children: [
           Container(
-            width: 300,
+            width: 230,
+            height: 70,
+            child: shareWidget.widgetTextFieldInput(
+              etiket: _labelAmountOfStock,
+              maxCharacter: 7,
+              inputFormat: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+              ],
+              keyboardInputType: TextInputType.number,
+              controller: _controllerProductAmountOfStock,
+              validationFunc: validatenNotEmpty,
+              onChanged: (p0) {
+                //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
+                if (_controllerPaymentValue.text.isNotEmpty) {
+                  _valueNotifierProductBuyWithTax.value =
+                      _totalPaymentValue / double.parse(p0);
+                }
+              },
+            ),
+          ),
+          Container(
+            width: 230,
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -1032,8 +1049,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return ValueListenableBuilder<double>(
       valueListenable: valueListenable,
       builder: (context, value, child) {
-        return SizedBox(
+        return Container(
+          alignment: Alignment.centerLeft,
+          width: _shareTextFormFieldPaymentSystemWidth,
           height: 40,
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: context.extensionDisableColor))),
           child: RichText(
             text: TextSpan(
                 text: firstText,
@@ -1074,8 +1096,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         child: Container(
           color: backgroundColor,
           alignment: Alignment.center,
-          width: 20,
-          height: 20,
+          width: 30,
+          height: 30,
           child: Text(
             sembol,
             style: context.theme.titleMedium!

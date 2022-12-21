@@ -9,6 +9,8 @@ extension DimensionFont on BuildContext {
   double get extendFixedHeighContainer => 800;
   double get extensionButtonHeight => 50;
 
+  Color get extensionDefaultColor => Colors.blueGrey.shade900;
+  Color get extensionDisableColor => Colors.grey;
   TextTheme get theme => Theme.of(this).textTheme;
 
   EdgeInsets extensionPaddingAllLow() => EdgeInsets.all(dynamicHeight(0.01));
@@ -21,8 +23,8 @@ extension DimensionFont on BuildContext {
 
   SizedBox extensionWidhSizedBox20() => const SizedBox(width: 20);
   SizedBox extensionHighSizedBox20() => const SizedBox(height: 20);
-
-  double extensionSpacingDrawer20() => 20;
+  double extensionWrapSpacing10() => 10;
+  double extensionWrapSpacing20() => 20;
 
   Color extensionBlueGreyColor() => Colors.blueGrey.shade900;
 
