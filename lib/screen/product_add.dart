@@ -1,5 +1,9 @@
+import 'dart:html';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
@@ -34,6 +38,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _valueNotifierPaid = ValueNotifier<double>(0);
   final _valueNotifierBalance = ValueNotifier<double>(0);
   final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
+  final _valueNotifierCurrencyState = ValueNotifier<int>(0);
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -68,6 +73,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   DateTime selectDateTime = DateTime.now();
+  final Color _colorBackgroundCurrencyDisable = Colors.blueGrey.shade900;
+  final Color _colorBackgroundCurrencyEnable = Colors.grey;
+  Color _colorBackgroundCurrencyUSD = Colors.blueGrey.shade900;
+  Color _colorBackgroundCurrencyTRY = Colors.blueGrey.shade900;
+  Color _colorBackgroundCurrencyEUR = Colors.blueGrey.shade900;
+  String _selectCurrency = "";
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -637,7 +648,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       width: context.extendFixedWightContainer,
       alignment: Alignment.center,
       child: Wrap(
-        alignment: WrapAlignment.center,
+        alignment: WrapAlignment.start,
         direction: Axis.horizontal,
         spacing: _shareTextFormFieldPaymentSystemSpace,
         runSpacing: _shareTextFormFieldPaymentSystemSpace,
@@ -715,6 +726,71 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         : _eftHavaleValue =
                             double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 150,
+            child: Column(
+              children: [
+                Text(
+                  "Para Birimini Seçiniz : ",
+                  style: context.theme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey.shade900),
+                ),
+                Row(
+                  children: [
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "TL";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyEnable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyDisable;
+                          });
+                        },
+                        sembol: '₺',
+                        backgroundColor: _colorBackgroundCurrencyTRY),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "USD";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyEnable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyDisable;
+                          });
+                        },
+                        sembol: '\$',
+                        backgroundColor: _colorBackgroundCurrencyUSD),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectCurrency = "EUR";
+                            _colorBackgroundCurrencyTRY =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyUSD =
+                                _colorBackgroundCurrencyDisable;
+                            _colorBackgroundCurrencyEUR =
+                                _colorBackgroundCurrencyEnable;
+                          });
+                        },
+                        sembol: '€',
+                        backgroundColor: _colorBackgroundCurrencyEUR),
+                  ],
                 ),
               ],
             ),
@@ -978,4 +1054,23 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         firstDate: DateTime(2022),
         lastDate: DateTime(2050),
       );
+
+  shareInkwellCurrency(
+      {required void Function()? onTap,
+      required String sembol,
+      Color? backgroundColor}) {
+    return InkWell(
+        onTap: onTap,
+        child: Container(
+          color: backgroundColor,
+          alignment: Alignment.center,
+          width: 30,
+          height: 30,
+          child: Text(
+            sembol,
+            style: context.theme.headline5!
+                .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ));
+  }
 }
