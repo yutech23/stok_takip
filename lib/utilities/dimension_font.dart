@@ -10,6 +10,7 @@ extension DimensionFont on BuildContext {
   double get extensionButtonHeight => 50;
 
   Color get extensionDefaultColor => Colors.blueGrey.shade900;
+  Color get extensionLineColor => Colors.blueGrey.shade600;
   Color get extensionDisableColor => Colors.grey;
   TextTheme get theme => Theme.of(this).textTheme;
 
@@ -26,7 +27,8 @@ extension DimensionFont on BuildContext {
   double extensionWrapSpacing10() => 10;
   double extensionWrapSpacing20() => 20;
 
-  Color extensionBlueGreyColor() => Colors.blueGrey.shade900;
+  BorderRadius get extensionRadiusDefault5 => BorderRadius.circular(5);
+  BorderRadius get extensionRadiusDefault10 => BorderRadius.circular(10);
 
   void extenionShowSnackBar({
     required String message,
@@ -133,3 +135,5 @@ extension CapExtension on String {
   String get inCaps => '${this[0].toUpperCase()}${substring(1)}';
   String get allInCaps => toUpperCase();
 }
+
+extension DefaultEdgeInsets on BorderRadius {}

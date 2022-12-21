@@ -9,7 +9,7 @@ class InputFormatterDecimalThreeByThree extends TextInputFormatter {
     TextSelection newSelection = newValue.selection;
     String pointCharacter = ".";
     String replaceNewValue = "";
-    print("newValue : ${newValue.text}");
+    // print("newValue : ${newValue.text}");
     //Gelen Dğerin içindeki '.' temizleniyor
     replaceNewValue = newValue.text.replaceAll(RegExp(r'\D'), "");
 
@@ -20,8 +20,8 @@ class InputFormatterDecimalThreeByThree extends TextInputFormatter {
 
     lenghtReplaceNewValue = replaceNewValue.length;
 
-    print("ReplaceNewValue : $replaceNewValue");
-    print("replaceLenght $lenghtReplaceNewValue");
+    /*   print("ReplaceNewValue : $replaceNewValue");
+    print("replaceLenght $lenghtReplaceNewValue"); */
 
     ///ilk 3 terimde nokta olmadığı için 3'ten büyük yapıldı.
     if (lenghtReplaceNewValue > 3) {

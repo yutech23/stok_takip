@@ -4,7 +4,6 @@ class ConvertStringCurrencyDigitThreeByThree {
     final List<String> _listPartDigits = [];
     String resultConvert = "";
     for (var i = value.length; 0 < i; i = i - 3) {
-      print("i sayisi: $i");
       if (i > 2) {
         _listPartDigits.add(value.substring(i - 3, i));
       } else {

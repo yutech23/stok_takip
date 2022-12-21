@@ -29,6 +29,7 @@ class ShareWidget with Validation {
           counterText: "",
           labelText: etiket,
           border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(color: Colors.amber))),
       focusNode: FocusNode(skipTraversal: focusValue!),
       keyboardType: keyboardInputType,

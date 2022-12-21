@@ -138,7 +138,7 @@ class _MyDrawerState extends State<MyDrawer> {
 //Çıkış Bölmünün widgetı.
   Widget widgetContainerExit(BuildContext context) {
     return Container(
-      color: context.extensionBlueGreyColor(),
+      color: context.extensionDefaultColor,
       height: context.extensionButtonHeight,
       alignment: Alignment.center,
       child: InkWell(

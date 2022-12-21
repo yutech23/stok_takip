@@ -1,9 +1,5 @@
-import 'dart:html';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
@@ -66,19 +62,17 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final String _cash = "Nakit İle Ödenen Tutar";
   final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
   final String _bankCard = "Kart İle Ödenen Tutar";
-  final double _shareTextFormFieldPaymentSystemWidth = 220;
-  final double _shareTextFormFieldPaymentSystemSpace = 20;
+  final double _shareTextFormFieldPaymentSystemWidth = 250;
 
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   DateTime selectDateTime = DateTime.now();
-  final Color _colorBackgroundCurrencyDisable = Colors.blueGrey.shade900;
-  final Color _colorBackgroundCurrencyEnable = Colors.grey;
-  Color _colorBackgroundCurrencyUSD = Colors.blueGrey.shade900;
-  Color _colorBackgroundCurrencyTRY = Colors.blueGrey.shade900;
-  Color _colorBackgroundCurrencyEUR = Colors.blueGrey.shade900;
-  String _selectCurrency = "";
+
+  late Color _colorBackgroundCurrencyUSD;
+  late Color _colorBackgroundCurrencyTRY;
+  late Color _colorBackgroundCurrencyEUR;
+  String _selectCurrency = "₺";
   final String _labelCurrencySelect = "Para Birimi Seçiniz";
   final String _labelAmountOfStock = "Stok Miktarı (Adet)";
   final String _labelKDV = "KDV Oranın Seçiniz";
@@ -110,6 +104,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         sallingPriceWithoutTax: null,
         taxRate: null);
     _category = Category();
+    _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
+    _colorBackgroundCurrencyTRY = context.extensionDisableColor;
+    _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
     super.initState();
   }
 
@@ -152,7 +149,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Wrap(
                     alignment: WrapAlignment.start,
@@ -161,7 +157,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     runSpacing: 10,
                     children: [
                       widgetSearchTextFieldProductCodeUpperCase(),
-                      // widgetDividerHeader(),
                       widgetSearchTextFieldSupplier(),
                     ]),
                 const Divider(),
@@ -173,19 +168,21 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   runSpacing: 20,
                   children: [
                     widgetQrCodeSection(),
-                    widgetCategorySelectSection()
+                    widgetCategorySelectSection(),
                   ],
                 ),
-                widgetStockValueSection(),
+                const Divider(),
                 widgetDividerHeader(_paymentSections),
                 widgetPaymentOptions(),
                 Divider(
-                    color: Colors.blueGrey.shade600,
+                    color: context.extensionLineColor,
                     endIndent: 30,
                     indent: 30,
                     thickness: 2.5,
                     height: 20),
+                const Divider(),
                 widgetProductUnitSection(),
+                const Divider(),
                 widgetSaveProduct(),
               ],
             ),
@@ -360,7 +357,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     width: 180,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade900,
+                        color: context.extensionDefaultColor,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(color: Colors.grey.withOpacity(0.5))
@@ -432,11 +429,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           ? Divider(
                               height: 0,
                               thickness: 1.5,
-                              color: Colors.blueGrey.shade900,
+                              color: context.extensionDefaultColor,
                             )
                           : Divider(
                               thickness: 1.5,
-                              color: Colors.blueGrey.shade900,
+                              color: context.extensionDefaultColor,
                             );
                     },
                   ),
@@ -505,53 +502,39 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   }
 
   ///Stok Ve KDV
-  widgetStockValueSection() {
-    return Container(
-      width: 500,
-      color: Colors.red,
-      child: Wrap(
-        direction: Axis.horizontal,
-        verticalDirection: VerticalDirection.down,
-        alignment: WrapAlignment.center,
-        spacing: context.extensionWrapSpacing10(),
-        runSpacing: context.extensionWrapSpacing10(),
-        children: [
-          ///Para Birimi Seçilen yer.
-          Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              Positioned(
-                left: 50,
-                top: 0,
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    _labelCurrencySelect,
-                    style: context.theme.titleMedium!.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey.shade900),
-                  ),
-                ),
-              ),
-              Container(
+  widgetCurrencyAndKdvSection() {
+    return Wrap(
+      direction: Axis.horizontal,
+      verticalDirection: VerticalDirection.down,
+      spacing: context.extensionWrapSpacing20(),
+      runSpacing: context.extensionWrapSpacing20(),
+      children: [
+        ///Para Birimi Seçilen yer.
+        Stack(
+          children: [
+            Positioned(
+              child: Container(
                 alignment: Alignment.center,
-                width: 230,
+                width: _shareTextFormFieldPaymentSystemWidth,
                 height: 50,
-                decoration: BoxDecoration(border: Border.all()),
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: context.extensionRadiusDefault10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "TL";
+                            _selectCurrency = "₺";
                             _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyEnable;
+                                context.extensionDisableColor;
                             _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                             _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                           });
                         },
                         sembol: '₺',
@@ -562,13 +545,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "USD";
+                            _selectCurrency = "\$";
                             _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                             _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyEnable;
+                                context.extensionDisableColor;
                             _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                           });
                         },
                         sembol: '\$',
@@ -579,13 +562,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "EUR";
+                            _selectCurrency = "€";
                             _colorBackgroundCurrencyTRY =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                             _colorBackgroundCurrencyUSD =
-                                _colorBackgroundCurrencyDisable;
+                                context.extensionDefaultColor;
                             _colorBackgroundCurrencyEUR =
-                                _colorBackgroundCurrencyEnable;
+                                context.extensionDisableColor;
                           });
                         },
                         sembol: '€',
@@ -593,22 +576,37 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   ],
                 ),
               ),
-            ],
-          ),
-          //KDV Bölümü.
-          Container(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              width: 230,
-              height: 74,
-              child: ShareDropdown(
-                validator: validatenNotEmpty,
-                hint: _labelKDV,
-                itemList: _productTaxList,
-                selectValue: _selectedTax,
-                getShareDropdownCallbackFunc: _getProductTax,
-              )),
-        ],
-      ),
+            ),
+            Positioned(
+              left: 60,
+              child: Container(
+                padding: EdgeInsets.zero,
+                color: Colors.white,
+                child: Text(
+                  textAlign: TextAlign.center,
+                  _labelCurrencySelect,
+                  style: context.theme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.extensionDefaultColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+        //KDV Bölümü.
+        Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            width: _shareTextFormFieldPaymentSystemWidth,
+            height: 74,
+            child: ShareDropdown(
+              validator: validatenNotEmpty,
+              hint: _labelKDV,
+              itemList: _productTaxList,
+              selectValue: _selectedTax,
+              getShareDropdownCallbackFunc: _getProductTax,
+            )),
+      ],
     );
   }
 
@@ -670,7 +668,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       children: [
         Expanded(
           child: Divider(
-            color: Colors.blueGrey.shade600,
+            color: context.extensionLineColor,
             thickness: 2.5,
             indent: 30,
             endIndent: 10,
@@ -678,10 +676,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         ),
         Text(header,
             style: context.theme.headline6!.copyWith(
-                color: Colors.blueGrey.shade900, fontWeight: FontWeight.bold)),
+                color: context.extensionDefaultColor,
+                fontWeight: FontWeight.bold)),
         Expanded(
             child: Divider(
-          color: Colors.blueGrey.shade600,
+          color: context.extensionLineColor,
           thickness: 2.5,
           indent: 10,
           endIndent: 30,
@@ -713,16 +712,17 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       child: Wrap(
         alignment: WrapAlignment.start,
         direction: Axis.horizontal,
-        spacing: _shareTextFormFieldPaymentSystemSpace,
-        runSpacing: _shareTextFormFieldPaymentSystemSpace,
+        spacing: context.extensionWrapSpacing20(),
+        runSpacing: context.extensionWrapSpacing20(),
         children: [
+          widgetCurrencyAndKdvSection(),
           Container(
             alignment: Alignment.center,
             width: insideContainerWidth,
             child: Wrap(
               alignment: WrapAlignment.center,
               direction: Axis.vertical,
-              spacing: _shareTextFormFieldPaymentSystemSpace,
+              spacing: context.extensionWrapSpacing20(),
               children: [
                 sharedTextFormField(
                   width: _shareTextFormFieldPaymentSystemWidth,
@@ -759,7 +759,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             child: Wrap(
               alignment: WrapAlignment.center,
               direction: Axis.vertical,
-              spacing: _shareTextFormFieldPaymentSystemSpace,
+              spacing: context.extensionWrapSpacing20(),
               children: [
                 sharedTextFormField(
                   width: _shareTextFormFieldPaymentSystemWidth,
@@ -834,6 +834,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   _valueNotifierBalance.value =
                       _totalPaymentValue - _valueNotifierPaid.value;
                   _valueNotifierButtonDateTimeState.value = false;
+
                   if (_valueNotifierBalance.value > 0) {
                     _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
                     _valueNotifierButtonDateTimeState.value = true;
@@ -854,12 +855,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         direction: Axis.horizontal,
         verticalDirection: VerticalDirection.down,
         alignment: WrapAlignment.center,
-        spacing: 10,
-        runSpacing: 10,
+        spacing: context.extensionWrapSpacing20(),
+        runSpacing: context.extensionWrapSpacing10(),
         children: [
           Container(
             width: 230,
-            height: 70,
+            height: 50,
             child: shareWidget.widgetTextFieldInput(
               etiket: _labelAmountOfStock,
               maxCharacter: 7,
@@ -884,7 +885,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             alignment: Alignment.center,
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10)),
+                borderRadius: context.extensionRadiusDefault10),
             child: ValueListenableBuilder<double>(
               valueListenable: _valueNotifierProductBuyWithTax,
               builder: (context, value, child) => RichText(
@@ -934,7 +935,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             alignment: Alignment.center,
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10)),
+                borderRadius: context.extensionRadiusDefault10),
             child: ValueListenableBuilder<double>(
               valueListenable: _valueNotifierProductSaleWithTax,
               builder: (context, value, child) => RichText(
@@ -1034,7 +1035,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Colors.blueGrey.shade900),
+          labelStyle: TextStyle(color: context.extensionDefaultColor),
           isDense: true,
           errorBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -1060,13 +1061,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             text: TextSpan(
                 text: firstText,
                 style: context.theme.titleMedium!.copyWith(
-                    color: Colors.blueGrey.shade900,
+                    color: context.extensionDefaultColor,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1),
                 children: [
                   TextSpan(
-                      text: convertStringToCurrencyDigitThreeByThree
-                          .convertStringToDigit3By3(value.toString()),
+                      text:
+                          "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectCurrency",
                       style: context.theme.titleMedium!.copyWith(
                           color: Colors.red.shade900,
                           fontWeight: FontWeight.bold,
@@ -1100,8 +1101,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.titleMedium!
-                .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+            style: context.theme.headline5!.copyWith(
+              color: Colors.white,
+            ),
           ),
         ));
   }
