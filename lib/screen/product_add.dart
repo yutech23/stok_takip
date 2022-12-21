@@ -730,17 +730,27 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ],
             ),
           ),
-          SizedBox(
+          Container(
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: Colors.blueGrey.shade900,
+                )),
             width: 150,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Para Birimini Seçiniz : ",
+                  textAlign: TextAlign.center,
+                  "Para Birimi Seçiniz",
                   style: context.theme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.blueGrey.shade900),
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     shareInkwellCurrency(
                         onTap: () {
@@ -1064,11 +1074,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         child: Container(
           color: backgroundColor,
           alignment: Alignment.center,
-          width: 30,
-          height: 30,
+          width: 20,
+          height: 20,
           child: Text(
             sembol,
-            style: context.theme.headline5!
+            style: context.theme.titleMedium!
                 .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ));

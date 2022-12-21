@@ -42,8 +42,7 @@ dependencies:
   hive_flutter: ^1.1.0
   fluttericon: ^2.0.0
   function_tree: ^0.8.13
-  currency_text_input_formatter: ^2.1.8
-  intl: ^0.18.0
+  currency_text_input_formatter: ^2.1.8  
   flutter_localizations:
     sdk: flutter
 
