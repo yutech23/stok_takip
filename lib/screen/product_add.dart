@@ -897,7 +897,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         letterSpacing: 1),
                     children: [
                       TextSpan(
-                          text: value.toStringAsFixed(2),
+                          text: "${value.toStringAsFixed(2)} $_selectCurrency",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -949,7 +949,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       TextSpan(
                           text: _selectedTaxToInt == 0
                               ? 'KDV Seçilmedi'
-                              : '${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)}',
+                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectCurrency",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1053,26 +1053,28 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         return Container(
           alignment: Alignment.centerLeft,
           width: _shareTextFormFieldPaymentSystemWidth,
-          height: 40,
+          height: 43,
           decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(color: context.extensionDisableColor))),
           child: RichText(
-            text: TextSpan(
+            maxLines: 2,
+            text: TextSpan(children: [
+              TextSpan(
                 text: firstText,
                 style: context.theme.titleMedium!.copyWith(
                     color: context.extensionDefaultColor,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1),
-                children: [
-                  TextSpan(
-                      text:
-                          "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectCurrency",
-                      style: context.theme.titleMedium!.copyWith(
-                          color: Colors.red.shade900,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1))
-                ]),
+              ),
+              TextSpan(
+                  text:
+                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectCurrency",
+                  style: context.theme.titleMedium!.copyWith(
+                      color: Colors.red.shade900,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1))
+            ]),
             textAlign: TextAlign.center,
           ),
         );
