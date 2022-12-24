@@ -43,6 +43,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
   final _controllerPaymentValue = TextEditingController();
+  final _controllerBillingCode = TextEditingController();
+
+  final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
 
   late Product? _product;
   late Category _category;
@@ -76,6 +79,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final String _labelCurrencySelect = "Para Birimi Seçiniz";
   final String _labelAmountOfStock = "Stok Miktarı (Adet)";
   final String _labelKDV = "KDV Oranın Seçiniz";
+  final String _labelBillingCode = "Fatura Kodu";
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -122,6 +126,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     super.dispose();
   }
 
+  double sideLength = 50;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,18 +150,31 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
               child: Container(
-            constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
+            constraints: BoxConstraints(
+                minWidth: _containerMainMinWidth,
+                maxWidth: _containerMainMaxWidth),
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Column(
               children: [
                 Wrap(
-                    alignment: WrapAlignment.start,
+                    alignment: WrapAlignment.center,
                     direction: Axis.horizontal,
                     spacing: 30,
                     runSpacing: 10,
                     children: [
-                      widgetSearchTextFieldProductCodeUpperCase(),
+                      Wrap(
+                        direction: Axis.horizontal,
+                        spacing: context.extensionWrapSpacing20(),
+                        runSpacing: context.extensionWrapSpacing20(),
+                        children: [
+                          widgetWrapTextFieldMinAndMaxWidth(
+                              widgetSearchTextFieldProductCodeUpperCase()),
+                          widgetWrapTextFieldMinAndMaxWidth(
+                            widgetBillingCode(),
+                          ),
+                        ],
+                      ),
                       widgetSearchTextFieldSupplier(),
                     ]),
                 const Divider(),
@@ -183,11 +201,42 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 const Divider(),
                 widgetProductUnitSection(),
                 const Divider(),
+                Material(
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: context.extensionDefaultColor),
+                      color: Colors.blue,
+                    ),
+                    width: 50,
+                    height: 50,
+                    child: InkWell(
+                      onTap: () {},
+                      hoverColor: Colors.amber,
+                      child: Text("data"),
+                    ),
+                  ),
+                ),
                 widgetSaveProduct(),
               ],
             ),
           )),
         ));
+  }
+
+  ///Fatura Kodu giriş bölümü.
+  TextFormField widgetBillingCode() {
+    return TextFormField(
+      maxLength: 25,
+      controller: _controllerBillingCode,
+      decoration: InputDecoration(
+          counterText: "", //maxLen gözükmesini engelliyor
+          enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)),
+          labelText: _labelBillingCode,
+          border: OutlineInputBorder(
+              borderRadius: context.extensionRadiusDefault5,
+              borderSide: BorderSide(color: context.extensionDefaultColor))),
+    );
   }
 
 //Widget Ürün Kodu Giriniz Search
@@ -233,6 +282,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         SizedBox(
           height: 50,
           child: FloatingActionButton(
+            autofocus: false,
+            focusNode: FocusNode(skipTraversal: true),
             child: const Icon(Icons.add),
             onPressed: () {
               showDialog(
@@ -1108,5 +1159,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ),
           ),
         ));
+  }
+
+  widgetWrapTextFieldMinAndMaxWidth(Widget widget) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 250, maxWidth: 345),
+      child: widget,
+    );
   }
 }

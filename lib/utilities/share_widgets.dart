@@ -17,6 +17,7 @@ class ShareWidget with Validation {
     List<TextInputFormatter>? inputFormat,
     TextInputType? keyboardInputType,
     void Function(String)? onChanged,
+    // Color borderSideColor,
   }) {
     return TextFormField(
       onChanged: onChanged,
@@ -29,8 +30,8 @@ class ShareWidget with Validation {
           counterText: "",
           labelText: etiket,
           border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(color: Colors.amber))),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          )),
       focusNode: FocusNode(skipTraversal: focusValue!),
       keyboardType: keyboardInputType,
       inputFormatters: inputFormat,
