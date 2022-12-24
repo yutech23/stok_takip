@@ -5,6 +5,7 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import 'utilities/navigation/auth_guard.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:stok_takip/utilities/dimension_font.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,13 +49,35 @@ class MyApp extends StatelessWidget {
                   color: Colors.white,
                   fontSize: 24)),
           elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey.shade900,
-                  minimumSize: const Size(300, 50),
-                  textStyle: Theme.of(context)
+              style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all(const Size(300, 50)),
+                  foregroundColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.white;
+                    }
+                    return Colors.white;
+                  }),
+                  backgroundColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey.shade400;
+                    }
+                    return context.extensionDefaultColor;
+                  }),
+                  overlayColor: MaterialStateProperty.resolveWith(
+                    (states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return context.extensionDisableColor;
+                      } else if (states.contains(MaterialState.pressed)) {
+                        return context.extensionDisableColor.withOpacity(0.48);
+                      } else if (states.contains(MaterialState.hovered)) {
+                        return context.extensionDisableColor.withOpacity(0.24);
+                      }
+                    },
+                  ),
+                  textStyle: MaterialStateProperty.all(Theme.of(context)
                       .textTheme
                       .headline6!
-                      .copyWith(color: Colors.white))),
+                      .copyWith(color: Colors.white)))),
           textTheme: const TextTheme(
             headline3: TextStyle(color: Colors.black),
             headline4:

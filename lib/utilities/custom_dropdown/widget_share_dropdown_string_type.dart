@@ -10,17 +10,18 @@ class ShareDropdown extends StatelessWidget {
   List<String> itemList;
   String? Function(String?)? validator;
   String? selectValue;
+  bool skipTravel = false;
 
   ShareDropdown(
       {required this.hint,
       required this.itemList,
       this.validator,
       required this.selectValue,
-      this.getShareDropdownCallbackFunc});
+      this.getShareDropdownCallbackFunc,
+      skipTravel});
 
   @override
   Widget build(BuildContext context) {
-
     ///Dropdown Listesini Dolduruyor.
     List<DropdownMenuItem<String>> dropdownMenuitemList = [];
     for (var item in itemList) {
@@ -33,12 +34,15 @@ class ShareDropdown extends StatelessWidget {
           )));
     }
     return DropdownButtonFormField<String>(
+      focusNode: FocusNode(skipTraversal: skipTravel),
       decoration: InputDecoration(
         isDense: false,
         contentPadding: const EdgeInsets.only(right: 5, bottom: 15),
-        disabledBorder:OutlineInputBorder( borderSide: BorderSide.none,
+        disabledBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(15)),
-        enabledBorder: OutlineInputBorder( borderSide: BorderSide.none,
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(15)),
         focusedBorder: OutlineInputBorder(
             borderSide: BorderSide.none,
@@ -71,7 +75,6 @@ class ShareDropdown extends StatelessWidget {
       isDense: true,
       itemHeight: 50,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-
       dropdownColor: Colors.blueGrey.shade200,
       items: dropdownMenuitemList,
       value: selectValue,

@@ -7,6 +7,7 @@ class Product {
   int? taxRate;
   double? buyingpriceWithoutTax;
   double? sallingPriceWithoutTax;
+  String? billingCode;
 
   Category? category;
 
@@ -16,7 +17,8 @@ class Product {
       required this.taxRate,
       required this.buyingpriceWithoutTax,
       required this.sallingPriceWithoutTax,
-      required this.category});
+      required this.category,
+      this.billingCode});
 
   Product.withId(
       {required this.product_id,

@@ -183,7 +183,7 @@ class _ScreenSignUpState extends State with Validation {
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: "Şifrenizi Giriniz",
+        labelText: "Tekrar Şifrenizi Giriniz",
         border: OutlineInputBorder(),
         suffixIcon: IconButton(
             focusNode: FocusNode(skipTraversal: true),
@@ -209,11 +209,11 @@ class _ScreenSignUpState extends State with Validation {
           kullanici.password = _controllerPassword.text;
           kullanici.role = _role;
         });
-        print(kullanici.name);
+        /*   print(kullanici.name);
         print(kullanici.lastName);
         print(kullanici.email);
         print(kullanici.password);
-        print(kullanici.role);
+        print(kullanici.role); */
 
         db.signUp(context, formKey, kullanici).then((value) {
           if (value == true) {

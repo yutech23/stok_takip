@@ -201,42 +201,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 const Divider(),
                 widgetProductUnitSection(),
                 const Divider(),
-                Material(
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: context.extensionDefaultColor),
-                      color: Colors.blue,
-                    ),
-                    width: 50,
-                    height: 50,
-                    child: InkWell(
-                      onTap: () {},
-                      hoverColor: Colors.amber,
-                      child: Text("data"),
-                    ),
-                  ),
-                ),
                 widgetSaveProduct(),
               ],
             ),
           )),
         ));
-  }
-
-  ///Fatura Kodu giriş bölümü.
-  TextFormField widgetBillingCode() {
-    return TextFormField(
-      maxLength: 25,
-      controller: _controllerBillingCode,
-      decoration: InputDecoration(
-          counterText: "", //maxLen gözükmesini engelliyor
-          enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.black)),
-          labelText: _labelBillingCode,
-          border: OutlineInputBorder(
-              borderRadius: context.extensionRadiusDefault5,
-              borderSide: BorderSide(color: context.extensionDefaultColor))),
-    );
   }
 
 //Widget Ürün Kodu Giriniz Search
@@ -276,12 +245,30 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Fatura Kodu giriş bölümü.
+  TextFormField widgetBillingCode() {
+    return TextFormField(
+      maxLength: 25,
+      controller: _controllerBillingCode,
+      decoration: InputDecoration(
+          counterText: "", //maxLen gözükmesini engelliyor
+          enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)),
+          labelText: _labelBillingCode,
+          border: OutlineInputBorder(
+              borderRadius: context.extensionRadiusDefault5,
+              borderSide: BorderSide(color: context.extensionDefaultColor))),
+    );
+  }
+
+  ///Tedarikçi Bölümü.
   widgetSearchTextFieldSupplier() {
     return Row(
       children: [
         SizedBox(
           height: 50,
           child: FloatingActionButton(
+            heroTag: "Tedarikçi Arama",
             autofocus: false,
             focusNode: FocusNode(skipTraversal: true),
             child: const Icon(Icons.add),
@@ -414,6 +401,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           BoxShadow(color: Colors.grey.withOpacity(0.5))
                         ]),
                     child: TextButton(
+                      focusNode: FocusNode(skipTraversal: true),
                       onPressed: () => widgetCategorySelectPopUp(),
                       child: Text(
                         "Kategori Seçiniz",
@@ -432,7 +420,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   left: 10,
                   top: 10,
                   child: FloatingActionButton.small(
-                    hoverColor: Colors.amber,
+                    heroTag: "Kategori Button",
+                    focusColor: context.extensionDisableColor,
+                    hoverColor: Colors.grey,
                     child: const Icon(Icons.add),
                     onPressed: () {
                       widgetCategorySelectPopUp();
@@ -1036,7 +1026,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           double.parse(_controllerBuyingPriceWithoutTax.text),
                       sallingPriceWithoutTax:
                           double.parse(_controllerSallingPriceWithoutTax.text),
-                      category: _category);
+                      category: _category,
+                      billingCode: _controllerBillingCode.text);
                   db.saveProduct(context, _product!).then((value) {
                     /// kayıt başarılı olunca degerleri sıfırlıyor.
                     if (value) {
@@ -1146,6 +1137,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       required String sembol,
       Color? backgroundColor}) {
     return InkWell(
+        focusNode: FocusNode(skipTraversal: true),
         onTap: onTap,
         child: Container(
           color: backgroundColor,
