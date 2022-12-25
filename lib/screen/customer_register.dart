@@ -35,6 +35,12 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerCargoCode = TextEditingController();
   final _controllerCargoName = TextEditingController();
   final _controllerCompanyName = TextEditingController();
+  final _controllerBankName = TextEditingController();
+  final _controllerIban = TextEditingController();
+
+  final String _labelBankName = "Banka İsmi";
+  final String _labelIban = "IBAN Numarası";
+  final String _labelCompanyName = "Firma Adını Giriniz";
 
   late List<dynamic> listCustomerRegister;
 
@@ -375,10 +381,15 @@ class _ScreenCustomerSave extends State with Validation {
   listeEklemeCompanyAndSupplier() {
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         controller: _controllerCompanyName,
-        etiket: "Fima adını giriniz",
-        focusValue: false,
-        karakterGostermeDurumu: false,
+        etiket: _labelCompanyName,
         validationFunc: validateFirstAndLastName));
+    listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        keyboardInputType: TextInputType.name,
+        controller: _controllerBankName,
+        etiket: _labelBankName));
+    listCustomerRegister.add(TextFormField(
+      decoration: InputDecoration(prefixText: "TR"),
+    ));
   }
 
   Container widgetCargoCompanyAndCargoCode() {

@@ -287,6 +287,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: db.getSuppliersNameStream(),
             builder: (context, snapshot) {
+              print(snapshot.data);
               if (!snapshot.hasError &&
                   snapshot.hasData &&
                   snapshot.data!.isNotEmpty) {
@@ -735,10 +736,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       List<Map<String, dynamic>> snapshotData) {
     List<SearchFieldListItem> listSupplier = [];
     for (var item in snapshotData) {
-      if (item['type'] == "Tedarikçi") {
-        listSupplier
-            .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
-      }
+      listSupplier
+          .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
     }
     return listSupplier;
   }

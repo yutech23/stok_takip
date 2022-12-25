@@ -318,8 +318,8 @@ class DbHelper {
 
   Stream<List<Map<String, dynamic>>> getSuppliersNameStream() {
     final resProduct = db.supabase
-        .from('customer_company_suppliers')
-        .stream(['customer_id'])
+        .from('suppliers')
+        .stream(['supplier_id'])
         .order('name', ascending: true)
         .execute();
 
