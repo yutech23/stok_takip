@@ -388,7 +388,7 @@ class _ScreenCustomerSave extends State with Validation {
         controller: _controllerBankName,
         etiket: _labelBankName));
     listCustomerRegister.add(TextFormField(
-      decoration: InputDecoration(prefixText: "TR"),
+      decoration: const InputDecoration(prefixText: "TR"),
     ));
   }
 
