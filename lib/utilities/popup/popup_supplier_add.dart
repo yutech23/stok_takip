@@ -1,7 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:iban_form_field/iban_form_field.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -12,6 +11,7 @@ import 'package:stok_takip/validations/validation.dart';
 import '../constants.dart';
 import '../share_widgets.dart';
 
+// ignore: must_be_immutable
 class PopupSupplierRegister extends StatefulWidget {
   String newSupplier;
   PopupSupplierRegister(this.newSupplier, {super.key});
@@ -237,6 +237,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   ///Banka Adı Ve İban Numarası
   widgetBankAndIban() {
     return Wrap(
+      alignment: WrapAlignment.center,
+      runSpacing: context.extensionWrapSpacing20(),
       children: [
         shareWidget.widgetTextFieldInput(etiket: _labelBankName),
         shareWidget.widgetTextFieldInput(

@@ -39,7 +39,6 @@ dependencies:
   url_strategy: ^0.2.0
   auto_route: ^5.0.4
   dio: ^4.0.6
-  iban_form_field: ^0.2.3
   hive_flutter: ^1.1.0
   fluttericon: ^2.0.0
   function_tree: ^0.8.13
