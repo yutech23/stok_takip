@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class InputFormatterDecimalThreeByThree extends TextInputFormatter {
+class FormatterDecimalThreeByThree extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,

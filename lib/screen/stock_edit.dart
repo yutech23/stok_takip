@@ -14,7 +14,7 @@ import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/input_format_decimal_limit.dart';
+import '../validations/format_decimal_limit.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
 
@@ -1045,7 +1045,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         child: shareWidget.widgetTextFieldInput(
                           etiket: 'Vergiler Hariç Alış',
                           inputFormat: <TextInputFormatter>[
-                            InputFormatterDecimalLimit(decimalRange: 2)
+                            FormatterDecimalLimit(decimalRange: 2)
                           ],
                           controller: controllerBuyingPriceWithoutTax,
                           validationFunc: validatenNotEmpty,
@@ -1067,7 +1067,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         child: shareWidget.widgetTextFieldInput(
                           etiket: 'Vergiler Hariç Satış',
                           inputFormat: [
-                            InputFormatterDecimalLimit(decimalRange: 2),
+                            FormatterDecimalLimit(decimalRange: 2),
                           ],
                           controller: controllerSallingPriceWithoutTax,
                           validationFunc: validatenNotEmpty,

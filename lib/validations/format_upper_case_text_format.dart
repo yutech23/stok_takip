@@ -1,7 +1,7 @@
 //TextField için İçine Sadece Büyük harf girme Sınıfı
 import 'package:flutter/services.dart';
 
-class UpperCaseTextFormatter extends TextInputFormatter {
+class FormatterUpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {

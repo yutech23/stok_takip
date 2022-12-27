@@ -13,11 +13,11 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
-import 'package:stok_takip/validations/input_format_decimal_limit.dart';
+import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/input_format_decimal_3by3.dart';
-import '../validations/upper_case_text_format.dart';
+import '../validations/format_decimal_3by3.dart';
+import '../validations/format_upper_case_text_format.dart';
 
 class ScreenProductAdd extends StatefulWidget {
   const ScreenProductAdd({Key? key}) : super(key: key);
@@ -43,7 +43,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
   final _controllerPaymentValue = TextEditingController();
-  final _controllerBillingCode = TextEditingController();
+  final _controllerInvoiceCode = TextEditingController();
 
   final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
 
@@ -71,18 +71,26 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   DateTime selectDateTime = DateTime.now();
-
   late Color _colorBackgroundCurrencyUSD;
   late Color _colorBackgroundCurrencyTRY;
   late Color _colorBackgroundCurrencyEUR;
-  String _selectCurrency = "₺";
+  late String _selectUnitOfCurrency;
+  late String _selectCurrencyType;
   final String _labelCurrencySelect = "Para Birimi Seçiniz";
   final String _labelAmountOfStock = "Stok Miktarı (Adet)";
   final String _labelKDV = "KDV Oranın Seçiniz";
-  final String _labelBillingCode = "Fatura Kodu";
+  final String _labelInvoiceCode = "Fatura Kodu";
+  final String _labelSearchSuppiler = "Tedarikci İsmini Giriniz";
+
+  final Map<String, dynamic> _mapUnitOfCurrency = {
+    "Türkiye": {"symbol": "₺", "abridgment": "TL"},
+    "amerika": {"symbol": '\$', "abridgment": "USD"},
+    "avrupa": {"symbol": '€', "abridgment": "EURO"}
+  };
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
+
   void _getProductTax(String value) {
     setState(() {
       _selectedTax = value;
@@ -97,6 +105,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   @override
   void initState() {
+    _selectUnitOfCurrency = _mapUnitOfCurrency["Türkiye"]["symbol"];
+    _selectCurrencyType = _mapUnitOfCurrency["Türkiye"]["abridgment"];
     //   roleCheck();
     _productCodeList = [];
 
@@ -171,7 +181,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           widgetWrapTextFieldMinAndMaxWidth(
                               widgetSearchTextFieldProductCodeUpperCase()),
                           widgetWrapTextFieldMinAndMaxWidth(
-                            widgetBillingCode(),
+                            widgetInvoiceCode(),
                           ),
                         ],
                       ),
@@ -222,7 +232,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(),
                 )),
-            inputFormatters: [UpperCaseTextFormatter()],
+            inputFormatters: [FormatterUpperCaseTextFormatter()],
             suggestions: snapshot.data!.map((e) {
               return SearchFieldListItem(e);
             }).toList(),
@@ -246,15 +256,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   }
 
   ///Fatura Kodu giriş bölümü.
-  TextFormField widgetBillingCode() {
+  TextFormField widgetInvoiceCode() {
     return TextFormField(
       maxLength: 25,
-      controller: _controllerBillingCode,
+      controller: _controllerInvoiceCode,
+      inputFormatters: [FormatterUpperCaseTextFormatter()],
       decoration: InputDecoration(
           counterText: "", //maxLen gözükmesini engelliyor
           enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.black)),
-          labelText: _labelBillingCode,
+          labelText: _labelInvoiceCode,
           border: OutlineInputBorder(
               borderRadius: context.extensionRadiusDefault5,
               borderSide: BorderSide(color: context.extensionDefaultColor))),
@@ -287,16 +298,15 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: db.getSuppliersNameStream(),
             builder: (context, snapshot) {
-              print(snapshot.data);
               if (!snapshot.hasError &&
                   snapshot.hasData &&
                   snapshot.data!.isNotEmpty) {
                 return SearchField(
                   controller: _controllerSupplier,
-                  searchInputDecoration: const InputDecoration(
-                      label: Text("Tedarikci İsmini Giriniz"),
-                      prefixIcon: Icon(Icons.search, color: Colors.black),
-                      enabledBorder: OutlineInputBorder(
+                  searchInputDecoration: InputDecoration(
+                      labelText: _labelSearchSuppiler,
+                      prefixIcon: const Icon(Icons.search, color: Colors.black),
+                      enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(),
                       )),
                   suggestions: searchFieldListItemSupplierName(snapshot.data!),
@@ -570,7 +580,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "₺";
+                            _selectCurrencyType =
+                                _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                            _selectUnitOfCurrency =
+                                _mapUnitOfCurrency["Türkiye"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDisableColor;
                             _colorBackgroundCurrencyUSD =
@@ -579,7 +592,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                                 context.extensionDefaultColor;
                           });
                         },
-                        sembol: '₺',
+                        sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
                         backgroundColor: _colorBackgroundCurrencyTRY),
                     const SizedBox(
                       width: 2,
@@ -587,7 +600,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "\$";
+                            _selectCurrencyType =
+                                _mapUnitOfCurrency["amerika"]["abridgment"];
+                            _selectUnitOfCurrency =
+                                _mapUnitOfCurrency["amerika"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDefaultColor;
                             _colorBackgroundCurrencyUSD =
@@ -596,7 +612,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                                 context.extensionDefaultColor;
                           });
                         },
-                        sembol: '\$',
+                        sembol: _mapUnitOfCurrency["amerika"]["symbol"],
                         backgroundColor: _colorBackgroundCurrencyUSD),
                     const SizedBox(
                       width: 2,
@@ -604,7 +620,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrency = "€";
+                            _selectCurrencyType =
+                                _mapUnitOfCurrency["avrupa"]["abridgment"];
+                            _selectUnitOfCurrency =
+                                _mapUnitOfCurrency["avrupa"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDefaultColor;
                             _colorBackgroundCurrencyUSD =
@@ -613,7 +632,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                                 context.extensionDisableColor;
                           });
                         },
-                        sembol: '€',
+                        sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
                         backgroundColor: _colorBackgroundCurrencyEUR),
                   ],
                 ),
@@ -937,7 +956,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         letterSpacing: 1),
                     children: [
                       TextSpan(
-                          text: "${value.toStringAsFixed(2)} $_selectCurrency",
+                          text:
+                              "${value.toStringAsFixed(2)} $_selectUnitOfCurrency",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -953,7 +973,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             child: shareWidget.widgetTextFieldInput(
               etiket: 'Vergiler Hariç Satış (Birim Fiyat)',
               inputFormat: [
-                InputFormatterDecimalLimit(decimalRange: 2),
+                FormatterDecimalLimit(decimalRange: 2),
               ],
               controller: _controllerSallingPriceWithoutTax,
               validationFunc: validatenNotEmpty,
@@ -989,7 +1009,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       TextSpan(
                           text: _selectedTaxToInt == 0
                               ? 'KDV Seçilmedi'
-                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectCurrency",
+                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrency",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1026,7 +1046,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       sallingPriceWithoutTax:
                           double.parse(_controllerSallingPriceWithoutTax.text),
                       category: _category,
-                      billingCode: _controllerBillingCode.text);
+                      billingCode: _controllerInvoiceCode.text);
                   db.saveProduct(context, _product!).then((value) {
                     /// kayıt başarılı olunca degerleri sıfırlıyor.
                     if (value) {
@@ -1070,7 +1090,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         controller: controller,
         autovalidateMode: AutovalidateMode.always,
         inputFormatters: [
-          InputFormatterDecimalThreeByThree(),
+          FormatterDecimalThreeByThree(),
         ],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
@@ -1110,7 +1130,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ),
               TextSpan(
                   text:
-                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectCurrency",
+                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrency",
                   style: context.theme.titleMedium!.copyWith(
                       color: Colors.red.shade900,
                       fontWeight: FontWeight.bold,

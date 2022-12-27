@@ -4,7 +4,7 @@ import 'package:stok_takip/bloc/bloc_category.dart';
 import 'package:stok_takip/data/database_category.dart';
 import '../validations/validation.dart';
 import '../models/category.dart';
-import '../validations/upper_case_capital_text_format.dart';
+import '../validations/format_upper_case_capital_text_format.dart';
 
 class WidgetCategoryAdd extends StatefulWidget {
   @override
@@ -927,7 +927,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
           child: widgetTextFieldByCategory(
               controller: _controllerCategories[i],
               etiket: "Kategori-${categoryNo} Elemanını Giriniz",
-              inputFormat: [UpperCaseCapitalEachWordTextFormatter()],
+              inputFormat: [FormatterUpperCaseCapitalEachWordTextFormatter()],
               validationFunc: validatenNotEmpty,
               enable: _enableCategoryTextFormField[i])));
 

@@ -1,10 +1,12 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:iban_form_field/iban_form_field.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
+import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
 
 import '../constants.dart';
@@ -34,6 +36,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   Customer? _customer;
   final String _headerSupplier = "Yeni Tedarikçi Ekleme";
   final String _type = "Tedarikçi";
+  final String _labelBankName = "Banka Adı";
+  final String _labelIBANName = "IBAN Numarası";
 
   @override
   void initState() {
@@ -80,6 +84,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               widgetCountryPhoneNumber(),
               context.extensionHighSizedBox20(),
               widgetRowCityAndDistrict(),
+              context.extensionHighSizedBox20(),
+              widgetBankAndIban(),
               context.extensionHighSizedBox20(),
               widgetTaxOfficeAndTaxCodeInfo(),
               context.extensionHighSizedBox20(),
@@ -225,6 +231,17 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               validationFunc: validateAddress),
         ],
       ),
+    );
+  }
+
+  ///Banka Adı Ve İban Numarası
+  widgetBankAndIban() {
+    return Wrap(
+      children: [
+        shareWidget.widgetTextFieldInput(etiket: _labelBankName),
+        shareWidget.widgetTextFieldInput(
+            etiket: _labelIBANName, inputFormat: [FormatterIbanInput()])
+      ],
     );
   }
 

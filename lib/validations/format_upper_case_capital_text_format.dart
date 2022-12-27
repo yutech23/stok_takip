@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
-class UpperCaseCapitalEachWordTextFormatter extends TextInputFormatter {
+class FormatterUpperCaseCapitalEachWordTextFormatter
+    extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
