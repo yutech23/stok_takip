@@ -17,7 +17,7 @@ class Customer {
   late String? supplierName;
 
   Customer.soleTrader(
-      {required this.type,
+      {this.type = "Şahıs Firma",
       this.soleTraderName,
       this.soleTraderLastName,
       required this.phone,
@@ -29,7 +29,7 @@ class Customer {
       this.cargoName,
       this.cargoNumber});
   Customer.company({
-    required this.type,
+    this.type = "Kurumsal Firma",
     required this.companyName,
     required this.phone,
     required this.city,
@@ -41,7 +41,8 @@ class Customer {
     this.cargoNumber,
   });
   Customer.supplier({
-    required this.type,
+    this.type = "Tedarikçi",
+    required this.supplierName,
     required this.phone,
     required this.city,
     required this.district,
@@ -52,6 +53,5 @@ class Customer {
     this.cargoNumber,
     this.bankName,
     this.iban,
-    this.supplierName,
   });
 }

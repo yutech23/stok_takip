@@ -5,6 +5,7 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
+import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import 'package:stok_takip/validations/validation.dart';
 
 import '../constants.dart';
@@ -117,6 +118,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final String _headerSupplier = "Yeni Tedarikçi Ekleme";
   final String _type = "Tedarikçi";
   final String _labelBankName = "Banka Adı";
+  final _labelCargoName = "Kargo Firma Adını Giriniz";
+  final _labelCargoCode = "Kargo Kodu Giriniz";
 
   @override
   void initState() {
@@ -144,7 +147,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     _controllerCargoName.dispose();
     _controllerSupplierName.dispose();
     _controllerIban.dispose();
-    _formKeySupplier.currentState!.dispose();
+
     super.dispose();
   }
 
@@ -193,6 +196,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   ///Tedarikçi isminin giriş yeri.
   widgetTextFieldSupplierName() {
     return shareWidget.widgetTextFieldInput(
+        inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerSupplierName,
         etiket: "Tedarikçi adını giriniz",
         focusValue: false,
@@ -331,8 +335,10 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
       alignment: WrapAlignment.center,
       runSpacing: context.extensionWrapSpacing20(),
       children: [
+        //banka Adı
         shareWidget.widgetTextFieldInput(
             etiket: _labelBankName, controller: _controllerBankName),
+        //iban bölümü
         shareWidget.widgetTextFieldIban(controller: _controllerIban)
       ],
     );
@@ -411,16 +417,16 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
         children: [
           Expanded(
             child: shareWidget.widgetTextFieldInput(
-                controller: _controllerCargoName,
-                etiket: "Kargo Firma Adını Giriniz",
-                validationFunc: validatenNotEmpty),
+              controller: _controllerCargoName,
+              etiket: _labelCargoName,
+            ),
           ),
           context.extensionWidhSizedBox20(),
           Expanded(
             child: shareWidget.widgetTextFieldInput(
-                controller: _controllerCargoCode,
-                etiket: "Kargo Kodu Giriniz",
-                validationFunc: validatenNotEmpty),
+              controller: _controllerCargoCode,
+              etiket: _labelCargoCode,
+            ),
           ),
         ],
       ),
@@ -439,53 +445,50 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   widgetSupplierSaveButton() {
     return ElevatedButton(
         onPressed: () async {
-          bool isThereSupplierName =
-              await db.isThereOnSupplierName(_controllerSupplierName.text);
-          if (isThereSupplierName) {
-            // ignore: use_build_context_synchronously
-            context.noticeBarError("Aynı isimde Tedarikçi bulunmaktadır", 5);
-          }
-          setState(() {
-            if (_formKeySupplier.currentState!.validate() &&
-                isThereSupplierName == false) {
-              widget.newSupplier = _controllerSupplierName.text;
-              _customer = Customer.supplier(
-                  type: _type,
-                  supplierName: _controllerSupplierName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  adress: _controllerAdress.text,
-                  taxOffice: _selectedTaxOffice,
-                  taxNumber: _controllerTaxNumber.text,
-                  cargoName: _controllerCargoName.text,
-                  cargoNumber: _controllerCargoCode.text,
-                  bankName: _controllerBankName.text,
-                  iban: _controllerIban.text.replaceAll(" ", ""));
+          if (_formKeySupplier.currentState!.validate()) {
+            String? iban;
+            if (_controllerIban.text.length > 2) {
+              iban = _controllerIban.text.replaceAll(" ", "");
+            } else {
+              iban = "";
+            }
+            _customer = Customer.supplier(
+                supplierName: _controllerSupplierName.text,
+                bankName: _controllerBankName.text,
+                iban: iban,
+                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                city: _selectedCity,
+                district: _selectDistrict,
+                adress: _controllerAdress.text,
+                taxOffice: _selectedTaxOffice,
+                taxNumber: _controllerTaxNumber.text,
+                cargoName: _controllerCargoName.text,
+                cargoNumber: _controllerCargoCode.text);
 
-              if (_controllerPhoneNumber.text.length > 4 &&
-                  _controllerSupplierName.text.isNotEmpty &&
-                  _controllerTaxNumber.text.isNotEmpty) {
-                db.saveSuppliers(context, _customer!).then((value) {
-                  if (value == null) {
-                    _controllerSupplierName.clear();
-                    _controllerPhoneNumber.clear();
-                    _controllerAdress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
-                    _controllerIban.clear();
-                    _controllerBankName.clear();
-                  }
-                });
-              }
+            var returnValue = await db.saveSuppliers(context, _customer!);
+
+            if (returnValue == null) {
+              widget.newSupplier = _controllerSupplierName.text;
+              _controllerSupplierName.clear();
+              _controllerBankName.clear();
+              _controllerIban.clear();
+              _controllerPhoneNumber.clear();
+              _controllerAdress.clear();
+              _controllerTaxNumber.clear();
+              _controllerCargoName.clear();
+              _controllerCargoCode.clear();
 
               ///Navigator Kapanması için noticeBar işleminin bitmesi gerekiyor.
               ///Yoksa Hata veriyor.
               context.noticeBarTrue("Kayıt Başarılı", 2).then((value) =>
                   Navigator.of(context).pop(_controllerSupplierName.text));
+
+              ///popup tan sonra tedarikçi ismini ürün ekleme saydasına taşıyor
+
+            } else {
+              context.noticeBarError("Kayıtlı olan bir Tedarikçi girdiniz.", 2);
             }
-          });
+          }
         },
         child: Container(
           alignment: Alignment.center,

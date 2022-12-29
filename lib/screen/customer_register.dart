@@ -6,6 +6,7 @@ import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
+import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/constants.dart';
 import '../utilities/share_widgets.dart';
@@ -37,10 +38,13 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerCompanyName = TextEditingController();
   final _controllerBankName = TextEditingController();
   final _controllerIban = TextEditingController();
+  final _controllerSupplierName = TextEditingController();
 
   final String _labelBankName = "Banka İsmi";
-  final String _labelIban = "IBAN Numarası";
   final String _labelCompanyName = "Firma Adını Giriniz";
+  final String _labelCustomerName = "Müşteri adını giriniz";
+  final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
+  final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
 
   late List<dynamic> listCustomerRegister;
 
@@ -57,6 +61,7 @@ class _ScreenCustomerSave extends State with Validation {
     "Tedarikçi"
   ];
   String? _customerType;
+
   void _getCustomerType(String value) {
     setState(() {
       _customerType = value;
@@ -69,6 +74,7 @@ class _ScreenCustomerSave extends State with Validation {
     super.initState();
     listCustomerRegister = <dynamic>[];
     _visibleDistrict = false;
+    _controllerIban.text = "TR";
   }
 
   @override
@@ -91,10 +97,12 @@ class _ScreenCustomerSave extends State with Validation {
       if (_customerType == "Şahıs Firma") {
         listCustomerRegister.clear();
         listeEklemeSahis();
-      } else if (_customerType == "Kurumsal Firma" ||
-          _customerType == "Tedarikçi") {
+      } else if (_customerType == "Kurumsal Firma") {
         listCustomerRegister.clear();
-        listeEklemeCompanyAndSupplier();
+        listeEklemeCompany();
+      } else if (_customerType == "Tedarikçi") {
+        listCustomerRegister.clear();
+        listeEklemeSupplier();
       }
     });
   }
@@ -200,6 +208,7 @@ class _ScreenCustomerSave extends State with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İl Seçiniz",
@@ -254,6 +263,7 @@ class _ScreenCustomerSave extends State with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İlk Önce İl Seçiniz",
@@ -271,27 +281,25 @@ class _ScreenCustomerSave extends State with Validation {
 
 //İl ve İlçe Satır Fonksiyonu
   widgetRowCityAndDistrict() {
-    return Container(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: widgetSearchDropdownCities(),
-              ),
-              context.extensionWidhSizedBox20(),
-              Expanded(child: widgetSearchDropdownDistrict()),
-            ],
-          ),
-          const Divider(color: Colors.transparent),
-          shareWidget.widgetTextFieldInput(
-              controller: _controllerAdress,
-              etiket: "Adres",
-              focusValue: false,
-              karakterGostermeDurumu: false,
-              validationFunc: validateAddress),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: widgetSearchDropdownCities(),
+            ),
+            context.extensionWidhSizedBox20(),
+            Expanded(child: widgetSearchDropdownDistrict()),
+          ],
+        ),
+        const Divider(color: Colors.transparent),
+        shareWidget.widgetTextFieldInput(
+            controller: _controllerAdress,
+            etiket: "Adres",
+            focusValue: false,
+            karakterGostermeDurumu: false,
+            validationFunc: validateAddress),
+      ],
     );
   }
 
@@ -325,6 +333,7 @@ class _ScreenCustomerSave extends State with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "Vergi Dairesini Seçiniz",
@@ -342,75 +351,81 @@ class _ScreenCustomerSave extends State with Validation {
 
   ///Vergi Daire ve Vergi Numara Satırı
   widgetTaxOfficeAndTaxCodeInfo() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(child: widgetSearchDropdownTaxOfficeList()),
-          context.extensionWidhSizedBox20(),
-          Expanded(
-              child: shareWidget.widgetTextFieldInput(
-                  controller: _controllerTaxNumber,
-                  etiket: "Vergi Numaranızı Giriniz",
-                  focusValue: false,
-                  karakterGostermeDurumu: false,
-                  maxCharacter: 11,
-                  validationFunc: validateTaxNumber,
-                  inputFormat: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-              ]))
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(child: widgetSearchDropdownTaxOfficeList()),
+        context.extensionWidhSizedBox20(),
+        Expanded(
+            child: shareWidget.widgetTextFieldInput(
+                controller: _controllerTaxNumber,
+                etiket: "Vergi Numaranızı Giriniz",
+                focusValue: false,
+                karakterGostermeDurumu: false,
+                maxCharacter: 11,
+                validationFunc: validateTaxNumber,
+                inputFormat: [
+              FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+            ]))
+      ],
     );
   }
 
   listeEklemeSahis() {
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerName,
-        etiket: "Müşteri adını giriniz",
+        etiket: _labelCustomerName,
         focusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName));
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerLastName,
-        etiket: "Müşteri Soyadını giriniz",
+        etiket: _labelCustomerLastname,
         focusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName));
   }
 
-  listeEklemeCompanyAndSupplier() {
+  listeEklemeCompany() {
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerCompanyName,
         etiket: _labelCompanyName,
+        validationFunc: validateFirstAndLastName));
+  }
+
+  listeEklemeSupplier() {
+    listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        inputFormat: [FormatterUpperCaseTextFormatter()],
+        controller: _controllerSupplierName,
+        etiket: _labelSupplierName,
         validationFunc: validateFirstAndLastName));
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         keyboardInputType: TextInputType.name,
         controller: _controllerBankName,
         etiket: _labelBankName));
-    listCustomerRegister.add(TextFormField(
-      decoration: const InputDecoration(prefixText: "TR"),
-    ));
+    listCustomerRegister
+        .add(shareWidget.widgetTextFieldIban(controller: _controllerIban));
   }
 
-  Container widgetCargoCompanyAndCargoCode() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(
-            child: shareWidget.widgetTextFieldInput(
-                controller: _controllerCargoName,
-                etiket: "Kargo Firma Adını Giriniz",
-                validationFunc: validatenNotEmpty),
-          ),
-          context.extensionWidhSizedBox20(),
-          Expanded(
-            child: shareWidget.widgetTextFieldInput(
-                controller: _controllerCargoCode,
-                etiket: "Kargo Kodu Giriniz",
-                validationFunc: validatenNotEmpty),
-          ),
-        ],
-      ),
+  widgetCargoCompanyAndCargoCode() {
+    return Row(
+      children: [
+        Expanded(
+          child: shareWidget.widgetTextFieldInput(
+              controller: _controllerCargoName,
+              etiket: "Kargo Firma Adını Giriniz",
+              validationFunc: validatenNotEmpty),
+        ),
+        context.extensionWidhSizedBox20(),
+        Expanded(
+          child: shareWidget.widgetTextFieldInput(
+              controller: _controllerCargoCode,
+              etiket: "Kargo Kodu Giriniz",
+              validationFunc: validatenNotEmpty),
+        ),
+      ],
     );
   }
 
@@ -435,31 +450,24 @@ class _ScreenCustomerSave extends State with Validation {
   widgetCustomerSaveButton() {
     return ElevatedButton(
         onPressed: () async {
-          ///Butona  basıldığında tüm form içindeki validetion aktif ediyor.
-          ///Key kavramı ile.
-          _formKey.currentState!.validate();
           setState(() {
-            if (_customerType == 'Şahıs Firma') {
-              _customer = Customer.soleTrader(
-                  type: _customerType!,
-                  soleTraderName: _controllerName.text,
-                  soleTraderLastName: _controllerLastName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  adress: _controllerAdress.text,
-                  taxOffice: _selectedTaxOffice,
-                  taxNumber: _controllerTaxNumber.text,
-                  cargoName: _controllerCargoName.text,
-                  cargoNumber: _controllerCargoCode.text);
+            if (_formKey.currentState!.validate()) {
+              if (_customerType == 'Şahıs Firma') {
+                _customer = Customer.soleTrader(
+                    soleTraderName: _controllerName.text,
+                    soleTraderLastName: _controllerLastName.text,
+                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    city: _selectedCity,
+                    district: _selectDistrict,
+                    adress: _controllerAdress.text,
+                    taxOffice: _selectedTaxOffice,
+                    taxNumber: _controllerTaxNumber.text,
+                    cargoName: _controllerCargoName.text,
+                    cargoNumber: _controllerCargoCode.text);
 
-              ///Telefon Bölümünde alan kodu otamatik olarak geldiği için ve
-              /// en az 4 karakter gelebiliyor.Bu yüzden Telefon bölümü validate
-              /// atlıyor. Bu yüzden buradaki if yapısı ile kontrol ediyorum.
-              if (_controllerPhoneNumber.text.length > 4) {
                 db.saveCustomerSoleTrader(context, _customer!).then((value) {
                   if (value == null) {
-                    Duration(seconds: 2);
+                    const Duration(seconds: 2);
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
@@ -473,27 +481,18 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerCargoCode.clear();
                   }
                 });
-              } else {
-                context.extensionShowErrorSnackBar(
-                    message: "Lütfen Telefon Numarısını Giriniz.");
-              }
-            } else if (_customerType == 'Kurumsal Firma' ||
-                _customerType == "Tedarikçi") {
-              _customer = Customer.company(
-                  type: _customerType!,
-                  companyName: _controllerCompanyName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  adress: _controllerAdress.text,
-                  taxOffice: _selectedTaxOffice,
-                  taxNumber: _controllerTaxNumber.text,
-                  cargoName: _controllerCargoName.text,
-                  cargoNumber: _controllerCargoCode.text);
+              } else if (_customerType == 'Kurumsal Firma') {
+                _customer = Customer.company(
+                    companyName: _controllerCompanyName.text,
+                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    city: _selectedCity,
+                    district: _selectDistrict,
+                    adress: _controllerAdress.text,
+                    taxOffice: _selectedTaxOffice,
+                    taxNumber: _controllerTaxNumber.text,
+                    cargoName: _controllerCargoName.text,
+                    cargoNumber: _controllerCargoCode.text);
 
-              if (_controllerPhoneNumber.text.length > 4 &&
-                  _controllerCompanyName.text.isNotEmpty &&
-                  _controllerTaxNumber.text.isNotEmpty) {
                 db.saveCustomerCompany(context, _customer!).then((value) {
                   const Duration(seconds: 2);
                   if (value == null) {
@@ -507,20 +506,54 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerCargoCode.clear();
                   }
                 });
-              } else {
-                context.extensionShowErrorSnackBar(
-                    message: "Zorunlu Alanları Doldurunuz");
-              }
-            } else if (_customerType == null) {
-              context.extensionShowErrorSnackBar(
-                  message: "Lütfen Firma Türünü Seçiniz");
-            }
+              } else if (_customerType == 'Tedarikçi') {
+                ///
+                String? iban;
+                if (_controllerIban.text.length > 2) {
+                  iban = _controllerIban.text.replaceAll(" ", "");
+                } else {
+                  iban = null;
+                }
+                _customer = Customer.supplier(
+                    supplierName: _controllerSupplierName.text,
+                    bankName: _controllerBankName.text,
+                    iban: iban,
+                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    city: _selectedCity,
+                    district: _selectDistrict,
+                    adress: _controllerAdress.text,
+                    taxOffice: _selectedTaxOffice,
+                    taxNumber: _controllerTaxNumber.text,
+                    cargoName: _controllerCargoName.text,
+                    cargoNumber: _controllerCargoCode.text);
 
-            /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
-            /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
-            /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
-            /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
-            /// dönen değer 1 eşitleniyor.
+                db.saveSuppliers(context, _customer!).then((value) {
+                  if (value == null) {
+                    _controllerSupplierName.clear();
+                    _controllerBankName.clear();
+                    _controllerIban.clear();
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
+                    _controllerAdress.clear();
+                    _controllerTaxNumber.clear();
+                    _controllerCargoName.clear();
+                    _controllerCargoCode.clear();
+                  }
+                });
+              } else if (_customerType == null) {
+                context.extensionShowErrorSnackBar(
+                    message: "Lütfen Firma Türünü Seçiniz");
+              }
+
+              /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
+              /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
+              /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
+              /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
+              /// dönen değer 1 eşitleniyor.
+
+            }
           });
         },
         child: Container(

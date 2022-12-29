@@ -196,25 +196,25 @@ class DbHelper {
   ///VergiDairelerini Getirir 05.01.22 tarihli güncel liste
   ///(veritabanunda kodlarıda bulunmaktadır ama kullanmıyorum)
   Future<List<String>> getTaxOfficeList(
-      String value, String _selectedCity) async {
+      String value, String? selectedCity) async {
     final res = await supabase
         .from('tax_offices')
         .select('''name,cities(name)''')
-        .eq('cities.name', _selectedCity)
+        .eq('cities.name', selectedCity)
         .execute();
     final data = res.data;
     final error = res.error;
 
-    final tax_offices_name = <String>[];
+    final taxOfficesName = <String>[];
 
     for (var item in data) {
       if (item['cities'] != null) {
-        tax_offices_name.add(item['name']);
+        taxOfficesName.add(item['name']);
       }
     }
-    tax_offices_name.sort(turkish.comparator);
+    taxOfficesName.sort(turkish.comparator);
 
-    return tax_offices_name;
+    return taxOfficesName;
   }
 
   ///*****************Müşteri kayıt İşlemleri************************
@@ -248,7 +248,7 @@ class DbHelper {
     BuildContext context,
     Customer customerCompany,
   ) async {
-    final res = await supabase.from('customer_company_suppliers').insert([
+    final res = await supabase.from('customer_company').insert([
       {
         'name': customerCompany.companyName,
         'phone': customerCompany.phone,
@@ -259,17 +259,16 @@ class DbHelper {
         'tax_number': customerCompany.taxNumber,
         'cargo_company': customerCompany.cargoName,
         'cargo_number': customerCompany.cargoNumber,
-        'type': customerCompany.type
       }
     ]).execute();
     final error = res.error;
 
-    /*  if (error != null) {
+    if (error != null) {
       context.extensionShowErrorSnackBar(message: error.message);
     } else {
       context.extenionShowSnackBar(message: 'Kayıt Başarılı');
     }
-    return error; */
+    return error;
   }
 
   Future saveSuppliers(
@@ -291,13 +290,8 @@ class DbHelper {
         'cargo_number': supplier.cargoNumber,
       }
     ]).execute();
-    final error = res.error;
+    final error = res.error?.message;
 
-    if (error != null) {
-      context.extensionShowErrorSnackBar(message: error.message);
-    } else {
-      context.extenionShowSnackBar(message: 'Kayıt Başarılı');
-    }
     return error;
   }
 
@@ -329,7 +323,7 @@ class DbHelper {
 
   Future<List<String?>> getSuppliersName() async {
     final res = await supabase
-        .from('customer_company_suppliers')
+        .from('customer_company')
         .select('name')
         .eq('type', 'Tedarikçi')
         .order('name', ascending: true)
@@ -349,7 +343,7 @@ class DbHelper {
 
   Future<bool> isThereOnSupplierName(String supplierName) async {
     final res = await supabase
-        .from('customer_company_suppliers')
+        .from('customer_company')
         .select('name')
         .eq('type', 'Tedarikçi')
         .match({'name': supplierName}).execute();

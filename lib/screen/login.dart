@@ -138,8 +138,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 _obscureValue = !_obscureValue;
               });
             },
-            icon:
-                Icon(_obscureValue ? Icons.visibility_off : Icons.visibility)),
+            icon: Icon(_obscureValue ? Icons.visibility_off : Icons.visibility),
+            focusNode: FocusNode(skipTraversal: true)),
       ),
       onFieldSubmitted: (value) {
         _loginButtonFocus.requestFocus();
