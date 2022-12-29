@@ -142,6 +142,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return Scaffold(
       appBar: AppBar(
         title: const Text("Yeni Ürün Ekleme"),
+        // ignore: prefer_const_literals_to_create_immutables
         actions: [
           const ShareWidgetAppbarSetting(),
         ],

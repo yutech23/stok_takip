@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:stok_takip/utilities/constants.dart';
+import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
 import 'package:stok_takip/validations/validation_phone_number.dart';
 
 class ShareWidget with Validation {
+  final String _labelIBANName = "IBAN Numarası";
+
   //Widget - inputlar
   TextFormField widgetTextFieldInput({
     TextEditingController? controller,
@@ -92,6 +95,28 @@ class ShareWidget with Validation {
       style: buttonStyle,
       onPressed: onPressedDoSomething,
       child: Text(label),
+    );
+  }
+
+  TextFormField widgetTextFieldIban({
+    TextEditingController? controller,
+    bool? focusValue = false,
+    String? Function(String?)? validationFunc,
+    TextInputType? keyboardInputType,
+  }) {
+    return TextFormField(
+      maxLength: 32,
+      controller: controller,
+      validator: validationFunc,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+          counterText: "",
+          labelText: _labelIBANName,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          )),
+      focusNode: FocusNode(skipTraversal: focusValue!),
+      inputFormatters: [FormatterIbanInput()],
     );
   }
 }

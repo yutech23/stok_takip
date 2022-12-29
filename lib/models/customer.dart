@@ -12,6 +12,9 @@ class Customer {
   late String? taxNumber;
   late String? cargoName;
   late String? cargoNumber;
+  late String? bankName;
+  late String? iban;
+  late String? supplierName;
 
   Customer.soleTrader(
       {required this.type,
@@ -36,5 +39,19 @@ class Customer {
     required this.taxNumber,
     this.cargoName,
     this.cargoNumber,
+  });
+  Customer.supplier({
+    required this.type,
+    required this.phone,
+    required this.city,
+    required this.district,
+    required this.adress,
+    required this.taxOffice,
+    required this.taxNumber,
+    this.cargoName,
+    this.cargoNumber,
+    this.bankName,
+    this.iban,
+    this.supplierName,
   });
 }

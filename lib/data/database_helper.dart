@@ -274,20 +274,21 @@ class DbHelper {
 
   Future saveSuppliers(
     BuildContext context,
-    Customer customerCompany,
+    Customer supplier,
   ) async {
-    print(customerCompany.companyName);
     final res = await supabase.from('suppliers').insert([
       {
-        'name': customerCompany.companyName,
-        'phone': customerCompany.phone,
-        'city': customerCompany.city,
-        'district': customerCompany.district,
-        'adress': customerCompany.adress,
-        'tax_office': customerCompany.taxOffice,
-        'tax_number': customerCompany.taxNumber,
-        'cargo_company': customerCompany.cargoName,
-        'cargo_number': customerCompany.cargoNumber
+        'name': supplier.supplierName,
+        'iban': supplier.iban,
+        'bank_name': supplier.bankName,
+        'phone': supplier.phone,
+        'city': supplier.city,
+        'district': supplier.district,
+        'adress': supplier.adress,
+        'tax_office': supplier.taxOffice,
+        'tax_number': supplier.taxNumber,
+        'cargo_company': supplier.cargoName,
+        'cargo_number': supplier.cargoNumber,
       }
     ]).execute();
     final error = res.error;

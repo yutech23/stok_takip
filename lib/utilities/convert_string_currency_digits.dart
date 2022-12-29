@@ -1,22 +1,22 @@
 class ConvertStringCurrencyDigitThreeByThree {
   String convertStringToDigit3By3(String value) {
     String pointCharacter = '.';
-    final List<String> _listPartDigits = [];
+    final List<String> listPartDigits = [];
     String resultConvert = "";
     for (var i = value.length; 0 < i; i = i - 3) {
       if (i > 2) {
-        _listPartDigits.add(value.substring(i - 3, i));
+        listPartDigits.add(value.substring(i - 3, i));
       } else {
-        _listPartDigits.add(value.substring(0, i));
+        listPartDigits.add(value.substring(0, i));
       }
     }
 
     var pointPlusList = "";
-    for (var j = 0; j < _listPartDigits.length; j++) {
-      if (j != (_listPartDigits.length - 1)) {
-        pointPlusList = pointCharacter + _listPartDigits[j] + pointPlusList;
+    for (var j = 0; j < listPartDigits.length; j++) {
+      if (j != (listPartDigits.length - 1)) {
+        pointPlusList = pointCharacter + listPartDigits[j] + pointPlusList;
       } else {
-        resultConvert = _listPartDigits[j] + pointPlusList;
+        resultConvert = listPartDigits[j] + pointPlusList;
       }
     }
     return resultConvert;

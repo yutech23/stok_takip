@@ -202,7 +202,7 @@ class _ScreenCustomerSave extends State with Validation {
         dropdownDecoratorProps: DropDownDecoratorProps(
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
-              hintText: "Lütfen İl Seçiniz",
+              hintText: "İl Seçiniz",
               hintStyle: context.theme.headline6!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
@@ -216,7 +216,7 @@ class _ScreenCustomerSave extends State with Validation {
             }
 
             GetKeys.keyDistrict.currentState
-                ?.changeSelectedItem("Lütfen İlçe Seçiniz");
+                ?.changeSelectedItem("İlçe Seçiniz");
           });
         },
       ),

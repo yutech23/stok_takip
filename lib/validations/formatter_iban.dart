@@ -22,9 +22,9 @@ class FormatterIbanInput extends TextInputFormatter {
       }
     }
 
-    print("oldValue : ${oldValue.text}");
+    /*  print("oldValue : ${oldValue.text}");
     print("newValue : ${newValue.text}");
-    print("replace : $replaceNewValue");
+    print("replace : $replaceNewValue"); */
 
     if (replaceNewValue.length > 4) {
       /// 4 erli gruplara ayırarak listeye ekliyoruz. Sondan Başlıyor.
@@ -39,35 +39,12 @@ class FormatterIbanInput extends TextInputFormatter {
       var buffer = StringBuffer();
       buffer.writeAll(listGroupString, separator);
       replaceNewValue = buffer.toString();
-      print("new rep :$replaceNewValue");
     }
-
-    // replaceNewValue = buffer.toString();
 
     newSelection = newSelection.copyWith(
         baseOffset: replaceNewValue.length,
         extentOffset: replaceNewValue.length);
 
-    /* var text = newValue.text;
-
-    if (newValue.selection.baseOffset == 0) {
-      return newValue;
-    }
-
-    var buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      var nonZeroIndex = i + 1;
-      if (nonZeroIndex % 4 == 0 && nonZeroIndex != text.length) {
-        buffer.write('  '); // Add double spaces.
-      }
-    }
-
-    var string = buffer.toString(); */
-    /*  return newValue.copyWith(
-        text: string,
-        selection: new TextSelection.collapsed(offset: string.length)); */
-    print("uzunluk : ${replaceNewValue.length}");
     return TextEditingValue(
         selection: TextSelection.collapsed(offset: replaceNewValue.length),
         text: replaceNewValue,

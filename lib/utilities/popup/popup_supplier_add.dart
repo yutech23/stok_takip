@@ -5,7 +5,6 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
-import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
 
 import '../constants.dart';
@@ -27,8 +26,89 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final _controllerAdress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
-  final _controllerCompanyName = TextEditingController();
+  final _controllerSupplierName = TextEditingController();
+  final _controllerIban = TextEditingController();
+  final _controllerBankName = TextEditingController();
 
+  ///iban Kodları bir sonraki
+  /* Map<String, int> ibanLenghtForCountry = {
+    "DE": 22,
+    "AD": 24,
+    "AL": 28,
+    "AT": 20,
+    "AZ": 28,
+    "BH": 22,
+    "BY": 28,
+    "BE": 16,
+    "AE": 23,
+    "GB": 22,
+    "BA": 20,
+    "BR": 29,
+    "BG": 22,
+    "GI": 23,
+    "DK": 18,
+    "DO": 28,
+    "TL": 23,
+    "SV": 28,
+    "EE": 20,
+    "FO": 18,
+    "PS": 29,
+    "FI": 18,
+    "FR": 27,
+    "GL": 18,
+    "GT": 28,
+    "GE": 22,
+    "NL": 18,
+    "HR": 21,
+    "IE": 22,
+    "ES": 24,
+    "IL": 23,
+    "SE": 24,
+    "CH": 21,
+    "IT": 27,
+    "IS": 26,
+    "ME": 22,
+    "QA": 29,
+    "KZ": 20,
+    "XK": 20,
+    "CR": 22,
+    "KW": 30,
+    "CY": 28,
+    "LV": 21,
+    "LI": 21,
+    "LT": 20,
+    "LB": 28,
+    "LU": 20,
+    "HU": 28,
+    "MK": 19,
+    "MT": 31,
+    "MU": 30,
+    "MD": 24,
+    "MC": 27,
+    "MR": 27,
+    "NO": 15,
+    "PK": 24,
+    "PL": 28,
+    "PT": 25,
+    "RO": 24,
+    "LC": 32,
+    "SM": 27,
+    "ST": 25,
+    "SC": 31,
+    "SK": 24,
+    "SI": 19,
+    "SA": 24,
+    "RS": 22,
+    "TN": 24,
+    "TR": 26,
+    "UA": 29,
+    "VG": 24,
+    "GR": 27,
+    "CZ": 24,
+    "JO": 30,
+    "IQ": 23,
+  };
+ */
   String? _selectedCity;
   String? _selectDistrict;
   String? _selectedTaxOffice;
@@ -37,13 +117,23 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final String _headerSupplier = "Yeni Tedarikçi Ekleme";
   final String _type = "Tedarikçi";
   final String _labelBankName = "Banka Adı";
-  final String _labelIBANName = "IBAN Numarası";
 
   @override
   void initState() {
     super.initState();
+    _controllerIban.text = "TR";
+    //   funcIbanLenghtForCountry();
     _visibleDistrict = false;
   }
+
+  ///karakter sınırlama için
+  /*  void funcIbanLenghtForCountry() {
+    ibanLenghtForCountry.forEach((key, value) {
+      if (_controllerIban.text == key) {
+        _ibanMaxCharacter = value;
+      }
+    });
+  } */
 
   @override
   void dispose() {
@@ -52,7 +142,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     _controllerTaxNumber.dispose();
     _controllerCargoCode.dispose();
     _controllerCargoName.dispose();
-    _controllerCompanyName.dispose();
+    _controllerSupplierName.dispose();
+    _controllerIban.dispose();
     _formKeySupplier.currentState!.dispose();
     super.dispose();
   }
@@ -91,7 +182,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               context.extensionHighSizedBox20(),
               widgetCargoCompanyAndCargoCode(),
               context.extensionHighSizedBox20(),
-              widgetCustomerSaveButton(),
+              widgetSupplierSaveButton(),
             ]),
           ),
         ),
@@ -102,7 +193,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   ///Tedarikçi isminin giriş yeri.
   widgetTextFieldSupplierName() {
     return shareWidget.widgetTextFieldInput(
-        controller: _controllerCompanyName,
+        controller: _controllerSupplierName,
         etiket: "Tedarikçi adını giriniz",
         focusValue: false,
         karakterGostermeDurumu: false,
@@ -139,9 +230,10 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
-              hintText: "Lütfen İl Seçiniz",
+              hintText: "İl Seçiniz",
               hintStyle: context.theme.headline6!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
@@ -155,7 +247,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
             }
 
             GetKeys.keyDistrict.currentState
-                ?.changeSelectedItem("Lütfen İlçe Seçiniz");
+                ?.changeSelectedItem("İlçe Seçiniz");
           });
         },
       ),
@@ -193,6 +285,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İlk Önce İl Seçiniz",
@@ -210,27 +303,25 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 
 //İl ve İlçe Satır Fonksiyonu
   widgetRowCityAndDistrict() {
-    return Container(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: widgetSearchDropdownCities(),
-              ),
-              context.extensionWidhSizedBox20(),
-              Expanded(child: widgetSearchDropdownDistrict()),
-            ],
-          ),
-          const Divider(color: Colors.transparent),
-          shareWidget.widgetTextFieldInput(
-              controller: _controllerAdress,
-              etiket: "Adres",
-              focusValue: false,
-              karakterGostermeDurumu: false,
-              validationFunc: validateAddress),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: widgetSearchDropdownCities(),
+            ),
+            context.extensionWidhSizedBox20(),
+            Expanded(child: widgetSearchDropdownDistrict()),
+          ],
+        ),
+        const Divider(color: Colors.transparent),
+        shareWidget.widgetTextFieldInput(
+            controller: _controllerAdress,
+            etiket: "Adres",
+            focusValue: false,
+            karakterGostermeDurumu: false,
+            validationFunc: validateAddress),
+      ],
     );
   }
 
@@ -240,9 +331,9 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
       alignment: WrapAlignment.center,
       runSpacing: context.extensionWrapSpacing20(),
       children: [
-        shareWidget.widgetTextFieldInput(etiket: _labelBankName),
         shareWidget.widgetTextFieldInput(
-            etiket: _labelIBANName, inputFormat: [FormatterIbanInput()])
+            etiket: _labelBankName, controller: _controllerBankName),
+        shareWidget.widgetTextFieldIban(controller: _controllerIban)
       ],
     );
   }
@@ -277,6 +368,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               ))),
         ),
         dropdownDecoratorProps: DropDownDecoratorProps(
+          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "Vergi Dairesini Seçiniz",
@@ -294,24 +386,22 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 
   ///Vergi Daire ve Vergi Numara Satırı
   widgetTaxOfficeAndTaxCodeInfo() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(child: widgetSearchDropdownTaxOfficeList()),
-          context.extensionWidhSizedBox20(),
-          Expanded(
-              child: shareWidget.widgetTextFieldInput(
-                  controller: _controllerTaxNumber,
-                  etiket: "Vergi Numaranızı Giriniz",
-                  focusValue: false,
-                  karakterGostermeDurumu: false,
-                  maxCharacter: 11,
-                  validationFunc: validateTaxNumber,
-                  inputFormat: [
-                FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-              ]))
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(child: widgetSearchDropdownTaxOfficeList()),
+        context.extensionWidhSizedBox20(),
+        Expanded(
+            child: shareWidget.widgetTextFieldInput(
+                controller: _controllerTaxNumber,
+                etiket: "Vergi Numaranızı Giriniz",
+                focusValue: false,
+                karakterGostermeDurumu: false,
+                maxCharacter: 11,
+                validationFunc: validateTaxNumber,
+                inputFormat: [
+              FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+            ]))
+      ],
     );
   }
 
@@ -346,11 +436,11 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     );
   }
 
-  widgetCustomerSaveButton() {
+  widgetSupplierSaveButton() {
     return ElevatedButton(
         onPressed: () async {
           bool isThereSupplierName =
-              await db.isThereOnSupplierName(_controllerCompanyName.text);
+              await db.isThereOnSupplierName(_controllerSupplierName.text);
           if (isThereSupplierName) {
             // ignore: use_build_context_synchronously
             context.noticeBarError("Aynı isimde Tedarikçi bulunmaktadır", 5);
@@ -358,10 +448,10 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
           setState(() {
             if (_formKeySupplier.currentState!.validate() &&
                 isThereSupplierName == false) {
-              widget.newSupplier = _controllerCompanyName.text;
-              _customer = Customer.company(
+              widget.newSupplier = _controllerSupplierName.text;
+              _customer = Customer.supplier(
                   type: _type,
-                  companyName: _controllerCompanyName.text,
+                  supplierName: _controllerSupplierName.text,
                   phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
@@ -369,19 +459,23 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                   taxOffice: _selectedTaxOffice,
                   taxNumber: _controllerTaxNumber.text,
                   cargoName: _controllerCargoName.text,
-                  cargoNumber: _controllerCargoCode.text);
+                  cargoNumber: _controllerCargoCode.text,
+                  bankName: _controllerBankName.text,
+                  iban: _controllerIban.text.replaceAll(" ", ""));
 
               if (_controllerPhoneNumber.text.length > 4 &&
-                  _controllerCompanyName.text.isNotEmpty &&
+                  _controllerSupplierName.text.isNotEmpty &&
                   _controllerTaxNumber.text.isNotEmpty) {
-                db.saveCustomerCompany(context, _customer!).then((value) {
+                db.saveSuppliers(context, _customer!).then((value) {
                   if (value == null) {
-                    _controllerCompanyName.clear();
+                    _controllerSupplierName.clear();
                     _controllerPhoneNumber.clear();
                     _controllerAdress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    _controllerIban.clear();
+                    _controllerBankName.clear();
                   }
                 });
               }
@@ -389,7 +483,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               ///Navigator Kapanması için noticeBar işleminin bitmesi gerekiyor.
               ///Yoksa Hata veriyor.
               context.noticeBarTrue("Kayıt Başarılı", 2).then((value) =>
-                  Navigator.of(context).pop(_controllerCompanyName.text));
+                  Navigator.of(context).pop(_controllerSupplierName.text));
             }
           });
         },
