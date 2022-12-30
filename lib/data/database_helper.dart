@@ -55,6 +55,42 @@ class DbHelper {
     }
   }
 
+  ///Kullanıcı Adını, Soyadını ve Role getiriyor.
+  ///SingIn fonksiyonu supabase farklı bir table olduğu için
+  ///Bu fonksiyona ihtiyaç var.
+  Future<Kullanici> fetchNameSurnameRole(String? uuid) async {
+    Kullanici selectedKullanici;
+
+    if (uuid == null) {
+      selectedKullanici = Kullanici.nameSurnameRole(
+          name: 'Null', lastName: 'Null', role: 'Null');
+      return selectedKullanici;
+    } else {
+      final res = await supabase
+          .from('users')
+          .select('name,last_name,role')
+          .match({'user_uuid': uuid}).execute();
+
+      selectedKullanici = Kullanici.nameSurnameRole(
+          name: res.data[0]['name'],
+          lastName: res.data[0]['last_name'],
+          role: res.data[0]['role'].toString());
+      return selectedKullanici;
+    }
+  }
+
+  Future<List<dynamic>> fetchPageInfoByRole(String isRole) async {
+    final res = await db.supabase
+        .from('path_role_permission')
+        .select('class_name')
+        .eq('role_id', int.parse(isRole))
+        .execute();
+
+    final data = res.data;
+
+    return data;
+  }
+
   Future refleshToken(String refleshToken) async {
     final res = await db.supabase.auth.setSession(refleshToken);
     final data = res.data;
@@ -526,39 +562,6 @@ class DbHelper {
         .execute();
     final error = res.error;
     print(error);
-  }
-
-  Future<Kullanici> fetchNameSurnameRole(String? uuid) async {
-    Kullanici selectedKullanici;
-
-    if (uuid == null) {
-      selectedKullanici = Kullanici.nameSurnameRole(
-          name: 'Null', lastName: 'Null', role: 'Null');
-      return selectedKullanici;
-    } else {
-      final res = await supabase
-          .from('users')
-          .select('name,last_name,role')
-          .match({'user_uuid': uuid}).execute();
-
-      selectedKullanici = Kullanici.nameSurnameRole(
-          name: res.data[0]['name'],
-          lastName: res.data[0]['last_name'],
-          role: res.data[0]['role'].toString());
-      return selectedKullanici;
-    }
-  }
-
-  Future<List<dynamic>> fetchPageInfoByRole(String isRole) async {
-    final res = await db.supabase
-        .from('path_role_permission')
-        .select('class_name')
-        .eq('role_id', int.parse(isRole))
-        .execute();
-
-    final data = res.data;
-
-    return data;
   }
 }
 

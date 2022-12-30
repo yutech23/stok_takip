@@ -141,6 +141,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
             icon: Icon(_obscureValue ? Icons.visibility_off : Icons.visibility),
             focusNode: FocusNode(skipTraversal: true)),
       ),
+      //Enter bastıktan sonra imleçin gideceği yeri söylendi.
       onFieldSubmitted: (value) {
         _loginButtonFocus.requestFocus();
       },
@@ -159,8 +160,12 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               shadowColor: Colors.transparent,
             ),
             onPressed: () async {
+              ///giriş Kontrol ediliyor databasede.
               final userInfo = await db.singIn(
                   context, _controllerEmail.text, _controllerSifre.text);
+
+              ///kontrol sonrası dönen değerin içinde status baklıyor.
+              /// true ise giriş başarılı ve veriler Storage yazılıyor.
               if (userInfo['status'] == true) {
                 authController.setAuthTrue();
                 SecurityStorageUser.setUserId(userInfo['id']!);
@@ -169,6 +174,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.sertUserRefleshToken(
                     userInfo['refreshToken']!);
 
+                ///SingIn fonksiyonu supabase farklı bir table olduğu için
+                ///Bu fonksiyona ihtiyaç var.
                 final userNameSurnameRole =
                     await db.fetchNameSurnameRole(userInfo['id']);
 
@@ -179,6 +186,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
                 context.router.pushNamed(ConstRoute.stockEdit);
               } else {
+                ///giriş başarılı değil ise şifre bölmünü sıfırlıyor.
                 _controllerSifre.clear();
               }
             },

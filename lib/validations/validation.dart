@@ -49,9 +49,23 @@ mixin Validation {
       return null;
   }
 
-  String? validatenNotEmpty(String? value) {
+  String? validateNotEmpty(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı doldurun.';
+    } else
+      return null;
+  }
+
+  String? validateNotEmptyAddText(String? value, {required String message}) {
+    if (value == null || value.isEmpty) {
+      return 'Lütfen $message';
+    } else
+      return null;
+  }
+
+  String? validateNotEmptySelect(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Lütfen seçim yapınız.';
     } else
       return null;
   }

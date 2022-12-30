@@ -416,14 +416,14 @@ class _ScreenCustomerSave extends State with Validation {
           child: shareWidget.widgetTextFieldInput(
               controller: _controllerCargoName,
               etiket: "Kargo Firma Adını Giriniz",
-              validationFunc: validatenNotEmpty),
+              validationFunc: validateNotEmpty),
         ),
         context.extensionWidhSizedBox20(),
         Expanded(
           child: shareWidget.widgetTextFieldInput(
               controller: _controllerCargoCode,
               etiket: "Kargo Kodu Giriniz",
-              validationFunc: validatenNotEmpty),
+              validationFunc: validateNotEmpty),
         ),
       ],
     );
@@ -434,7 +434,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Container(
       child: shareWidget.widgetTextFormFieldPhone(
           controllerPhoneNumber: _controllerPhoneNumber,
-          validateFunc: validatenNotEmpty),
+          validateFunc: validateNotEmpty),
     );
   }
 

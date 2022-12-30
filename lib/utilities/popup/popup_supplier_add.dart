@@ -31,6 +31,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final _controllerIban = TextEditingController();
   final _controllerBankName = TextEditingController();
 
+  late AutovalidateMode _autovalidateMode;
+
   ///iban Kodları bir sonraki
   /* Map<String, int> ibanLenghtForCountry = {
     "DE": 22,
@@ -116,7 +118,6 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   late bool _visibleDistrict;
   Customer? _customer;
   final String _headerSupplier = "Yeni Tedarikçi Ekleme";
-  final String _type = "Tedarikçi";
   final String _labelBankName = "Banka Adı";
   final _labelCargoName = "Kargo Firma Adını Giriniz";
   final _labelCargoCode = "Kargo Kodu Giriniz";
@@ -127,6 +128,9 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     _controllerIban.text = "TR";
     //   funcIbanLenghtForCountry();
     _visibleDistrict = false;
+    _autovalidateMode = AutovalidateMode.onUserInteraction;
+    //Diğer Sayfadan Gelen Tedarikçi Adını Aktarıyor.
+    _controllerSupplierName.text = widget.newSupplier;
   }
 
   ///karakter sınırlama için
@@ -167,6 +171,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
       content: SingleChildScrollView(
         child: Form(
           key: _formKeySupplier,
+          autovalidateMode: _autovalidateMode,
           child: Container(
             padding: context.extensionPadding20(),
             alignment: Alignment.center,
@@ -216,6 +221,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 fontWeight: FontWeight.bold)),
       ),
       child: DropdownSearch<String>(
+        validator: validateNotEmptySelect,
         asyncItems: (value) => db.getCities(value),
         selectedItem: _selectedCity,
         popupProps: const PopupProps.menu(
@@ -270,6 +276,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 fontWeight: FontWeight.bold)),
       ),
       child: DropdownSearch<String>(
+        validator: validateNotEmptySelect,
         enabled: _visibleDistrict,
         asyncItems: (value) => db.getDistricts(value, _selectedCity!),
         selectedItem: _selectDistrict,
@@ -356,6 +363,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 fontWeight: FontWeight.bold)),
       ),
       child: DropdownSearch<String>(
+        validator: validateNotEmptySelect,
         asyncItems: (value) => db.getTaxOfficeList(value, _selectedCity!),
         selectedItem: _selectedTaxOffice,
         popupProps: const PopupProps.menu(
@@ -411,25 +419,23 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     );
   }
 
-  Container widgetCargoCompanyAndCargoCode() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(
-            child: shareWidget.widgetTextFieldInput(
-              controller: _controllerCargoName,
-              etiket: _labelCargoName,
-            ),
+  widgetCargoCompanyAndCargoCode() {
+    return Row(
+      children: [
+        Expanded(
+          child: shareWidget.widgetTextFieldInput(
+            controller: _controllerCargoName,
+            etiket: _labelCargoName,
           ),
-          context.extensionWidhSizedBox20(),
-          Expanded(
-            child: shareWidget.widgetTextFieldInput(
-              controller: _controllerCargoCode,
-              etiket: _labelCargoCode,
-            ),
+        ),
+        context.extensionWidhSizedBox20(),
+        Expanded(
+          child: shareWidget.widgetTextFieldInput(
+            controller: _controllerCargoCode,
+            etiket: _labelCargoCode,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -468,6 +474,10 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
             var returnValue = await db.saveSuppliers(context, _customer!);
 
             if (returnValue == null) {
+              setState(() {
+                _autovalidateMode = AutovalidateMode.disabled;
+              });
+
               widget.newSupplier = _controllerSupplierName.text;
               _controllerSupplierName.clear();
               _controllerBankName.clear();
@@ -480,8 +490,9 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 
               ///Navigator Kapanması için noticeBar işleminin bitmesi gerekiyor.
               ///Yoksa Hata veriyor.
-              context.noticeBarTrue("Kayıt Başarılı", 2).then((value) =>
-                  Navigator.of(context).pop(_controllerSupplierName.text));
+              context
+                  .noticeBarTrue("Kayıt Başarılı", 2)
+                  .then((value) => Navigator.of(context).pop());
 
               ///popup tan sonra tedarikçi ismini ürün ekleme saydasına taşıyor
 

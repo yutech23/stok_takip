@@ -44,6 +44,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _controllerEftHavaleValue = TextEditingController();
   final _controllerPaymentValue = TextEditingController();
   final _controllerInvoiceCode = TextEditingController();
+  late AutovalidateMode _autovalidateMode;
 
   final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
 
@@ -105,6 +106,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   @override
   void initState() {
+    _autovalidateMode = AutovalidateMode.onUserInteraction;
     _selectUnitOfCurrency = _mapUnitOfCurrency["Türkiye"]["symbol"];
     _selectCurrencyType = _mapUnitOfCurrency["Türkiye"]["abridgment"];
     //   roleCheck();
@@ -155,6 +157,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   buildProductAdd() {
     return Form(
         key: _formKey,
+        autovalidateMode: _autovalidateMode,
         child: Container(
           width: MediaQuery.of(context).size.width,
           alignment: Alignment.center,
@@ -226,8 +229,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         if (!snapshot.hasError && snapshot.hasData) {
           _productCodeList = snapshot.data;
           return SearchField(
+            validator: validateNotEmpty,
             controller: _controllerProductCode,
             searchInputDecoration: const InputDecoration(
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(),
+                ),
                 label: Text("Ürün Kodunu Giriniz"),
                 prefixIcon: Icon(Icons.search, color: Colors.black),
                 enabledBorder: OutlineInputBorder(
@@ -261,7 +268,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return TextFormField(
       maxLength: 25,
       controller: _controllerInvoiceCode,
-      inputFormatters: [FormatterUpperCaseTextFormatter()],
+      inputFormatters: [
+        FormatterUpperCaseTextFormatter(),
+        FormatterUpperCaseTextFormatter()
+      ],
       decoration: InputDecoration(
           counterText: "", //maxLen gözükmesini engelliyor
           enabledBorder: const OutlineInputBorder(
@@ -277,6 +287,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   widgetSearchTextFieldSupplier() {
     return Row(
       children: [
+        ///Tedarikçi Ekleme Buttonu.
         SizedBox(
           height: 50,
           child: FloatingActionButton(
@@ -288,7 +299,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               showDialog(
                 context: context,
                 builder: (context) {
-                  return PopupSupplierRegister(_newSuppleirAdd);
+                  return PopupSupplierRegister(_controllerSupplier.text);
                 },
               );
             },
@@ -303,8 +314,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   snapshot.hasData &&
                   snapshot.data!.isNotEmpty) {
                 return SearchField(
+                  validator: validateNotEmpty,
+                  inputFormatters: [FormatterUpperCaseTextFormatter()],
                   controller: _controllerSupplier,
                   searchInputDecoration: InputDecoration(
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      ),
                       labelText: _labelSearchSuppiler,
                       prefixIcon: const Icon(Icons.search, color: Colors.black),
                       enabledBorder: const OutlineInputBorder(
@@ -660,9 +676,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 2),
             width: _shareTextFormFieldPaymentSystemWidth,
-            height: 74,
+            height: 80,
             child: ShareDropdown(
-              validator: validatenNotEmpty,
+              validator: validateNotEmpty,
               hint: _labelKDV,
               itemList: _productTaxList,
               selectValue: _selectedTax,
@@ -784,7 +800,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               direction: Axis.vertical,
               spacing: context.extensionWrapSpacing20(),
               children: [
+                ///Toplam Tutar
                 sharedTextFormField(
+                  validator: validateNotEmpty,
                   width: _shareTextFormFieldPaymentSystemWidth,
                   labelText: _totalPayment,
                   controller: _controllerPaymentValue,
@@ -909,7 +927,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   ///Maliyet ve Birim Satışı Bölümü.
   widgetProductUnitSection() {
-    return Container(
+    return SizedBox(
       width: 500,
       child: Wrap(
         direction: Axis.horizontal,
@@ -918,9 +936,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         spacing: context.extensionWrapSpacing20(),
         runSpacing: context.extensionWrapSpacing10(),
         children: [
-          Container(
+          SizedBox(
             width: 230,
-            height: 50,
+            height: 70,
+            //Stok Sayısının Girildiği Yer.
             child: shareWidget.widgetTextFieldInput(
               etiket: _labelAmountOfStock,
               maxCharacter: 7,
@@ -929,7 +948,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ],
               keyboardInputType: TextInputType.number,
               controller: _controllerProductAmountOfStock,
-              validationFunc: validatenNotEmpty,
+              validationFunc: validateNotEmpty,
               onChanged: (p0) {
                 //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
                 if (_controllerPaymentValue.text.isNotEmpty) {
@@ -977,7 +996,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 FormatterDecimalLimit(decimalRange: 2),
               ],
               controller: _controllerSallingPriceWithoutTax,
-              validationFunc: validatenNotEmpty,
+              validationFunc: validateNotEmpty,
               onChanged: (value) {
                 ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
                 ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
@@ -1083,10 +1102,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       {required double width,
       required String labelText,
       required TextEditingController controller,
-      required void Function(String)? onChanged}) {
+      required void Function(String)? onChanged,
+      String? Function(String?)? validator}) {
     return SizedBox(
       width: width,
       child: TextFormField(
+        validator: validator,
         onChanged: onChanged,
         controller: controller,
         autovalidateMode: AutovalidateMode.always,
@@ -1099,8 +1120,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           labelText: labelText,
           labelStyle: TextStyle(color: context.extensionDefaultColor),
           isDense: true,
-          errorBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
+          errorBorder: UnderlineInputBorder(borderSide: BorderSide()),
+          focusedBorder: UnderlineInputBorder(borderSide: BorderSide()),
         ),
       ),
     );

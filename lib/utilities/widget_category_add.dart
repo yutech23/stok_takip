@@ -928,7 +928,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               controller: _controllerCategories[i],
               etiket: "Kategori-${categoryNo} Elemanını Giriniz",
               inputFormat: [FormatterUpperCaseCapitalEachWordTextFormatter()],
-              validationFunc: validatenNotEmpty,
+              validationFunc: validateNotEmpty,
               enable: _enableCategoryTextFormField[i])));
 
       if (i != 4) {

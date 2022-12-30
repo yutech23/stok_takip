@@ -1026,14 +1026,14 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             ],
                             keyboardInputType: TextInputType.number,
                             controller: controllerProductAmountOfStockNewValue,
-                            validationFunc: validatenNotEmpty),
+                            validationFunc: validateNotEmpty),
                       ),
                       Container(
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           width: 230,
                           height: 50,
                           child: ShareDropdown(
-                            validator: validatenNotEmpty,
+                            validator: validateNotEmpty,
                             hint: 'KDV Oranın Seçiniz',
                             itemList: productTaxList,
                             selectValue: selectedTax,
@@ -1048,7 +1048,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             FormatterDecimalLimit(decimalRange: 2)
                           ],
                           controller: controllerBuyingPriceWithoutTax,
-                          validationFunc: validatenNotEmpty,
+                          validationFunc: validateNotEmpty,
                           onChanged: (value) {
                             ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
                             ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
@@ -1070,7 +1070,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             FormatterDecimalLimit(decimalRange: 2),
                           ],
                           controller: controllerSallingPriceWithoutTax,
-                          validationFunc: validatenNotEmpty,
+                          validationFunc: validateNotEmpty,
                           onChanged: (value) {
                             ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
                             ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu

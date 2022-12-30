@@ -28,7 +28,7 @@ class ShareWidget with Validation {
       obscureText: karakterGostermeDurumu!,
       controller: controller,
       validator: validationFunc,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
           counterText: "",
           labelText: etiket,

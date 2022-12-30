@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
                       } else if (states.contains(MaterialState.hovered)) {
                         return context.extensionDisableColor.withOpacity(0.24);
                       }
+                      return null;
                     },
                   ),
                   textStyle: MaterialStateProperty.all(Theme.of(context)
