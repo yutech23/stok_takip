@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
+import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/screen/drawer.dart';
 import 'package:stok_takip/utilities/convert_string_currency_digits.dart';
@@ -29,7 +31,7 @@ class ScreenProductAdd extends StatefulWidget {
 class _ScreenProductAddState extends State<ScreenProductAdd>
     with Validation, SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
+  final _valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
   final _valueNotifierPaid = ValueNotifier<double>(0);
   final _valueNotifierBalance = ValueNotifier<double>(0);
@@ -37,18 +39,19 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
-  final _controllerBuyingPriceWithoutTax = TextEditingController();
+
   final _controllerSallingPriceWithoutTax = TextEditingController();
   final _controllerCashValue = TextEditingController();
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
-  final _controllerPaymentValue = TextEditingController();
+  final _controllerPaymentTotal = TextEditingController();
   final _controllerInvoiceCode = TextEditingController();
   late AutovalidateMode _autovalidateMode;
 
   final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
 
-  late Product? _product;
+  // late Product? _product;
+
   late Category _category;
   final List<String> _categoryList = [];
   bool _visibleQrCode = false;
@@ -71,12 +74,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
-  DateTime selectDateTime = DateTime.now();
+  String? _selectDateTime;
   late Color _colorBackgroundCurrencyUSD;
   late Color _colorBackgroundCurrencyTRY;
   late Color _colorBackgroundCurrencyEUR;
-  late String _selectUnitOfCurrency;
-  late String _selectCurrencyType;
+  late String _selectUnitOfCurrencySymbol;
+  late String _selectUnitOfCurrencyAbridgment;
   final String _labelCurrencySelect = "Para Birimi Seçiniz";
   final String _labelAmountOfStock = "Stok Miktarı (Adet)";
   final String _labelKDV = "KDV Oranın Seçiniz";
@@ -107,18 +110,19 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   @override
   void initState() {
     _autovalidateMode = AutovalidateMode.onUserInteraction;
-    _selectUnitOfCurrency = _mapUnitOfCurrency["Türkiye"]["symbol"];
-    _selectCurrencyType = _mapUnitOfCurrency["Türkiye"]["abridgment"];
+    _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
+    _selectUnitOfCurrencyAbridgment =
+        _mapUnitOfCurrency["Türkiye"]["abridgment"];
     //   roleCheck();
     _productCodeList = [];
 
-    _product = Product(
-        productCodeAndQrCode: null,
-        amountOfStock: null,
-        buyingpriceWithoutTax: null,
+    /* _product = Product(
+        productCode: "",
+        currentAmountOfStock: 0,
+        currentBuyingPriceWithoutTax: 0,
         category: null,
-        sallingPriceWithoutTax: null,
-        taxRate: null);
+        currentSallingPriceWithoutTax: 0,
+        taxRate: 0); */
     _category = Category();
     _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
     _colorBackgroundCurrencyTRY = context.extensionDisableColor;
@@ -130,7 +134,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   void dispose() {
     _formKey.currentState!.dispose();
     _controllerProductCode.dispose();
-    _controllerBuyingPriceWithoutTax.dispose();
+
     _controllerProductAmountOfStock.dispose();
     _controllerSallingPriceWithoutTax.dispose();
     _categoryList.clear();
@@ -597,9 +601,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrencyType =
+                            _selectUnitOfCurrencyAbridgment =
                                 _mapUnitOfCurrency["Türkiye"]["abridgment"];
-                            _selectUnitOfCurrency =
+                            _selectUnitOfCurrencySymbol =
                                 _mapUnitOfCurrency["Türkiye"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDisableColor;
@@ -617,9 +621,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrencyType =
+                            _selectUnitOfCurrencyAbridgment =
                                 _mapUnitOfCurrency["amerika"]["abridgment"];
-                            _selectUnitOfCurrency =
+                            _selectUnitOfCurrencySymbol =
                                 _mapUnitOfCurrency["amerika"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDefaultColor;
@@ -637,9 +641,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     shareInkwellCurrency(
                         onTap: () {
                           setState(() {
-                            _selectCurrencyType =
+                            _selectUnitOfCurrencyAbridgment =
                                 _mapUnitOfCurrency["avrupa"]["abridgment"];
-                            _selectUnitOfCurrency =
+                            _selectUnitOfCurrencySymbol =
                                 _mapUnitOfCurrency["avrupa"]["symbol"];
                             _colorBackgroundCurrencyTRY =
                                 context.extensionDefaultColor;
@@ -805,7 +809,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   validator: validateNotEmpty,
                   width: _shareTextFormFieldPaymentSystemWidth,
                   labelText: _totalPayment,
-                  controller: _controllerPaymentValue,
+                  controller: _controllerPaymentTotal,
                   onChanged: (value) {
                     value.isEmpty
                         ? _totalPaymentValue = 0
@@ -813,7 +817,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                             double.parse(value.replaceAll(RegExp(r'\D'), ""));
 
                     if (_controllerProductAmountOfStock.text.isNotEmpty) {
-                      _valueNotifierProductBuyWithTax.value =
+                      _valueNotifierProductBuyWithoutTax.value =
                           _totalPaymentValue /
                               double.parse(
                                   _controllerProductAmountOfStock.text);
@@ -877,6 +881,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           ),
 
           ///İleri Ödeme Tarihi Belirlenen button.
+          ///ValueListenableBuilder Buttonun aktif veya pasif olmasını belirliyor. Toplam Tutar girilmediyse Button Pasif Oluyor.
           ValueListenableBuilder(
             valueListenable: _valueNotifierButtonDateTimeState,
             builder: (context, value, child) {
@@ -886,13 +891,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     onPressedDoSomething:
                         _valueNotifierButtonDateTimeState.value
                             ? () async {
-                                final data = await pickDate();
-                                if (data == null) return; //pressed Cancel
-                                selectDateTime = data;
-                                if (data != null) {
+                                //Takvimden veri alınıyor.
+                                final dataForCalendar = await pickDate();
+
+                                if (dataForCalendar != null) {
+                                  //
+                                  _selectDateTime = DateFormat('dd/MM/yyyy')
+                                      .format(dataForCalendar);
                                   setState(() {
                                     _buttonDateTimeLabel =
-                                        "Seçilen Tarih \n ${selectDateTime.day}/${selectDateTime.month}/${selectDateTime.year}";
+                                        "Seçilen Tarih \n ${dataForCalendar.day}/${dataForCalendar.month}/${dataForCalendar.year}";
                                   });
                                 }
                               }
@@ -951,8 +959,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               validationFunc: validateNotEmpty,
               onChanged: (p0) {
                 //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
-                if (_controllerPaymentValue.text.isNotEmpty) {
-                  _valueNotifierProductBuyWithTax.value =
+                if (_controllerPaymentTotal.text.isNotEmpty) {
+                  _valueNotifierProductBuyWithoutTax.value =
                       _totalPaymentValue / double.parse(p0);
                 }
               },
@@ -966,7 +974,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 border: Border.all(color: Colors.grey),
                 borderRadius: context.extensionRadiusDefault10),
             child: ValueListenableBuilder<double>(
-              valueListenable: _valueNotifierProductBuyWithTax,
+              valueListenable: _valueNotifierProductBuyWithoutTax,
               builder: (context, value, child) => RichText(
                 text: TextSpan(
                     text: 'Birim Başı Maliyet : ',
@@ -977,7 +985,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     children: [
                       TextSpan(
                           text:
-                              "${value.toStringAsFixed(2)} $_selectUnitOfCurrency",
+                              "${value.toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1029,7 +1037,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       TextSpan(
                           text: _selectedTaxToInt == 0
                               ? 'KDV Seçilmedi'
-                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrency",
+                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1056,25 +1064,62 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     _productCodeList!.contains(_controllerProductCode.text);
 
                 if (isThereProductCodeByProductList == false) {
-                  _product = Product(
-                      productCodeAndQrCode: _controllerProductCode.text,
+                  ///Depo seçimi koyulmadığından bu bölüm şimdilik sabit veriliyor.
+                  const storehouse = "Ana Depo";
+
+                  ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
+                  final product = Product(
+                    productCode: _controllerProductCode.text,
+                    currentAmountOfStock:
+                        int.parse(_controllerProductAmountOfStock.text),
+                    taxRate: _selectedTaxToInt,
+                    currentBuyingPriceWithoutTax:
+                        _valueNotifierProductBuyWithoutTax.value,
+                    currentSallingPriceWithoutTax:
+                        double.parse(_controllerSallingPriceWithoutTax.text),
+                    category: _category,
+                  );
+
+                  ///ÖDEME TÜRÜNÜN EKLENMESİ.
+                  final payment = Payment(
+                      suppliersFk: _controllerSupplier.text,
+                      productFk: _controllerProductCode.text,
                       amountOfStock:
                           int.parse(_controllerProductAmountOfStock.text),
-                      taxRate: _selectedTaxToInt,
-                      buyingpriceWithoutTax:
-                          double.parse(_controllerBuyingPriceWithoutTax.text),
+                      invoiceCode: _controllerInvoiceCode.text,
+                      unitOfCurrency: _selectUnitOfCurrencyAbridgment,
+                      total: double.parse(
+                          _controllerPaymentTotal.text.replaceAll(".", "")),
+                      cash: double.tryParse(
+                          _controllerCashValue.text.replaceAll(".", "")),
+                      bankcard: double.tryParse(
+                          _controllerBankValue.text.replaceAll(".", "")),
+                      eftHavale: double.tryParse(
+                          _controllerEftHavaleValue.text.replaceAll(".", "")),
+                      buyingPriceWithoutTax:
+                          _valueNotifierProductBuyWithoutTax.value,
                       sallingPriceWithoutTax:
                           double.parse(_controllerSallingPriceWithoutTax.text),
-                      category: _category,
-                      billingCode: _controllerInvoiceCode.text);
-                  db.saveProduct(context, _product!).then((value) {
+                      repaymentDateTime: _selectDateTime);
+
+                  ///KAYITIN GERÇEKLEŞTİĞİ YER.
+                  db
+                      .saveNewProduct(context, product, payment, storehouse)
+                      .then((value) {
                     /// kayıt başarılı olunca degerleri sıfırlıyor.
-                    if (value) {
+                    if (value == null) {
                       _controllerProductAmountOfStock.clear();
-                      _controllerBuyingPriceWithoutTax.clear();
+                      _controllerInvoiceCode.clear();
+                      _controllerPaymentTotal.clear();
+                      _valueNotifierBalance.value = 0;
+                      _valueNotifierPaid.value = 0;
+                      _controllerSupplier.clear();
+                      _controllerBankValue.clear();
+                      _controllerCashValue.clear();
+                      _controllerEftHavaleValue.clear();
                       _controllerSallingPriceWithoutTax.clear();
                       _valueNotifierProductSaleWithTax.value = 0;
-                      _valueNotifierProductBuyWithTax.value = 0;
+                      _valueNotifierProductBuyWithoutTax.value = 0;
                       setState(() {
                         _controllerProductCode.clear();
                         _visibleQrCode = false;
@@ -1120,8 +1165,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           labelText: labelText,
           labelStyle: TextStyle(color: context.extensionDefaultColor),
           isDense: true,
-          errorBorder: UnderlineInputBorder(borderSide: BorderSide()),
-          focusedBorder: UnderlineInputBorder(borderSide: BorderSide()),
+          errorBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide()),
         ),
       ),
     );
@@ -1152,7 +1197,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ),
               TextSpan(
                   text:
-                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrency",
+                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrencySymbol",
                   style: context.theme.titleMedium!.copyWith(
                       color: Colors.red.shade900,
                       fontWeight: FontWeight.bold,
@@ -1168,7 +1213,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   ///Tarih seçildiği yer.
   Future<DateTime?> pickDate() => showDatePicker(
         context: context,
-        initialDate: selectDateTime,
+        initialDate: DateTime.now(),
         firstDate: DateTime(2022),
         lastDate: DateTime(2050),
       );

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
+import 'package:stok_takip/models/payment.dart';
+import 'package:stok_takip/models/suppliers.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
@@ -391,14 +393,34 @@ class DbHelper {
     }
   }
 
-  Future<bool> saveProduct(BuildContext context, Product product) async {
-    final res = await supabase.from('product').insert([
+  Future saveSupplier(Supplier supplier) async {
+    final resSupplier = await supabase.from('suppliers').insert([
       {
-        'product_code': product.productCodeAndQrCode,
+        'name': supplier.name,
+        'phone': supplier.phone,
+        'adress': supplier.adress,
+        'tax_office': supplier.taxOffice,
+        'cargo_number': supplier.cargoNumber,
+        'cargo_company': supplier.cargoCompany,
+        'bank_name': supplier.bankName,
+        'iban': supplier.iban,
+      }
+    ]).execute();
+
+    final errorSupplier = resSupplier.error;
+    print('error Supplier : $errorSupplier');
+  }
+
+  Future<String> saveNewProduct(BuildContext context, Product product,
+      Payment payment, String storehouse) async {
+    final resProduct = await supabase.from('product').insert([
+      {
+        'product_code': product.productCode,
         'tax_rate': product.taxRate,
-        'amount_of_stock': product.amountOfStock,
-        'buying_price_without_tax': product.buyingpriceWithoutTax,
-        'salling_price_without_tax': product.sallingPriceWithoutTax,
+        'current_buying_price_without_tax':
+            product.currentBuyingPriceWithoutTax,
+        'current_salling_price_without_tax':
+            product.currentSallingPriceWithoutTax,
         'fk_category1_id': product.category!.category1!.keys.first,
         'fk_category2_id': product.category!.category2!.keys.first,
         'fk_category3_id': product.category!.category3!.keys.first,
@@ -406,29 +428,48 @@ class DbHelper {
         'fk_category5_id': product.category!.category5!.keys.first,
       }
     ]).execute();
-    final error = res.error;
+    final errorProduct = resProduct.error;
 
-    ///kayıt edilen ürünün id sini alıyoruz ki fiyat ve stok bilgilerin geçmişini
-    ///kaydetmek için.
-    int productId = res.data[0]['product_id'];
-
-    final resProductPriceHistory =
-        await supabase.from('product_price_history').insert([
+    ///İlk kez yeni bir ürün eklendiğinde payment yeni ürün fiyatını ekliyoruz.
+    final resPayment = await supabase.from('payment').insert([
       {
-        'fk_product_id': productId,
-        'amount_of_stock': product.amountOfStock,
-        'buying_price_without_tax': product.buyingpriceWithoutTax,
-        'salling_price_without_tax': product.sallingPriceWithoutTax,
+        'supplier_fk': payment.suppliersFk,
+        'product_fk': payment.productFk,
+        'amount_of_stock': product.currentAmountOfStock,
+        'buying_price_without_tax': product.currentBuyingPriceWithoutTax,
+        'salling_price_without_tax': product.currentSallingPriceWithoutTax,
+        'invoice_code': payment.invoiceCode,
+        'unit_of_currency': payment.unitOfCurrency,
+        'total': payment.total,
+        'cash': payment.cash,
+        'bankcard': payment.bankcard,
+        'eft_havale': payment.eftHavale,
+        'repayment_date': payment.repaymentDateTime
       }
     ]).execute();
-    final errorProductPriceHistory = resProductPriceHistory.error;
+    final errorPayment = resPayment.error;
 
-    if (error != null && errorProductPriceHistory != null) {
-      context.extensionShowErrorSnackBar(message: error.message);
-      return false;
+    final resStorehouse = await supabase.from('storehouse_stock').insert([
+      {
+        'storehouse_fk': storehouse,
+        'product_fk': product.productCode,
+        'current_amount_of_stock': product.currentAmountOfStock
+      }
+    ]).execute();
+    final errorStorehouse = resStorehouse.error;
+
+    print('Product error : $errorProduct');
+    print('Payment Error : $errorPayment');
+    print('Storehouse error : $errorStorehouse');
+
+    if (errorProduct == null ||
+        errorPayment == null ||
+        errorStorehouse == null) {
+      return "";
     } else {
-      context.extenionShowSnackBar(message: 'Kayıt Başarılı');
-      return true;
+      return errorProduct.message +
+          errorPayment.message +
+          errorStorehouse.message;
     }
   }
 
@@ -438,8 +479,10 @@ class DbHelper {
         .select()
         .eq('product_code', productCode)
         .execute();
+
     final data = res.data;
     final error = res.error;
+
     Category getProductCategory = Category();
 
     final resCategory1 = await supabase
@@ -488,11 +531,11 @@ class DbHelper {
     };
 
     Product getProductDetail = Product(
-        productCodeAndQrCode: data[0]['product_code'],
-        amountOfStock: data[0]['amount_of_stock'],
+        productCode: data[0]['product_code'],
+        currentAmountOfStock: data[0]['current_amount_of_stock'],
         taxRate: data[0]['tax_rate'],
-        buyingpriceWithoutTax: data[0]['buying_price_without_tax'],
-        sallingPriceWithoutTax: data[0]['salling_price_without_tax'],
+        currentBuyingPriceWithoutTax: data[0]['buying_price_without_tax'],
+        currentSallingPriceWithoutTax: data[0]['salling_price_without_tax'],
         category: getProductCategory);
 
     return getProductDetail;

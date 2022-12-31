@@ -273,9 +273,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       category.category4Id = productValue['category4Id'];
                       category.category5Id = productValue['category5Id'];
 
-                      Product selectProduct = Product.withId(
-                          product_id: productValue['productId'],
-                          productCodeAndQrCode: productValue['productCode'],
+                      Product selectProduct = Product(
+                          productId: productValue['productId'],
+                          productCode: productValue['productCode'],
                           amountOfStock: productValue['amountOfStock'],
                           taxRate: productValue['taxRate'],
                           buyingpriceWithoutTax: double.parse(
@@ -1182,8 +1182,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                       /// database yüklenen yer.
                       db.updateProductDetail(
-                          selectedProduct.productCodeAndQrCode!,
-                          selectedProduct.product_id,
+                          selectedProduct.productCode!,
+                          selectedProduct.productId,
                           newStockValue,
                           productDetailToBeupdateMap);
                       noticeBarTrue("Tebrikler", 1);
@@ -1191,7 +1191,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       /// Ekranda görülen verilerin güncellemeleri.
                       for (var element in _sourceList[0]) {
                         if (element['productCode'] ==
-                            selectedProduct.productCodeAndQrCode) {
+                            selectedProduct.productCode) {
                           element['buyingPriceWithoutTax'] =
                               productDetailToBeupdateMap[
                                   'buying_price_without_tax'];
@@ -1216,7 +1216,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       ///Ekrandali Search özelliği kullanıldağıki veriyi düzenliyor.
                       for (var element in _sourceList[2]) {
                         if (element['productCode'] ==
-                            selectedProduct.productCodeAndQrCode) {
+                            selectedProduct.productCode) {
                           element['buyingPriceWithoutTax'] =
                               productDetailToBeupdateMap[
                                   'buying_price_without_tax'];
@@ -1241,7 +1241,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       ///Ekrandaki Filtre>Search yapıldığında Liste[3] veriyi düzenliyor.
                       for (var element in _sourceList[3]) {
                         if (element['productCode'] ==
-                            selectedProduct.productCodeAndQrCode) {
+                            selectedProduct.productCode) {
                           element['buyingPriceWithoutTax'] =
                               productDetailToBeupdateMap[
                                   'buying_price_without_tax'];

@@ -1,40 +1,19 @@
 import 'package:stok_takip/models/category.dart';
 
 class Product {
-  int? product_id;
-  String? productCodeAndQrCode;
-  int? amountOfStock;
-  int? taxRate;
-  double? buyingpriceWithoutTax;
-  double? sallingPriceWithoutTax;
-  String? billingCode;
-
+  String productCode;
+  int currentAmountOfStock;
+  int taxRate;
+  double? currentBuyingPriceWithoutTax;
+  double? currentSallingPriceWithoutTax;
   Category? category;
 
-  Product(
-      {required this.productCodeAndQrCode,
-      required this.amountOfStock,
-      required this.taxRate,
-      required this.buyingpriceWithoutTax,
-      required this.sallingPriceWithoutTax,
-      required this.category,
-      this.billingCode});
-
-  Product.withId(
-      {required this.product_id,
-      required this.productCodeAndQrCode,
-      required this.amountOfStock,
-      required this.taxRate,
-      required this.buyingpriceWithoutTax,
-      required this.sallingPriceWithoutTax,
-      required this.category});
-
-  Product.update({
-    required productCodeAndQrCode,
-    required amountOfStock,
-    required goodInStock,
-    required taxRate,
-    required buyingpriceWithoutTax,
-    required sallingPriceWithoutTax,
+  Product({
+    required this.productCode,
+    required this.currentAmountOfStock,
+    required this.taxRate,
+    required this.currentBuyingPriceWithoutTax,
+    required this.currentSallingPriceWithoutTax,
+    required this.category,
   });
 }
