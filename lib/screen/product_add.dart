@@ -1107,7 +1107,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       .saveNewProduct(context, product, payment, storehouse)
                       .then((value) {
                     /// kayıt başarılı olunca degerleri sıfırlıyor.
-                    if (value == null) {
+                    if (value == "") {
                       _controllerProductAmountOfStock.clear();
                       _controllerInvoiceCode.clear();
                       _controllerPaymentTotal.clear();

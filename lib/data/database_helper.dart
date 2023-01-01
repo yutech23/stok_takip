@@ -426,6 +426,7 @@ class DbHelper {
         'fk_category3_id': product.category!.category3!.keys.first,
         'fk_category4_id': product.category!.category4!.keys.first,
         'fk_category5_id': product.category!.category5!.keys.first,
+        'current_amount_of_stock': product.currentAmountOfStock
       }
     ]).execute();
     final errorProduct = resProduct.error;
@@ -449,27 +450,24 @@ class DbHelper {
     ]).execute();
     final errorPayment = resPayment.error;
 
-    final resStorehouse = await supabase.from('storehouse_stock').insert([
+    ///Depo sistemi için yapıldı
+    /*  final resStorehouse = await supabase.from('storehouse_stock').insert([
       {
         'storehouse_fk': storehouse,
         'product_fk': product.productCode,
         'current_amount_of_stock': product.currentAmountOfStock
       }
     ]).execute();
-    final errorStorehouse = resStorehouse.error;
+    final errorStorehouse = resStorehouse.error; */
 
     print('Product error : $errorProduct');
     print('Payment Error : $errorPayment');
-    print('Storehouse error : $errorStorehouse');
+    //  print('Storehouse error : $errorStorehouse');
 
-    if (errorProduct == null ||
-        errorPayment == null ||
-        errorStorehouse == null) {
+    if (errorProduct == null || errorPayment == null) {
       return "";
     } else {
-      return errorProduct.message +
-          errorPayment.message +
-          errorStorehouse.message;
+      return errorProduct.message + errorPayment.message;
     }
   }
 
@@ -544,9 +542,37 @@ class DbHelper {
   Stream<List<Map<String, dynamic>>>? fetchProductDetail() {
     final resProduct = db.supabase
         .from('product')
-        .stream(['product_id'])
+        .stream(['product_code'])
         .order('product_code', ascending: true)
         .execute();
+
+    /*  resProduct.listen((event) {
+      print(event);
+    }); */
+    /* final resStorehouseStock = db.supabase
+        .from('storehouse_stock')
+        .stream(['id'])
+        .order('product_fk', ascending: true)
+        .execute();
+
+    Future resProductNew = resProduct.forEach((elementProductList) {
+      elementProductList.forEach((elementProductMap) {
+        resStorehouseStock.forEach((elementStorehouseList) {
+          elementStorehouseList.forEach((elementStorehouseMap) {
+            // print(elementProductMap['product_code']);
+            // print(elementStorehouseMap['product_fk']);
+            if (elementProductMap['product_code'] ==
+                elementStorehouseMap['product_fk']) {
+              elementProductMap.addAll({
+                'current_amount_of_stock':
+                    elementStorehouseMap['current_amount_of_stock']
+              });
+            }
+          });
+        });
+      });
+    });
+ */
     return resProduct;
   }
 
@@ -563,27 +589,40 @@ class DbHelper {
     return resProduct.data;
   }
 
-  Future deleteProduct(String productCode) async {
-    final res = await db.supabase
+  //Ürün silme StokEdit Sayfasında kullanılıyor.
+  Future<String> deleteProduct(String productCode) async {
+    final resProduct = await db.supabase
         .from('product')
         .delete()
         .match({'product_code': productCode}).execute();
-    return res.error;
+
+    final resStorehouseStock = await db.supabase
+        .from('storehouse_stock')
+        .delete()
+        .match({'product_fk': productCode}).execute();
+    final errorProduct = resProduct.error;
+    final errorStorehouse = resStorehouseStock.error;
+
+    if (errorProduct == null || errorStorehouse == null) {
+      return "";
+    } else {
+      return errorProduct.message + errorStorehouse.message;
+    }
   }
 
-  Future updateProductDetail(String productCode, int? selectProductId,
-      int? newStockValue, Map<String, dynamic> data) async {
+  Future updateProductDetail(
+      String productCode, int? newStockValue, Map<String, dynamic> data) async {
     final res = await db.supabase
         .from('product')
         .update(data)
         .match({'product_code': productCode}).execute();
-    final resProductPriceHistory =
-        await db.supabase.from('product_price_history').insert([
+
+    final resProductPriceHistory = await db.supabase.from('payment').insert([
       {
         'buying_price_without_tax': data['buying_price_without_tax'],
         'salling_price_without_tax': data['salling_price_without_tax'],
         'amount_of_stock': newStockValue,
-        'fk_product_id': selectProductId,
+        'product_fk': productCode,
       }
     ]).execute();
   }

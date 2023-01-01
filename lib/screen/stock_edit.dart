@@ -245,10 +245,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             mainAxisAlignment: MainAxisAlignment.center,
             textDirection: TextDirection.rtl,
             children: [
+              ///Silme Buttonu
               IconButton(
-                padding: EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 onPressed: () {
                   ///Stok bitmeden silmeyi engelliyor.
                   if (row['amountOfStock'] == 0) {
@@ -259,10 +260,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                   }
                 },
               ),
+
+              ///Update Buttonu
               IconButton(
-                padding: EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   for (var productValue in _sourceList[0]) {
                     if (productValue['productCode'] == row['productCode']) {
@@ -274,13 +277,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       category.category5Id = productValue['category5Id'];
 
                       Product selectProduct = Product(
-                          productId: productValue['productId'],
                           productCode: productValue['productCode'],
-                          amountOfStock: productValue['amountOfStock'],
+                          currentAmountOfStock: productValue['amountOfStock'],
                           taxRate: productValue['taxRate'],
-                          buyingpriceWithoutTax: double.parse(
+                          currentBuyingPriceWithoutTax: double.parse(
                               productValue['buyingPriceWithoutTax']),
-                          sallingPriceWithoutTax: double.parse(
+                          currentSallingPriceWithoutTax: double.parse(
                               productValue['sallingPriceWithoutTax']),
                           category: category);
 
@@ -579,30 +581,31 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 ///burada temizliyorum.
                 if (_editState == false) {
                   _sourceList[0].clear();
+                  //  print("snapdata : ${snapshot.data}");
                   for (var item in snapshot.data!) {
                     ///Ürünün sadece Gösterilmek istenen verileri tutuluyor.
 
                     _sourceList[0].add({
-                      'productId': item['product_id'],
+                      //  'productId': item['product_id'],
                       'productCode': item['product_code'],
                       'buyingPriceWithoutTax':
-                          (item['buying_price_without_tax'] + 0.001)
+                          (item['current_buying_price_without_tax'] + 0.001)
                               .toStringAsFixed(2),
                       'sallingPriceWithoutTax':
-                          (item['salling_price_without_tax'] + 0.001)
+                          (item['current_salling_price_without_tax'] + 0.001)
                               .toStringAsFixed(2),
                       'buyingPriceTax': context
                           .extensionGetPercentageOfNumber(
-                              item['buying_price_without_tax'],
+                              item['current_buying_price_without_tax'],
                               item['tax_rate'])
                           .toStringAsFixed(2),
                       'sallingPriceTax': context
                           .extensionGetPercentageOfNumber(
-                              item['salling_price_without_tax'],
+                              item['current_salling_price_without_tax'],
                               item['tax_rate'])
                           .toStringAsFixed(2),
                       'taxRate': item['tax_rate'],
-                      'amountOfStock': item['amount_of_stock'],
+                      'amountOfStock': item['current_amount_of_stock'],
                       'category1Id': item['fk_category1_id'],
                       'category2Id': item['fk_category2_id'],
                       'category3Id': item['fk_category3_id'],
@@ -610,6 +613,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       'category5Id': item['fk_category5_id'],
                     });
                   }
+
+                  print(" yüoklene : $_sourceList[0]");
                 }
 
                 ///Satırların tablo içinde genişlemesi gerekiyor yoksa sorun çıkıyor
@@ -934,8 +939,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
     final productTaxList = <String>['% 8', '% 18'];
     String? selectedTax;
-    int? oldStockValue = selectedProduct.amountOfStock;
-    double? oldBuyingPriceWithoutTax = selectedProduct.buyingpriceWithoutTax;
+    int? oldStockValue = selectedProduct.currentAmountOfStock;
+    double? oldBuyingPriceWithoutTax =
+        selectedProduct.currentBuyingPriceWithoutTax;
     int newStockValue;
 
     ///KDV seçilip Seçilmediğini kontrol ediyorum.
@@ -950,14 +956,14 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
     ///Gelen Değerler Atanıyor
     controllerBuyingPriceWithoutTax.text =
-        selectedProduct.buyingpriceWithoutTax.toString();
+        selectedProduct.currentBuyingPriceWithoutTax.toString();
     controllerSallingPriceWithoutTax.text =
-        selectedProduct.sallingPriceWithoutTax.toString();
+        selectedProduct.currentSallingPriceWithoutTax.toString();
 
     valueNotifierProductBuyWithTax.value =
-        selectedProduct.buyingpriceWithoutTax!;
+        selectedProduct.currentBuyingPriceWithoutTax!;
     valueNotifierProductSaleWithTax.value =
-        selectedProduct.sallingPriceWithoutTax!;
+        selectedProduct.currentSallingPriceWithoutTax!;
 
     showDialog(
         context: context,
@@ -999,7 +1005,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                                     .copyWith(fontWeight: FontWeight.bold),
                                 children: [
                                   TextSpan(
-                                    text: selectedProduct.amountOfStock
+                                    text: selectedProduct.currentAmountOfStock
                                         .toString(),
                                     style: context.theme.headline6!.copyWith(
                                         color: Colors.red,
@@ -1181,11 +1187,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       });
 
                       /// database yüklenen yer.
-                      db.updateProductDetail(
-                          selectedProduct.productCode!,
-                          selectedProduct.productId,
-                          newStockValue,
-                          productDetailToBeupdateMap);
+                      db.updateProductDetail(selectedProduct.productCode!,
+                          newStockValue, productDetailToBeupdateMap);
                       noticeBarTrue("Tebrikler", 1);
 
                       /// Ekranda görülen verilerin güncellemeleri.
