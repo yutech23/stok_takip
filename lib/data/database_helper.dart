@@ -615,10 +615,11 @@ class DbHelper {
   //Stok Güncelleme için Kullanılıyor
   Future updateProductDetail(
       String productCode, Map<String, dynamic> data, Payment payment) async {
-    final res = await db.supabase
+    final resProduct = await db.supabase
         .from('product')
         .update(data)
         .match({'product_code': productCode}).execute();
+    /*  //TEST
     print("veri içinde ");
     print(payment.productFk);
     print(payment.suppliersFk);
@@ -631,7 +632,7 @@ class DbHelper {
     print(payment.repaymentDateTime);
     print(payment.sallingPriceWithoutTax);
     print(payment.total);
-    print(payment.unitOfCurrency);
+    print(payment.unitOfCurrency); */
 
     final resPayment = await db.supabase.from('payment').insert([
       {
@@ -649,6 +650,14 @@ class DbHelper {
         'repayment_date': payment.repaymentDateTime
       }
     ]).execute();
+    final errorProduct = resProduct.error;
+    final errorPayment = resPayment.error;
+
+    if (errorProduct == null || errorPayment == null) {
+      return "";
+    } else {
+      return "${errorProduct.message} + ${errorPayment.message}";
+    }
   }
 
   Future<String?> getPassword(String? uuid) async {

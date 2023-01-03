@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:adaptivex/adaptivex.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -93,10 +94,13 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
+  final CurrencyTextInputFormatter _formatter = CurrencyTextInputFormatter();
 
   /*-------------------------END UPDATE------------------------------*/
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int? _selectedCategory1Id;
+
+  final String _labelFooterPageRowCount = "Sayfa Satır Sayısı:";
 
   void _getCategory1(int? value) {
     setState(() {
@@ -1007,9 +1011,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     final valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
     final valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
     final controllerProductAmountOfStockNewValue = TextEditingController();
-
     final controllerSallingPriceWithoutTax = TextEditingController();
 
+    AutovalidateMode autovalidateMode = AutovalidateMode.onUserInteraction;
     int? oldStockValue = selectedProduct.currentAmountOfStock;
     double? oldBuyingPriceWithoutTax =
         selectedProduct.currentBuyingPriceWithoutTax;
@@ -1047,6 +1051,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               content: SingleChildScrollView(
                 child: Form(
                   key: keyPopupForm,
+                  autovalidateMode: autovalidateMode,
                   child: SizedBox(
                     width: context.extendFixedWightContainer,
                     // constraints: const BoxConstraints(maxHeight: 700),
@@ -1131,7 +1136,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         newSallingPriceWithoutTax =
                             newAverageBuyingPriceWithoutTax + profit;
 
-                        print(double.parse(
+                        ///Test Print
+                        /*  print(double.parse(
                             _controllerPaymentTotal.text.replaceAll(".", "")));
                         print(double.tryParse(
                             _controllerCashValue.text.replaceAll(".", "")));
@@ -1146,7 +1152,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         print(_controllerSupplier.text);
                         print(selectedProduct.productCode);
                         print(newBuyingPriceWithoutTax);
-                        print(newSallingPriceWithoutTax);
+                        print(newSallingPriceWithoutTax); */
 
                         //Ödeme Nesnesi
                         var newPayment = Payment(
@@ -1181,32 +1187,53 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         });
 
                         /// database yüklenen yer.
-                        db.updateProductDetail(selectedProduct.productCode,
-                            productDetailToBeupdateMap, newPayment);
-                        noticeBarTrue("Tebrikler", 1);
+                        String resDatabase = await db.updateProductDetail(
+                            selectedProduct.productCode,
+                            productDetailToBeupdateMap,
+                            newPayment);
 
-                        /*   /// Ekranda görülen verilerin güncellemeleri.
+                        if (resDatabase.isEmpty) {
+                          _controllerPaymentTotal.clear();
+                          _controllerBankValue.clear();
+                          _controllerCashValue.clear();
+                          _controllerEftHavaleValue.clear();
+                          _controllerSupplier.clear();
+                          _controllerInvoiceCode.clear();
+                          _valueNotifierBalance.value = 0;
+                          _valueNotifierPaid.value = 0;
+                          _selectDateTime = "";
+                          controllerProductAmountOfStockNewValue.clear();
+                          controllerSallingPriceWithoutTax.clear();
+
+                          context.noticeBarTrue("Kayıt Başarılı", 1);
+                        } else {
+                          context.noticeBarError(
+                              "Kayıt Başarısız : \n $resDatabase", 2);
+                        }
+
+                        /// Ekranda görülen verilerin güncellemeleri.
                         for (var element in _sourceList[0]) {
                           if (element['productCode'] ==
                               selectedProduct.productCode) {
                             element['buyingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'buying_price_without_tax'];
+                                    'current_buying_price_without_tax'];
                             element['sallingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'salling_price_without_tax'];
+                                    'current_salling_price_without_tax'];
                             element['buyingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'buying_price_without_tax']) *
+                                            'current_buying_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['sallingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'salling_price_without_tax']) *
+                                            'current_salling_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['amountOfStock'] =
-                                productDetailToBeupdateMap['amount_of_stock'];
+                                productDetailToBeupdateMap[
+                                    'current_amount_of_stock'];
                           }
                         }
 
@@ -1216,22 +1243,23 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                               selectedProduct.productCode) {
                             element['buyingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'buying_price_without_tax'];
+                                    'current_buying_price_without_tax'];
                             element['sallingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'salling_price_without_tax'];
+                                    'current_salling_price_without_tax'];
                             element['buyingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'buying_price_without_tax']) *
+                                            'current_buying_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['sallingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'salling_price_without_tax']) *
+                                            'current_salling_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['amountOfStock'] =
-                                productDetailToBeupdateMap['amount_of_stock'];
+                                productDetailToBeupdateMap[
+                                    'current_amount_of_stock'];
                           }
                         }
 
@@ -1241,22 +1269,23 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                               selectedProduct.productCode) {
                             element['buyingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'buying_price_without_tax'];
+                                    'current_buying_price_without_tax'];
                             element['sallingPriceWithoutTax'] =
                                 productDetailToBeupdateMap[
-                                    'salling_price_without_tax'];
+                                    'current_salling_price_without_tax'];
                             element['buyingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'buying_price_without_tax']) *
+                                            'current_buying_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['sallingPriceTax'] = (double.parse(
                                         productDetailToBeupdateMap[
-                                            'salling_price_without_tax']) *
+                                            'current_salling_price_without_tax']) *
                                     1.18)
                                 .toStringAsFixed(2);
                             element['amountOfStock'] =
-                                productDetailToBeupdateMap['amount_of_stock'];
+                                productDetailToBeupdateMap[
+                                    'current_amount_of_stock'];
                           }
                         }
 
@@ -1272,9 +1301,10 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                           _sourceList[0];
                           _sourceList[2];
                           _sourceList[3];
-                        }); */
+                        });
                       } else {
-                        noticeBarError('Lütfen bilgileri eksiksiz giriniz.', 5);
+                        context.noticeBarError(
+                            'Lütfen bilgileri eksiksiz giriniz.', 5);
                       }
                     },
                     child: Text('Güncelle'))
@@ -1316,7 +1346,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         onPressed: () {
                           db.deleteProduct(productCode).then((value) {
                             if (value.isEmpty) {
-                              noticeBarTrue("İşlem gerçekleşmiştir", 3);
+                              context.noticeBarTrue("İşlem gerçekleşmiştir", 3);
                               setState(() {
                                 /// Bellekte yüklenen nesnelerin içinden siliyor.
                                 _sourceList[0].removeWhere((element) =>
@@ -1349,7 +1379,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                                         : _selectedSearchValue!;
                               });
                             } else {
-                              noticeBarError(
+                              context.noticeBarError(
                                   "Bir hata ile Karşılaşıldı \n $value", 3);
                             }
                           });
@@ -1417,45 +1447,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     }
   }
 
-  Future noticeBarError(String message, int durationSeconds) async {
-    return await Flushbar(
-      backgroundColor: Colors.red,
-      titleText: Text(
-        'HATA MESAJI',
-        textAlign: TextAlign.center,
-        style: context.theme.headline6!.copyWith(
-            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
-      ),
-      messageText: Text(message,
-          style: context.theme.headline6!.copyWith(color: Colors.white),
-          textAlign: TextAlign.center),
-      duration: Duration(seconds: durationSeconds),
-    ).show(context);
-  }
-
-  Future noticeBarTrue(String message, int durationSeconds) async {
-    return await Flushbar(
-      backgroundColor: Colors.green,
-      titleText: Text(
-        'BAŞARILI',
-        textAlign: TextAlign.center,
-        style: context.theme.headline6!.copyWith(
-            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
-      ),
-      messageText: Text(
-        message,
-        style: context.theme.headline6!.copyWith(color: Colors.white),
-        textAlign: TextAlign.center,
-      ),
-      duration: Duration(seconds: durationSeconds),
-    ).show(context);
-  }
-
   List<Widget> widgetFooters() {
     List<Widget> footerList = [];
     footerList.add(Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Text("Sayfa Satır Sayısı:"),
+      child: Text(_labelFooterPageRowCount),
     ));
     if (_rowPerPages.isNotEmpty) {
       footerList.add(Container(
@@ -1838,10 +1834,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               maxCharacter: 7,
               inputFormat: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  return TextEditingValue(
-                      text: newValue.text, selection: newValue.selection);
-                }),
               ],
               keyboardInputType: TextInputType.number,
               controller: controllerProductAmountOfStock,
@@ -1849,8 +1841,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               onChanged: (p0) {
                 //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
                 if (_controllerPaymentTotal.text.isNotEmpty) {
-                  valueNotifierProductBuyWithoutTax.value =
-                      _totalPaymentValue / double.parse(p0);
+                  if (p0.isNotEmpty) {
+                    valueNotifierProductBuyWithoutTax.value =
+                        _totalPaymentValue / double.parse(p0);
+                  } else {
+                    valueNotifierProductBuyWithoutTax.value = 0;
+                  }
                 }
               },
             ),
@@ -1884,6 +1880,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               ),
             ),
           ),
+          //Vergiler Harıç Satış
           SizedBox(
             width: 230,
             height: 70,
@@ -1943,11 +1940,13 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   ///Tedarikçi Bölümü.
   widgetSearchTextFieldSupplier() {
+    double height = 75, width = 250;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: 250,
+          width: width,
+          height: height,
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: db.getSuppliersNameStream(),
             builder: (context, snapshot) {
@@ -1985,7 +1984,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
         ///Tedarikçi Ekleme Buttonu.
         SizedBox(
-          width: 250,
+          width: width,
+          height: height,
           child: TextFormField(
             maxLength: 25,
             controller: _controllerInvoiceCode,
