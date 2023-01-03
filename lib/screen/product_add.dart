@@ -804,7 +804,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               direction: Axis.vertical,
               spacing: context.extensionWrapSpacing20(),
               children: [
-                ///Toplam Tutar
+                ///Toplam Tutar Widget
                 sharedTextFormField(
                   validator: validateNotEmpty,
                   width: _shareTextFormFieldPaymentSystemWidth,
@@ -815,6 +815,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         ? _totalPaymentValue = 0
                         : _totalPaymentValue =
                             double.parse(value.replaceAll(RegExp(r'\D'), ""));
+
+                    ///Stok adeti önce girildiyse toplam tutar sonra girilmesi
+                    ///durumunda birim başı maliyet hesaplamak içindir bu bölüm.
 
                     if (_controllerProductAmountOfStock.text.isNotEmpty) {
                       _valueNotifierProductBuyWithoutTax.value =
@@ -843,6 +846,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               direction: Axis.vertical,
               spacing: context.extensionWrapSpacing20(),
               children: [
+                ///Nakit Ödeme
                 sharedTextFormField(
                   width: _shareTextFormFieldPaymentSystemWidth,
                   labelText: _cash,
@@ -854,6 +858,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                             double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
                 ),
+                //Bankakartı Ödeme Widget
                 sharedTextFormField(
                   width: _shareTextFormFieldPaymentSystemWidth,
                   labelText: _bankCard,
@@ -865,6 +870,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                             double.parse(value.replaceAll(RegExp(r'\D'), ""));
                   },
                 ),
+                //EFTveHavale Ödeme Widget
                 sharedTextFormField(
                   width: _shareTextFormFieldPaymentSystemWidth,
                   labelText: _eftHavale,
@@ -917,8 +923,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 onPressedDoSomething: () {
                   _valueNotifierPaid.value =
                       _cashValue + _bankValue + _eftHavaleValue;
+
                   _valueNotifierBalance.value =
                       _totalPaymentValue - _valueNotifierPaid.value;
+
                   _valueNotifierButtonDateTimeState.value = false;
 
                   if (_valueNotifierBalance.value > 0) {
@@ -933,7 +941,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  ///Maliyet ve Birim Satışı Bölümü.
+  ///Maliyeti Stok ve Birim Satışı Bölümü.
   widgetProductUnitSection() {
     return SizedBox(
       width: 500,
@@ -1068,7 +1076,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   const storehouse = "Ana Depo";
 
                   ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
-                  final product = Product(
+                  var product = Product(
                     productCode: _controllerProductCode.text,
                     currentAmountOfStock:
                         int.parse(_controllerProductAmountOfStock.text),
@@ -1081,7 +1089,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   );
 
                   ///ÖDEME TÜRÜNÜN EKLENMESİ.
-                  final payment = Payment(
+                  var payment = Payment(
                       suppliersFk: _controllerSupplier.text,
                       productFk: _controllerProductCode.text,
                       amountOfStock:
@@ -1103,30 +1111,40 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       repaymentDateTime: _selectDateTime);
 
                   ///KAYITIN GERÇEKLEŞTİĞİ YER.
-                  db
-                      .saveNewProduct(context, product, payment, storehouse)
-                      .then((value) {
-                    /// kayıt başarılı olunca degerleri sıfırlıyor.
-                    if (value == "") {
-                      _controllerProductAmountOfStock.clear();
-                      _controllerInvoiceCode.clear();
-                      _controllerPaymentTotal.clear();
-                      _valueNotifierBalance.value = 0;
-                      _valueNotifierPaid.value = 0;
-                      _controllerSupplier.clear();
-                      _controllerBankValue.clear();
-                      _controllerCashValue.clear();
-                      _controllerEftHavaleValue.clear();
-                      _controllerSallingPriceWithoutTax.clear();
-                      _valueNotifierProductSaleWithTax.value = 0;
-                      _valueNotifierProductBuyWithoutTax.value = 0;
-                      setState(() {
-                        _controllerProductCode.clear();
-                        _visibleQrCode = false;
-                        _categoryList.clear();
-                      });
-                    }
-                  });
+                  if (_valueNotifierBalance.value >= 0) {
+                    db.saveNewProduct(context, product, payment).then((value) {
+                      /// kayıt başarılı olunca degerleri sıfırlıyor.
+                      if (value.isEmpty) {
+                        _controllerInvoiceCode.clear();
+                        _controllerPaymentTotal.clear();
+                        _controllerEftHavaleValue.clear();
+                        _controllerBankValue.clear();
+                        _controllerSupplier.clear();
+                        _controllerCashValue.clear();
+                        _valueNotifierBalance.value = 0;
+                        _valueNotifierPaid.value = 0;
+                        _controllerSallingPriceWithoutTax.clear();
+                        _controllerProductAmountOfStock.clear();
+                        _valueNotifierProductSaleWithTax.value = 0;
+                        _valueNotifierProductBuyWithoutTax.value = 0;
+
+                        ///global olarak tanımladığı için peş peşe 2 ürün kaydetmek olduğunda değerler global değişken olduğu için veriler bir sonrakiye girişi etkiliyor. O yüzden sıfırlamak lazım.
+                        _cashValue = 0;
+                        _bankValue = 0;
+                        _eftHavaleValue = 0;
+                        _totalPaymentValue = 0;
+
+                        setState(() {
+                          _controllerProductCode.clear();
+                          _visibleQrCode = false;
+                          _categoryList.clear();
+                        });
+                      }
+                    });
+                  } else {
+                    context.noticeBarError(
+                        "Kalan Tutar 0'dan küçük olamaz.", 2);
+                  }
                 } else {
                   context.extensionShowErrorSnackBar(
                       message: "Kayıtlı bir ürün kodu girdiniz.");
@@ -1155,7 +1173,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         validator: validator,
         onChanged: onChanged,
         controller: controller,
-        autovalidateMode: AutovalidateMode.always,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [
           FormatterDecimalThreeByThree(),
         ],

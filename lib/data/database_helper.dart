@@ -411,8 +411,8 @@ class DbHelper {
     print('error Supplier : $errorSupplier');
   }
 
-  Future<String> saveNewProduct(BuildContext context, Product product,
-      Payment payment, String storehouse) async {
+  Future<String> saveNewProduct(
+      BuildContext context, Product product, Payment payment) async {
     final resProduct = await supabase.from('product').insert([
       {
         'product_code': product.productCode,
@@ -460,8 +460,6 @@ class DbHelper {
     ]).execute();
     final errorStorehouse = resStorehouse.error; */
 
-    print('Product error : $errorProduct');
-    print('Payment Error : $errorPayment');
     //  print('Storehouse error : $errorStorehouse');
 
     if (errorProduct == null || errorPayment == null) {
@@ -595,34 +593,60 @@ class DbHelper {
         .from('product')
         .delete()
         .match({'product_code': productCode}).execute();
+    print(resProduct);
 
-    final resStorehouseStock = await db.supabase
+    ///Birden fazla değp ekleme için kullanılmak için ön çalışma.
+    /* final resStorehouseStock = await db.supabase
         .from('storehouse_stock')
         .delete()
         .match({'product_fk': productCode}).execute();
-    final errorProduct = resProduct.error;
-    final errorStorehouse = resStorehouseStock.error;
 
-    if (errorProduct == null || errorStorehouse == null) {
+    final errorStorehouse = resStorehouseStock.error; */
+
+    final errorProduct = resProduct.error;
+
+    if (errorProduct == null) {
       return "";
     } else {
-      return errorProduct.message + errorStorehouse.message;
+      return errorProduct.message;
     }
   }
 
+  //Stok Güncelleme için Kullanılıyor
   Future updateProductDetail(
-      String productCode, int? newStockValue, Map<String, dynamic> data) async {
+      String productCode, Map<String, dynamic> data, Payment payment) async {
     final res = await db.supabase
         .from('product')
         .update(data)
         .match({'product_code': productCode}).execute();
+    print("veri içinde ");
+    print(payment.productFk);
+    print(payment.suppliersFk);
+    print(payment.invoiceCode);
+    print(payment.amountOfStock);
+    print(payment.bankcard);
+    print(payment.buyingPriceWithoutTax);
+    print(payment.cash);
+    print(payment.eftHavale);
+    print(payment.repaymentDateTime);
+    print(payment.sallingPriceWithoutTax);
+    print(payment.total);
+    print(payment.unitOfCurrency);
 
-    final resProductPriceHistory = await db.supabase.from('payment').insert([
+    final resPayment = await db.supabase.from('payment').insert([
       {
-        'buying_price_without_tax': data['buying_price_without_tax'],
-        'salling_price_without_tax': data['salling_price_without_tax'],
-        'amount_of_stock': newStockValue,
-        'product_fk': productCode,
+        'product_fk': payment.productFk,
+        'supplier_fk': payment.suppliersFk,
+        'invoice_code': payment.invoiceCode,
+        'unit_of_currency': payment.unitOfCurrency,
+        'total': payment.total,
+        'cash': payment.cash,
+        'bankcard': payment.bankcard,
+        'eft_havale': payment.eftHavale,
+        'buying_price_without_tax': payment.buyingPriceWithoutTax,
+        'salling_price_without_tax': payment.sallingPriceWithoutTax,
+        'amount_of_stock': payment.amountOfStock,
+        'repayment_date': payment.repaymentDateTime
       }
     ]).execute();
   }

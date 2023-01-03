@@ -16,7 +16,6 @@ class Payment {
   String? repaymentDateTime;
 
   Payment({
-    this.paymentId,
     required this.suppliersFk,
     required this.productFk,
     this.invoiceCode,
@@ -27,7 +26,6 @@ class Payment {
     this.eftHavale,
     required this.buyingPriceWithoutTax,
     required this.sallingPriceWithoutTax,
-    this.recordDateTime,
     required this.amountOfStock,
     this.repaymentDateTime,
   });

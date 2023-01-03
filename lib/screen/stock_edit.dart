@@ -1,20 +1,28 @@
 import 'dart:async';
+
 import 'package:adaptivex/adaptivex.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:stok_takip/bloc/bloc_product_filtre.dart';
-import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/models/category.dart';
-import 'package:stok_takip/models/product.dart';
-import 'package:stok_takip/utilities/custom_dropdown/widget_dropdown_map_type.dart';
+import 'package:intl/intl.dart';
+import 'package:searchfield/searchfield.dart';
+import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/share_widgets.dart';
+
+import '../bloc/bloc_product_filtre.dart';
+import '../data/database_helper.dart';
+import '../models/category.dart';
+import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
+import '../utilities/convert_string_currency_digits.dart';
+import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
+import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
+import '../validations/format_decimal_3by3.dart';
 import '../validations/format_decimal_limit.dart';
+import '../validations/format_upper_case_text_format.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
 
@@ -43,6 +51,50 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   bool _disableCategory4 = false;
   bool _disableCategory5 = false;
 
+/*-------------Update Bölümü için------------- */
+  final _controllerSupplier = TextEditingController();
+  final FocusNode _searchFocusSupplier = FocusNode();
+  final String _labelInvoiceCode = "Fatura Kodu";
+  final String _labelSearchSuppiler = "Tedarikci İsmini Giriniz";
+
+  final _controllerInvoiceCode = TextEditingController();
+  final _valueNotifierPaid = ValueNotifier<double>(0);
+  final _valueNotifierBalance = ValueNotifier<double>(0);
+  final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
+  final _controllerPaymentTotal = TextEditingController();
+  final _controllerCashValue = TextEditingController();
+  final _controllerBankValue = TextEditingController();
+  final _controllerEftHavaleValue = TextEditingController();
+
+  final String _totalPayment = "Toplam Tutarı Giriniz";
+  final String _balance = "Kalan Tutar : ";
+  final String _paid = "Ödenen Toplam Tutar : ";
+  final String _cash = "Nakit İle Ödenen Tutar";
+  final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
+  final String _bankCard = "Kart İle Ödenen Tutar";
+  String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+  final String _labelCurrencySelect = "Para Birimi Seçiniz";
+  final String _labelKDV = "KDV Oranın Seçiniz";
+
+  final String _paymentSections = "Ödeme Bölümü";
+  String? _selectDateTime;
+  final double _shareTextFormFieldPaymentSystemWidth = 250;
+  double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
+  double _totalPaymentValue = 0;
+
+  late Color _colorBackgroundCurrencyUSD;
+  late Color _colorBackgroundCurrencyTRY;
+  late Color _colorBackgroundCurrencyEUR;
+  late String _selectUnitOfCurrencySymbol;
+  late String _selectUnitOfCurrencyAbridgment;
+
+  final Map<String, dynamic> _mapUnitOfCurrency = {
+    "Türkiye": {"symbol": "₺", "abridgment": "TL"},
+    "amerika": {"symbol": '\$', "abridgment": "USD"},
+    "avrupa": {"symbol": '€', "abridgment": "EURO"}
+  };
+
+  /*-------------------------END UPDATE------------------------------*/
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int? _selectedCategory1Id;
 
@@ -149,6 +201,19 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   Stream<List<Map<String, dynamic>>>? _stream;
   String? _selectedSearchValue;
 
+  final productTaxList = <String>['% 8', '% 18'];
+  String? selectedTax;
+
+  ///KDV seçilip Seçilmediğini kontrol ediyorum.
+  int selectedTaxToInt = 0;
+  void getProductTax(String value) {
+    setState(() {
+      selectedTax = value;
+    });
+    selectedTaxToInt =
+        int.parse(selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
+  }
+
   @override
   void initState() {
     /* if (Sabitler.token != null) {
@@ -242,25 +307,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         sourceBuilder: (value, row) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            textDirection: TextDirection.rtl,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ///Silme Buttonu
-              IconButton(
-                padding: const EdgeInsets.only(bottom: 20),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  ///Stok bitmeden silmeyi engelliyor.
-                  if (row['amountOfStock'] == 0) {
-                    widgetDeleteProduct(row['productCode']);
-                  } else {
-                    context.extensionShowErrorSnackBar(
-                        message: "Stok bitmediği için silemezsiniz.");
-                  }
-                },
-              ),
-
               ///Update Buttonu
               IconButton(
                 padding: const EdgeInsets.only(bottom: 20),
@@ -291,11 +339,38 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     }
                   }
                 },
-              )
+              ),
+
+              ///Silme Buttonu
+              IconButton(
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  ///Stok bitmeden silmeyi engelliyor.
+                  if (row['amountOfStock'] == 0) {
+                    widgetDeleteProduct(row['productCode']);
+                  } else {
+                    context.extensionShowErrorSnackBar(
+                        message: "Stok bitmediği için silemezsiniz.");
+                  }
+                },
+              ),
             ],
           );
         },
         textAlign: TextAlign.center));
+
+    /*------------UPDATE---------------*/
+    _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
+    _selectUnitOfCurrencyAbridgment =
+        _mapUnitOfCurrency["Türkiye"]["abridgment"];
+
+    _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
+    _colorBackgroundCurrencyTRY = context.extensionDisableColor;
+    _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
+    /**---------------------------------------------------------- */
+
     super.initState();
   }
 
@@ -613,8 +688,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       'category5Id': item['fk_category5_id'],
                     });
                   }
-
-                  print(" yüoklene : $_sourceList[0]");
                 }
 
                 ///Satırların tablo içinde genişlemesi gerekiyor yoksa sorun çıkıyor
@@ -934,28 +1007,16 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     final valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
     final valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
     final controllerProductAmountOfStockNewValue = TextEditingController();
-    final controllerBuyingPriceWithoutTax = TextEditingController();
+
     final controllerSallingPriceWithoutTax = TextEditingController();
 
-    final productTaxList = <String>['% 8', '% 18'];
-    String? selectedTax;
     int? oldStockValue = selectedProduct.currentAmountOfStock;
     double? oldBuyingPriceWithoutTax =
         selectedProduct.currentBuyingPriceWithoutTax;
     int newStockValue;
 
-    ///KDV seçilip Seçilmediğini kontrol ediyorum.
-    int selectedTaxToInt = 0;
-    void getProductTax(String value) {
-      setState(() {
-        selectedTax = value;
-      });
-      selectedTaxToInt =
-          int.parse(selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
-    }
-
     ///Gelen Değerler Atanıyor
-    controllerBuyingPriceWithoutTax.text =
+    /* controllerBuyingPriceWithoutTax.text =
         selectedProduct.currentBuyingPriceWithoutTax.toString();
     controllerSallingPriceWithoutTax.text =
         selectedProduct.currentSallingPriceWithoutTax.toString();
@@ -963,328 +1024,262 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     valueNotifierProductBuyWithTax.value =
         selectedProduct.currentBuyingPriceWithoutTax!;
     valueNotifierProductSaleWithTax.value =
-        selectedProduct.currentSallingPriceWithoutTax!;
+        selectedProduct.currentSallingPriceWithoutTax!; */
+
+    ///gelen değer integer o yüzden tekrar String dönüştürüyorum. Listedeki Tipe
+    ///Dropdown seçilen değer
+    selectedTax = "% ${selectedProduct.taxRate.toString()}";
+    //Verfiler Dahil Satış bölümündeki kdv seçinizi yazısı kalkması için.
+    selectedTaxToInt = selectedProduct.taxRate;
 
     showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            contentPadding: context.extensionPadding20(),
-            actionsAlignment: MainAxisAlignment.center,
-            title: Text(
-                textAlign: TextAlign.center,
-                'STOK GÜNCELLEME',
-                style: context.theme.headline6!
-                    .copyWith(fontWeight: FontWeight.bold)),
-            content: Form(
-              key: keyPopupForm,
-              child: SingleChildScrollView(
-                child: Container(
-                  width: 600,
-                  constraints: const BoxConstraints(maxHeight: 500),
-                  child: Wrap(
-                    direction: Axis.horizontal,
-                    verticalDirection: VerticalDirection.down,
-                    alignment: WrapAlignment.center,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      Container(
-                        width: 360,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                width: 1, color: Colors.blueGrey.shade700),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                                text: 'Stokta Kalan Ürün Sayısı: ',
-                                style: context.theme.headline6!
-                                    .copyWith(fontWeight: FontWeight.bold),
-                                children: [
-                                  TextSpan(
-                                    text: selectedProduct.currentAmountOfStock
-                                        .toString(),
-                                    style: context.theme.headline6!.copyWith(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ])),
-                      ),
-                      const Divider(),
-                      Container(
-                        width: 230,
-                        height: 70,
-                        child: shareWidget.widgetTextFieldInput(
-                            etiket: "Eklenecek Ürün (Adeti)",
-                            maxCharacter: 7,
-                            inputFormat: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]')),
-                              TextInputFormatter.withFunction(
-                                  (oldValue, newValue) {
-                                return TextEditingValue(
-                                    text: newValue.text,
-                                    selection: newValue.selection);
-                              }),
-                            ],
-                            keyboardInputType: TextInputType.number,
-                            controller: controllerProductAmountOfStockNewValue,
-                            validationFunc: validateNotEmpty),
-                      ),
-                      Container(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          width: 230,
+          return StatefulBuilder(
+            builder: (context, setState) => AlertDialog(
+              contentPadding: context.extensionPadding20(),
+              actionsAlignment: MainAxisAlignment.center,
+              title: Text(
+                  textAlign: TextAlign.center,
+                  'STOK GÜNCELLEME',
+                  style: context.theme.headline6!
+                      .copyWith(fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: keyPopupForm,
+                  child: SizedBox(
+                    width: context.extendFixedWightContainer,
+                    // constraints: const BoxConstraints(maxHeight: 700),
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      verticalDirection: VerticalDirection.down,
+                      alignment: WrapAlignment.center,
+                      spacing: context.extensionWrapSpacing10(),
+                      runSpacing: context.extensionWrapSpacing10(),
+                      children: [
+                        //STOKTA KALAN ÜRÜN BAŞLIK LABEL
+                        Container(
+                          width: 360,
                           height: 50,
-                          child: ShareDropdown(
-                            validator: validateNotEmpty,
-                            hint: 'KDV Oranın Seçiniz',
-                            itemList: productTaxList,
-                            selectValue: selectedTax,
-                            getShareDropdownCallbackFunc: getProductTax,
-                          )),
-                      SizedBox(
-                        width: 230,
-                        height: 70,
-                        child: shareWidget.widgetTextFieldInput(
-                          etiket: 'Vergiler Hariç Alış',
-                          inputFormat: <TextInputFormatter>[
-                            FormatterDecimalLimit(decimalRange: 2)
-                          ],
-                          controller: controllerBuyingPriceWithoutTax,
-                          validationFunc: validateNotEmpty,
-                          onChanged: (value) {
-                            ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
-                            ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
-                            ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
-                            ///hesabı yapılıyor.
-                            value.isEmpty
-                                ? valueNotifierProductBuyWithTax.value = 0
-                                : valueNotifierProductBuyWithTax.value =
-                                    double.parse(value);
-                          },
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  width: 1, color: Colors.blueGrey.shade700),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  text: 'Stokta Kalan Ürün Sayısı: ',
+                                  style: context.theme.headline6!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                  children: [
+                                    TextSpan(
+                                      text: selectedProduct.currentAmountOfStock
+                                          .toString(),
+                                      style: context.theme.headline6!.copyWith(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ])),
                         ),
-                      ),
-                      SizedBox(
-                        width: 230,
-                        height: 70,
-                        child: shareWidget.widgetTextFieldInput(
-                          etiket: 'Vergiler Hariç Satış',
-                          inputFormat: [
-                            FormatterDecimalLimit(decimalRange: 2),
-                          ],
-                          controller: controllerSallingPriceWithoutTax,
-                          validationFunc: validateNotEmpty,
-                          onChanged: (value) {
-                            ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
-                            ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
-                            ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
-                            ///hesabı yapılıyor.
-                            value.isEmpty
-                                ? valueNotifierProductSaleWithTax.value = 0
-                                : valueNotifierProductSaleWithTax.value =
-                                    double.parse(value);
-                          },
-                        ),
-                      ),
-                      Container(
-                        width: 230,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: ValueListenableBuilder<double>(
-                          valueListenable: valueNotifierProductBuyWithTax,
-                          builder: (context, value, child) => RichText(
-                            text: TextSpan(
-                                text: 'Vergiler Dahil Alış : ',
-                                style: context.theme.labelLarge!.copyWith(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1),
-                                children: [
-                                  TextSpan(
-                                      text: selectedTaxToInt == 0
-                                          ? 'KDV Seçilmedi'
-                                          : '${(value * (1 + (selectedTaxToInt / 100))).toStringAsFixed(2)}',
-                                      style: context.theme.labelLarge!.copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1))
-                                ]),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 230,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: ValueListenableBuilder<double>(
-                          valueListenable: valueNotifierProductSaleWithTax,
-                          builder: (context, value, child) => RichText(
-                            text: TextSpan(
-                                text: 'Vergiler Dahil Satış : ',
-                                style: context.theme.labelLarge!.copyWith(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1),
-                                children: [
-                                  TextSpan(
-                                      text: selectedTaxToInt == 0
-                                          ? 'KDV Seçilmedi'
-                                          : '${(value * (1 + (selectedTaxToInt / 100))).toStringAsFixed(2)}',
-                                      style: context.theme.labelLarge!.copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1))
-                                ]),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
+                        const Divider(),
+                        widgetSearchTextFieldSupplier(),
+                        widgetDividerHeader(_paymentSections),
+                        widgetPaymentOptions(
+                            controllerProductAmountOfStockNewValue,
+                            valueNotifierProductBuyWithTax,
+                            setState),
+                        Divider(
+                            color: context.extensionLineColor,
+                            endIndent: 30,
+                            indent: 30,
+                            thickness: 2.5,
+                            height: 20),
+
+                        widgetProductUnitSection(
+                            controllerProductAmountOfStockNewValue,
+                            controllerSallingPriceWithoutTax,
+                            valueNotifierProductBuyWithTax,
+                            valueNotifierProductSaleWithTax)
+                      ],
+                    ),
                   ),
                 ),
               ),
+              actions: [
+                //GÜNCELLEME BUTTON
+                ElevatedButton(
+                    onPressed: () async {
+                      if (keyPopupForm.currentState!.validate()) {
+                        ///Yeni verilerin aktarıldığı değişkenler.
+                        newStockValue = int.parse(
+                            controllerProductAmountOfStockNewValue.text);
+
+                        double newBuyingPriceWithoutTax =
+                            valueNotifierProductBuyWithTax.value;
+                        double newSallingPriceWithoutTax =
+                            double.parse(controllerSallingPriceWithoutTax.text);
+
+                        ///fiyat ortalama hesabı ve yeni fiyatın belirlenmesi
+                        double newAverageBuyingPriceWithoutTax =
+                            (oldStockValue * oldBuyingPriceWithoutTax! +
+                                    newStockValue * newBuyingPriceWithoutTax) /
+                                (oldStockValue + newStockValue);
+                        double profit = newSallingPriceWithoutTax -
+                            newBuyingPriceWithoutTax;
+
+                        newSallingPriceWithoutTax =
+                            newAverageBuyingPriceWithoutTax + profit;
+
+                        print(double.parse(
+                            _controllerPaymentTotal.text.replaceAll(".", "")));
+                        print(double.tryParse(
+                            _controllerCashValue.text.replaceAll(".", "")));
+                        print(double.tryParse(
+                            _controllerBankValue.text.replaceAll(".", "")));
+                        print(double.tryParse(_controllerEftHavaleValue.text
+                            .replaceAll(".", "")));
+                        print(_selectDateTime);
+                        print(controllerProductAmountOfStockNewValue.text);
+                        print(_selectUnitOfCurrencyAbridgment);
+                        print(_controllerInvoiceCode.text);
+                        print(_controllerSupplier.text);
+                        print(selectedProduct.productCode);
+                        print(newBuyingPriceWithoutTax);
+                        print(newSallingPriceWithoutTax);
+
+                        //Ödeme Nesnesi
+                        var newPayment = Payment(
+                            invoiceCode: _controllerInvoiceCode.text,
+                            suppliersFk: _controllerSupplier.text,
+                            productFk: selectedProduct.productCode,
+                            unitOfCurrency: _selectUnitOfCurrencyAbridgment,
+                            total: double.parse(_controllerPaymentTotal.text
+                                .replaceAll(".", "")),
+                            cash: double.tryParse(
+                                _controllerCashValue.text.replaceAll(".", "")),
+                            bankcard: double.tryParse(
+                                _controllerBankValue.text.replaceAll(".", "")),
+                            eftHavale: double.tryParse(_controllerEftHavaleValue
+                                .text
+                                .replaceAll(".", "")),
+                            buyingPriceWithoutTax: newBuyingPriceWithoutTax,
+                            sallingPriceWithoutTax: newSallingPriceWithoutTax,
+                            amountOfStock: newStockValue,
+                            repaymentDateTime: _selectDateTime);
+
+                        //Product Nesmesi
+                        productDetailToBeupdateMap.addAll({
+                          'current_amount_of_stock':
+                              (oldStockValue + newStockValue),
+                          'tax_rate': selectedTaxToInt,
+                          'current_buying_price_without_tax':
+                              newAverageBuyingPriceWithoutTax
+                                  .toStringAsFixed(2),
+                          'current_salling_price_without_tax':
+                              newSallingPriceWithoutTax.toStringAsFixed(2),
+                        });
+
+                        /// database yüklenen yer.
+                        db.updateProductDetail(selectedProduct.productCode,
+                            productDetailToBeupdateMap, newPayment);
+                        noticeBarTrue("Tebrikler", 1);
+
+                        /*   /// Ekranda görülen verilerin güncellemeleri.
+                        for (var element in _sourceList[0]) {
+                          if (element['productCode'] ==
+                              selectedProduct.productCode) {
+                            element['buyingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'buying_price_without_tax'];
+                            element['sallingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'salling_price_without_tax'];
+                            element['buyingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'buying_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['sallingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'salling_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['amountOfStock'] =
+                                productDetailToBeupdateMap['amount_of_stock'];
+                          }
+                        }
+
+                        ///Ekrandali Search özelliği kullanıldağıki veriyi düzenliyor.
+                        for (var element in _sourceList[2]) {
+                          if (element['productCode'] ==
+                              selectedProduct.productCode) {
+                            element['buyingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'buying_price_without_tax'];
+                            element['sallingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'salling_price_without_tax'];
+                            element['buyingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'buying_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['sallingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'salling_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['amountOfStock'] =
+                                productDetailToBeupdateMap['amount_of_stock'];
+                          }
+                        }
+
+                        ///Ekrandaki Filtre>Search yapıldığında Liste[3] veriyi düzenliyor.
+                        for (var element in _sourceList[3]) {
+                          if (element['productCode'] ==
+                              selectedProduct.productCode) {
+                            element['buyingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'buying_price_without_tax'];
+                            element['sallingPriceWithoutTax'] =
+                                productDetailToBeupdateMap[
+                                    'salling_price_without_tax'];
+                            element['buyingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'buying_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['sallingPriceTax'] = (double.parse(
+                                        productDetailToBeupdateMap[
+                                            'salling_price_without_tax']) *
+                                    1.18)
+                                .toStringAsFixed(2);
+                            element['amountOfStock'] =
+                                productDetailToBeupdateMap['amount_of_stock'];
+                          }
+                        }
+
+                        ///Eğer 3 sn beklemezse hata veriyor.çünkü
+                        ///noticeBar gözüktü widget yok oluyor.
+                        Timer(const Duration(seconds: 1, milliseconds: 20), () {
+                          Navigator.pop(context);
+                        });
+                        _editState = true;
+
+                        ///Listeyi güncellemek için bu Mapleri tekrar oluşturuyoruz.
+                        setState(() {
+                          _sourceList[0];
+                          _sourceList[2];
+                          _sourceList[3];
+                        }); */
+                      } else {
+                        noticeBarError('Lütfen bilgileri eksiksiz giriniz.', 5);
+                      }
+                    },
+                    child: Text('Güncelle'))
+              ],
             ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () async {
-                    if (keyPopupForm.currentState!.validate()) {
-                      ///Yeni verilerin aktarıldığı değişkenler.
-                      newStockValue = int.parse(
-                          controllerProductAmountOfStockNewValue.text);
-                      double newBuyingPriceWithoutTax =
-                          double.parse(controllerBuyingPriceWithoutTax.text);
-                      double newSallingPriceWithoutTax =
-                          double.parse(controllerSallingPriceWithoutTax.text);
-
-                      ///fiyat ortalama hesabı ve yeni fiyatın belirlenmesi
-                      double newAverageBuyingPriceWithoutTax =
-                          (oldStockValue! * oldBuyingPriceWithoutTax! +
-                                  newStockValue * newBuyingPriceWithoutTax) /
-                              (oldStockValue + newStockValue);
-                      double profit =
-                          newSallingPriceWithoutTax - newBuyingPriceWithoutTax;
-
-                      newSallingPriceWithoutTax =
-                          newAverageBuyingPriceWithoutTax + profit;
-
-                      productDetailToBeupdateMap.addAll({
-                        'amount_of_stock': (oldStockValue + newStockValue),
-                        'tax_rate': selectedTaxToInt,
-                        'buying_price_without_tax':
-                            newAverageBuyingPriceWithoutTax.toStringAsFixed(2),
-                        'salling_price_without_tax':
-                            newSallingPriceWithoutTax.toStringAsFixed(2),
-                      });
-
-                      /// database yüklenen yer.
-                      db.updateProductDetail(selectedProduct.productCode!,
-                          newStockValue, productDetailToBeupdateMap);
-                      noticeBarTrue("Tebrikler", 1);
-
-                      /// Ekranda görülen verilerin güncellemeleri.
-                      for (var element in _sourceList[0]) {
-                        if (element['productCode'] ==
-                            selectedProduct.productCode) {
-                          element['buyingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'buying_price_without_tax'];
-                          element['sallingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'salling_price_without_tax'];
-                          element['buyingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'buying_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['sallingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'salling_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['amountOfStock'] =
-                              productDetailToBeupdateMap['amount_of_stock'];
-                        }
-                      }
-
-                      ///Ekrandali Search özelliği kullanıldağıki veriyi düzenliyor.
-                      for (var element in _sourceList[2]) {
-                        if (element['productCode'] ==
-                            selectedProduct.productCode) {
-                          element['buyingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'buying_price_without_tax'];
-                          element['sallingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'salling_price_without_tax'];
-                          element['buyingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'buying_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['sallingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'salling_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['amountOfStock'] =
-                              productDetailToBeupdateMap['amount_of_stock'];
-                        }
-                      }
-
-                      ///Ekrandaki Filtre>Search yapıldığında Liste[3] veriyi düzenliyor.
-                      for (var element in _sourceList[3]) {
-                        if (element['productCode'] ==
-                            selectedProduct.productCode) {
-                          element['buyingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'buying_price_without_tax'];
-                          element['sallingPriceWithoutTax'] =
-                              productDetailToBeupdateMap[
-                                  'salling_price_without_tax'];
-                          element['buyingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'buying_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['sallingPriceTax'] = (double.parse(
-                                      productDetailToBeupdateMap[
-                                          'salling_price_without_tax']) *
-                                  1.18)
-                              .toStringAsFixed(2);
-                          element['amountOfStock'] =
-                              productDetailToBeupdateMap['amount_of_stock'];
-                        }
-                      }
-
-                      ///Eğer 3 sn beklemezse hata veriyor.çünkü
-                      ///noticeBar gözüktü widget yok oluyor.
-                      Timer(const Duration(seconds: 1, milliseconds: 20), () {
-                        Navigator.pop(context);
-                      });
-                      _editState = true;
-
-                      ///Listeyi güncellemek için bu Mapleri tekrar oluşturuyoruz.
-                      setState(() {
-                        _sourceList[0];
-                        _sourceList[2];
-                        _sourceList[3];
-                      });
-                    } else {
-                      noticeBarError('Lütfen bilgileri eksiksiz giriniz.', 5);
-                    }
-                  },
-                  child: Text('Güncelle'))
-            ],
           );
         });
   }
@@ -1312,7 +1307,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text("Hayır")),
+                        child: const Text("Hayır")),
                   ),
                   SizedBox(
                     width: 100,
@@ -1320,7 +1315,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     child: ElevatedButton(
                         onPressed: () {
                           db.deleteProduct(productCode).then((value) {
-                            if (value == null) {
+                            if (value.isEmpty) {
                               noticeBarTrue("İşlem gerçekleşmiştir", 3);
                               setState(() {
                                 /// Bellekte yüklenen nesnelerin içinden siliyor.
@@ -1360,7 +1355,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                           });
                           Navigator.pop(context);
                         },
-                        child: Text("Evet")),
+                        child: const Text("Evet")),
                   )
                 ],
               ),
@@ -1539,5 +1534,611 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     ));
 
     return footerList;
+  }
+
+  ///Ödeme verilerin alındığı yer.
+  widgetPaymentOptions(TextEditingController controllerProductAmountOfStock,
+      ValueNotifier valueNotifierProductBuyWithoutTax, StateSetter setState) {
+    double insideContainerWidth = 250;
+    return Container(
+      padding: context.extensionPadding20(),
+      width: context.extendFixedWightContainer,
+      alignment: Alignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        direction: Axis.horizontal,
+        spacing: context.extensionWrapSpacing20(),
+        runSpacing: context.extensionWrapSpacing20(),
+        children: [
+          widgetCurrencyAndKdvSection(setState),
+          Container(
+            alignment: Alignment.center,
+            width: insideContainerWidth,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              direction: Axis.vertical,
+              spacing: context.extensionWrapSpacing20(),
+              children: [
+                ///Toplam Tutar Widget
+
+                sharedTextFormField(
+                  validator: validateNotEmpty,
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _totalPayment,
+                  controller: _controllerPaymentTotal,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _totalPaymentValue = 0
+                        : _totalPaymentValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+
+                    ///Stok adeti önce girildiyse toplam tutar sonra girilmesi
+                    ///durumunda birim başı maliyet hesaplamak içindir bu bölüm.
+
+                    if (controllerProductAmountOfStock.text.isNotEmpty) {
+                      valueNotifierProductBuyWithoutTax.value =
+                          _totalPaymentValue /
+                              double.parse(controllerProductAmountOfStock.text);
+                    }
+                  },
+                ),
+
+                ///Ödenen Toplam Tutar yeri.
+                shareValueListenableBuilder(
+                    valueListenable: _valueNotifierPaid, firstText: _paid),
+
+                ///Kalan Tutarın Bölümü.
+                shareValueListenableBuilder(
+                    valueListenable: _valueNotifierBalance, firstText: _balance)
+              ],
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            width: insideContainerWidth,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              direction: Axis.vertical,
+              spacing: context.extensionWrapSpacing20(),
+              children: [
+                ///Nakit Ödeme
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _cash,
+                  controller: _controllerCashValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _cashValue = 0
+                        : _cashValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                  },
+                ),
+                //Bankakartı Ödeme Widget
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _bankCard,
+                  controller: _controllerBankValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _bankValue = 0
+                        : _bankValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                  },
+                ),
+                //EFTveHavale Ödeme Widget
+                sharedTextFormField(
+                  width: _shareTextFormFieldPaymentSystemWidth,
+                  labelText: _eftHavale,
+                  controller: _controllerEftHavaleValue,
+                  onChanged: (value) {
+                    value.isEmpty
+                        ? _eftHavaleValue = 0
+                        : _eftHavaleValue =
+                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          ///İleri Ödeme Tarihi Belirlenen button.
+          ///ValueListenableBuilder Buttonun aktif veya pasif olmasını belirliyor. Toplam Tutar girilmediyse Button Pasif Oluyor.
+          ValueListenableBuilder(
+            valueListenable: _valueNotifierButtonDateTimeState,
+            builder: (context, value, child) {
+              return SizedBox(
+                width: _shareTextFormFieldPaymentSystemWidth,
+                child: shareWidget.widgetElevatedButton(
+                    onPressedDoSomething:
+                        _valueNotifierButtonDateTimeState.value
+                            ? () async {
+                                //Takvimden veri alınıyor.
+                                final dataForCalendar = await pickDate();
+
+                                if (dataForCalendar != null) {
+                                  //
+                                  _selectDateTime = DateFormat('dd/MM/yyyy')
+                                      .format(dataForCalendar);
+                                  setState(() {
+                                    _buttonDateTimeLabel =
+                                        "Seçilen Tarih \n ${dataForCalendar.day}/${dataForCalendar.month}/${dataForCalendar.year}";
+                                  });
+                                }
+                              }
+                            : null,
+                    label: _buttonDateTimeLabel),
+              );
+            },
+          ),
+
+          ///Tutar Ve Ödemenin Yapsının Hesaplayan Button.
+          SizedBox(
+            width: _shareTextFormFieldPaymentSystemWidth,
+            child: shareWidget.widgetElevatedButton(
+                onPressedDoSomething: () {
+                  _valueNotifierPaid.value =
+                      _cashValue + _bankValue + _eftHavaleValue;
+
+                  _valueNotifierBalance.value =
+                      _totalPaymentValue - _valueNotifierPaid.value;
+
+                  _valueNotifierButtonDateTimeState.value = false;
+
+                  if (_valueNotifierBalance.value > 0) {
+                    _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
+                    _valueNotifierButtonDateTimeState.value = true;
+                  }
+                },
+                label: "Hesapla"),
+          )
+        ],
+      ),
+    );
+  }
+
+  ///Stok Ve KDV
+  widgetCurrencyAndKdvSection(StateSetter setState) {
+    return Wrap(
+      direction: Axis.horizontal,
+      verticalDirection: VerticalDirection.down,
+      spacing: context.extensionWrapSpacing20(),
+      runSpacing: context.extensionWrapSpacing20(),
+      children: [
+        ///Para Birimi Seçilen yer.
+        Stack(
+          children: [
+            Positioned(
+              child: Container(
+                alignment: Alignment.center,
+                width: _shareTextFormFieldPaymentSystemWidth,
+                height: 50,
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: context.extensionRadiusDefault10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectUnitOfCurrencyAbridgment =
+                                _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                            _selectUnitOfCurrencySymbol =
+                                _mapUnitOfCurrency["Türkiye"]["symbol"];
+                            _colorBackgroundCurrencyTRY =
+                                context.extensionDisableColor;
+                            _colorBackgroundCurrencyUSD =
+                                context.extensionDefaultColor;
+                            _colorBackgroundCurrencyEUR =
+                                context.extensionDefaultColor;
+                          });
+                        },
+                        sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
+                        backgroundColor: _colorBackgroundCurrencyTRY),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectUnitOfCurrencyAbridgment =
+                                _mapUnitOfCurrency["amerika"]["abridgment"];
+                            _selectUnitOfCurrencySymbol =
+                                _mapUnitOfCurrency["amerika"]["symbol"];
+                            _colorBackgroundCurrencyTRY =
+                                context.extensionDefaultColor;
+                            _colorBackgroundCurrencyUSD =
+                                context.extensionDisableColor;
+                            _colorBackgroundCurrencyEUR =
+                                context.extensionDefaultColor;
+                          });
+                        },
+                        sembol: _mapUnitOfCurrency["amerika"]["symbol"],
+                        backgroundColor: _colorBackgroundCurrencyUSD),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    shareInkwellCurrency(
+                        onTap: () {
+                          setState(() {
+                            _selectUnitOfCurrencyAbridgment =
+                                _mapUnitOfCurrency["avrupa"]["abridgment"];
+                            _selectUnitOfCurrencySymbol =
+                                _mapUnitOfCurrency["avrupa"]["symbol"];
+                            _colorBackgroundCurrencyTRY =
+                                context.extensionDefaultColor;
+                            _colorBackgroundCurrencyUSD =
+                                context.extensionDefaultColor;
+                            _colorBackgroundCurrencyEUR =
+                                context.extensionDisableColor;
+                          });
+                        },
+                        sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
+                        backgroundColor: _colorBackgroundCurrencyEUR),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 60,
+              child: Container(
+                padding: EdgeInsets.zero,
+                color: Colors.white,
+                child: Text(
+                  textAlign: TextAlign.center,
+                  _labelCurrencySelect,
+                  style: context.theme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.extensionDefaultColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+        //KDV Bölümü.
+        Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            width: _shareTextFormFieldPaymentSystemWidth,
+            height: 80,
+            child: ShareDropdown(
+              validator: validateNotEmpty,
+              hint: _labelKDV,
+              itemList: productTaxList,
+              selectValue: selectedTax,
+              getShareDropdownCallbackFunc: getProductTax,
+            )),
+      ],
+    );
+  }
+
+  ///Maliyet ve Birim Satışı Bölümü.
+  widgetProductUnitSection(
+      TextEditingController? controllerProductAmountOfStock,
+      TextEditingController controllerSallingPriceWithoutTax,
+      ValueNotifier<double> valueNotifierProductBuyWithoutTax,
+      ValueNotifier<double> valueNotifierProductSaleWithTax) {
+    return SizedBox(
+      width: 500,
+      child: Wrap(
+        direction: Axis.horizontal,
+        verticalDirection: VerticalDirection.down,
+        alignment: WrapAlignment.center,
+        spacing: context.extensionWrapSpacing20(),
+        runSpacing: context.extensionWrapSpacing10(),
+        children: [
+          //EKLENECEK ÜRÜN ADETİ
+          SizedBox(
+            width: 230,
+            height: 70,
+            child: shareWidget.widgetTextFieldInput(
+              etiket: "Eklenecek Ürün (Adeti)",
+              maxCharacter: 7,
+              inputFormat: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  return TextEditingValue(
+                      text: newValue.text, selection: newValue.selection);
+                }),
+              ],
+              keyboardInputType: TextInputType.number,
+              controller: controllerProductAmountOfStock,
+              validationFunc: validateNotEmpty,
+              onChanged: (p0) {
+                //çift taraflı şekilde yapıldı Birim Başı Maliyet Hesaplama
+                if (_controllerPaymentTotal.text.isNotEmpty) {
+                  valueNotifierProductBuyWithoutTax.value =
+                      _totalPaymentValue / double.parse(p0);
+                }
+              },
+            ),
+          ),
+          Container(
+            width: 230,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: context.extensionRadiusDefault10),
+            child: ValueListenableBuilder<double>(
+              valueListenable: valueNotifierProductBuyWithoutTax,
+              builder: (context, value, child) => RichText(
+                text: TextSpan(
+                    text: 'Birim Başı Maliyet : ',
+                    style: context.theme.labelLarge!.copyWith(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1),
+                    children: [
+                      TextSpan(
+                          text:
+                              "${value.toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
+                          style: context.theme.labelLarge!.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1))
+                    ]),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 230,
+            height: 70,
+            child: shareWidget.widgetTextFieldInput(
+              etiket: 'Vergiler Hariç Satış (Birim Fiyat)',
+              inputFormat: [
+                FormatterDecimalLimit(decimalRange: 2),
+              ],
+              controller: controllerSallingPriceWithoutTax,
+              validationFunc: validateNotEmpty,
+              onChanged: (value) {
+                ///TextField içinde yazıp sildiğinde hiç bir karakter kalmayınca isEmpty
+                ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
+                ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
+                ///hesabı yapılıyor.
+                value.isEmpty
+                    ? valueNotifierProductSaleWithTax.value = 0
+                    : valueNotifierProductSaleWithTax.value =
+                        double.parse(value);
+              },
+            ),
+          ),
+          Container(
+            width: 230,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: context.extensionRadiusDefault10),
+            child: ValueListenableBuilder<double>(
+              valueListenable: valueNotifierProductSaleWithTax,
+              builder: (context, value, child) => RichText(
+                text: TextSpan(
+                    text: 'Vergiler Dahil Satış : ',
+                    style: context.theme.labelLarge!.copyWith(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1),
+                    children: [
+                      TextSpan(
+                          text: selectedTaxToInt == 0
+                              ? 'KDV Seçilmedi'
+                              : "${(value * (1 + (selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
+                          style: context.theme.labelLarge!.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1))
+                    ]),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ///Tedarikçi Bölümü.
+  widgetSearchTextFieldSupplier() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 250,
+          child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: db.getSuppliersNameStream(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasError &&
+                  snapshot.hasData &&
+                  snapshot.data!.isNotEmpty) {
+                return SearchField(
+                  validator: validateNotEmpty,
+                  inputFormatters: [FormatterUpperCaseTextFormatter()],
+                  controller: _controllerSupplier,
+                  searchInputDecoration: InputDecoration(
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      ),
+                      labelText: _labelSearchSuppiler,
+                      prefixIcon: const Icon(Icons.search, color: Colors.black),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      )),
+                  suggestions: searchFieldListItemSupplierName(snapshot.data!),
+                  focusNode: _searchFocusSupplier,
+                  onSuggestionTap: (selectedValue) {
+                    if (selectedValue.searchKey.isNotEmpty) {
+                      _searchFocusSupplier.unfocus();
+                    }
+                  },
+                  maxSuggestionsInViewPort: 6,
+                );
+              }
+              return Container();
+            },
+          ),
+        ),
+        context.extensionWidhSizedBox20(),
+
+        ///Tedarikçi Ekleme Buttonu.
+        SizedBox(
+          width: 250,
+          child: TextFormField(
+            maxLength: 25,
+            controller: _controllerInvoiceCode,
+            inputFormatters: [
+              FormatterUpperCaseTextFormatter(),
+              FormatterUpperCaseTextFormatter()
+            ],
+            decoration: InputDecoration(
+                counterText: "", //maxLen gözükmesini engelliyor
+                enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black)),
+                labelText: _labelInvoiceCode,
+                border: OutlineInputBorder(
+                    borderRadius: context.extensionRadiusDefault5,
+                    borderSide:
+                        BorderSide(color: context.extensionDefaultColor))),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Tedarikçi Search Listesini burada düzenliyor. Gösterim şekli.
+  List<SearchFieldListItem<dynamic>> searchFieldListItemSupplierName(
+      List<Map<String, dynamic>> snapshotData) {
+    List<SearchFieldListItem> listSupplier = [];
+    for (var item in snapshotData) {
+      listSupplier
+          .add(SearchFieldListItem(item['name'], child: Text(item['name'])));
+    }
+    return listSupplier;
+  }
+
+  /// Bölüm Başlığı Orta kısmında Başlık yazılı.
+  widgetDividerHeader(String header) {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            color: context.extensionLineColor,
+            thickness: 2.5,
+            indent: 30,
+            endIndent: 10,
+          ),
+        ),
+        Text(header,
+            style: context.theme.headline6!.copyWith(
+                color: context.extensionDefaultColor,
+                fontWeight: FontWeight.bold)),
+        Expanded(
+            child: Divider(
+          color: context.extensionLineColor,
+          thickness: 2.5,
+          indent: 10,
+          endIndent: 30,
+        ))
+      ],
+    );
+  }
+
+  sharedTextFormField(
+      {required double width,
+      required String labelText,
+      required TextEditingController controller,
+      required void Function(String)? onChanged,
+      String? Function(String?)? validator}) {
+    return SizedBox(
+      width: width,
+      child: TextFormField(
+        validator: validator,
+        onChanged: onChanged,
+        controller: controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        inputFormatters: [
+          FormatterDecimalThreeByThree(),
+        ],
+        keyboardType: TextInputType.number,
+        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: context.extensionDefaultColor),
+          isDense: true,
+          errorBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+        ),
+      ),
+    );
+  }
+
+  shareValueListenableBuilder(
+      {required ValueNotifier<double> valueListenable,
+      required String firstText}) {
+    return ValueListenableBuilder<double>(
+      valueListenable: valueListenable,
+      builder: (context, value, child) {
+        return Container(
+          alignment: Alignment.centerLeft,
+          width: _shareTextFormFieldPaymentSystemWidth,
+          height: 43,
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: context.extensionDisableColor))),
+          child: RichText(
+            maxLines: 2,
+            text: TextSpan(children: [
+              TextSpan(
+                text: firstText,
+                style: context.theme.titleMedium!.copyWith(
+                    color: context.extensionDefaultColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
+              ),
+              TextSpan(
+                  text:
+                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrencySymbol",
+                  style: context.theme.titleMedium!.copyWith(
+                      color: Colors.red.shade900,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1))
+            ]),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
+    );
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDate() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  shareInkwellCurrency(
+      {required void Function()? onTap,
+      required String sembol,
+      Color? backgroundColor}) {
+    return InkWell(
+        focusNode: FocusNode(skipTraversal: true),
+        onTap: onTap,
+        child: Container(
+          color: backgroundColor,
+          alignment: Alignment.center,
+          width: 30,
+          height: 30,
+          child: Text(
+            sembol,
+            style: context.theme.headline5!.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ));
   }
 }

@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:stok_takip/utilities/constants.dart';
-import 'package:stok_takip/utilities/dimension_font.dart';
-
-import '../service/exchange_rate_api.dart';
-
 class Test extends StatefulWidget {
   const Test({super.key});
 
@@ -15,6 +10,32 @@ class Test extends StatefulWidget {
 String sum = "none";
 
 class _TestState extends State<Test> {
+  ValueNotifier<double> valueNotifierProductBuyWithoutTax =
+      ValueNotifier<double>(0);
+  ValueNotifier<double> valueNotifierPaid = ValueNotifier<double>(0);
+  ValueNotifier<double> valueNotifierBalance = ValueNotifier<double>(0);
+  ValueNotifier<bool> valueNotifierButtonDateTimeState =
+      ValueNotifier<bool>(false);
+  TextEditingController controllerProductAmountOfStock =
+      TextEditingController();
+  TextEditingController controllerCashValue = TextEditingController();
+  TextEditingController controllerBankValue = TextEditingController();
+  TextEditingController controllerEftHavaleValue = TextEditingController();
+  TextEditingController controllerPaymentTotal = TextEditingController();
+
+  double cashValue = 0, bankValue = 0, eftHavaleValue = 0;
+  double totalPaymentValue = 0;
+
+  ///KDV seçilip Seçilmediğini kontrol ediyorum.
+  late String _selectedCurrencyAbridgment;
+
+  void _getCurrencyAbridment(String value) {
+    setState(() {
+      _selectedCurrencyAbridgment = value;
+      print(value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,28 +44,7 @@ class _TestState extends State<Test> {
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              child: Text(
-                "getir",
-              ),
-              onPressed: () async {
-                //   String? deger = await dioService.getExchangeRate();
-                //String? usd = await dioService.getExchangeRateUSD();
-                String? euro = await dioService.getExchangeRateEUR();
-                //  print("dio deger : $deger");
-                //  print("dio USD : $usd");
-                print("dio Euro : $euro");
-              },
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              Sabitler.deger.toString(),
-              style: context.theme.headline6,
-            ),
-          ],
+          children: [],
         ),
       )),
     );
