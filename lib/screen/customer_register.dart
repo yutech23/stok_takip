@@ -465,9 +465,8 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveCustomerSoleTrader(context, _customer!).then((value) {
-                  if (value == null) {
-                    const Duration(seconds: 2);
+                db.saveCustomerSoleTrader(_customer!).then((resValue) {
+                  if (resValue.isEmpty) {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
@@ -479,6 +478,9 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
               } else if (_customerType == 'Kurumsal Firma') {
@@ -493,9 +495,8 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveCustomerCompany(context, _customer!).then((value) {
-                  const Duration(seconds: 2);
-                  if (value == null) {
+                db.saveCustomerCompany(_customer!).then((resValue) {
+                  if (resValue.isEmpty) {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
@@ -504,6 +505,9 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
               } else if (_customerType == 'Tedarikçi') {
@@ -527,8 +531,8 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveSuppliers(context, _customer!).then((value) {
-                  if (value == null) {
+                db.saveSuppliers(_customer!).then((value) {
+                  if (value.isEmpty) {
                     _controllerSupplierName.clear();
                     _controllerBankName.clear();
                     _controllerIban.clear();
@@ -540,6 +544,9 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
               } else if (_customerType == null) {

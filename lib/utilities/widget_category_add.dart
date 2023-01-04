@@ -62,17 +62,16 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
   @override
   void dispose() {
     super.dispose();
-    _listSelectIndex.clear();
+    /*  _listSelectIndex.clear();
     _controllerScrollList.clear();
     _controllerCategories.clear();
-    _temp.clear();
-    _globalFormKey.currentState!.dispose();
-    _globalListviewKey.currentState!.dispose();
+   
+
     _categoryAddIndex.dispose();
     _controllerCategories.clear();
     _listCategoryCreate.clear();
     _enableCategoryTextFormField.clear();
-    _lenghtCategorylistUpdate.clear();
+    _lenghtCategorylistUpdate.clear(); */
   }
 
   @override
@@ -562,10 +561,10 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
                   if (!snapshot.hasError && snapshot.hasData) {
                     ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                     ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                    List<Map<int, String>> _category4Name = [];
+                    List<Map<int, String>> category4Name = [];
 
                     for (var element in snapshot.data!) {
-                      _category4Name
+                      category4Name
                           .add({element['category4_id']: element['name']});
                     }
                     return Scrollbar(
@@ -579,7 +578,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
                         child: ListView.builder(
                           shrinkWrap: true,
                           controller: controllerScroll,
-                          itemCount: _category4Name.length,
+                          itemCount: category4Name.length,
                           itemBuilder: (context, index) {
                             return Container(
                                 decoration: const BoxDecoration(
@@ -596,7 +595,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
 
                                       ///Map i value değerini bir listeye dönüşüyor.
 
-                                      Text(_category4Name[index].values.first,
+                                      Text(category4Name[index].values.first,
                                           style: TextStyle(
                                             color: _listSelectIndex[3] == index
                                                 ? Colors.white
@@ -618,7 +617,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
                                       }
 
                                       _category.category4 =
-                                          _category4Name[index];
+                                          category4Name[index];
                                       if (_temp[3] !=
                                           _category.category4!.values.first) {
                                         _listSelectIndex[4] =

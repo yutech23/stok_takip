@@ -49,7 +49,7 @@ class _WidgetCategoryDeleteState extends State<WidgetCategoryDelete> {
     _listSelectIndex.clear();
     _temp.clear();
     _lenghtCategorylistUpdate.clear();
-    _globalListviewKey.currentState!.dispose();
+
     _selectedChangeColor.dispose();
     super.dispose();
   }
@@ -230,11 +230,10 @@ class _WidgetCategoryDeleteState extends State<WidgetCategoryDelete> {
 
                 ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                 ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                List<Map<int, String>> _category2Name = [];
+                List<Map<int, String>> category2Name = [];
 
                 for (var element in snapshot.data!) {
-                  _category2Name
-                      .add({element['category2_id']: element['name']});
+                  category2Name.add({element['category2_id']: element['name']});
                 }
 
                 return Scrollbar(
@@ -248,7 +247,7 @@ class _WidgetCategoryDeleteState extends State<WidgetCategoryDelete> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: controllerScroll,
-                      itemCount: _category2Name.length,
+                      itemCount: category2Name.length,
                       itemBuilder: (context, index) {
                         return Container(
                             decoration: const BoxDecoration(
@@ -264,7 +263,7 @@ class _WidgetCategoryDeleteState extends State<WidgetCategoryDelete> {
 
                                   ///Map i value değerini bir listeye dönüşüyor.
                                   Text(
-                                      _category2Name[index]
+                                      category2Name[index]
                                           .values
                                           .toString()
                                           .replaceAll(RegExp(r"[)(]"), ''),
@@ -292,7 +291,7 @@ class _WidgetCategoryDeleteState extends State<WidgetCategoryDelete> {
                                     _category.category5 = null;
                                   }
 
-                                  _category.category2 = _category2Name[index];
+                                  _category.category2 = category2Name[index];
                                   if (_temp[1] !=
                                       _category.category2!.values.first) {
                                     _category.category3 = null;

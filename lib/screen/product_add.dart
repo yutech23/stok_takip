@@ -1112,7 +1112,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
                   ///KAYITIN GERÇEKLEŞTİĞİ YER.
                   if (_valueNotifierBalance.value >= 0) {
-                    db.saveNewProduct(context, product, payment).then((value) {
+                    db.saveNewProduct(product, payment).then((value) {
                       /// kayıt başarılı olunca degerleri sıfırlıyor.
                       if (value.isEmpty) {
                         _controllerInvoiceCode.clear();
@@ -1139,6 +1139,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           _visibleQrCode = false;
                           _categoryList.clear();
                         });
+                        context.noticeBarTrue("Ürün kaydedildi.", 1);
                       }
                     });
                   } else {

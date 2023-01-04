@@ -471,9 +471,9 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 cargoName: _controllerCargoName.text,
                 cargoNumber: _controllerCargoCode.text);
 
-            var returnValue = await db.saveSuppliers(context, _customer!);
+            var returnValue = await db.saveSuppliers(_customer!);
 
-            if (returnValue == null) {
+            if (returnValue.isEmpty) {
               setState(() {
                 _autovalidateMode = AutovalidateMode.disabled;
               });

@@ -14,10 +14,11 @@ class ScreenUserSetting extends StatefulWidget {
 }
 
 class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
-  late final GlobalKey<FormState>? _formKey;
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controllerNewPassword;
   late final TextEditingController _controllerReNewPassword;
   late final TextEditingController _controllerCurrentPassword;
+  AutovalidateMode _autovalidateMode = AutovalidateMode.onUserInteraction;
 
   bool obscureValue = true,
       confirmObscureValue = true,
@@ -25,7 +26,6 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
 
   @override
   void initState() {
-    _formKey = GlobalKey<FormState>();
     _controllerNewPassword = TextEditingController();
     _controllerReNewPassword = TextEditingController();
     _controllerCurrentPassword = TextEditingController();
@@ -34,7 +34,6 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
 
   @override
   void dispose() {
-    _formKey?.currentState!.dispose();
     _controllerReNewPassword.dispose();
     _controllerCurrentPassword.dispose();
     _controllerNewPassword.dispose();
@@ -59,6 +58,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
   buildUserSetting(BuildContext context) {
     return Form(
       key: _formKey,
+      autovalidateMode: _autovalidateMode,
       child: Container(
         decoration: context.extensionThemaGreyContainer(),
         height: MediaQuery.of(context).size.height,
@@ -185,7 +185,8 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
   buttonSave() {
     return ElevatedButton(
       onPressed: () async {
-        if (_controllerNewPassword.text == _controllerReNewPassword.text) {
+        if (_controllerNewPassword.text == _controllerReNewPassword.text &&
+            _formKey.currentState!.validate()) {
           final Session? sessionUserId = db.supabase.auth.currentSession;
 
           ///şuanki kullanıcı id ile controllerText içindeki veriyi karşılaştırılıyor
@@ -205,20 +206,25 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
                     context.noticeBarError("İşlem Başarısız", 1);
                   }
                 });
-                db.saveNewPassword(
-                    _controllerNewPassword.text, sessionUserId.user.id);
-                _controllerNewPassword.clear();
-                _controllerCurrentPassword.clear();
-                _controllerReNewPassword.clear();
-                context.extenionShowSnackBar(message: 'Şifreniz değişmiştir');
+                db
+                    .saveNewPassword(
+                        _controllerNewPassword.text, sessionUserId.user.id)
+                    .then((value) {
+                  if (value.isEmpty) {
+                    _controllerNewPassword.clear();
+                    _controllerCurrentPassword.clear();
+                    _controllerReNewPassword.clear();
+                    context.noticeBarTrue('Şifreniz değişmiştir', 1);
+                  } else {
+                    context.noticeBarError(value, 2);
+                  }
+                });
               } else {
-                context.extensionShowErrorSnackBar(
-                    message: 'Şu anki şifrenizi yalnış girdiniz.');
+                context.noticeBarError('Şu anki şifrenizi yalnış girdiniz.', 2);
               }
             });
           } else {
-            context.extensionShowErrorSnackBar(
-                message: 'Düzgün giriş gerçekliştirilmemiştir.');
+            context.noticeBarError('Düzgün giriş gerçekliştirilmemiştir.', 2);
           }
         }
       },

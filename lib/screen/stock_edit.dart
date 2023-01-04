@@ -10,7 +10,7 @@ import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 
-import '../bloc/bloc_product_filtre.dart';
+import '../bloc/bloc_category_product_filtre.dart';
 import '../data/database_helper.dart';
 import '../models/category.dart';
 import '../models/product.dart';
@@ -444,7 +444,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetCategory1DropdownMenu() {
     return StreamBuilder(
-      stream: filtreBloc.fetchCategory1(),
+      stream: categoryBlocProductFiltre.fetchCategory1(),
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (!snapshot.hasError &&
             snapshot.hasData &&
@@ -482,7 +482,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetCategory2DropdownMenu(int? selectedCategory1Id) {
     return StreamBuilder(
-        stream: filtreBloc.fetchCategory2(selectedCategory1Id),
+        stream: categoryBlocProductFiltre.fetchCategory2(selectedCategory1Id),
         builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (!snapshot.hasError &&
               snapshot.hasData &&
@@ -521,7 +521,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetCategory3DropdownMenu(int? selectedCategory2Id) {
     return StreamBuilder(
-        stream: filtreBloc.fetchCategory3(selectedCategory2Id),
+        stream: categoryBlocProductFiltre.fetchCategory3(selectedCategory2Id),
         builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (!snapshot.hasError &&
               snapshot.hasData &&
@@ -560,7 +560,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetCategory4DropdownMenu(int? selectedCategory3Id) {
     return StreamBuilder(
-      stream: filtreBloc.fetchCategory4(selectedCategory3Id),
+      stream: categoryBlocProductFiltre.fetchCategory4(selectedCategory3Id),
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (!snapshot.hasError &&
             snapshot.hasData &&
@@ -600,7 +600,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   widgetCategory5DropdownMenu(int? selectedCategory4Id) {
     return StreamBuilder(
-      stream: filtreBloc.fetchCategory5(selectedCategory4Id),
+      stream: categoryBlocProductFiltre.fetchCategory5(selectedCategory4Id),
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (!snapshot.hasError &&
             snapshot.hasData &&

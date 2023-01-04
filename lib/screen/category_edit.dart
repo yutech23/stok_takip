@@ -29,7 +29,6 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
 
   @override
   void dispose() {
-    _globalFormKey.currentState!.dispose();
     super.dispose();
   }
 
@@ -67,7 +66,7 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
                   widgetElevatedButtonOperationType(),
                   _changeNewCategoryAndDeleteCategory
                       ? WidgetCategoryAdd()
-                      : WidgetCategoryDelete(),
+                      : const WidgetCategoryDelete(),
                 ],
               ),
             ),
@@ -79,8 +78,8 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
   widgetElevatedButtonOperationType() {
     return Wrap(
         alignment: WrapAlignment.center,
-        spacing: 10,
-        runSpacing: 10,
+        spacing: context.extensionWrapSpacing10(),
+        runSpacing: context.extensionWrapSpacing10(),
         children: [
           shareWidget.widgetElevatedButton(
               onPressedDoSomething: () {
@@ -98,17 +97,5 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
               label: "Kategori Silme"),
           Divider()
         ]);
-  }
-
-/* **************************************************************** */
-  Future<void> showCategoryShowDialog(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: Text("Denme"),
-        );
-      },
-    );
   }
 }

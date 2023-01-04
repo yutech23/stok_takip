@@ -1,6 +1,6 @@
 import '../data/database_helper.dart';
 
-class BlocProductFiltre {
+class BlocCategoryProductFiltre {
   Stream<List<Map<String, dynamic>>>? fetchCategory1() {
     var res =
         db.supabase.from('category1').stream(primaryKey: ['category1_id']);
@@ -9,9 +9,8 @@ class BlocProductFiltre {
 
   Stream<List<Map<String, dynamic>>>? fetchCategory2(int? selectCategory1) {
     if (selectCategory1 != null) {
-      var res = db.supabase
-          .from('category2:fk_category1_id=eq.$selectCategory1')
-          .stream(primaryKey: ['category2_id']);
+      var res = db.supabase.from('category2').stream(
+          primaryKey: ['category2_id']).eq('fk_category1_id', selectCategory1);
 
       return res;
     }
@@ -20,9 +19,8 @@ class BlocProductFiltre {
 
   Stream<List<Map<String, dynamic>>>? fetchCategory3(int? selectCategory2) {
     if (selectCategory2 != null) {
-      var res = db.supabase
-          .from('category3:fk_category2_id=eq.$selectCategory2')
-          .stream(primaryKey: ['category3_id,name']);
+      var res = db.supabase.from('category3').stream(
+          primaryKey: ['category3_id']).eq('fk_category2_id', selectCategory2);
 
       return res;
     }
@@ -31,9 +29,8 @@ class BlocProductFiltre {
 
   Stream<List<Map<String, dynamic>>>? fetchCategory4(int? selectCategory3) {
     if (selectCategory3 != null) {
-      var res = db.supabase
-          .from('category4:fk_category3_id=eq.$selectCategory3')
-          .stream(primaryKey: ['category4_id']);
+      var res = db.supabase.from('category4').stream(
+          primaryKey: ['category4_id']).eq('fk_category3_id', selectCategory3);
 
       return res;
     }
@@ -42,9 +39,8 @@ class BlocProductFiltre {
 
   Stream<List<Map<String, dynamic>>>? fetchCategory5(int? selectCategory4) {
     if (selectCategory4 != null) {
-      var res = db.supabase
-          .from('category5:fk_category4_id=eq.$selectCategory4')
-          .stream(primaryKey: ['category5_id']);
+      var res = db.supabase.from('category5').stream(
+          primaryKey: ['category5_id']).eq('fk_category4_id', selectCategory4);
 
       return res;
     }
@@ -52,4 +48,4 @@ class BlocProductFiltre {
   }
 }
 
-final filtreBloc = BlocProductFiltre();
+final categoryBlocProductFiltre = BlocCategoryProductFiltre();

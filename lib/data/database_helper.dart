@@ -1,11 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/payment.dart';
-import 'package:stok_takip/models/suppliers.dart';
-import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
 import '../models/product.dart';
@@ -22,6 +19,7 @@ class DbHelper {
   }
 
   final supabase = Supabase.instance.client;
+
 //Db başlangıç
   static Future dbBaslat() async {
     await Supabase.initialize(url: Env.url, anonKey: Env.apiKey);
@@ -63,19 +61,21 @@ class DbHelper {
       return selectedKullanici;
     } else {
       try {
-        final res = await db.supabase
+        final resData = await db.supabase
             .from('users')
             .select('name,last_name,role')
             .match({'user_uuid': uuid});
 
         selectedKullanici = Kullanici.nameSurnameRole(
-            name: res.data[0]['name'],
-            lastName: res.data[0]['last_name'],
-            role: res.data[0]['role'].toString());
+            name: resData[0]['name'],
+            lastName: resData[0]['last_name'],
+            role: resData[0]['role'].toString());
         return selectedKullanici;
-      } catch (e) {
+      } on PostgrestException catch (e) {
+        print("Hata FetchNameAndSurnameRole : ${e.message}");
         selectedKullanici = Kullanici.nameSurnameRole(
             name: 'Null', lastName: 'Null', role: 'Null');
+
         return selectedKullanici;
       }
     }
@@ -134,14 +134,14 @@ class DbHelper {
     //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
     try {
       final resAuth = await db.supabase.auth
-          .signUp(email: kullanici.email!, password: kullanici.password!);
+          .signUpMy(email: kullanici.email!, password: kullanici.password!);
 
       //Kullanıcı Role Kaydı
       final roleIdJson = await db.supabase
           .from('roles')
           .select('role_id')
           .eq('role_type', kullanici.role);
-      String roleIdString = Map.from(roleIdJson.data[0])
+      String roleIdString = Map.from(roleIdJson[0])
           .values
           .toString()
           .replaceAll(RegExp(r"[)(]"), '');
@@ -167,6 +167,7 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
+      print("Hata SignUp : ${e.message}");
       return e.message;
     }
   }
@@ -257,8 +258,7 @@ class DbHelper {
   }
 
   ///*****************Müşteri kayıt İşlemleri************************
-  Future<String> saveCustomerSoleTrader(
-      BuildContext context, Customer customerSoleTrader) async {
+  Future<String> saveCustomerSoleTrader(Customer customerSoleTrader) async {
     try {
       await supabase.from('customer_sole_trader').insert([
         {
@@ -280,95 +280,99 @@ class DbHelper {
     }
   }
 
-  Future saveCustomerCompany(
-    BuildContext context,
+  /// Şirket Kayıt
+  Future<String> saveCustomerCompany(
     Customer customerCompany,
   ) async {
-    final res = await supabase.from('customer_company').insert([
-      {
-        'name': customerCompany.companyName,
-        'phone': customerCompany.phone,
-        'city': customerCompany.city,
-        'district': customerCompany.district,
-        'adress': customerCompany.adress,
-        'tax_office': customerCompany.taxOffice,
-        'tax_number': customerCompany.taxNumber,
-        'cargo_company': customerCompany.cargoName,
-        'cargo_number': customerCompany.cargoNumber,
-      }
-    ]).execute();
-    final error = res.error;
-
-    if (error != null) {
-      context.extensionShowErrorSnackBar(message: error.message);
-    } else {
-      context.extenionShowSnackBar(message: 'Kayıt Başarılı');
+    try {
+      await supabase.from('customer_company').insert([
+        {
+          'name': customerCompany.companyName,
+          'phone': customerCompany.phone,
+          'city': customerCompany.city,
+          'district': customerCompany.district,
+          'adress': customerCompany.adress,
+          'tax_office': customerCompany.taxOffice,
+          'tax_number': customerCompany.taxNumber,
+          'cargo_company': customerCompany.cargoName,
+          'cargo_number': customerCompany.cargoNumber,
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata saveCustomer : ${e.message}");
+      return e.message;
     }
-    return error;
   }
 
-  Future saveSuppliers(
-    BuildContext context,
+  Future<String> saveSuppliers(
     Customer supplier,
   ) async {
-    final res = await supabase.from('suppliers').insert([
-      {
-        'name': supplier.supplierName,
-        'iban': supplier.iban,
-        'bank_name': supplier.bankName,
-        'phone': supplier.phone,
-        'city': supplier.city,
-        'district': supplier.district,
-        'adress': supplier.adress,
-        'tax_office': supplier.taxOffice,
-        'tax_number': supplier.taxNumber,
-        'cargo_company': supplier.cargoName,
-        'cargo_number': supplier.cargoNumber,
-      }
-    ]).execute();
-    final error = res.error?.message;
-
-    return error;
+    try {
+      await supabase.from('suppliers').insert([
+        {
+          'name': supplier.supplierName,
+          'iban': supplier.iban,
+          'bank_name': supplier.bankName,
+          'phone': supplier.phone,
+          'city': supplier.city,
+          'district': supplier.district,
+          'adress': supplier.adress,
+          'tax_office': supplier.taxOffice,
+          'tax_number': supplier.taxNumber,
+          'cargo_company': supplier.cargoName,
+          'cargo_number': supplier.cargoNumber,
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata SaveSupplier : ${e.message}");
+      return e.message;
+    }
   }
 
   ///***********************Product işlemleri*********************************
   Future<List<String>> getProductCode() async {
-    final res = await supabase.from('product').select('product_code').execute();
-    final data = res.data;
     final productCode = <String>[];
-    // Burada veritabanından gelen "data" değişkenine atanıyor.
-    // Liste içinde map geliyor.
-    for (var item in data) {
-      //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
-      //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
-      productCode.add(
-          Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
+
+    try {
+      final resData = await supabase.from('product').select('product_code');
+      // Burada veritabanından gelen "data" değişkenine atanıyor.
+      // Liste içinde map geliyor.
+      for (var item in resData) {
+        //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
+        //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
+        productCode.add(
+            Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
+      }
+      return productCode;
+    } on PostgrestException catch (e) {
+      print("Hata Product Code : ${e.message}");
+      return productCode;
     }
-    return productCode;
   }
 
+  ///Tedarikçi isimleri Stream
   Stream<List<Map<String, dynamic>>> getSuppliersNameStream() {
     final resProduct = db.supabase
         .from('suppliers')
-        .stream(['supplier_id'])
-        .order('name', ascending: true)
-        .execute();
+        .stream(primaryKey: ['supplier_id']).order('name', ascending: true);
 
     return resProduct;
   }
 
+  //-----------Kullanılmıyor-----------
   Future<List<String?>> getSuppliersName() async {
-    final res = await supabase
+    final resData = await supabase
         .from('customer_company')
         .select('name')
         .eq('type', 'Tedarikçi')
-        .order('name', ascending: true)
-        .execute();
-    final data = res.data;
+        .order('name', ascending: true);
+
     final productCode = <String>[];
     // Burada veritabanından gelen "data" değişkenine atanıyor.
     // Liste içinde map geliyor.
-    for (var item in data) {
+    for (var item in resData) {
       //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
       //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
       productCode.add(
@@ -377,13 +381,14 @@ class DbHelper {
     return productCode;
   }
 
+  //------------- Kullanılmıyor ----------------
   Future<bool> isThereOnSupplierName(String supplierName) async {
-    final res = await supabase
+    final resData = await supabase
         .from('customer_company')
         .select('name')
         .eq('type', 'Tedarikçi')
-        .match({'name': supplierName}).execute();
-    final List<dynamic> data = res.data;
+        .match({'name': supplierName});
+    final List<dynamic> data = resData;
     if (data.isNotEmpty) {
       return true;
     } else {
@@ -391,62 +396,48 @@ class DbHelper {
     }
   }
 
-  Future saveSupplier(Supplier supplier) async {
-    final resSupplier = await supabase.from('suppliers').insert([
-      {
-        'name': supplier.name,
-        'phone': supplier.phone,
-        'adress': supplier.adress,
-        'tax_office': supplier.taxOffice,
-        'cargo_number': supplier.cargoNumber,
-        'cargo_company': supplier.cargoCompany,
-        'bank_name': supplier.bankName,
-        'iban': supplier.iban,
-      }
-    ]).execute();
+  /*----------------YENİ ÜRÜN KAYDETME İŞLEMLERİ----------------------*/
+  Future<String> saveNewProduct(Product product, Payment payment) async {
+    try {
+      await supabase.from('product').insert([
+        {
+          'product_code': product.productCode,
+          'tax_rate': product.taxRate,
+          'current_buying_price_without_tax':
+              product.currentBuyingPriceWithoutTax,
+          'current_salling_price_without_tax':
+              product.currentSallingPriceWithoutTax,
+          'fk_category1_id': product.category!.category1!.keys.first,
+          'fk_category2_id': product.category!.category2!.keys.first,
+          'fk_category3_id': product.category!.category3!.keys.first,
+          'fk_category4_id': product.category!.category4!.keys.first,
+          'fk_category5_id': product.category!.category5!.keys.first,
+          'current_amount_of_stock': product.currentAmountOfStock
+        }
+      ]);
 
-    final errorSupplier = resSupplier.error;
-    print('error Supplier : $errorSupplier');
-  }
-
-  Future<String> saveNewProduct(
-      BuildContext context, Product product, Payment payment) async {
-    final resProduct = await supabase.from('product').insert([
-      {
-        'product_code': product.productCode,
-        'tax_rate': product.taxRate,
-        'current_buying_price_without_tax':
-            product.currentBuyingPriceWithoutTax,
-        'current_salling_price_without_tax':
-            product.currentSallingPriceWithoutTax,
-        'fk_category1_id': product.category!.category1!.keys.first,
-        'fk_category2_id': product.category!.category2!.keys.first,
-        'fk_category3_id': product.category!.category3!.keys.first,
-        'fk_category4_id': product.category!.category4!.keys.first,
-        'fk_category5_id': product.category!.category5!.keys.first,
-        'current_amount_of_stock': product.currentAmountOfStock
-      }
-    ]).execute();
-    final errorProduct = resProduct.error;
-
-    ///İlk kez yeni bir ürün eklendiğinde payment yeni ürün fiyatını ekliyoruz.
-    final resPayment = await supabase.from('payment').insert([
-      {
-        'supplier_fk': payment.suppliersFk,
-        'product_fk': payment.productFk,
-        'amount_of_stock': product.currentAmountOfStock,
-        'buying_price_without_tax': product.currentBuyingPriceWithoutTax,
-        'salling_price_without_tax': product.currentSallingPriceWithoutTax,
-        'invoice_code': payment.invoiceCode,
-        'unit_of_currency': payment.unitOfCurrency,
-        'total': payment.total,
-        'cash': payment.cash,
-        'bankcard': payment.bankcard,
-        'eft_havale': payment.eftHavale,
-        'repayment_date': payment.repaymentDateTime
-      }
-    ]).execute();
-    final errorPayment = resPayment.error;
+      ///İlk kez yeni bir ürün eklendiğinde payment yeni ürün fiyatını ekliyoruz.
+      await supabase.from('payment').insert([
+        {
+          'supplier_fk': payment.suppliersFk,
+          'product_fk': payment.productFk,
+          'amount_of_stock': product.currentAmountOfStock,
+          'buying_price_without_tax': product.currentBuyingPriceWithoutTax,
+          'salling_price_without_tax': product.currentSallingPriceWithoutTax,
+          'invoice_code': payment.invoiceCode,
+          'unit_of_currency': payment.unitOfCurrency,
+          'total': payment.total,
+          'cash': payment.cash,
+          'bankcard': payment.bankcard,
+          'eft_havale': payment.eftHavale,
+          'repayment_date': payment.repaymentDateTime
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata New Product Add : ${e.message}");
+      return e.message;
+    }
 
     ///Depo sistemi için yapıldı
     /*  final resStorehouse = await supabase.from('storehouse_stock').insert([
@@ -459,88 +450,69 @@ class DbHelper {
     final errorStorehouse = resStorehouse.error; */
 
     //  print('Storehouse error : $errorStorehouse');
-
-    if (errorProduct == null || errorPayment == null) {
-      return "";
-    } else {
-      return errorProduct.message + errorPayment.message;
-    }
   }
 
+  //*-----------------KULLANILMIYOR--------------------------- */
   Future<Product?> getProductDetail(String productCode) async {
-    final res = await supabase
-        .from('product')
-        .select()
-        .eq('product_code', productCode)
-        .execute();
-
-    final data = res.data;
-    final error = res.error;
+    final resData =
+        await supabase.from('product').select().eq('product_code', productCode);
 
     Category getProductCategory = Category();
 
     final resCategory1 = await supabase
         .from('category1')
         .select('name')
-        .eq('category1_id', data[0]['fk_category1_id'])
-        .execute();
+        .eq('category1_id', resData[0]['fk_category1_id']);
     getProductCategory.category1 = {
-      data[0]['fk_category1_id']: resCategory1.data[0]['name']
+      resData[0]['fk_category1_id']: resCategory1.data[0]['name']
     };
 
     final resCategory2 = await supabase
         .from('category2')
         .select('name')
-        .eq('category2_id', data[0]['fk_category2_id'])
-        .execute();
+        .eq('category2_id', resData[0]['fk_category2_id']);
     getProductCategory.category2 = {
-      data[0]['fk_category2_id']: resCategory2.data[0]['name']
+      resData[0]['fk_category2_id']: resCategory2.data[0]['name']
     };
 
     final resCategory3 = await supabase
         .from('category3')
         .select('name')
-        .eq('category3_id', data[0]['fk_category3_id'])
-        .execute();
+        .eq('category3_id', resData[0]['fk_category3_id']);
     getProductCategory.category3 = {
-      data[0]['fk_category3_id']: resCategory3.data[0]['name']
+      resData[0]['fk_category3_id']: resCategory3.data[0]['name']
     };
 
     final resCategory4 = await supabase
         .from('category4')
         .select('name')
-        .eq('category4_id', data[0]['fk_category4_id'])
-        .execute();
+        .eq('category4_id', resData[0]['fk_category4_id']);
     getProductCategory.category4 = {
-      data[0]['fk_category4_id']: resCategory4.data[0]['name']
+      resData[0]['fk_category4_id']: resCategory4.data[0]['name']
     };
 
     final resCategory5 = await supabase
         .from('category5')
         .select('name')
-        .eq('category5_id', data[0]['fk_category5_id'])
-        .execute();
+        .eq('category5_id', resData[0]['fk_category5_id']);
     getProductCategory.category5 = {
-      data[0]['fk_category5_id']: resCategory5.data[0]['name']
+      resData[0]['fk_category5_id']: resCategory5.data[0]['name']
     };
 
     Product getProductDetail = Product(
-        productCode: data[0]['product_code'],
-        currentAmountOfStock: data[0]['current_amount_of_stock'],
-        taxRate: data[0]['tax_rate'],
-        currentBuyingPriceWithoutTax: data[0]['buying_price_without_tax'],
-        currentSallingPriceWithoutTax: data[0]['salling_price_without_tax'],
+        productCode: resData[0]['product_code'],
+        currentAmountOfStock: resData[0]['current_amount_of_stock'],
+        taxRate: resData[0]['tax_rate'],
+        currentBuyingPriceWithoutTax: resData[0]['buying_price_without_tax'],
+        currentSallingPriceWithoutTax: resData[0]['salling_price_without_tax'],
         category: getProductCategory);
 
     return getProductDetail;
   }
 
   Stream<List<Map<String, dynamic>>>? fetchProductDetail() {
-    final resProduct = db.supabase
-        .from('product')
-        .stream(['product_code'])
-        .order('product_code', ascending: true)
-        .execute();
+    final resProduct = db.supabase.from('product').stream(
+        primaryKey: ['product_code']).order('product_code', ascending: true);
 
     /*  resProduct.listen((event) {
       print(event);
@@ -572,26 +544,18 @@ class DbHelper {
     return resProduct;
   }
 
-  Future<List<dynamic>> fetchProductDetailFuture() async {
-    List<Map<String, dynamic>>? mapList = [];
-    final resProduct = await db.supabase.from('product').select().execute();
-
-    final data = resProduct.data;
-
-    /* for (var element in resProduct.data) {
-      _mapList.add(element);
-    }*/
-
-    return resProduct.data;
-  }
-
   //Ürün silme StokEdit Sayfasında kullanılıyor.
   Future<String> deleteProduct(String productCode) async {
-    final resProduct = await db.supabase
-        .from('product')
-        .delete()
-        .match({'product_code': productCode}).execute();
-    print(resProduct);
+    try {
+      await db.supabase
+          .from('product')
+          .delete()
+          .match({'product_code': productCode});
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata Product Delete : ${e.message}");
+      return e.message;
+    }
 
     ///Birden fazla değp ekleme için kullanılmak için ön çalışma.
     /* final resStorehouseStock = await db.supabase
@@ -600,77 +564,78 @@ class DbHelper {
         .match({'product_fk': productCode}).execute();
 
     final errorStorehouse = resStorehouseStock.error; */
-
-    final errorProduct = resProduct.error;
-
-    if (errorProduct == null) {
-      return "";
-    } else {
-      return errorProduct.message;
-    }
   }
 
   //Stok Güncelleme için Kullanılıyor
-  Future updateProductDetail(
+  Future<String> updateProductDetail(
       String productCode, Map<String, dynamic> data, Payment payment) async {
-    final resProduct = await db.supabase
-        .from('product')
-        .update(data)
-        .match({'product_code': productCode}).execute();
-    /*  //TEST
-    print("veri içinde ");
-    print(payment.productFk);
-    print(payment.suppliersFk);
-    print(payment.invoiceCode);
-    print(payment.amountOfStock);
-    print(payment.bankcard);
-    print(payment.buyingPriceWithoutTax);
-    print(payment.cash);
-    print(payment.eftHavale);
-    print(payment.repaymentDateTime);
-    print(payment.sallingPriceWithoutTax);
-    print(payment.total);
-    print(payment.unitOfCurrency); */
+    try {
+      await db.supabase
+          .from('product')
+          .update(data)
+          .match({'product_code': productCode});
+      /*  //TEST
+  print("veri içinde ");
+  print(payment.productFk);
+  print(payment.suppliersFk);
+  print(payment.invoiceCode);
+  print(payment.amountOfStock);
+  print(payment.bankcard);
+  print(payment.buyingPriceWithoutTax);
+  print(payment.cash);
+  print(payment.eftHavale);
+  print(payment.repaymentDateTime);
+  print(payment.sallingPriceWithoutTax);
+  print(payment.total);
+  print(payment.unitOfCurrency); */
 
-    final resPayment = await db.supabase.from('payment').insert([
-      {
-        'product_fk': payment.productFk,
-        'supplier_fk': payment.suppliersFk,
-        'invoice_code': payment.invoiceCode,
-        'unit_of_currency': payment.unitOfCurrency,
-        'total': payment.total,
-        'cash': payment.cash,
-        'bankcard': payment.bankcard,
-        'eft_havale': payment.eftHavale,
-        'buying_price_without_tax': payment.buyingPriceWithoutTax,
-        'salling_price_without_tax': payment.sallingPriceWithoutTax,
-        'amount_of_stock': payment.amountOfStock,
-        'repayment_date': payment.repaymentDateTime
-      }
-    ]).execute();
-    final errorProduct = resProduct.error;
-    final errorPayment = resPayment.error;
-
-    if (errorProduct == null || errorPayment == null) {
+      final resPayment = await db.supabase.from('payment').insert([
+        {
+          'product_fk': payment.productFk,
+          'supplier_fk': payment.suppliersFk,
+          'invoice_code': payment.invoiceCode,
+          'unit_of_currency': payment.unitOfCurrency,
+          'total': payment.total,
+          'cash': payment.cash,
+          'bankcard': payment.bankcard,
+          'eft_havale': payment.eftHavale,
+          'buying_price_without_tax': payment.buyingPriceWithoutTax,
+          'salling_price_without_tax': payment.sallingPriceWithoutTax,
+          'amount_of_stock': payment.amountOfStock,
+          'repayment_date': payment.repaymentDateTime
+        }
+      ]);
       return "";
-    } else {
-      return "${errorProduct.message} + ${errorPayment.message}";
+    } on PostgrestException catch (e) {
+      print("Hata Product Update : ${e.message}");
+      return e.message;
     }
   }
 
+  ///Kullanıcı Şifresini değiştirmek istediğinde Kullanıcının o anki şifresini
+  ///istoruz kişi güvenliği için
   Future<String?> getPassword(String? uuid) async {
-    final res =
-        await supabase.from('users').select('*').match({'user_uuid': uuid});
-
-    return res.data[0]['password'];
+    try {
+      final resData =
+          await supabase.from('users').select('*').match({'user_uuid': uuid});
+      return resData[0]['password'];
+    } on PostgrestException catch (e) {
+      print("Hata getPassword : ${e.message}");
+      return "";
+    }
   }
 
-  Future saveNewPassword(String? newPassword, String userId) async {
-    final res = await supabase
-        .from('users')
-        .update({'password': newPassword}).eq('user_uuid', userId);
-    final error = res.error;
-    print(error);
+  /// Şifre Değiştirme Yeri
+  Future<String> saveNewPassword(String? newPassword, String userId) async {
+    try {
+      await supabase
+          .from('users')
+          .update({'password': newPassword}).eq('user_uuid', userId);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata NewPassword : ${e.message}");
+      return e.message;
+    }
   }
 }
 

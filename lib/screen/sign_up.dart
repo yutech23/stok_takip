@@ -75,7 +75,7 @@ class _ScreenSignUpState extends State with Validation {
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         actions: [
-          ShareWidgetAppbarSetting(),
+          const ShareWidgetAppbarSetting(),
         ],
       ),
       body: buildSignUp(context),
@@ -97,7 +97,8 @@ class _ScreenSignUpState extends State with Validation {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
+                  const BoxShadow(
+                      color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
                 ]),
             padding: const EdgeInsets.all(20),
             margin: const EdgeInsets.only(top: 20, bottom: 20),
@@ -215,17 +216,24 @@ class _ScreenSignUpState extends State with Validation {
         print(kullanici.password);
         print(kullanici.role); */
 
-        db.signUp(context, formKey, kullanici).then((value) {
-          if (value == true) {
-            setState(() {
-              _controllerEmail.clear();
-              _controllerName.clear();
-              _controllerLastName.clear();
-              _controllerPassword.clear();
-              _controllerRePassword.clear();
-            });
-          }
-        });
+        if (formKey.currentState!.validate()) {
+          db.signUp(kullanici).then((value) {
+            if (value.isEmpty) {
+              setState(() {
+                _controllerEmail.clear();
+                _controllerName.clear();
+                _controllerLastName.clear();
+                _controllerPassword.clear();
+                _controllerRePassword.clear();
+              });
+              context.noticeBarTrue("Kayıt Başarılı", 1);
+            } else {
+              context.noticeBarError("Hata gerçekleşti : $value", 2);
+            }
+          });
+        } else {
+          context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+        }
       },
       child: Container(
         alignment: Alignment.center,

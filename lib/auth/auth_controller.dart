@@ -24,7 +24,8 @@ class AuthController {
     final userSession = await db.supabase.auth.currentSession;
 
     if (userSession?.accessToken != null) {
-      print("session : ${userSession?.accessToken}");
+      // await db.supabase.auth.setSession(userSession!.refreshToken!);
+      print("session : ${userSession!.accessToken}");
     } else
       print("Session YOKK");
     //Browser Bulunan Local Storage veriler temizleniyor.

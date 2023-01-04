@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DbCategory {
   late DbHelper db;
@@ -27,7 +28,7 @@ class DbCategory {
 
       final getCategory1 = await db.supabase.from('category1').select('name');
 
-      for (var item in getCategory1.data) {
+      for (var item in getCategory1) {
         if (category.category1 == item['name']) {
           saveController = false;
           break;
@@ -35,46 +36,44 @@ class DbCategory {
       }
 
       if (saveController) {
+        String error;
         //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
-        final resCategory1Id = await db.supabase.from('category1').insert([
-          {'name': category.category1},
-        ]);
+        try {
+          final resCategory1Id = await db.supabase.from('category1').insert([
+            {'name': category.category1},
+          ]).select();
 
-        final resCategory2Id = await db.supabase.from('category2').insert([
-          {
-            'name': category.category2,
-            'fk_category1_id': Map.of(resCategory1Id.data[0]).values.first
-          }
-        ]);
-        final resCategory3Id = await db.supabase.from('category3').insert([
-          {
-            'name': category.category3,
-            'fk_category2_id': Map.of(resCategory2Id.data[0]).values.first
-          }
-        ]);
-        final resCategory4Id = await db.supabase.from('category4').insert([
-          {
-            'name': category.category4,
-            'fk_category3_id': Map.of(resCategory3Id.data[0]).values.first
-          }
-        ]);
-        final resCategory5Id = await db.supabase.from('category5').insert([
-          {
-            'name': category.category5,
-            'fk_category4_id': Map.of(resCategory4Id.data[0]).values.first
-          }
-        ]);
-        final errorCategory1 = resCategory1Id.hasError;
-        final errorCategory2 = resCategory2Id.hasError;
-        final errorCategory3 = resCategory3Id.hasError;
-        final errorCategory4 = resCategory4Id.hasError;
-        final errorCategory5 = resCategory5Id.hasError;
+          final resCategory2Id = await db.supabase.from('category2').insert([
+            {
+              'name': category.category2,
+              'fk_category1_id': Map.of(resCategory1Id[0]).values.first
+            }
+          ]).select();
+          final resCategory3Id = await db.supabase.from('category3').insert([
+            {
+              'name': category.category3,
+              'fk_category2_id': Map.of(resCategory2Id[0]).values.first
+            }
+          ]).select();
+          final resCategory4Id = await db.supabase.from('category4').insert([
+            {
+              'name': category.category4,
+              'fk_category3_id': Map.of(resCategory3Id[0]).values.first
+            }
+          ]).select();
+          final resSubSave5 = await db.supabase.from('category5').insert([
+            {
+              'name': category.category5,
+              'fk_category4_id': Map.of(resCategory4Id[0]).values.first
+            }
+          ]);
+          error = "";
+        } on PostgrestException catch (e) {
+          print("Hata Category Add : ${e.message}");
+          error = e.message;
+        }
 
-        if (errorCategory1 == true ||
-            errorCategory2 == true ||
-            errorCategory3 == true ||
-            errorCategory4 == true ||
-            errorCategory5 == true) {
+        if (error.isNotEmpty) {
           // ignore: use_build_context_synchronously
           context.extensionShowErrorSnackBar(
               message: "Kayıt yapılır iken bir hata ile karşılaşıldı");
@@ -114,7 +113,7 @@ class DbCategory {
           .select('name')
           .eq('fk_category1_id', categoryMap.category1!.keys.first);
 
-      for (var item in getCategory2.data) {
+      for (var item in getCategory2) {
         if (categoryString.category2 == item['name']) {
           saveController = false;
           break;
@@ -122,40 +121,40 @@ class DbCategory {
       }
 
       if (saveController) {
-        final resSubSave2 = await db.supabase.from('category2').insert([
-          {
-            'name': categoryString.category2,
-            'fk_category1_id': categoryMap.category1!.keys.first
-          }
-        ]);
+        String error;
+        try {
+          final resSubSave2 = await db.supabase.from('category2').insert([
+            {
+              'name': categoryString.category2,
+              'fk_category1_id': categoryMap.category1!.keys.first
+            }
+          ]).select();
 
-        final resSubSave3 = await db.supabase.from('category3').insert([
-          {
-            'name': categoryString.category3,
-            'fk_category2_id': Map.of(resSubSave2.data[0]).values.first
-          }
-        ]);
-        final resSubSave4 = await db.supabase.from('category4').insert([
-          {
-            'name': categoryString.category4,
-            'fk_category3_id': Map.of(resSubSave3.data[0]).values.first
-          }
-        ]);
-        final resSubSave5 = await db.supabase.from('category5').insert([
-          {
-            'name': categoryString.category5,
-            'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
-          }
-        ]);
-        final errorSubSave2 = resSubSave2.hasError;
-        final errorSubSave3 = resSubSave3.hasError;
-        final errorSubSave4 = resSubSave4.hasError;
-        final errorSubSave5 = resSubSave5.hasError;
+          final resSubSave3 = await db.supabase.from('category3').insert([
+            {
+              'name': categoryString.category3,
+              'fk_category2_id': Map.of(resSubSave2[0]).values.first
+            }
+          ]).select();
+          final resSubSave4 = await db.supabase.from('category4').insert([
+            {
+              'name': categoryString.category4,
+              'fk_category3_id': Map.of(resSubSave3[0]).values.first
+            }
+          ]).select();
+          final resSubSave5 = await db.supabase.from('category5').insert([
+            {
+              'name': categoryString.category5,
+              'fk_category4_id': Map.of(resSubSave4[0]).values.first
+            }
+          ]);
+          error = "";
+        } on PostgrestException catch (e) {
+          print("Hata Category Add1 : ${e.message}");
+          error = e.message;
+        }
 
-        if (errorSubSave2 == true ||
-            errorSubSave3 == true ||
-            errorSubSave4 == true ||
-            errorSubSave5 == true) {
+        if (error.isNotEmpty) {
           // ignore: use_build_context_synchronously
           context.extensionShowErrorSnackBar(
               message: "Kayıt yapılır iken bir hata ile karşılaşıldı");
@@ -194,7 +193,7 @@ class DbCategory {
           .select('name')
           .eq('fk_category2_id', categoryMap.category2!.keys.first);
 
-      for (var item in getCategory3.data) {
+      for (var item in getCategory3) {
         if (categoryString.category3 == item['name']) {
           saveController = false;
           break;
@@ -202,32 +201,33 @@ class DbCategory {
       }
 
       if (saveController) {
-        final resSubSave3 = await db.supabase.from('category3').insert([
-          {
-            'name': categoryString.category3,
-            'fk_category2_id': categoryMap.category2!.keys.first
-          }
-        ]);
-        final resSubSave4 = await db.supabase.from('category4').insert([
-          {
-            'name': categoryString.category4,
-            'fk_category3_id': Map.of(resSubSave3.data[0]).values.first
-          }
-        ]);
-        final resSubSave5 = await db.supabase.from('category5').insert([
-          {
-            'name': categoryString.category5,
-            'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
-          }
-        ]);
+        String error;
+        try {
+          final resSubSave3 = await db.supabase.from('category3').insert([
+            {
+              'name': categoryString.category3,
+              'fk_category2_id': categoryMap.category2!.keys.first
+            }
+          ]).select();
+          final resSubSave4 = await db.supabase.from('category4').insert([
+            {
+              'name': categoryString.category4,
+              'fk_category3_id': Map.of(resSubSave3[0]).values.first
+            }
+          ]).select();
+          final resSubSave5 = await db.supabase.from('category5').insert([
+            {
+              'name': categoryString.category5,
+              'fk_category4_id': Map.of(resSubSave4[0]).values.first
+            }
+          ]).select();
+          error = "";
+        } on PostgrestException catch (e) {
+          print("Hata Category Add-2 : ${e.message}");
+          error = e.message;
+        }
 
-        final errorSubSave3 = resSubSave3.hasError;
-        final errorSubSave4 = resSubSave4.hasError;
-        final errorSubSave5 = resSubSave5.hasError;
-
-        if (errorSubSave3 == true ||
-            errorSubSave4 == true ||
-            errorSubSave5 == true) {
+        if (error.isNotEmpty) {
           // ignore: use_build_context_synchronously
           context.extensionShowErrorSnackBar(
               message: "Kayıt yapılır iken bir hata ile karşılaşıldı");
@@ -265,7 +265,7 @@ class DbCategory {
           .select('name')
           .eq('fk_category3_id', categoryMap.category3!.keys.first);
 
-      for (var item in getCategory4.data) {
+      for (var item in getCategory4) {
         if (categoryString.category4 == item['name']) {
           saveController = false;
           break;
@@ -273,23 +273,27 @@ class DbCategory {
       }
 
       if (saveController) {
-        final resSubSave4 = await db.supabase.from('category4').insert([
-          {
-            'name': categoryString.category4,
-            'fk_category3_id': categoryMap.category3!.keys.first
-          }
-        ]);
-        final resSubSave5 = await db.supabase.from('category5').insert([
-          {
-            'name': categoryString.category5,
-            'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
-          }
-        ]);
+        String error;
+        try {
+          final resSubSave4 = await db.supabase.from('category4').insert([
+            {
+              'name': categoryString.category4,
+              'fk_category3_id': categoryMap.category3!.keys.first
+            }
+          ]).select();
+          final resSubSave5 = await db.supabase.from('category5').insert([
+            {
+              'name': categoryString.category5,
+              'fk_category4_id': Map.of(resSubSave4[0]).values.first
+            }
+          ]);
+          error = "";
+        } on PostgrestException catch (e) {
+          print("Hata Categry Add- 4 : ${e.message}");
+          error = e.message;
+        }
 
-        final errorSubSave4 = resSubSave4.hasError;
-        final errorSubSave5 = resSubSave5.hasError;
-
-        if (errorSubSave4 == true || errorSubSave5 == true) {
+        if (error.isNotEmpty) {
           // ignore: use_build_context_synchronously
           context.extensionShowErrorSnackBar(
               message: "Kayıt yapılır iken bir hata ile karşılaşıldı");
@@ -326,7 +330,7 @@ class DbCategory {
           .select('name')
           .eq('fk_category4_id', categoryMap.category4!.keys.first);
 
-      for (var item in getCategory5.data) {
+      for (var item in getCategory5) {
         if (categoryString.category5 == item['name']) {
           saveController = false;
           break;
@@ -334,16 +338,22 @@ class DbCategory {
       }
 
       if (saveController) {
-        final resSubSave5 = await db.supabase.from('category5').insert([
-          {
-            'name': categoryString.category5,
-            'fk_category4_id': categoryMap.category4!.keys.first
-          }
-        ]);
+        String error;
 
-        final errorSubSave5 = resSubSave5.hasError;
+        try {
+          final resSubSave5 = await db.supabase.from('category5').insert([
+            {
+              'name': categoryString.category5,
+              'fk_category4_id': categoryMap.category4!.keys.first
+            }
+          ]);
+          error = "";
+        } on PostgrestException catch (e) {
+          print("Hata Category add-5 : ${e.message}");
+          error = e.message;
+        }
 
-        if (errorSubSave5 == true) {
+        if (error.isNotEmpty) {
           // ignore: use_build_context_synchronously
           context.extensionShowErrorSnackBar(
               message: "Kayıt yapılır iken bir hata ile karşılaşıldı");
