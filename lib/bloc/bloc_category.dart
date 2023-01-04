@@ -5,7 +5,7 @@ import '../data/database_helper.dart';
 class BlocCategory {
   Stream<List<Map<String, dynamic>>>? getCategory1() {
     var res =
-        db.supabase.from('category1').stream(['category1_id,name']).execute();
+        db.supabase.from('category1').stream(primaryKey: ['category1_id']);
     return res;
   }
 
@@ -14,9 +14,10 @@ class BlocCategory {
     if (selectCategory1 != null) {
       var res = db.supabase
           .from('category2:fk_category1_id=eq.${selectCategory1.keys.first}')
-          .stream(['category2_id,name']).execute();
+          .stream(primaryKey: ['category2_id']);
       return res;
     }
+    return null;
   }
 
   Stream<List<Map<String, dynamic>>>? getCategory3(
@@ -24,10 +25,11 @@ class BlocCategory {
     if (selectCategory2 != null) {
       var res = db.supabase
           .from('category3:fk_category2_id=eq.${selectCategory2.keys.first}')
-          .stream(['category3_id,name']).execute();
+          .stream(primaryKey: ['category3_id']);
 
       return res;
     }
+    return null;
   }
 
   Stream<List<Map<String, dynamic>>>? getCategory4(
@@ -35,10 +37,11 @@ class BlocCategory {
     if (selectCategory3 != null) {
       var res = db.supabase
           .from('category4:fk_category3_id=eq.${selectCategory3.keys.first}')
-          .stream(['category4_id,name']).execute();
+          .stream(primaryKey: ['category4_id']);
 
       return res;
     }
+    return null;
   }
 
   Stream<List<Map<String, dynamic>>>? getCategory5(
@@ -46,10 +49,11 @@ class BlocCategory {
     if (selectCategory4 != null) {
       var res = db.supabase
           .from('category5:fk_category4_id=eq.${selectCategory4.keys.first}')
-          .stream(['category5_id,name']).execute();
-      print(res);
+          .stream(primaryKey: ['category5_id']);
+
       return res;
     }
+    return null;
   }
 }
 

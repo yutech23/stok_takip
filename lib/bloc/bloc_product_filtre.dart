@@ -3,7 +3,7 @@ import '../data/database_helper.dart';
 class BlocProductFiltre {
   Stream<List<Map<String, dynamic>>>? fetchCategory1() {
     var res =
-        db.supabase.from('category1').stream(['category1_id,name']).execute();
+        db.supabase.from('category1').stream(primaryKey: ['category1_id']);
     return res;
   }
 
@@ -11,7 +11,7 @@ class BlocProductFiltre {
     if (selectCategory1 != null) {
       var res = db.supabase
           .from('category2:fk_category1_id=eq.$selectCategory1')
-          .stream(['category2_id,name']).execute();
+          .stream(primaryKey: ['category2_id']);
 
       return res;
     }
@@ -22,19 +22,18 @@ class BlocProductFiltre {
     if (selectCategory2 != null) {
       var res = db.supabase
           .from('category3:fk_category2_id=eq.$selectCategory2')
-          .stream(['category3_id,name']).execute();
+          .stream(primaryKey: ['category3_id,name']);
 
       return res;
     }
     return null;
   }
 
-
   Stream<List<Map<String, dynamic>>>? fetchCategory4(int? selectCategory3) {
     if (selectCategory3 != null) {
       var res = db.supabase
           .from('category4:fk_category3_id=eq.$selectCategory3')
-          .stream(['category4_id,name']).execute();
+          .stream(primaryKey: ['category4_id']);
 
       return res;
     }
@@ -45,13 +44,12 @@ class BlocProductFiltre {
     if (selectCategory4 != null) {
       var res = db.supabase
           .from('category5:fk_category4_id=eq.$selectCategory4')
-          .stream(['category5_id,name']).execute();
+          .stream(primaryKey: ['category5_id']);
 
       return res;
     }
     return null;
   }
-
 }
 
 final filtreBloc = BlocProductFiltre();

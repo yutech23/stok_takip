@@ -25,8 +25,7 @@ class DbCategory {
       ///Kategoride aynı veri olup olmadığını kontrol ediliyor ki Tekrar aynı
       ///kategori oluşturulmasın için burada kontrol ediliyor.
 
-      final getCategory1 =
-          await db.supabase.from('category1').select('name').execute();
+      final getCategory1 = await db.supabase.from('category1').select('name');
 
       for (var item in getCategory1.data) {
         if (category.category1 == item['name']) {
@@ -37,39 +36,39 @@ class DbCategory {
 
       if (saveController) {
         //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
-        final resCategory1_id = await db.supabase.from('category1').insert([
+        final resCategory1Id = await db.supabase.from('category1').insert([
           {'name': category.category1},
-        ]).execute();
+        ]);
 
-        final resCategory2_id = await db.supabase.from('category2').insert([
+        final resCategory2Id = await db.supabase.from('category2').insert([
           {
             'name': category.category2,
-            'fk_category1_id': Map.of(resCategory1_id.data[0]).values.first
+            'fk_category1_id': Map.of(resCategory1Id.data[0]).values.first
           }
-        ]).execute();
-        final resCategory3_id = await db.supabase.from('category3').insert([
+        ]);
+        final resCategory3Id = await db.supabase.from('category3').insert([
           {
             'name': category.category3,
-            'fk_category2_id': Map.of(resCategory2_id.data[0]).values.first
+            'fk_category2_id': Map.of(resCategory2Id.data[0]).values.first
           }
-        ]).execute();
-        final resCategory4_id = await db.supabase.from('category4').insert([
+        ]);
+        final resCategory4Id = await db.supabase.from('category4').insert([
           {
             'name': category.category4,
-            'fk_category3_id': Map.of(resCategory3_id.data[0]).values.first
+            'fk_category3_id': Map.of(resCategory3Id.data[0]).values.first
           }
-        ]).execute();
-        final resCategory5_id = await db.supabase.from('category5').insert([
+        ]);
+        final resCategory5Id = await db.supabase.from('category5').insert([
           {
             'name': category.category5,
-            'fk_category4_id': Map.of(resCategory4_id.data[0]).values.first
+            'fk_category4_id': Map.of(resCategory4Id.data[0]).values.first
           }
-        ]).execute();
-        final errorCategory1 = resCategory1_id.hasError;
-        final errorCategory2 = resCategory2_id.hasError;
-        final errorCategory3 = resCategory3_id.hasError;
-        final errorCategory4 = resCategory4_id.hasError;
-        final errorCategory5 = resCategory5_id.hasError;
+        ]);
+        final errorCategory1 = resCategory1Id.hasError;
+        final errorCategory2 = resCategory2Id.hasError;
+        final errorCategory3 = resCategory3Id.hasError;
+        final errorCategory4 = resCategory4Id.hasError;
+        final errorCategory5 = resCategory5Id.hasError;
 
         if (errorCategory1 == true ||
             errorCategory2 == true ||
@@ -113,8 +112,7 @@ class DbCategory {
       final getCategory2 = await db.supabase
           .from('category2')
           .select('name')
-          .eq('fk_category1_id', categoryMap.category1!.keys.first)
-          .execute();
+          .eq('fk_category1_id', categoryMap.category1!.keys.first);
 
       for (var item in getCategory2.data) {
         if (categoryString.category2 == item['name']) {
@@ -129,26 +127,26 @@ class DbCategory {
             'name': categoryString.category2,
             'fk_category1_id': categoryMap.category1!.keys.first
           }
-        ]).execute();
+        ]);
 
         final resSubSave3 = await db.supabase.from('category3').insert([
           {
             'name': categoryString.category3,
             'fk_category2_id': Map.of(resSubSave2.data[0]).values.first
           }
-        ]).execute();
+        ]);
         final resSubSave4 = await db.supabase.from('category4').insert([
           {
             'name': categoryString.category4,
             'fk_category3_id': Map.of(resSubSave3.data[0]).values.first
           }
-        ]).execute();
+        ]);
         final resSubSave5 = await db.supabase.from('category5').insert([
           {
             'name': categoryString.category5,
             'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
           }
-        ]).execute();
+        ]);
         final errorSubSave2 = resSubSave2.hasError;
         final errorSubSave3 = resSubSave3.hasError;
         final errorSubSave4 = resSubSave4.hasError;
@@ -194,8 +192,7 @@ class DbCategory {
       final getCategory3 = await db.supabase
           .from('category3')
           .select('name')
-          .eq('fk_category2_id', categoryMap.category2!.keys.first)
-          .execute();
+          .eq('fk_category2_id', categoryMap.category2!.keys.first);
 
       for (var item in getCategory3.data) {
         if (categoryString.category3 == item['name']) {
@@ -210,19 +207,19 @@ class DbCategory {
             'name': categoryString.category3,
             'fk_category2_id': categoryMap.category2!.keys.first
           }
-        ]).execute();
+        ]);
         final resSubSave4 = await db.supabase.from('category4').insert([
           {
             'name': categoryString.category4,
             'fk_category3_id': Map.of(resSubSave3.data[0]).values.first
           }
-        ]).execute();
+        ]);
         final resSubSave5 = await db.supabase.from('category5').insert([
           {
             'name': categoryString.category5,
             'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
           }
-        ]).execute();
+        ]);
 
         final errorSubSave3 = resSubSave3.hasError;
         final errorSubSave4 = resSubSave4.hasError;
@@ -266,8 +263,7 @@ class DbCategory {
       final getCategory4 = await db.supabase
           .from('category4')
           .select('name')
-          .eq('fk_category3_id', categoryMap.category3!.keys.first)
-          .execute();
+          .eq('fk_category3_id', categoryMap.category3!.keys.first);
 
       for (var item in getCategory4.data) {
         if (categoryString.category4 == item['name']) {
@@ -282,13 +278,13 @@ class DbCategory {
             'name': categoryString.category4,
             'fk_category3_id': categoryMap.category3!.keys.first
           }
-        ]).execute();
+        ]);
         final resSubSave5 = await db.supabase.from('category5').insert([
           {
             'name': categoryString.category5,
             'fk_category4_id': Map.of(resSubSave4.data[0]).values.first
           }
-        ]).execute();
+        ]);
 
         final errorSubSave4 = resSubSave4.hasError;
         final errorSubSave5 = resSubSave5.hasError;
@@ -328,8 +324,7 @@ class DbCategory {
       final getCategory5 = await db.supabase
           .from('category5')
           .select('name')
-          .eq('fk_category4_id', categoryMap.category4!.keys.first)
-          .execute();
+          .eq('fk_category4_id', categoryMap.category4!.keys.first);
 
       for (var item in getCategory5.data) {
         if (categoryString.category5 == item['name']) {
@@ -344,7 +339,7 @@ class DbCategory {
             'name': categoryString.category5,
             'fk_category4_id': categoryMap.category4!.keys.first
           }
-        ]).execute();
+        ]);
 
         final errorSubSave5 = resSubSave5.hasError;
 
@@ -375,30 +370,30 @@ class DbCategory {
 
   Future deleteSelectedCategory(Category category, int selectedCategory) async {
     if (selectedCategory == 1) {
-      final resDeleteCategory1 = await db.supabase
+      await db.supabase
           .from('category1')
           .delete()
-          .match({'category1_id': category.category1!.keys.first}).execute();
+          .match({'category1_id': category.category1!.keys.first});
     } else if (selectedCategory == 2) {
-      final resDeleteCategory2 = await db.supabase
+      await db.supabase
           .from('category2')
           .delete()
-          .match({'category2_id': category.category2!.keys.first}).execute();
+          .match({'category2_id': category.category2!.keys.first});
     } else if (selectedCategory == 3) {
-      final resDeleteCategory3 = await db.supabase
+      await db.supabase
           .from('category3')
           .delete()
-          .match({'category3_id': category.category3!.keys.first}).execute();
+          .match({'category3_id': category.category3!.keys.first});
     } else if (selectedCategory == 4) {
-      final resDeleteCategory4 = await db.supabase
+      await db.supabase
           .from('category4')
           .delete()
-          .match({'category4_id': category.category4!.keys.first}).execute();
+          .match({'category4_id': category.category4!.keys.first});
     } else if (selectedCategory == 5) {
-      final resDeleteCategory5 = await db.supabase
+      await db.supabase
           .from('category5')
           .delete()
-          .match({'category5_id': category.category5!.keys.first}).execute();
+          .match({'category5_id': category.category5!.keys.first});
     }
   }
 }

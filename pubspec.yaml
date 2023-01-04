@@ -25,7 +25,7 @@ dependencies:
   xml: ^6.1.0
   searchfield: ^0.7.2
   font_awesome_flutter: ^10.1.0
-  supabase_flutter: ^0.3.3
+  supabase_flutter: ^1.2.2
   xml2json: ^5.3.5  
   another_flushbar: ^1.12.29
   flutter_expandable_table: ^1.1.1

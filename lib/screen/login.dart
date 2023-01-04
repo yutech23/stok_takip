@@ -167,6 +167,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               ///kontrol sonrası dönen değerin içinde status baklıyor.
               /// true ise giriş başarılı ve veriler Storage yazılıyor.
               if (userInfo['status'] == true) {
+                // ignore: use_build_context_synchronously
+                context.noticeBarTrue("Giriş başarılı.", 1);
                 authController.setAuthTrue();
                 SecurityStorageUser.setUserId(userInfo['id']!);
                 SecurityStorageUser.setUserAccessToken(
@@ -186,6 +188,9 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
                 context.router.pushNamed(ConstRoute.stockEdit);
               } else {
+                // ignore: use_build_context_synchronously
+                context.noticeBarError("Giriş başarısız.", 1);
+
                 ///giriş başarılı değil ise şifre bölmünü sıfırlıyor.
                 _controllerSifre.clear();
               }

@@ -22,7 +22,7 @@ class DbHelper {
   }
 
   final supabase = Supabase.instance.client;
-
+//Db başlangıç
   static Future dbBaslat() async {
     await Supabase.initialize(url: Env.url, anonKey: Env.apiKey);
   }
@@ -32,27 +32,21 @@ class DbHelper {
       BuildContext context, String setEmail, String setPassword) async {
     Map<String, dynamic> userSessionMap = {};
     bool status = false;
-    final res =
-        await db.supabase.auth.signIn(email: setEmail, password: setPassword);
-    //print("database'den access_token degeri : ${res.data!.accessToken}");
-    final error = res.error;
-    if (res.error == null) {
+
+    try {
+      final data = await db.supabase.auth
+          .signInWithPassword(email: setEmail, password: setPassword);
       status = true;
       userSessionMap.addAll({
-        'id': res.user?.id,
-        'accessToken': res.data!.accessToken,
-        'refreshToken': res.data!.refreshToken,
+        'id': data.user?.id,
+        'accessToken': data.session!.accessToken,
+        'refreshToken': data.session!.refreshToken,
         'status': status
       });
-    } else {
-      status = false;
-    }
-
-    if (error != null) {
-      context.extensionShowErrorSnackBar(message: error.message);
       return userSessionMap;
-    } else {
-      context.extenionShowSnackBar(message: 'Giriş başarılı.');
+    } catch (e) {
+      status = false;
+      userSessionMap.addAll({'id': "", 'status': status.toString()});
       return userSessionMap;
     }
   }
@@ -68,218 +62,222 @@ class DbHelper {
           name: 'Null', lastName: 'Null', role: 'Null');
       return selectedKullanici;
     } else {
-      final res = await supabase
-          .from('users')
-          .select('name,last_name,role')
-          .match({'user_uuid': uuid}).execute();
+      try {
+        final res = await db.supabase
+            .from('users')
+            .select('name,last_name,role')
+            .match({'user_uuid': uuid});
 
-      selectedKullanici = Kullanici.nameSurnameRole(
-          name: res.data[0]['name'],
-          lastName: res.data[0]['last_name'],
-          role: res.data[0]['role'].toString());
-      return selectedKullanici;
+        selectedKullanici = Kullanici.nameSurnameRole(
+            name: res.data[0]['name'],
+            lastName: res.data[0]['last_name'],
+            role: res.data[0]['role'].toString());
+        return selectedKullanici;
+      } catch (e) {
+        selectedKullanici = Kullanici.nameSurnameRole(
+            name: 'Null', lastName: 'Null', role: 'Null');
+        return selectedKullanici;
+      }
     }
   }
 
+  ///ROLE GÖRE SAYFALARI GETİRİYOR
   Future<List<dynamic>> fetchPageInfoByRole(String isRole) async {
-    final res = await db.supabase
-        .from('path_role_permission')
-        .select('class_name')
-        .eq('role_id', int.parse(isRole))
-        .execute();
+    List<dynamic> data = [];
+    try {
+      final data = await db.supabase
+          .from('path_role_permission')
+          .select('class_name')
+          .eq('role_id', int.parse(isRole));
 
-    final data = res.data;
-
-    return data;
+      return data;
+    } catch (e) {
+      return data;
+    }
   }
 
   Future refleshToken(String refleshToken) async {
-    final res = await db.supabase.auth.setSession(refleshToken);
-    final data = res.data;
-    print("Yeni session : $data");
+    try {
+      final data = await db.supabase.auth.setSession(refleshToken);
+      print("veri : $data");
+    } on PostgrestException catch (e) {
+      print("erorr :${e.message}");
+    }
   }
 
+//Kullanıcı Çıkışı
   Future<String?> signOut() async {
-    final res = await db.supabase.auth.signOut();
-    final error = res.error?.message;
-    return error;
+    try {
+      await db.supabase.auth.signOut();
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
   }
 
-  Future<String?> updateUserInformation(String newPassword) async {
-    final res = await db.supabase.auth.update(
-      UserAttributes(
-        password: newPassword,
-      ),
-    );
-
-    final resError = res.error?.message;
-
-    print("cevap : $resError");
-    return resError;
+  //Kulanıcının Şifresini Güncelleme
+  Future<String> updateUserInformation(String newPassword) async {
+    try {
+      final data = await db.supabase.auth.updateUser(
+        UserAttributes(
+          password: newPassword,
+        ),
+      );
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
   }
 
   //Üye kayıt Fonksiyonu
-  Future<bool?> signUp(BuildContext context, GlobalKey<FormState> formKey,
-      Kullanici kullanici) async {
-    //Buttona forKey.currentSaate.validate() sayesinde validata() hepsi tetikleniyor.
-    //validate() değeri null ise dönen değer true bu sayede if bloku çalışır. dataBase
-    //kayıt işlemleri gerçekleşir.
+  Future<String> signUp(Kullanici kullanici) async {
+    //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
+    try {
+      final resAuth = await db.supabase.auth
+          .signUp(email: kullanici.email!, password: kullanici.password!);
 
-    if (formKey.currentState!.validate()) {
-      //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
-      final resAuth = await db.supabase.auth.api
-          .signUpWithEmail(kullanici.email!, kullanici.password!);
+      //Kullanıcı Role Kaydı
+      final roleIdJson = await db.supabase
+          .from('roles')
+          .select('role_id')
+          .eq('role_type', kullanici.role);
+      String roleIdString = Map.from(roleIdJson.data[0])
+          .values
+          .toString()
+          .replaceAll(RegExp(r"[)(]"), '');
 
-      final error = resAuth.error;
-      if (error != null) {
-        // ignore: use_build_context_synchronously
-        context.extensionShowErrorSnackBar(message: error.message);
-      } else {
-        final roleIdJson = await db.supabase
-            .from('roles')
-            .select('role_id')
-            .eq('role_type', kullanici.role)
-            .execute();
-        String roleIdString = Map.from(roleIdJson.data[0])
-            .values
-            .toString()
-            .replaceAll(RegExp(r"[)(]"), '');
-
-        print("**********");
-        print(kullanici.name);
-        print(kullanici.lastName);
-        print(kullanici.email);
-        print(kullanici.password);
-        print(roleIdString);
-        print(resAuth.data!.user!.id);
-        print("***********");
-        final resUserRegister = await db.supabase.from('users').insert([
-          {
-            'name': kullanici.name,
-            'last_name': kullanici.lastName,
-            'email': kullanici.email,
-            'password': kullanici.password,
-            'user_uuid': resAuth.data!.user!.id,
-            'role': roleIdString
-          }
-        ]).execute();
-        // ignore: use_build_context_synchronously
-        context.extenionShowSnackBar(
-            message: 'KAYIT BAŞARILI.', backgroundColor: Colors.green);
-        return true;
-      }
-    } else {
-      context.extensionShowErrorSnackBar(
-          message: 'Kurallara uygun veri giriniz.');
-      return false;
+      /*  print("**********");
+    print(kullanici.name);
+    print(kullanici.lastName);
+    print(kullanici.email);
+    print(kullanici.password);
+    print(roleIdString);
+    print(resAuth.data!.user!.id);
+    print("***********"); */
+      //Kulanıcı Bilgileri Kayıt
+      await db.supabase.from('users').insert([
+        {
+          'name': kullanici.name,
+          'last_name': kullanici.lastName,
+          'email': kullanici.email,
+          'password': kullanici.password,
+          'user_uuid': resAuth.user!.id,
+          'role': roleIdString
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
     }
-
-    //await db.supabase.auth.signOut();
   }
 
   //Role Listesini Getirir
   Future<List<String>> getRoles() async {
-    final res = await supabase.from('roles').select('role_type').execute();
-    final data = res.data;
-    final error = res.error;
-    final dropdownYetkiListe = <String>[];
-    // Burada veritabanından gelen "data" değişkenine atanıyor.
-    // Liste içinde map geliyor.
-    for (var item in data) {
-      //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
-      //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
-      dropdownYetkiListe.add(
-          Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
+    final List<String> rolesList = [];
+    try {
+      final resData = await supabase.from('roles').select('role_type');
+      final dropdownYetkiListe = <String>[];
+      // Burada veritabanından gelen "data" değişkenine atanıyor.
+      // Liste içinde map geliyor.
+      for (var item in resData) {
+        //Gelen  deger value = "(Genel Kullanıcı)" olarak geliyor burada () temizlemek
+        //RegExp(r"[]"") ile r zorunlu [] bunların arasındaki karakteri siler.
+        dropdownYetkiListe.add(
+            Map.from(item).values.toString().replaceAll(RegExp(r"[)(]"), ''));
+      }
+      return dropdownYetkiListe;
+    } on PostgrestException catch (e) {
+      print("Hata getRole :${e.message} ");
+      return rolesList;
     }
-    return dropdownYetkiListe;
   }
 
   ///Şehirleri Getirir
   Future<List<String>> getCities(String value) async {
-    final res = await supabase.from('cities').select('name').execute();
-    final data = res.data;
-    final error = res.error;
-    final cities = <String>[];
+    final citiesList = <String>[];
 
-    for (var item in data) {
-      cities.add(item['name']);
+    try {
+      final resData = await supabase.from('cities').select('name');
+      for (var item in resData) {
+        citiesList.add(item['name']);
+      }
+      return citiesList;
+    } on PostgrestException catch (e) {
+      print("Hata Cities : ${e.message}");
+      return citiesList;
     }
-    return cities;
   }
 
   ///Şehirlere bağlı İlçeleri getirir
-  Future<List<String>> getDistricts(String value, String _selectedCity) async {
-    final res = await supabase
-        .from('district')
-        .select('''name,cities(name)''')
-        .eq('cities.name', _selectedCity)
-        .execute();
-    final data = res.data;
-    final error = res.error;
+  Future<List<String>> getDistricts(String value, String selectedCity) async {
+    final districtsList = <String>[];
 
-    final districts = <String>[];
+    try {
+      final resData = await supabase
+          .from('district')
+          .select('''name,cities(name)''').eq('cities.name', selectedCity);
 
-    for (var item in data) {
-      if (item['cities'] != null) {
-        districts.add(item['name']);
+      for (var item in resData) {
+        if (item['cities'] != null) {
+          districtsList.add(item['name']);
+        }
       }
+
+      /// Türkçe karkterlerine göre sıralanıyor
+      districtsList.sort(turkish.comparator);
+      return districtsList;
+    } on PostgrestException catch (e) {
+      print("Hata districts : ${e.message}");
+      return districtsList;
     }
-
-    /// Türkçe karkterlerine göre sıralanıyor
-    districts.sort(turkish.comparator);
-
-    return districts;
   }
 
   ///VergiDairelerini Getirir 05.01.22 tarihli güncel liste
   ///(veritabanunda kodlarıda bulunmaktadır ama kullanmıyorum)
   Future<List<String>> getTaxOfficeList(
       String value, String? selectedCity) async {
-    final res = await supabase
-        .from('tax_offices')
-        .select('''name,cities(name)''')
-        .eq('cities.name', selectedCity)
-        .execute();
-    final data = res.data;
-    final error = res.error;
+    final taxOfficesNameList = <String>[];
+    try {
+      final resData = await supabase
+          .from('tax_offices')
+          .select('''name,cities(name)''').eq('cities.name', selectedCity);
 
-    final taxOfficesName = <String>[];
-
-    for (var item in data) {
-      if (item['cities'] != null) {
-        taxOfficesName.add(item['name']);
+      for (var item in resData) {
+        if (item['cities'] != null) {
+          taxOfficesNameList.add(item['name']);
+        }
       }
-    }
-    taxOfficesName.sort(turkish.comparator);
+      taxOfficesNameList.sort(turkish.comparator);
 
-    return taxOfficesName;
+      return taxOfficesNameList;
+    } on PostgrestException catch (e) {
+      print("Hata taxOffice : ${e.message}");
+      return taxOfficesNameList;
+    }
   }
 
   ///*****************Müşteri kayıt İşlemleri************************
-  Future saveCustomerSoleTrader(
+  Future<String> saveCustomerSoleTrader(
       BuildContext context, Customer customerSoleTrader) async {
-    final res = await supabase.from('customer_sole_trader').insert([
-      {
-        'name': customerSoleTrader.soleTraderName,
-        'last_name': customerSoleTrader.soleTraderLastName,
-        'phone': customerSoleTrader.phone,
-        'city': customerSoleTrader.city,
-        'district': customerSoleTrader.district,
-        'adress': customerSoleTrader.adress,
-        'tax_office': customerSoleTrader.taxOffice,
-        'tax_number': customerSoleTrader.taxNumber,
-        'cargo_company': customerSoleTrader.cargoName,
-        'cargo_number': customerSoleTrader.cargoNumber
-      }
-    ]).execute();
-    final error = res.error;
-
-    if (error != null) {
-      context.extensionShowErrorSnackBar(message: error.message);
-    } else {
-      context.extenionShowSnackBar(message: 'Kayıt Başarılı');
+    try {
+      await supabase.from('customer_sole_trader').insert([
+        {
+          'name': customerSoleTrader.soleTraderName,
+          'last_name': customerSoleTrader.soleTraderLastName,
+          'phone': customerSoleTrader.phone,
+          'city': customerSoleTrader.city,
+          'district': customerSoleTrader.district,
+          'adress': customerSoleTrader.adress,
+          'tax_office': customerSoleTrader.taxOffice,
+          'tax_number': customerSoleTrader.taxNumber,
+          'cargo_company': customerSoleTrader.cargoName,
+          'cargo_number': customerSoleTrader.cargoNumber
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
     }
-    return error;
   }
 
   Future saveCustomerCompany(
@@ -661,10 +659,8 @@ class DbHelper {
   }
 
   Future<String?> getPassword(String? uuid) async {
-    final res = await supabase
-        .from('users')
-        .select('*')
-        .match({'user_uuid': uuid}).execute();
+    final res =
+        await supabase.from('users').select('*').match({'user_uuid': uuid});
 
     return res.data[0]['password'];
   }
@@ -672,9 +668,7 @@ class DbHelper {
   Future saveNewPassword(String? newPassword, String userId) async {
     final res = await supabase
         .from('users')
-        .update({'password': newPassword})
-        .eq('user_uuid', userId)
-        .execute();
+        .update({'password': newPassword}).eq('user_uuid', userId);
     final error = res.error;
     print(error);
   }

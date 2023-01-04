@@ -191,16 +191,22 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
           ///şuanki kullanıcı id ile controllerText içindeki veriyi karşılaştırılıyor
           ///eğer doğru ise yeni şifre veri tabanına kaydediliyor.
           ///
-          if (sessionUserId!.user!.id != null) {
-            db.getPassword(sessionUserId.user!.id).then((userPassword) {
+          if (sessionUserId!.user.id != null) {
+            db.getPassword(sessionUserId.user.id).then((userPassword) {
               if (_controllerCurrentPassword.text == userPassword) {
                 ///password güncelliyor ama sadece supabase user içinde yapıyor.
                 ///şifreyi kullanıcılar tablosunda tutuluyor. göstermek için.
                 db
                     .updateUserInformation(_controllerReNewPassword.text)
-                    .then((resValue) {});
+                    .then((resValue) {
+                  if (resValue.isEmpty) {
+                    context.noticeBarTrue("İşlem başarılı.", 1);
+                  } else {
+                    context.noticeBarError("İşlem Başarısız", 1);
+                  }
+                });
                 db.saveNewPassword(
-                    _controllerNewPassword.text, sessionUserId.user!.id);
+                    _controllerNewPassword.text, sessionUserId.user.id);
                 _controllerNewPassword.clear();
                 _controllerCurrentPassword.clear();
                 _controllerReNewPassword.clear();
