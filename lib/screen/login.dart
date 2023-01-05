@@ -18,7 +18,9 @@ class ScreenLogin extends StatefulWidget {
 class _ScreenLoginState extends State<ScreenLogin> with Validation {
   final _controllerEmail = TextEditingController();
   final _controllerSifre = TextEditingController();
-  final FocusNode _loginButtonFocus = FocusNode();
+  final FocusNode _focusLoginButton = FocusNode();
+  final FocusNode _focusEmail = FocusNode();
+  final FocusNode _focusPassword = FocusNode();
 
   @override
   void initState() {
@@ -29,7 +31,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
   void dispose() {
     _controllerEmail.dispose();
     _controllerSifre.dispose();
-    _loginButtonFocus.dispose();
+    _focusLoginButton.dispose();
     super.dispose();
   }
 
@@ -112,6 +114,9 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
     return TextFormField(
       validator: validateEmail,
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
+      focusNode: _focusEmail,
       controller: _controllerEmail,
       decoration: const InputDecoration(
         labelText: "Email Adresinizi Giriniz",
@@ -120,6 +125,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
           size: 20,
         ),
       ),
+      onFieldSubmitted: (value) =>
+          _fieldFocusChange(context, _focusEmail, _focusPassword),
     );
   }
 
@@ -130,6 +137,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       obscureText: _obscureValue,
       controller: _controllerSifre,
+      focusNode: _focusPassword,
       decoration: InputDecoration(
         labelText: "Şifrenizi Giriniz",
         suffixIcon: IconButton(
@@ -143,7 +151,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
       ),
       //Enter bastıktan sonra imleçin gideceği yeri söylendi.
       onFieldSubmitted: (value) {
-        _loginButtonFocus.requestFocus();
+        _fieldFocusChange(context, _focusPassword, _focusLoginButton);
       },
     );
   }
@@ -153,7 +161,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
     return DecoratedBox(
         decoration: context.extensionThemaButton(),
         child: ElevatedButton(
-            focusNode: _loginButtonFocus,
+            focusNode: _focusLoginButton,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               disabledBackgroundColor: Colors.transparent,
@@ -204,5 +212,11 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 "GİRİŞ",
               ),
             )));
+  }
+
+  _fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
   }
 }
