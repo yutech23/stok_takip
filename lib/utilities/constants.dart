@@ -18,6 +18,7 @@ class ConstRoute {
   static const String customerRegister = '/customerRegister';
   static const String userSetting = '/userSetting';
   static const String test = '/test';
+  static const String sale = '/sale';
 }
 
 Sabitler sabitler = Sabitler();

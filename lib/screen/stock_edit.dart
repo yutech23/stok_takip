@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:adaptivex/adaptivex.dart';
-import 'package:another_flushbar/flushbar.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-
 import '../bloc/bloc_category_product_filtre.dart';
 import '../data/database_helper.dart';
 import '../models/category.dart';
@@ -94,7 +92,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
-  final CurrencyTextInputFormatter _formatter = CurrencyTextInputFormatter();
 
   /*-------------------------END UPDATE------------------------------*/
   ///KDV seçilip Seçilmediğini kontrol ediyorum.

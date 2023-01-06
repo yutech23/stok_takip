@@ -11,89 +11,90 @@
 // ignore_for_file: type=lint
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i10;
-import 'package:flutter/material.dart' as _i11;
+import 'package:auto_route/auto_route.dart' as _i11;
+import 'package:flutter/material.dart' as _i12;
 
 import '../../screen/category_edit.dart' as _i6;
 import '../../screen/customer_register.dart' as _i7;
 import '../../screen/login.dart' as _i2;
 import '../../screen/product_add.dart' as _i4;
+import '../../screen/sale.dart' as _i10;
 import '../../screen/sign_up.dart' as _i5;
 import '../../screen/splash.dart' as _i1;
 import '../../screen/stock_edit.dart' as _i3;
 import '../../screen/test.dart' as _i9;
 import '../../screen/user_setting.dart' as _i8;
-import 'auth_guard.dart' as _i12;
-import 'custom_router_builder.dart' as _i13;
+import 'auth_guard.dart' as _i13;
+import 'custom_router_builder.dart' as _i14;
 
-class AppRouter extends _i10.RootStackRouter {
+class AppRouter extends _i11.RootStackRouter {
   AppRouter({
-    _i11.GlobalKey<_i11.NavigatorState>? navigatorKey,
+    _i12.GlobalKey<_i12.NavigatorState>? navigatorKey,
     required this.authGuard,
   }) : super(navigatorKey);
 
-  final _i12.AuthGuard authGuard;
+  final _i13.AuthGuard authGuard;
 
   @override
-  final Map<String, _i10.PageFactory> pagesMap = {
+  final Map<String, _i11.PageFactory> pagesMap = {
     InitName.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i11.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i1.ScreenSplash(),
       );
     },
     RouteLogin.name: (routeData) {
-      return _i10.MaterialPageX<dynamic>(
+      return _i11.MaterialPageX<dynamic>(
         routeData: routeData,
-        child: _i2.ScreenLogin(),
+        child: const _i2.ScreenLogin(),
       );
     },
     RouteStockEdit.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i3.ScreenStockEdit(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteProductAdd.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i4.ScreenProductAdd(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteSignUp.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i5.ScreenSignUp(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCategoryEdit.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i6.ScreenCategoryEdit(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCustomerRegister.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i7.ScreenCustomerRegister(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
@@ -101,21 +102,31 @@ class AppRouter extends _i10.RootStackRouter {
     RouteUserSetting.name: (routeData) {
       final args = routeData.argsAs<RouteUserSettingArgs>(
           orElse: () => const RouteUserSettingArgs());
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: _i8.ScreenUserSetting(key: args.key),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     Test.name: (routeData) {
-      return _i10.CustomPage<dynamic>(
+      return _i11.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i9.Test(),
         customRouteBuilder:
-            _i13.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+        opaque: true,
+        barrierDismissible: false,
+      );
+    },
+    RouteSale.name: (routeData) {
+      return _i11.CustomPage<dynamic>(
+        routeData: routeData,
+        child: const _i10.ScreenSale(),
+        customRouteBuilder:
+            _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
@@ -123,48 +134,53 @@ class AppRouter extends _i10.RootStackRouter {
   };
 
   @override
-  List<_i10.RouteConfig> get routes => [
-        _i10.RouteConfig(
+  List<_i11.RouteConfig> get routes => [
+        _i11.RouteConfig(
           InitName.name,
           path: '/splash',
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteLogin.name,
           path: '/login',
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteStockEdit.name,
           path: '/stockEdit',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteProductAdd.name,
           path: '/productAdd',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteSignUp.name,
           path: '/signUp',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteCategoryEdit.name,
           path: '/categoryEdit',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteCustomerRegister.name,
           path: '/customerRegister',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           RouteUserSetting.name,
           path: '/userSetting',
           guards: [authGuard],
         ),
-        _i10.RouteConfig(
+        _i11.RouteConfig(
           Test.name,
           path: '/Test',
+          guards: [authGuard],
+        ),
+        _i11.RouteConfig(
+          RouteSale.name,
+          path: '/sale',
           guards: [authGuard],
         ),
       ];
@@ -172,7 +188,7 @@ class AppRouter extends _i10.RootStackRouter {
 
 /// generated route for
 /// [_i1.ScreenSplash]
-class InitName extends _i10.PageRouteInfo<void> {
+class InitName extends _i11.PageRouteInfo<void> {
   const InitName()
       : super(
           InitName.name,
@@ -184,7 +200,7 @@ class InitName extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.ScreenLogin]
-class RouteLogin extends _i10.PageRouteInfo<void> {
+class RouteLogin extends _i11.PageRouteInfo<void> {
   const RouteLogin()
       : super(
           RouteLogin.name,
@@ -196,7 +212,7 @@ class RouteLogin extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i3.ScreenStockEdit]
-class RouteStockEdit extends _i10.PageRouteInfo<void> {
+class RouteStockEdit extends _i11.PageRouteInfo<void> {
   const RouteStockEdit()
       : super(
           RouteStockEdit.name,
@@ -208,7 +224,7 @@ class RouteStockEdit extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.ScreenProductAdd]
-class RouteProductAdd extends _i10.PageRouteInfo<void> {
+class RouteProductAdd extends _i11.PageRouteInfo<void> {
   const RouteProductAdd()
       : super(
           RouteProductAdd.name,
@@ -220,7 +236,7 @@ class RouteProductAdd extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i5.ScreenSignUp]
-class RouteSignUp extends _i10.PageRouteInfo<void> {
+class RouteSignUp extends _i11.PageRouteInfo<void> {
   const RouteSignUp()
       : super(
           RouteSignUp.name,
@@ -232,7 +248,7 @@ class RouteSignUp extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i6.ScreenCategoryEdit]
-class RouteCategoryEdit extends _i10.PageRouteInfo<void> {
+class RouteCategoryEdit extends _i11.PageRouteInfo<void> {
   const RouteCategoryEdit()
       : super(
           RouteCategoryEdit.name,
@@ -244,7 +260,7 @@ class RouteCategoryEdit extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.ScreenCustomerRegister]
-class RouteCustomerRegister extends _i10.PageRouteInfo<void> {
+class RouteCustomerRegister extends _i11.PageRouteInfo<void> {
   const RouteCustomerRegister()
       : super(
           RouteCustomerRegister.name,
@@ -256,8 +272,8 @@ class RouteCustomerRegister extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i8.ScreenUserSetting]
-class RouteUserSetting extends _i10.PageRouteInfo<RouteUserSettingArgs> {
-  RouteUserSetting({_i11.Key? key})
+class RouteUserSetting extends _i11.PageRouteInfo<RouteUserSettingArgs> {
+  RouteUserSetting({_i12.Key? key})
       : super(
           RouteUserSetting.name,
           path: '/userSetting',
@@ -270,7 +286,7 @@ class RouteUserSetting extends _i10.PageRouteInfo<RouteUserSettingArgs> {
 class RouteUserSettingArgs {
   const RouteUserSettingArgs({this.key});
 
-  final _i11.Key? key;
+  final _i12.Key? key;
 
   @override
   String toString() {
@@ -280,7 +296,7 @@ class RouteUserSettingArgs {
 
 /// generated route for
 /// [_i9.Test]
-class Test extends _i10.PageRouteInfo<void> {
+class Test extends _i11.PageRouteInfo<void> {
   const Test()
       : super(
           Test.name,
@@ -288,4 +304,16 @@ class Test extends _i10.PageRouteInfo<void> {
         );
 
   static const String name = 'Test';
+}
+
+/// generated route for
+/// [_i10.ScreenSale]
+class RouteSale extends _i11.PageRouteInfo<void> {
+  const RouteSale()
+      : super(
+          RouteSale.name,
+          path: '/sale',
+        );
+
+  static const String name = 'RouteSale';
 }
