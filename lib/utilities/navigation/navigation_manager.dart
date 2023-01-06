@@ -2,6 +2,7 @@ import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/product_add.dart';
+import 'package:stok_takip/screen/sale.dart';
 import 'package:stok_takip/screen/splash.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/constants.dart';
@@ -55,6 +56,12 @@ import '../../screen/user_setting.dart';
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: Test,
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
+  CustomRoute(
+      page: ScreenSale,
+      path: ConstRoute.sale,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
