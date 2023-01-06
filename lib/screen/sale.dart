@@ -14,11 +14,14 @@ class _ScreenSallingState extends State<ScreenSale> {
   final double _saleMinWidth = 360, _saleMaxWidth = 760;
   final GlobalKey<FormState> _formKeySale = GlobalKey();
 
+  final String _labelHeading = "Satış Ekranı";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Stok Güncelleme Ekranı"),
+        title: Text(_labelHeading),
+
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         // ignore: prefer_const_literals_to_create_immutables
         actions: [

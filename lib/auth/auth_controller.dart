@@ -9,11 +9,11 @@ class AuthController {
   factory AuthController() {
     return _singlatonAuthController;
   }
-  bool isAuth = false;
-  String role = '';
+  /*  bool isAuth = false;
+  String role = ''; */
 
-  /*  bool isAuth = true;
-  String role = '1'; */
+  bool isAuth = true;
+  String role = '1';
 
   setAuthTrue() {
     isAuth = true;

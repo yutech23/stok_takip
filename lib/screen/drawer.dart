@@ -19,15 +19,17 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   String nameAndLastnameFirstLatter = '';
   String nameAndLastNameCapitalFirst = '';
-  final String _customerSave = 'Müşteri Kayıt';
-  final String _newUserAdd = 'Yeni Kullanıcı Ekle';
-  final String _categoryAdd = 'Kategori Düzenleme';
-  final String _newProductAdd = 'Yeni Ürün Ekle';
-  final String _stockEdit = 'Stok Düzenleme';
-  final String _test = 'Test';
-  final String _exit = 'Güvenli Çıkış';
+  final String _labelCustomerSave = 'Müşteri ve Tedarikçi Kayıt';
+  final String _labelNewUserAdd = 'Yeni Kullanıcı Ekle';
+  final String _labelCategoryAdd = 'Kategori Düzenleme';
+  final String _labelNewProductAdd = 'Yeni Ürün Ekle';
+  final String _labelStockEdit = 'Stok Düzenleme';
+  final String _labelTest = 'Test';
+  final String _labelExit = 'Güvenli Çıkış';
+  final String _labelSale = "Satış Ekranı";
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
+    'RouteSale',
     'RouteCustomerRegister',
     'RouteSignUp',
     'RouteCategoryEdit',
@@ -148,7 +150,7 @@ class _MyDrawerState extends State<MyDrawer> {
           //Chrome Store tutulan verileri siliyor.
           SecurityStorageUser.deleteStorege();
         },
-        child: Text(_exit,
+        child: Text(_labelExit,
             style: context.theme.headline6!
                 .copyWith(color: Colors.white, letterSpacing: 1)),
       ),
@@ -167,27 +169,34 @@ class _MyDrawerState extends State<MyDrawer> {
                   context,
                   const RouteCustomerRegister(),
                   Icons.people_alt,
-                  _customerSave));
+                  _labelCustomerSave));
               break;
             case "RouteSignUp":
               listWidgetMenuByRole.add(widgetMenuItem(context,
-                  const RouteSignUp(), Icons.add_reaction, _newUserAdd));
+                  const RouteSignUp(), Icons.add_reaction, _labelNewUserAdd));
               break;
             case "RouteProductAdd":
               listWidgetMenuByRole.add(widgetMenuItem(context,
-                  const RouteProductAdd(), Icons.add_box, _newProductAdd));
+                  const RouteProductAdd(), Icons.add_box, _labelNewProductAdd));
               break;
             case "RouteStockEdit":
               listWidgetMenuByRole.add(widgetMenuItem(context,
-                  const RouteStockEdit(), Icons.edit_note, _stockEdit));
+                  const RouteStockEdit(), Icons.edit_note, _labelStockEdit));
               break;
             case "RouteCategoryEdit":
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context,
+                  const RouteCategoryEdit(),
+                  Icons.category,
+                  _labelCategoryAdd));
+              break;
+            case "RouteSale":
               listWidgetMenuByRole.add(widgetMenuItem(context,
-                  const RouteCategoryEdit(), Icons.category, _categoryAdd));
+                  const RouteSale(), Icons.point_of_sale_rounded, _labelSale));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(
-                  context, const Test(), Icons.try_sms_star, _test));
+                  context, const Test(), Icons.try_sms_star, _labelTest));
               break;
             default:
           }
