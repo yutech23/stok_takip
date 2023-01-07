@@ -1,6 +1,6 @@
-import '../data/database_helper.dart';
+import 'database_helper.dart';
 
-class BlocCategoryProductFiltre {
+class CategoryProductFiltre {
   Stream<List<Map<String, dynamic>>>? fetchCategory1() {
     var res =
         db.supabase.from('category1').stream(primaryKey: ['category1_id']);
@@ -48,4 +48,4 @@ class BlocCategoryProductFiltre {
   }
 }
 
-final categoryBlocProductFiltre = BlocCategoryProductFiltre();
+final categoryBlocProductFiltre = CategoryProductFiltre();

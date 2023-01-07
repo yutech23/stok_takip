@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import '../utilities/widget_appbar_setting.dart';
+import '../validations/validation.dart';
 import 'drawer.dart';
 
 class ScreenSale extends StatefulWidget {

@@ -59,20 +59,18 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
           ])),
       child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Container(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                const Icon(
-                  Icons.dashboard,
-                  color: Colors.white,
-                  size: 100,
-                ),
-                context.extensionHighSizedBox20(),
-                widgetTextLogo(),
-                context.extensionHighSizedBox20(),
-                widgetSignInContainer(),
-              ]))),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            const Icon(
+              Icons.dashboard,
+              color: Colors.white,
+              size: 100,
+            ),
+            context.extensionHighSizedBox20(),
+            widgetTextLogo(),
+            context.extensionHighSizedBox20(),
+            widgetSignInContainer(),
+          ])),
     );
   }
 
@@ -169,8 +167,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
             ),
             onPressed: () async {
               ///giriş Kontrol ediliyor databasede.
-              final userInfo = await db.singIn(
-                  context, _controllerEmail.text, _controllerSifre.text);
+              final userInfo =
+                  await db.singIn(_controllerEmail.text, _controllerSifre.text);
 
               ///kontrol sonrası dönen değerin içinde status baklıyor.
               /// true ise giriş başarılı ve veriler Storage yazılıyor.

@@ -27,7 +27,7 @@ class DbHelper {
 
   //Giriş Ekran Sorgulama
   Future<Map<String, dynamic>> singIn(
-      BuildContext context, String setEmail, String setPassword) async {
+      String setEmail, String setPassword) async {
     Map<String, dynamic> userSessionMap = {};
     bool status = false;
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../data/database_helper.dart';
+import 'database_helper.dart';
 
 class BlocCategory {
   Stream<List<Map<String, dynamic>>>? getCategory1() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../bloc/bloc_category.dart';
+import '../data/database_fetch_category.dart';
 import '../models/category.dart';
 
 class WidgetCategoryShow extends StatefulWidget {

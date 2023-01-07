@@ -124,7 +124,7 @@ class AppRouter extends _i11.RootStackRouter {
     RouteSale.name: (routeData) {
       return _i11.CustomPage<dynamic>(
         routeData: routeData,
-        child: const _i10.ScreenSale(),
+        child: _i10.ScreenSale(),
         customRouteBuilder:
             _i14.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
