@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:stok_takip/bloc/bloc_category.dart';
-import 'package:stok_takip/data/database_category.dart';
+import 'package:stok_takip/data/database_fetch_category.dart';
+import '../data/database_save_new_category.dart';
 import '../validations/validation.dart';
 import '../models/category.dart';
 import '../validations/format_upper_case_capital_text_format.dart';

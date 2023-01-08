@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stok_takip/bloc/bloc_category.dart';
+import 'package:stok_takip/data/database_fetch_category.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
-import '../data/database_category.dart';
+import '../data/database_save_new_category.dart';
 import '../models/category.dart';
 
 class WidgetCategoryDelete extends StatefulWidget {

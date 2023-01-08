@@ -637,6 +637,37 @@ class DbHelper {
       return e.message;
     }
   }
+
+  /*-----------------------SATIŞ EKRANI İŞLEMLERİ----------------------------*/
+  ///***********************Product işlemleri*********************************
+  Future<List<String>> fetchCustomerAndPhone() async {
+    final listCustomer = <String>[];
+
+    try {
+      final List<Map<String, dynamic>> resDataSoleTrader = await supabase
+          .from('customer_sole_trader')
+          .select('name,last_name,phone');
+
+      final List<Map<String, dynamic>> resDataCompany =
+          await supabase.from('customer_company').select('name,phone');
+
+      // Burada veritabanından gelen "data" değişkenine atanıyor.
+      // Liste içinde map geliyor.
+      for (var item in resDataSoleTrader) {
+        listCustomer.add("${item['name']} ${item['last_name']}");
+        listCustomer.add(item['phone']);
+      }
+
+      for (var item in resDataCompany) {
+        listCustomer.add(item['name']);
+        listCustomer.add(item['phone']);
+      }
+      return listCustomer;
+    } on PostgrestException catch (e) {
+      print("Hata Product Code : ${e.message}");
+      return listCustomer;
+    }
+  }
 }
 
 final db = DbHelper();

@@ -48,4 +48,4 @@ class CategoryProductFiltre {
   }
 }
 
-final categoryBlocProductFiltre = CategoryProductFiltre();
+final categoryProductFiltre = CategoryProductFiltre();
