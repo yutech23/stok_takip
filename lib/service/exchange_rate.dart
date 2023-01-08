@@ -1,48 +1,50 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 class ExchangeRateApi {
   final _dio = Dio();
 
-  Future<String?> getExchangeRate() async {
-    Response response =
-        await _dio.get('http://54.144.168.5:8081/api/exchange/?format=json');
+  Future<Map<String, double>> getExchangeRate() async {
+    Map<String, double> _exchangeRate = {};
+    try {
+      Response response = await _dio.get(
+        'http://54.144.168.5:8081/api/exchange/',
+      );
 
-    /*  if (response.statusCode == 200) {
-      final _rest = response.data;
-
-      print(_rest);
-
-      return 'basarili';
-    } else
-      return null; */
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resData = response.data;
+        resData.forEach((key, value) {
+          if (key == 'USD') {
+            _exchangeRate.addAll({key: value});
+          }
+          if (key == 'EUR') {
+            _exchangeRate.addAll({key: value});
+          }
+        });
+        return _exchangeRate;
+      } else {
+        return _exchangeRate;
+      }
+    } catch (e) {
+      print("Api Hatası : $e");
+      return _exchangeRate;
+    }
   }
 
-  /*  Future<String?> getExchangeRateUSD() async {
-    Response responseUSD = await _dio.get(
-        '${Env.exchangeRateUrl}?api_key=${Env.exchangeRateApiKey}&base=USD&target=TRY');
+  Stream getExchangeRateStream() {
+    var response = _dio
+        .get(
+          'http://54.144.168.5:8081/api/exchange/',
+        )
+        .asStream();
 
-    if (responseUSD.statusCode == 200) {
-      final _rest1 = responseUSD.data;
+    response.listen((event) {
+      print(event);
+    });
 
-      print(_rest1);
-
-      return 'basarili';
-    } else
-      return null;
+    return response;
   }
-
-  Future<String?> getExchangeRateEUR() async {
-    Response responseEUR = await _dio.get(
-        '${Env.exchangeRateUrl}?api_key=${Env.exchangeRateApiKey}&base=EUR&target=TRY');
-    if (responseEUR.statusCode == 200) {
-      final _rest2 = responseEUR.data;
-
-      print(_rest2);
-      return 'basarili';
-    } else
-      return null;
-  }
-} */
 }
 
 final exchangeRateService = ExchangeRateApi();

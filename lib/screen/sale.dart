@@ -26,7 +26,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       "Müşteri İsmini Veya Telefon Numarası Giriniz";
 
   final double _widthSearch = 400;
-
   @override
   void initState() {
     super.initState();
@@ -72,41 +71,68 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   ],
                 ),
               ]),
-              SizedBox(
-                width: 210,
-                child: Table(
-                  columnWidths: {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
-                  border: TableBorder.all(),
-                  children: [
-                    TableRow(children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                            style: context.theme.headline6!
-                                .copyWith(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                            "USD : "),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                            textAlign: TextAlign.start,
-                            style: context.theme.headline6!
-                                .copyWith(fontWeight: FontWeight.bold),
-                            "_usdValue"),
-                      )
-                    ]),
-                    TableRow(children: [Text("USD :"), Text("EURO")])
-                  ],
-                ),
-              )
+              widgetExchangeRate()
             ]),
           )),
         ));
   }
 
-  buildRow(List<String> cells) =>
-      TableRow(children: [Text("USB"), Text("EURO")]);
+  ///Döviz Kurları Tablosu
+  FutureBuilder<Map<String, double>> widgetExchangeRate() {
+    return FutureBuilder<Map<String, double>>(
+        // initialData: const {'USD': 0, 'EUR': 0},
+        future: exchangeRateService.getExchangeRate(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return SizedBox(
+              width: 150,
+              child: Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(1)
+                },
+                border: TableBorder.all(),
+                children: [
+                  widgetTableRow(context, "USD", snapshot.data!['USD']),
+                  widgetTableRow(context, "EURO", snapshot.data!['EUR']),
+                ],
+              ),
+            );
+          } else {
+            //Veri Gelmedi zaman Ekrana Çıkan Nesne
+            return Container(
+              width: 150,
+              decoration: BoxDecoration(border: Border.all()),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        });
+  }
+
+  ///Döviz Kurları Tablosu TableRow widgetı.
+  TableRow widgetTableRow(
+      BuildContext context, String exchangeRateName, double? exchangeRateUnit) {
+    return TableRow(children: [
+      Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Text(
+            style:
+                context.theme.subtitle1!.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            exchangeRateName),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Text(
+            textAlign: TextAlign.start,
+            style:
+                context.theme.subtitle1!.copyWith(fontWeight: FontWeight.bold),
+            exchangeRateUnit.toString()),
+      )
+    ]);
+  }
 
   ///Yeni Müşteri Ekleme
   ElevatedButton widgetButtonNewCustomer() {
@@ -114,8 +140,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       style: ElevatedButton.styleFrom(minimumSize: const Size(220, 60)),
       icon: const Icon(Icons.person_add),
       onPressed: () {
-        exchangeRateService.getExchangeRate();
-        db.fetchCustomerAndPhone();
+        exchangeRateService.getExchangeRateStream();
       },
       label: Text(_labelNewCustomer),
     );
