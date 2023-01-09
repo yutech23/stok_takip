@@ -59,7 +59,9 @@ class ResponsiveDatatable extends StatefulWidget {
   /// allow to styling the selected data row
   final TextStyle? selectedTextStyle;
 
-  const ResponsiveDatatable({
+  double rowHeight;
+
+  ResponsiveDatatable({
     Key? key,
     this.showSelect = false,
     this.onSelectAll,
@@ -94,6 +96,7 @@ class ResponsiveDatatable extends StatefulWidget {
     this.headerTextStyle,
     this.rowTextStyle,
     this.selectedTextStyle,
+    this.rowHeight = 40,
   }) : super(key: key);
 
   @override
@@ -323,7 +326,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               });
             },
             child: Container(
-              height: 40,
+              height: widget.rowHeight,
               padding: EdgeInsets.all(widget.showSelect ? 0 : 11),
 
               /// TODO:

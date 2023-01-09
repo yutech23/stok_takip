@@ -1,16 +1,15 @@
 import 'dart:async';
-
-import 'package:adaptivex/adaptivex.dart';
-import 'package:expandable_datatable/expandable_datatable.dart';
+import 'dart:html';
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_table/flutter_expandable_table.dart';
+import 'package:input_quantity/input_quantity.dart';
+import 'package:quantity_input/quantity_input.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
+import 'package:adaptivex/adaptivex.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
@@ -36,11 +35,14 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       "Müşteri İsmini Veya Telefon Numarası Giriniz";
   final String _labelSearchProductCode = "Ürün Kodunu Seçiniz";
   final String _labelAddProduct = "Ürünü Ekle";
-  List<bool>? _expanded;
-  final List<Map<String, dynamic>> _sourceList = [];
-  final List<DatatableHeader> _headers = [];
-  final double _widthSearch = 360;
 
+  List<bool>? _expanded = [];
+  List<Map<String, dynamic>> _sourceList = [];
+  List<Map<String, dynamic>> _selecteds = [];
+
+  late List<DatatableHeader> _headers = [];
+  final double _widthSearch = 360;
+  int simpleIntInput = 0;
   @override
   void initState() {
     super.initState();
@@ -58,12 +60,41 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _headers.add(DatatableHeader(
         text: "Miktar",
         value: "amount",
+        flex: 2,
+        sourceBuilder: (value, row) {
+          return InputQty(
+            textFieldDecoration: InputDecoration(
+              // isCollapsed: true,
+              isDense: true,
+              contentPadding: EdgeInsets.all(1),
+              counterText: "",
+            ),
+            initVal: 1,
+            minVal: 1,
+            isIntrinsicWidth: true,
+            borderShape: BorderShapeBtn.circle,
+            boxDecoration: BoxDecoration(border: Border.all(width: 1)),
+            steps: 1,
+            onQtyChanged: (val) {
+              print(val);
+            },
+          );
+        },
         show: true,
         sortable: true,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
         text: "Fiyat",
         value: "price",
+        sourceBuilder: (value, row) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: TextFormField(
+              decoration:
+                  InputDecoration(isDense: true, border: OutlineInputBorder()),
+            ),
+          );
+        },
         show: true,
         sortable: true,
         textAlign: TextAlign.center));
@@ -74,14 +105,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         sortable: true,
         textAlign: TextAlign.center));
 
-    _expanded = List.generate(0, (index) => false);
+    _expanded?.add(false);
 
-    _sourceList.add({
-      'productCode': 'erk-0001',
-      'amount': '250',
-      'price': '1500',
-      'total': '250000'
-    });
+    _sourceList
+        .add({"productCode": "erk-0001", "price": "1500", "total": "250000"});
   }
 
   @override
@@ -337,36 +364,71 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   } */
 
   widgetProductTableAndUpdateTable() {
-    return Container(
-      width: 600,
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(0),
-      constraints: const BoxConstraints(
-        maxHeight: 600,
-      ),
-      child: Card(
-          elevation: 5,
-          shadowColor: Colors.black,
-          clipBehavior: Clip.none,
-          child: ResponsiveDatatable(
-            headers: _headers,
-            autoHeight: false,
-            source: _sourceList,
-            headerDecoration: BoxDecoration(
-                color: Colors.blueGrey.shade900,
-                border: const Border(
-                    bottom: BorderSide(color: Colors.red, width: 1))),
-            selectedDecoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(color: Colors.green[300]!, width: 1)),
-              color: Colors.green,
-            ),
-            headerTextStyle:
-                context.theme.titleMedium!.copyWith(color: Colors.white),
-            rowTextStyle: context.theme.titleSmall,
-            selectedTextStyle: TextStyle(color: Colors.white),
-          )),
-    );
+    return SingleChildScrollView(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+          Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(0),
+            constraints: const BoxConstraints(maxHeight: 600, maxWidth: 600),
+            child: Card(
+                elevation: 5,
+                shadowColor: Colors.black,
+                clipBehavior: Clip.none,
+                child: ResponsiveDatatable(
+                  ///Kendim Ekledim Row Yüksekli Sadece Masaüstü Listesinde
+                  rowHeight: 60,
+                  title: TextButton.icon(
+                    onPressed: () => {},
+                    icon: Icon(Icons.add),
+                    label: Text("new item"),
+                  ),
+                  reponseScreenSizes: [ScreenSize.xs],
+                  headers: _headers,
+                  source: _sourceList,
+                  selecteds: _selecteds,
+                  autoHeight: false,
+                  /* dropContainer: (data) {
+                    if (int.tryParse(data['id'].toString())!.isEven) {
+                      return Text("is Even");
+                    }
+                    return _DropDownContainer(data: data);
+                  }, */
+                  /*  onTabRow: (data) {
+                    print(data);
+                  }, */
+                  expanded: _expanded,
+                  /* sortAscending: _sortAscending,
+                  sortColumn: _sortColumn,
+                  onSelect: (value, item) {
+                    print("$value  $item ");
+                    if (value!) {
+                      setState(() => _selecteds.add(item));
+                    } else {
+                      setState(
+                          () => _selecteds.removeAt(_selecteds.indexOf(item)));
+                    }
+                  }, */
+
+                  headerDecoration: BoxDecoration(
+                      color: Colors.blueGrey.shade900,
+                      border: const Border(
+                          bottom: BorderSide(color: Colors.red, width: 1))),
+                  selectedDecoration: BoxDecoration(
+                    border: Border(
+                        bottom:
+                            BorderSide(color: Colors.green[300]!, width: 1)),
+                    color: Colors.green,
+                  ),
+                  headerTextStyle:
+                      context.theme.titleMedium!.copyWith(color: Colors.white),
+                  rowTextStyle: context.theme.titleSmall,
+                  selectedTextStyle: TextStyle(color: Colors.white),
+                )),
+          ),
+        ]));
   }
 
   Divider widgetDivider() {
