@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:stok_takip/env/env.dart';
-import 'package:stok_takip/utilities/constants.dart';
 
 class ServiceExchangeRateApi {
   final _dio = Dio();

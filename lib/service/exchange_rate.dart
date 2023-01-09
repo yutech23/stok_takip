@@ -1,12 +1,17 @@
-import 'dart:io';
-
+import 'dart:async';
 import 'package:dio/dio.dart';
 
 class ExchangeRateApi {
   final _dio = Dio();
 
-  Future<Map<String, double>> getExchangeRate() async {
-    Map<String, double> _exchangeRate = {};
+  final _streamControllerExchangeRate =
+      StreamController<Map<String, double>>.broadcast();
+
+  StreamController<Map<String, double>> get getStreamExchangeRate =>
+      _streamControllerExchangeRate;
+
+  Future getExchangeRate() async {
+    Map<String, double> exchangeRate = {};
     try {
       Response response = await _dio.get(
         'http://54.144.168.5:8081/api/exchange/',
@@ -16,34 +21,22 @@ class ExchangeRateApi {
         Map<String, dynamic> resData = response.data;
         resData.forEach((key, value) {
           if (key == 'USD') {
-            _exchangeRate.addAll({key: value});
+            exchangeRate.addAll({key: value});
           }
           if (key == 'EUR') {
-            _exchangeRate.addAll({key: value});
+            exchangeRate.addAll({key: value});
+          }
+          if (key == 'TIME') {
+            exchangeRate.addAll({key: value});
           }
         });
-        return _exchangeRate;
-      } else {
-        return _exchangeRate;
+
+        _streamControllerExchangeRate.sink.add(exchangeRate);
       }
     } catch (e) {
       print("Api Hatası : $e");
-      return _exchangeRate;
+      return exchangeRate;
     }
-  }
-
-  Stream getExchangeRateStream() {
-    var response = _dio
-        .get(
-          'http://54.144.168.5:8081/api/exchange/',
-        )
-        .asStream();
-
-    response.listen((event) {
-      print(event);
-    });
-
-    return response;
   }
 }
 
