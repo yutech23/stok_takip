@@ -463,8 +463,9 @@ class DbHelper {
         .from('category1')
         .select('name')
         .eq('category1_id', resData[0]['fk_category1_id']);
+
     getProductCategory.category1 = {
-      resData[0]['fk_category1_id']: resCategory1.data[0]['name']
+      resData[0]['fk_category1_id']: resCategory1[0]['name']
     };
 
     final resCategory2 = await supabase
@@ -472,7 +473,7 @@ class DbHelper {
         .select('name')
         .eq('category2_id', resData[0]['fk_category2_id']);
     getProductCategory.category2 = {
-      resData[0]['fk_category2_id']: resCategory2.data[0]['name']
+      resData[0]['fk_category2_id']: resCategory2[0]['name']
     };
 
     final resCategory3 = await supabase
@@ -480,7 +481,7 @@ class DbHelper {
         .select('name')
         .eq('category3_id', resData[0]['fk_category3_id']);
     getProductCategory.category3 = {
-      resData[0]['fk_category3_id']: resCategory3.data[0]['name']
+      resData[0]['fk_category3_id']: resCategory3[0]['name']
     };
 
     final resCategory4 = await supabase
@@ -488,7 +489,7 @@ class DbHelper {
         .select('name')
         .eq('category4_id', resData[0]['fk_category4_id']);
     getProductCategory.category4 = {
-      resData[0]['fk_category4_id']: resCategory4.data[0]['name']
+      resData[0]['fk_category4_id']: resCategory4[0]['name']
     };
 
     final resCategory5 = await supabase
@@ -496,15 +497,17 @@ class DbHelper {
         .select('name')
         .eq('category5_id', resData[0]['fk_category5_id']);
     getProductCategory.category5 = {
-      resData[0]['fk_category5_id']: resCategory5.data[0]['name']
+      resData[0]['fk_category5_id']: resCategory5[0]['name']
     };
 
     Product getProductDetail = Product(
         productCode: resData[0]['product_code'],
         currentAmountOfStock: resData[0]['current_amount_of_stock'],
         taxRate: resData[0]['tax_rate'],
-        currentBuyingPriceWithoutTax: resData[0]['buying_price_without_tax'],
-        currentSallingPriceWithoutTax: resData[0]['salling_price_without_tax'],
+        currentBuyingPriceWithoutTax: resData[0]
+            ['current_buying_price_without_tax'],
+        currentSallingPriceWithoutTax: resData[0]
+            ['current_salling_price_without_tax'],
         category: getProductCategory);
 
     return getProductDetail;

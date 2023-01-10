@@ -315,6 +315,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
     final _selectedDecoration = widget.selectedDecoration ?? _decoration;
     List<Widget> widgets = [];
     for (var index = 0; index < widget.source!.length; index++) {
+      //kaynaktaki liste içinde Map veriyor tek tek döngüde
       final data = widget.source![index];
       widgets.add(Column(
         children: [
@@ -355,6 +356,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                           flex: header.flex,
                           child: header.sourceBuilder != null
                               ? header.sourceBuilder!(data[header.value], data)
+
+                              ///data[header.value] o satırdaki kolon bulunanismini veriyor
                               : header.editable
                                   ? TextEditableWidget(
                                       data: data,
@@ -364,6 +367,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                                       onSubmitted: widget.onSubmittedRow,
                                       hideUnderline: widget.hideUnderline,
                                     )
+
+                                  //Satırda Eğer Editable Seçili değil ise Burası çalışıyor
                                   : Text(
                                       "${data[header.value]}",
                                       textAlign: header.textAlign,

@@ -40,8 +40,7 @@ class MyApp extends StatelessWidget {
           inputDecorationTheme: const InputDecorationTheme(
               fillColor: Color.fromARGB(255, 38, 50, 56),
               focusedBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Color.fromARGB(255, 182, 30, 19)))),
+                  borderSide: BorderSide(color: Colors.blue))),
           appBarTheme: AppBarTheme(
               color: Colors.blueGrey.shade900,
               centerTitle: true,
