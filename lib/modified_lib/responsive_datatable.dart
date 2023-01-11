@@ -253,7 +253,6 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             border:
                 Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
     return Container(
-      /// TODO:
       decoration: _headerDecoration,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -329,8 +328,6 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             child: Container(
               height: widget.rowHeight,
               padding: EdgeInsets.all(widget.showSelect ? 0 : 11),
-
-              /// TODO:
               decoration: widget.selecteds!.contains(data)
                   ? _selectedDecoration
                   : _rowDecoration,

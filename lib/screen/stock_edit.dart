@@ -4,7 +4,6 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import '../data/database_category_product_filtre.dart';
@@ -13,6 +12,7 @@ import '../models/category.dart';
 import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
+import '../modified_lib/searchfield.dart';
 import '../utilities/convert_string_currency_digits.dart';
 import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
@@ -449,7 +449,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           for (var element in snapshot.data!) {
             category1.add({element['category1_id']: element['name']});
           }
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: _disableCategory1,
@@ -461,7 +461,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           );
         } else {
           _selectedCategory1Id = null;
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: true,

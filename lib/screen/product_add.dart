@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
@@ -17,6 +16,7 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
+import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_decimal_3by3.dart';
 import '../validations/format_upper_case_text_format.dart';

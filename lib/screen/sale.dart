@@ -1,16 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:input_quantity/input_quantity.dart';
-import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_decimal_3by3.dart';
-import '../modified_lib/datatable_header.dart';
-import '../modified_lib/responsive_datatable.dart';
-import 'package:adaptivex/adaptivex.dart';
+import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
@@ -32,25 +28,23 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   final String _labelHeading = "Satış Ekranı";
   final String _labelNewCustomer = "Yeni Müşteri Ekle";
-  final String _labelSearchCustomer =
-      "Müşteri İsmini Veya Telefon Numarası Giriniz";
+  final String _labelSearchCustomer = "Müşteri İsmi Veya Telefon Numarası ";
   final String _labelSearchProductCode = "Ürün Kodunu Seçiniz";
   final String _labelAddProduct = "Ürünü Ekle";
 
-  List<bool>? _expanded = [];
-  List<Map<String, dynamic>> _sourceList = [];
-  List<Map<String, dynamic>> _selecteds = [];
-
-  late List<DatatableHeader> _headers = [];
-
-  List<TextEditingController> _listTextEditingControllerPrice =
+  final double _shareWidth = 220, _shareheight = 40;
+  final List<TextEditingController> _listTextEditingControllerPrice =
       <TextEditingController>[];
 
-  List<TextEditingController> _listTextEditingControllerAmount =
+  final List<TextEditingController> _listTextEditingControllerAmount =
       <TextEditingController>[];
 
-  TextEditingController _controllerAmount = TextEditingController();
-  TextEditingController _controllerPrice = TextEditingController();
+  List<Color?> __listTableRowBackgroundColor = <Color>[];
+
+  List<Widget> _listRowTable = <Widget>[];
+
+  int tableRowIndex = 0;
+
   final double _widthSearch = 360;
   int simpleIntInput = 0;
   @override
@@ -60,66 +54,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     Timer.periodic(const Duration(hours: 1), (timer) {
       exchangeRateService.getExchangeRate();
     });
-    _headers.add(DatatableHeader(
-        text: "Ürün Kodu",
-        value: "productCode",
-        show: true,
-        flex: 2,
-        sortable: true,
-        editable: false,
-        textAlign: TextAlign.left));
-    _headers.add(DatatableHeader(
-        text: "Miktar",
-        value: "amount",
-        flex: 1,
-        editable: true,
-
-        /*     sourceBuilder: (value, row) {
-          print(value);
-           return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: TextFormField(
-             
-                  textAlign: TextAlign.center,
-                  initialValue: "1",
-                  decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue)),
-                      isDense: true,
-                      border: OutlineInputBorder()),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
-                  ]));
-        }, */
-        show: true,
-        sortable: true,
-        textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Fiyat",
-        value: "price",
-        editable: true,
-
-        /*  sourceBuilder: (value, row) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: TextFormField(
-              decoration: const InputDecoration(
-                  isDense: true, border: OutlineInputBorder()),
-              inputFormatters: [FormatterDecimalThreeByThree()],
-            ),
-          );
-        }, */
-        show: true,
-        sortable: true,
-        textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Tutar",
-        value: "total",
-        show: true,
-        sortable: true,
-        textAlign: TextAlign.center));
-    _listTextEditingControllerAmount.add(TextEditingController());
-    _listTextEditingControllerPrice.add(TextEditingController());
   }
 
   @override
@@ -173,7 +107,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                         widgetButtonNewCustomer(),
                         widgetSearchFieldProductCode(),
                         widgetButtonAddProduct(),
-                        widgetProductSaleList()
+                        widgetProductSaleList(),
                       ],
                     ),
                   ]),
@@ -250,6 +184,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
             return SearchField(
+              searchHeight: _shareheight,
               validator: validateNotEmpty,
               controller: _controllerSearchCustomer,
               searchInputDecoration: InputDecoration(
@@ -279,12 +214,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   ///Yeni Müşteri Ekleme
-  ElevatedButton widgetButtonNewCustomer() {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(minimumSize: const Size(220, 60)),
-      icon: const Icon(Icons.person_add),
-      onPressed: () {},
-      label: Text(_labelNewCustomer),
+  widgetButtonNewCustomer() {
+    return SizedBox(
+      height: _shareheight,
+      width: _shareWidth,
+      child: ElevatedButton.icon(
+        //  style: ElevatedButton.styleFrom(minimumSize: const Size(220, 48)),
+        icon: const Icon(Icons.person_add),
+        onPressed: () {},
+        label: Text(_labelNewCustomer),
+      ),
     );
   }
 
@@ -296,6 +235,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
             return SearchField(
+              searchHeight: _shareheight,
               validator: validateNotEmpty,
               controller: _controllerSearchProductCode,
               searchInputDecoration: InputDecoration(
@@ -325,190 +265,214 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   ///Yeni Müşteri Ekleme
-  ElevatedButton widgetButtonAddProduct() {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(minimumSize: const Size(220, 60)),
-      icon: const Icon(Icons.playlist_add),
-      onPressed: () async {
-        if (_controllerSearchProductCode.text.isNotEmpty) {
-          Product? selectProductDetail =
-              await db.getProductDetail(_controllerSearchProductCode.text);
+  widgetButtonAddProduct() {
+    return SizedBox(
+      height: _shareheight,
+      width: _shareWidth,
+      child: ElevatedButton.icon(
+        // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),
+        icon: const Icon(Icons.playlist_add),
 
-          setState(() {
-            _sourceList.add({
-              'productCode': selectProductDetail!.productCode,
-              'price': selectProductDetail.currentSallingPriceWithoutTax,
-              'total': '2000'
+        onPressed: () async {
+          if (_controllerSearchProductCode.text.isNotEmpty) {
+            Product? selectProductDetail =
+                await db.getProductDetail(_controllerSearchProductCode.text);
+
+            double priceWithTax =
+                (selectProductDetail!.currentSallingPriceWithoutTax! *
+                    (1 + (selectProductDetail.taxRate / 100)));
+            _listTextEditingControllerAmount
+                .add(TextEditingController(text: "1"));
+            _listTextEditingControllerPrice
+                .add(TextEditingController(text: priceWithTax.toString()));
+            __listTableRowBackgroundColor.add(Colors.white);
+
+            setState(() {
+              _listRowTable.add(rowListView(
+                  selectProductDetail.productCode,
+                  _listTextEditingControllerAmount[tableRowIndex],
+                  _listTextEditingControllerPrice[tableRowIndex],
+                  tableRowIndex));
             });
-            _expanded!.add(false);
-          });
-        }
-      },
-      label: Text(_labelAddProduct),
+            tableRowIndex++;
+          }
+        },
+        label: Text(_labelAddProduct),
+      ),
     );
   }
 
-/*   widgetTableCart(BuildContext context) {
-    return Container(
-      width: 800,
-      height: 500,
-      child: ExpandableTheme(
-          data: ExpandableThemeData(context),
-          child: ExpandableDataTable(
-            headers: tableCartColumn(),
-            rows: [tableCartRows()],
-            visibleColumnCount: 5,
-          )),
-    );
-  }
-
-  List<ExpandableColumn<dynamic>> tableCartColumn() {
-    List<ExpandableColumn<dynamic>> headers = [
-      ExpandableColumn<int>(columnTitle: "Ürün Kodu", columnFlex: 3),
-      ExpandableColumn<String>(columnTitle: "Miktar", columnFlex: 1),
-      ExpandableColumn<String>(columnTitle: "Fiyat", columnFlex: 1),
-      ExpandableColumn<String>(columnTitle: "Tutar", columnFlex: 1),
-      ExpandableColumn<Widget>(columnTitle: "Sil", columnFlex: 1),
-    ];
-
-    return headers;
-  }
-
-  ExpandableRow tableCartRows() {
-    return ExpandableRow(cells: [
-      ExpandableCell<int>(columnTitle: "Ürün Kodu", value: 23),
-      ExpandableCell<String>(columnTitle: "Miktar", value: "Yusuf"),
-      ExpandableCell<String>(columnTitle: "Fiyat", value: "200"),
-      ExpandableCell<String>(columnTitle: "Tutar", value: "12"),
-      ExpandableCell<Widget>(columnTitle: "Sil", value: Icon(Icons.delete)),
-    ]);
-  } */
-
-  widgetProductTableAndUpdateTable() {
-    return SingleChildScrollView(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-          Container(
-            margin: const EdgeInsets.all(10),
-            padding: const EdgeInsets.all(0),
-            constraints: const BoxConstraints(maxHeight: 600, maxWidth: 600),
-            child: Card(
-                elevation: 5,
-                shadowColor: Colors.black,
-                clipBehavior: Clip.none,
-                child: ResponsiveDatatable(
-                  ///Kendim Ekledim Row Yüksekli Sadece Masaüstü Listesinde
-                  rowHeight: 60,
-                  title: TextButton.icon(
-                    onPressed: () => {},
-                    icon: Icon(Icons.add),
-                    label: Text("new item"),
-                  ),
-                  reponseScreenSizes: [ScreenSize.xs],
-                  headers: _headers,
-                  source: _sourceList,
-                  selecteds: _selecteds,
-                  autoHeight: false,
-                  /* dropContainer: (data) {
-                    if (int.tryParse(data['id'].toString())!.isEven) {
-                      return Text("is Even");
-                    }
-                    return _DropDownContainer(data: data);
-                  }, */
-                  /*  onTabRow: (data) {
-                    print(data);
-                  }, */
-                  expanded: _expanded,
-                  /* sortAscending: _sortAscending,
-                  sortColumn: _sortColumn,
-                  onSelect: (value, item) {
-                    print("$value  $item ");
-                    if (value!) {
-                      setState(() => _selecteds.add(item));
-                    } else {
-                      setState(
-                          () => _selecteds.removeAt(_selecteds.indexOf(item)));
-                    }
-                  }, */
-
-                  headerDecoration: BoxDecoration(
-                      color: Colors.blueGrey.shade900,
-                      border: const Border(
-                          bottom: BorderSide(color: Colors.red, width: 1))),
-                  selectedDecoration: BoxDecoration(
-                    border: Border(
-                        bottom:
-                            BorderSide(color: Colors.green[300]!, width: 1)),
-                    color: Colors.green,
-                  ),
-                  headerTextStyle:
-                      context.theme.titleMedium!.copyWith(color: Colors.white),
-                  rowTextStyle: context.theme.titleSmall,
-                  selectedTextStyle: TextStyle(color: Colors.white),
-                )),
-          ),
-        ]));
-  }
-
-  Divider widgetDivider() {
-    return const Divider(color: Colors.blueGrey, thickness: 2.5, height: 40);
-  }
-
+  ///Ürün Ekleme Tablosu
   widgetProductSaleList() {
     return SingleChildScrollView(
         child: Container(
       width: 600,
       height: 500,
-      child: ListView.separated(
-          itemBuilder: (context, index) {
-            return rowListView(
-                "ERK233-233", _controllerAmount, _controllerPrice);
-          },
-          separatorBuilder: (context, index) => Divider(),
-          itemCount: 5),
+      child: Card(
+        elevation: 5,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            columnHeaderListView(
+                "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
+            Expanded(
+              child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return _listRowTable[index];
+                  },
+                  itemCount: _listRowTable.length),
+            ),
+          ],
+        ),
+      ),
     ));
   }
 
-  Row rowListView(String productName, TextEditingController controllerAmount,
-      TextEditingController controllerPrice) {
-    double? total;
-    /*   total = double.parse(controllerAmount.text) *
-        double.parse(controllerPrice.text); */
-    total = 1;
-    return Row(
-      children: [
-        Flexible(
-            child: Column(
-          children: [Text(productName)],
-        )),
-        Flexible(
-            child: Column(
-          children: [rowListviewTextFormField(controllerAmount)],
-        )),
-        Flexible(
-            child: Column(
-          children: [rowListviewTextFormField(controllerPrice)],
-        )),
-        Flexible(
-            child: Column(
-          children: [Text(total.toStringAsFixed(2))],
-        ))
-      ],
+  ///Ek Ürün Ekleme Tablo Başlık Bölümü
+  columnHeaderListView(String productName, String amount, String price,
+      String total, String delete) {
+    const TextStyle defaultStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    );
+    const EdgeInsets paddingAll = EdgeInsets.all(5);
+    return Container(
+      color: context.extensionDefaultColor,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+                padding: paddingAll,
+                alignment: Alignment.center,
+                child: Text(productName, style: defaultStyle)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+                padding: paddingAll,
+                alignment: Alignment.center,
+                child: Text(amount, style: defaultStyle)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+                padding: paddingAll,
+                alignment: Alignment.center,
+                child: Text(price, style: defaultStyle)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+                padding: paddingAll,
+                alignment: Alignment.center,
+                child: Text(total, style: defaultStyle)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+                padding: paddingAll,
+                alignment: Alignment.center,
+                child: Text(delete, style: defaultStyle)),
+          ),
+        ],
+      ),
     );
   }
 
-  TextFormField rowListviewTextFormField(
+  ///Ek-Ürün Ekleme Tablo Satır Sayısı
+  rowListView(String productName, TextEditingController controllerAmount,
+      TextEditingController controllerPrice, int index) {
+    double? total;
+
+    total = 1;
+    return InkWell(
+      /*   onTap: () {
+        setState(() {
+          __listTableRowBackgroundColor[index] = Colors.amber;
+        });
+        print(__listTableRowBackgroundColor[index]);
+      },
+      onHover: (value) {
+        setState(() {
+          if (value) {
+            __listTableRowBackgroundColor[index] = Colors.grey;
+            print(__listTableRowBackgroundColor[index]);
+          }
+        });
+      }, */
+      child: Container(
+        height: 35,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+            color: __listTableRowBackgroundColor[index],
+            border: const Border(
+                bottom: BorderSide(color: Colors.grey, width: 1.5))),
+        child: Row(
+          children: [
+            Expanded(flex: 2, child: Container(child: Text(productName))),
+            Expanded(
+                flex: 1,
+                child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: rowListviewTextFormFieldAmount(controllerAmount))),
+            Expanded(
+              flex: 1,
+              child: Container(
+                  child: rowListviewTextFormFieldPrice(controllerPrice)),
+            ),
+            Expanded(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(total.toStringAsFixed(2)),
+                )),
+            const Expanded(
+                flex: 1,
+                child: Center(
+                  child: Icon(Icons.delete),
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+
+//Ek- Ürün Ekleme Tablosu Miktar TextField
+  TextFormField rowListviewTextFormFieldAmount(
       TextEditingController controllerAmount) {
     return TextFormField(
         controller: controllerAmount,
         textAlign: TextAlign.center,
+        keyboardType: TextInputType.number,
+        maxLines: 1,
+        maxLength: 3,
         decoration: const InputDecoration(
+            counterText: "",
+            contentPadding: EdgeInsets.zero,
             focusedBorder:
                 OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
-            isDense: true,
             border: OutlineInputBorder()),
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]);
+  }
+
+//Ek- Ürün Ekleme Tablosu Fİyat TextField
+  TextFormField rowListviewTextFormFieldPrice(
+      TextEditingController controllerAmount) {
+    return TextFormField(
+        controller: controllerAmount,
+        textAlign: TextAlign.left,
+        keyboardType: TextInputType.number,
+        maxLines: 1,
+        decoration: const InputDecoration(
+            contentPadding: EdgeInsets.only(left: 3),
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
+            border: OutlineInputBorder()),
+        inputFormatters: [FormatterDecimalThreeByThree()]);
+  }
+
+  Divider widgetDivider() {
+    return const Divider(color: Colors.blueGrey, thickness: 2.5, height: 40);
   }
 }
