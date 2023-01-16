@@ -75,22 +75,24 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   String? _selectDateTime;
+
+  final String _labelAmountOfStock = "Stok Miktarı (Adet)";
+  final String _labelKDV = "KDV Oranın Seçiniz";
+  final String _labelInvoiceCode = "Fatura Kodu";
+  final String _labelSearchSuppiler = "Tedarikci İsmini Giriniz";
+/*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
   late Color _colorBackgroundCurrencyUSD;
   late Color _colorBackgroundCurrencyTRY;
   late Color _colorBackgroundCurrencyEUR;
   late String _selectUnitOfCurrencySymbol;
   late String _selectUnitOfCurrencyAbridgment;
   final String _labelCurrencySelect = "Para Birimi Seçiniz";
-  final String _labelAmountOfStock = "Stok Miktarı (Adet)";
-  final String _labelKDV = "KDV Oranın Seçiniz";
-  final String _labelInvoiceCode = "Fatura Kodu";
-  final String _labelSearchSuppiler = "Tedarikci İsmini Giriniz";
-
   final Map<String, dynamic> _mapUnitOfCurrency = {
     "Türkiye": {"symbol": "₺", "abridgment": "TL"},
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
+/*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -110,9 +112,14 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   @override
   void initState() {
     _autovalidateMode = AutovalidateMode.onUserInteraction;
+    /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
     _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
     _selectUnitOfCurrencyAbridgment =
         _mapUnitOfCurrency["Türkiye"]["abridgment"];
+    _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
+    _colorBackgroundCurrencyTRY = context.extensionDisableColor;
+    _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
+    /*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
     //   roleCheck();
     _productCodeList = [];
 
@@ -124,9 +131,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         currentSallingPriceWithoutTax: 0,
         taxRate: 0); */
     _category = Category();
-    _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
-    _colorBackgroundCurrencyTRY = context.extensionDisableColor;
-    _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
+
     super.initState();
   }
 
@@ -583,98 +588,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       runSpacing: context.extensionWrapSpacing20(),
       children: [
         ///Para Birimi Seçilen yer.
-        Stack(
-          children: [
-            Positioned(
-              child: Container(
-                alignment: Alignment.center,
-                width: _shareTextFormFieldPaymentSystemWidth,
-                height: 50,
-                margin: const EdgeInsets.only(top: 10),
-                padding: const EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: context.extensionRadiusDefault10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectUnitOfCurrencyAbridgment =
-                                _mapUnitOfCurrency["Türkiye"]["abridgment"];
-                            _selectUnitOfCurrencySymbol =
-                                _mapUnitOfCurrency["Türkiye"]["symbol"];
-                            _colorBackgroundCurrencyTRY =
-                                context.extensionDisableColor;
-                            _colorBackgroundCurrencyUSD =
-                                context.extensionDefaultColor;
-                            _colorBackgroundCurrencyEUR =
-                                context.extensionDefaultColor;
-                          });
-                        },
-                        sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
-                        backgroundColor: _colorBackgroundCurrencyTRY),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectUnitOfCurrencyAbridgment =
-                                _mapUnitOfCurrency["amerika"]["abridgment"];
-                            _selectUnitOfCurrencySymbol =
-                                _mapUnitOfCurrency["amerika"]["symbol"];
-                            _colorBackgroundCurrencyTRY =
-                                context.extensionDefaultColor;
-                            _colorBackgroundCurrencyUSD =
-                                context.extensionDisableColor;
-                            _colorBackgroundCurrencyEUR =
-                                context.extensionDefaultColor;
-                          });
-                        },
-                        sembol: _mapUnitOfCurrency["amerika"]["symbol"],
-                        backgroundColor: _colorBackgroundCurrencyUSD),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    shareInkwellCurrency(
-                        onTap: () {
-                          setState(() {
-                            _selectUnitOfCurrencyAbridgment =
-                                _mapUnitOfCurrency["avrupa"]["abridgment"];
-                            _selectUnitOfCurrencySymbol =
-                                _mapUnitOfCurrency["avrupa"]["symbol"];
-                            _colorBackgroundCurrencyTRY =
-                                context.extensionDefaultColor;
-                            _colorBackgroundCurrencyUSD =
-                                context.extensionDefaultColor;
-                            _colorBackgroundCurrencyEUR =
-                                context.extensionDisableColor;
-                          });
-                        },
-                        sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
-                        backgroundColor: _colorBackgroundCurrencyEUR),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 60,
-              child: Container(
-                padding: EdgeInsets.zero,
-                color: Colors.white,
-                child: Text(
-                  textAlign: TextAlign.center,
-                  _labelCurrencySelect,
-                  style: context.theme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: context.extensionDefaultColor),
-                ),
-              ),
-            ),
-          ],
-        ),
+        widgetCurrencySelectSection(),
         //KDV Bölümü.
         Container(
             alignment: Alignment.center,
@@ -1237,6 +1151,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         lastDate: DateTime(2050),
       );
 
+  ///Ek- Parabirimi Seçildiği yer için yardımcı Widget
   shareInkwellCurrency(
       {required void Function()? onTap,
       required String sembol,
@@ -1262,6 +1177,102 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return Container(
       constraints: const BoxConstraints(minWidth: 250, maxWidth: 345),
       child: widget,
+    );
+  }
+
+  ///Para Birimi Seçildiği Yer
+  widgetCurrencySelectSection() {
+    return Stack(
+      children: [
+        Positioned(
+          child: Container(
+            alignment: Alignment.center,
+            width: _shareTextFormFieldPaymentSystemWidth,
+            height: 50,
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 10),
+            decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: context.extensionRadiusDefault10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                shareInkwellCurrency(
+                    onTap: () {
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["Türkiye"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyTRY),
+                const SizedBox(
+                  width: 2,
+                ),
+                shareInkwellCurrency(
+                    onTap: () {
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["amerika"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["amerika"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["amerika"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyUSD),
+                const SizedBox(
+                  width: 2,
+                ),
+                shareInkwellCurrency(
+                    onTap: () {
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["avrupa"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["avrupa"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDisableColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyEUR),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 60,
+          child: Container(
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+            child: Text(
+              textAlign: TextAlign.center,
+              _labelCurrencySelect,
+              style: context.theme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.extensionDefaultColor),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

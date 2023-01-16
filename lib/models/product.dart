@@ -7,6 +7,10 @@ class Product {
   double? currentBuyingPriceWithoutTax;
   double? currentSallingPriceWithoutTax;
   Category? category;
+  double? currentSallingPriceWith;
+  int? sallingAmount;
+  double? total;
+  int? index;
 
   Product({
     required this.productCode,
@@ -16,4 +20,15 @@ class Product {
     required this.currentSallingPriceWithoutTax,
     required this.category,
   });
+
+  Product.saleInfo(
+      {required this.productCode,
+      required this.currentAmountOfStock,
+      required this.taxRate,
+      required this.currentBuyingPriceWithoutTax,
+      this.currentSallingPriceWith,
+      this.total,
+      this.sallingAmount,
+      this.index
+      });
 }

@@ -14,7 +14,7 @@ class ExchangeRateApi {
     Map<String, double> exchangeRate = {};
     try {
       Response response = await _dio.get(
-        'http://54.144.168.5:8081/api/exchange/',
+        'http://54.144.168.5:8081/api/exchange/?interval=600',
       );
 
       if (response.statusCode == 200) {
