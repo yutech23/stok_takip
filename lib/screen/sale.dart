@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/validations/format_decimal_3by3.dart';
+import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
+import '../widget_share/sale_custom_table_row.dart';
 import 'drawer.dart';
 
 class ScreenSale extends StatefulWidget {
@@ -24,9 +24,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final _focusSearchCustomer = FocusNode();
   final _controllerSearchProductCode = TextEditingController();
   final _focusSearchProductCode = FocusNode();
-  final _valueNotifierListTotal = ValueNotifier<List<double>>([]);
-
-  bool isLoading = false;
 
   final String _labelHeading = "Satış Ekranı";
   final String _labelNewCustomer = "Yeni Müşteri Ekle";
@@ -46,30 +43,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
-/*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
+/*------------ SON - (PARABİRİMİ SEÇİMİ)------------------- */
+
   final double _saleMinWidth = 360, _saleMaxWidth = 830;
   final double _shareWidth = 220, _shareheight = 40;
-  final double _tableWidth = 570, _tableHeight = 500;
-
-  List<TextEditingController> _listTextEditingControllerPrice =
-      <TextEditingController>[];
-
-  List<TextEditingController> _listTextEditingControllerAmount =
-      <TextEditingController>[];
-
-  List<Color?> __listTableRowBackgroundColor = <Color>[];
-
-  List<Widget> _listRowTable = <Widget>[];
-
-  List<Product> _listProductDetailByTable = <Product>[];
-
-  List<Row> _listRow = <Row>[];
-
   int tableRowIndex = 0;
-
   final double _widthSearch = 330;
   int simpleIntInput = 0;
   final double _shareWidthPaymentSection = 200;
+
+  Product? _selectProduct;
+  final List<Product> _listAddProduct = <Product>[];
 
   @override
   void initState() {
@@ -144,7 +128,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             widgetButtonNewCustomer(),
                             widgetSearchFieldProductCode(),
                             widgetButtonAddProduct(),
-                            widgetProductSaleList(),
+                            WidgetSaleList(
+                              selectUnitOfCurrencySymbol:
+                                  _selectUnitOfCurrencySymbol,
+                              addProduct: _selectProduct,
+                              listProduct: _listAddProduct,
+                            )
                           ],
                         ),
                       ]),
@@ -156,24 +145,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       children: [
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
-                        SizedBox(
-                          width: 200,
-                          child: ElevatedButton(
-                              onPressed: () {
-                                print("döngü");
-                                for (var i = 0;
-                                    i < _listProductDetailByTable.length;
-                                    i++) {
-                                  print(_listProductDetailByTable[i].total);
-                                }
-
-                                setState(() {
-                                  _listProductDetailByTable;
-                                });
-                                print("---------");
-                              },
-                              child: Text("Veri Çek")),
-                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: Size(100, 50)),
+                            onPressed: () {
+                              for (var element in _listAddProduct) {
+                                print(
+                                    "${element.productCode} : ${element.total} : ${element.sallingAmount}");
+                              }
+                            },
+                            child: Text("Verileri Çek")),
                       ]),
                 ]),
           )),
@@ -339,258 +320,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
         onPressed: () async {
           if (_controllerSearchProductCode.text.isNotEmpty) {
-            Product? selectProductDetail = await db
+            _selectProduct = await db
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
-            selectProductDetail!.sallingAmount = 1;
-            selectProductDetail.total =
-                selectProductDetail.currentSallingPriceWith;
+            _listAddProduct.add(_selectProduct!);
 
-            ///productların değerlerinin tutluldu liste
-            _listProductDetailByTable.add(selectProductDetail);
-
-            ///İlk miktar 1 otamatik giriliyor ve Satış fiyatı üzerine
-            ///KDV ekleniyor ve oda veri olarak gönderiliyor.
-            /*   _listTextEditingControllerAmount.add(TextEditingController(
-                text: selectProductDetail.sallingAmount.toString()));
-
-            _listTextEditingControllerPrice.add(TextEditingController(
-                text: selectProductDetail.currentSallingPriceWith!
-                    .toStringAsFixed(2))); */
-
-            __listTableRowBackgroundColor.add(Colors.white);
-
-            /* _valueNotifierListTotal.value =
-                List.of(_valueNotifierListTotal.value)
-                  ..add(selectProductDetail.total!); */
-
-            setState(() {
-              /* _listRowTable.add(rowListView(
-                  selectProductDetail,
-                  _listTextEditingControllerAmount[tableRowIndex],
-                  _listTextEditingControllerPrice[tableRowIndex],
-                  tableRowIndex));
-                   */
-              _listRowTable.add(rowListView(
-                  selectProductDetail,
-                  TextEditingController(
-                      text: selectProductDetail.sallingAmount.toString()),
-                  TextEditingController(
-                      text: selectProductDetail.currentSallingPriceWith!
-                          .toStringAsFixed(2)),
-                  tableRowIndex));
-
-              _listRow.add(rowTest(
-                  selectProductDetail,
-                  TextEditingController(
-                      text: selectProductDetail.sallingAmount.toString()),
-                  TextEditingController(
-                      text: selectProductDetail.currentSallingPriceWith!
-                          .toStringAsFixed(2)),
-                  tableRowIndex));
-            });
-            tableRowIndex++;
+            setState(() {});
           }
         },
         label: Text(_labelAddProduct),
       ),
-    );
-  }
-
-  ///Ürün Ekleme Tablosu
-  widgetProductSaleList() {
-    return SingleChildScrollView(
-        child: Container(
-      width: _tableWidth,
-      height: _tableHeight,
-      child: Card(
-        elevation: 5,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            columnHeaderListView(
-                "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
-            Expanded(
-              child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return _listRowTable[index];
-                  },
-                  itemCount: _listRowTable.length),
-            ),
-          ],
-        ),
-      ),
-    ));
-  }
-
-  ///Ek Ürün Ekleme Tablo Başlık Bölümü
-  columnHeaderListView(String productName, String amount, String price,
-      String total, String delete) {
-    const TextStyle defaultStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-    );
-    const EdgeInsets paddingAll = EdgeInsets.all(5);
-    return Container(
-      color: context.extensionDefaultColor,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-                padding: paddingAll,
-                alignment: Alignment.center,
-                child: Text(delete, style: defaultStyle)),
-          ),
-          Expanded(
-            flex: 4,
-            child: Container(
-                padding: paddingAll,
-                alignment: Alignment.center,
-                child: Text(productName, style: defaultStyle)),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-                padding: paddingAll,
-                alignment: Alignment.center,
-                child: Text(amount, style: defaultStyle)),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-                padding: paddingAll,
-                alignment: Alignment.center,
-                child: Text("$price ($_selectUnitOfCurrencySymbol)",
-                    style: defaultStyle)),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-                padding: paddingAll,
-                alignment: Alignment.center,
-                child: Text("$total ($_selectUnitOfCurrencySymbol)",
-                    style: defaultStyle)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  ///Ek-Ürün Ekleme Tablo Satır Sayısı
-  rowListView(
-      Product selectProductDetail,
-      TextEditingController controllerAmount,
-      TextEditingController controllerPrice,
-      int index) {
-    print(_listProductDetailByTable[index].total);
-
-    return InkWell(
-      /*   onTap: () {
-        setState(() {
-          __listTableRowBackgroundColor[index] = Colors.amber;
-        });
-        print(__listTableRowBackgroundColor[index]);
-      },
-      onHover: (value) {
-        setState(() {
-          if (value) {
-            __listTableRowBackgroundColor[index] = Colors.grey;
-            print(__listTableRowBackgroundColor[index]);
-          }
-        });
-      }, */
-      child: Container(
-        height: 35,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-            color: __listTableRowBackgroundColor[index],
-            border: const Border(
-                bottom: BorderSide(color: Colors.grey, width: 1.5))),
-        child: Row(
-          children: [
-            const Expanded(
-                flex: 1,
-                child: Center(
-                  child: Icon(Icons.delete),
-                )),
-            Expanded(
-                flex: 4,
-                child: Container(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: Text(selectProductDetail.productCode))),
-            Expanded(
-                flex: 2,
-                child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: rowListviewTextFormFieldAmount(
-                        controllerAmount, index))),
-            Expanded(
-              flex: 2,
-              child: Container(
-                  child: rowListviewTextFormFieldPrice(controllerPrice, index)),
-            ),
-            Expanded(
-              flex: 2,
-              child: Container(
-                  alignment: Alignment.center,
-                  child: Text(selectProductDetail.total!.toStringAsFixed(2))),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-//Ek- Ürün Ekleme Tablosu Miktar TextField
-  TextFormField rowListviewTextFormFieldAmount(
-      TextEditingController controllerAmount, int index) {
-    return TextFormField(
-      controller: controllerAmount,
-      textAlign: TextAlign.center,
-      keyboardType: TextInputType.number,
-      maxLines: 1,
-      maxLength: 3,
-      decoration: const InputDecoration(
-          counterText: "",
-          contentPadding: EdgeInsets.zero,
-          focusedBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
-          border: OutlineInputBorder()),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
-      onChanged: (value) {
-        setState(() {
-          _listProductDetailByTable[index].sallingAmount = int.parse(value);
-
-          double total = int.parse(value) *
-              _listProductDetailByTable[index].currentSallingPriceWith!;
-
-          _listProductDetailByTable[index].total = total;
-        });
-      },
-    );
-  }
-
-//Ek- Ürün Ekleme Tablosu Fİyat TextField
-  TextFormField rowListviewTextFormFieldPrice(
-      TextEditingController controllerAmount, int index) {
-    return TextFormField(
-      controller: controllerAmount,
-      textAlign: TextAlign.left,
-      keyboardType: TextInputType.number,
-      maxLines: 1,
-      decoration: const InputDecoration(
-          contentPadding: EdgeInsets.only(left: 3),
-          focusedBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
-          border: OutlineInputBorder()),
-      inputFormatters: [FormatterDecimalThreeByThree()],
-      onChanged: (value) {
-        _listProductDetailByTable[index].currentSallingPriceWith =
-            double.parse(value.replaceAll(".", ""));
-
-        print(_listProductDetailByTable[index].currentSallingPriceWith);
-      },
     );
   }
 
@@ -714,40 +453,5 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   Divider widgetDivider() {
     return const Divider(color: Colors.blueGrey, thickness: 2.5, height: 40);
-  }
-
-  rowTest(Product selectProductDetail, TextEditingController controllerAmount,
-      TextEditingController controllerPrice, int index) {
-    return Row(
-      children: [
-        const Expanded(
-            flex: 1,
-            child: Center(
-              child: Icon(Icons.delete),
-            )),
-        Expanded(
-            flex: 4,
-            child: Container(
-                padding: const EdgeInsets.only(left: 5),
-                child: Text(selectProductDetail.productCode))),
-        Expanded(
-            flex: 2,
-            child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child:
-                    rowListviewTextFormFieldAmount(controllerAmount, index))),
-        Expanded(
-          flex: 2,
-          child: Container(
-              child: rowListviewTextFormFieldPrice(controllerPrice, index)),
-        ),
-        Expanded(
-          flex: 2,
-          child: Container(
-              alignment: Alignment.center,
-              child: Text(selectProductDetail.total!.toStringAsFixed(2))),
-        ),
-      ],
-    );
   }
 }

@@ -8,7 +8,7 @@ class Product {
   double? currentSallingPriceWithoutTax;
   Category? category;
   double? currentSallingPriceWith;
-  int? sallingAmount;
+  int sallingAmount = 1;
   double? total;
   int? index;
 
@@ -28,7 +28,6 @@ class Product {
       required this.currentBuyingPriceWithoutTax,
       this.currentSallingPriceWith,
       this.total,
-      this.sallingAmount,
-      this.index
-      });
+      this.sallingAmount = 1,
+      this.index});
 }
