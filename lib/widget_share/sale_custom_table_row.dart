@@ -9,19 +9,14 @@ import '../validations/format_decimal_3by3.dart';
 // ignore: must_be_immutable
 class SaleTableRow extends StatefulWidget {
   Product addProduct;
-  List<Product> listProduct;
-  List<SaleTableRow> listProductRow;
-  final Function(List<SaleTableRow> listProductRow) onItemDeleted;
-  static StreamController<int> streamControllerIndex =
-      StreamController<int>.broadcast();
 
-  SaleTableRow(
-      {Key? key,
-      required this.addProduct,
-      required this.listProduct,
-      required this.listProductRow,
-      required this.onItemDeleted})
-      : super(key: key);
+  static StreamController<String> streamControllerIndex =
+      StreamController<String>.broadcast();
+  String? ad;
+  SaleTableRow({
+    Key? key,
+    required this.addProduct,
+  }) : super(key: key);
 
   @override
   State<SaleTableRow> createState() => _SaleTableRowState();
@@ -61,10 +56,8 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    int index = widget.listProduct.indexOf(widget.addProduct);
-                    SaleTableRow.streamControllerIndex.sink.add(index);
-                    /*  widget.listProduct.removeAt(index);
-                    widget.listProductRow.removeAt(index); */
+                    SaleTableRow.streamControllerIndex.sink
+                        .add(widget.addProduct.productCode);
                   },
                 ),
               )),
@@ -111,12 +104,15 @@ class _SaleTableRowState extends State<SaleTableRow> {
           border: OutlineInputBorder()),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       onChanged: (value) {
-        //değiştirlen miktar Product nesnesinin içindeki değere atanıyor
-        widget.addProduct.sallingAmount = int.parse(value);
-        setState(() {
-          widget.addProduct.total =
-              double.parse(value) * widget.addProduct.currentSallingPriceWith!;
-        });
+        ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
+        ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
+        if (value.isNotEmpty) {
+          widget.addProduct.sallingAmount = int.tryParse(value)!;
+          setState(() {
+            widget.addProduct.total = double.parse(value) *
+                widget.addProduct.currentSallingPriceWith!;
+          });
+        }
       },
     );
   }
@@ -136,11 +132,14 @@ class _SaleTableRowState extends State<SaleTableRow> {
           border: OutlineInputBorder()),
       inputFormatters: [FormatterDecimalThreeByThree()],
       onChanged: (value) {
-        widget.addProduct.currentSallingPriceWith = double.tryParse(value);
-        setState(() {
-          widget.addProduct.total =
-              double.parse(value) * widget.addProduct.sallingAmount;
-        });
+        if (value.isNotEmpty) {
+          print(value);
+          widget.addProduct.currentSallingPriceWith = double.tryParse(value);
+          setState(() {
+            widget.addProduct.total =
+                double.parse(value) * widget.addProduct.sallingAmount;
+          });
+        }
       },
     );
   }

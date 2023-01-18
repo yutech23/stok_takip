@@ -6,13 +6,13 @@ import '../models/product.dart';
 // ignore: must_be_immutable
 class WidgetSaleTable extends StatefulWidget {
   String selectUnitOfCurrencySymbol;
-  Product? addProduct;
+  // Product? addProduct;
   List<Product> listProduct;
 
   WidgetSaleTable(
       {super.key,
       required this.selectUnitOfCurrencySymbol,
-      required this.addProduct,
+      //  required this.addProduct,
       required this.listProduct});
 
   @override
@@ -20,27 +20,8 @@ class WidgetSaleTable extends StatefulWidget {
 }
 
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
-  final List<SaleTableRow> _listRowTable = <SaleTableRow>[];
-
   final double _tableWidth = 570, _tableHeight = 500;
   final double _shareheight = 40;
-
-  @override
-  void didUpdateWidget(covariant WidgetSaleTable oldWidget) {
-    if (oldWidget.addProduct != widget.addProduct) {
-      ///Gelen Ürünün özellikleri Liste ekleniyor
-      _listRowTable.add(SaleTableRow(
-        addProduct: widget.addProduct!,
-        listProduct: widget.listProduct,
-        listProductRow: _listRowTable,
-        onItemDeleted: ((_listRowTable) {
-          setState(() {});
-        }),
-      ));
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,18 +42,21 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
             widgetColumnHeaderTable(
                 "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
             Expanded(
-                child: StreamBuilder<int>(
+                child: StreamBuilder<String>(
                     stream: SaleTableRow.streamControllerIndex.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        _listRowTable.removeAt(snapshot.data!);
+                        widget.listProduct.removeWhere((products) =>
+                            products.productCode == snapshot.data);
                       }
-                      print(snapshot.data);
+
                       return ListView.builder(
                           itemBuilder: (context, index) {
-                            return _listRowTable[index];
+                            return SaleTableRow(
+                              addProduct: widget.listProduct[index],
+                            );
                           },
-                          itemCount: _listRowTable.length);
+                          itemCount: widget.listProduct.length);
                     })),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:stok_takip/models/category.dart';
 
 class Product {
@@ -11,6 +12,8 @@ class Product {
   int sallingAmount = 1;
   double? total;
   int? index;
+/*   TextEditingController controllerSallingAmount = TextEditingController();
+  TextEditingController controllerSallingPriceWithTax = TextEditingController(); */
 
   Product({
     required this.productCode,
@@ -21,15 +24,16 @@ class Product {
     required this.category,
   });
 
-  Product.saleInfo(
-      {required this.productCode,
-      required this.currentAmountOfStock,
-      required this.taxRate,
-      required this.currentBuyingPriceWithoutTax,
-      this.currentSallingPriceWith,
-      this.total,
-      this.sallingAmount = 1,
-      this.index});
+  Product.saleInfo({
+    required this.productCode,
+    required this.currentAmountOfStock,
+    required this.taxRate,
+    required this.currentBuyingPriceWithoutTax,
+    this.currentSallingPriceWith,
+    this.total,
+    this.sallingAmount = 1,
+    this.index,
+  });
 
   @override
   bool operator ==(Object other) =>

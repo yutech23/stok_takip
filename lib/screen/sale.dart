@@ -5,10 +5,11 @@ import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
+import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
-import '../widget_share/sale_custom_table_row.dart';
 import 'drawer.dart';
 
 class ScreenSale extends StatefulWidget {
@@ -54,6 +55,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   Product? _selectProduct;
   final List<Product> _listAddProduct = <Product>[];
+
+  final double _exchangeHeight = 70;
 
   @override
   void initState() {
@@ -131,7 +134,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             WidgetSaleTable(
                               selectUnitOfCurrencySymbol:
                                   _selectUnitOfCurrencySymbol,
-                              addProduct: _selectProduct,
                               listProduct: _listAddProduct,
                             )
                           ],
@@ -145,16 +147,19 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       children: [
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                fixedSize: Size(100, 50)),
-                            onPressed: () {
-                              for (var element in _listAddProduct) {
-                                print(
-                                    "${element.productCode} : ${element.total} : ${element.sallingAmount}");
-                              }
-                            },
-                            child: Text("Verileri Çek")),
+                        SizedBox(
+                          width: _shareWidthPaymentSection,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  fixedSize: Size(100, 50)),
+                              onPressed: () {
+                                for (var element in _listAddProduct) {
+                                  print(
+                                      "${element.productCode} : ${element.total} : ${element.sallingAmount}");
+                                }
+                              },
+                              child: Text("Verileri Çek")),
+                        ),
                       ]),
                 ]),
           )),
@@ -168,27 +173,34 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         stream: exchangeRateService.getStreamExchangeRate.stream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return SizedBox(
+            return Container(
               width: _shareWidthPaymentSection,
-              child: Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(1)
-                },
-                border: TableBorder.all(
+              height: _exchangeHeight,
+              decoration: BoxDecoration(
                   color: context.extensionDefaultColor,
-                ),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  widgetExchangeTableRow(context, "USD", snapshot.data!['USD']),
-                  widgetExchangeTableRow(
-                      context, "EURO", snapshot.data!['EUR']),
+                  Text("USD : ${snapshot.data!['USD']}",
+                      style: context.theme.headline6!
+                          .copyWith(color: Colors.white)),
+                  const Divider(
+                      color: Colors.white,
+                      endIndent: 20,
+                      indent: 20,
+                      height: 8),
+                  Text("EUR : ${snapshot.data!['EUR']}",
+                      style: context.theme.headline6!
+                          .copyWith(color: Colors.white)),
                 ],
               ),
             );
           } else {
             //Veri Gelmedi zaman Ekrana Çıkan Nesne
             return Container(
-              width: 150,
+              width: _shareWidthPaymentSection,
+              height: _exchangeHeight,
               decoration: BoxDecoration(border: Border.all()),
               child: const Center(
                 child: CircularProgressIndicator(),
