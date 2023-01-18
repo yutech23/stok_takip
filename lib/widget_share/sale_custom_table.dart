@@ -4,40 +4,41 @@ import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
 import '../models/product.dart';
 
 // ignore: must_be_immutable
-class WidgetSaleList extends StatefulWidget {
+class WidgetSaleTable extends StatefulWidget {
   String selectUnitOfCurrencySymbol;
   Product? addProduct;
   List<Product> listProduct;
-  WidgetSaleList(
+
+  WidgetSaleTable(
       {super.key,
       required this.selectUnitOfCurrencySymbol,
       required this.addProduct,
       required this.listProduct});
 
   @override
-  State<WidgetSaleList> createState() => _WidgetSaleListState();
+  State<WidgetSaleTable> createState() => _WidgetSaleTableState();
 }
 
-class _WidgetSaleListState extends State<WidgetSaleList> {
-  ValueNotifier _valueNotifierListRowTable =
-      ValueNotifier<List<SaleTableRow>>([]);
+class _WidgetSaleTableState extends State<WidgetSaleTable> {
   final List<SaleTableRow> _listRowTable = <SaleTableRow>[];
 
   final double _tableWidth = 570, _tableHeight = 500;
   final double _shareheight = 40;
 
   @override
-  void didUpdateWidget(covariant WidgetSaleList oldWidget) {
+  void didUpdateWidget(covariant WidgetSaleTable oldWidget) {
     if (oldWidget.addProduct != widget.addProduct) {
       ///Gelen Ürünün özellikleri Liste ekleniyor
       _listRowTable.add(SaleTableRow(
         addProduct: widget.addProduct!,
         listProduct: widget.listProduct,
         listProductRow: _listRowTable,
+        onItemDeleted: ((_listRowTable) {
+          setState(() {});
+        }),
       ));
     }
 
-    print("asd");
     super.didUpdateWidget(oldWidget);
   }
 
@@ -60,17 +61,19 @@ class _WidgetSaleListState extends State<WidgetSaleList> {
             widgetColumnHeaderTable(
                 "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: _valueNotifierListRowTable,
-                builder: (context, value, child) {
-                  return ListView.builder(
-                      itemBuilder: (context, index) {
-                        return _listRowTable[index];
-                      },
-                      itemCount: _listRowTable.length);
-                },
-              ),
-            ),
+                child: StreamBuilder<int>(
+                    stream: SaleTableRow.streamControllerIndex.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        _listRowTable.removeAt(snapshot.data!);
+                      }
+                      print(snapshot.data);
+                      return ListView.builder(
+                          itemBuilder: (context, index) {
+                            return _listRowTable[index];
+                          },
+                          itemCount: _listRowTable.length);
+                    })),
           ],
         ),
       ),

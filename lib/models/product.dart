@@ -30,4 +30,14 @@ class Product {
       this.total,
       this.sallingAmount = 1,
       this.index});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Product &&
+          runtimeType == other.runtimeType &&
+          productCode == other.productCode;
+
+  @override
+  int get hashCode => productCode.hashCode;
 }

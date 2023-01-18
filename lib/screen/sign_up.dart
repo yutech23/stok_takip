@@ -217,7 +217,7 @@ class _ScreenSignUpState extends State with Validation {
         print(kullanici.role); */
 
         if (formKey.currentState!.validate()) {
-          db.signUp(kullanici).then((value) {
+          db.signUpMy(kullanici).then((value) {
             if (value.isEmpty) {
               setState(() {
                 _controllerEmail.clear();

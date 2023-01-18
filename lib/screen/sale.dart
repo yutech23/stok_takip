@@ -128,7 +128,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             widgetButtonNewCustomer(),
                             widgetSearchFieldProductCode(),
                             widgetButtonAddProduct(),
-                            WidgetSaleList(
+                            WidgetSaleTable(
                               selectUnitOfCurrencySymbol:
                                   _selectUnitOfCurrencySymbol,
                               addProduct: _selectProduct,
@@ -317,15 +317,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       child: ElevatedButton.icon(
         // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),
         icon: const Icon(Icons.playlist_add),
-
         onPressed: () async {
           if (_controllerSearchProductCode.text.isNotEmpty) {
+            //seçilen ürün kodunun özellikleri alınıyor.
             _selectProduct = await db
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
-
-            _listAddProduct.add(_selectProduct!);
-
-            setState(() {});
+            //nesne kıyaslaması yapılıyor. equatable kullanarak
+            if (!_listAddProduct.contains(_selectProduct)) {
+              setState(() {
+                _listAddProduct.add(_selectProduct!);
+              });
+            }
           }
         },
         label: Text(_labelAddProduct),

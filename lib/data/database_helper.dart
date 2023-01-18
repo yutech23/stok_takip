@@ -130,7 +130,7 @@ class DbHelper {
   }
 
   //Üye kayıt Fonksiyonu
-  Future<String> signUp(Kullanici kullanici) async {
+  Future<String> signUpMy(Kullanici kullanici) async {
     //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
     try {
       final resAuth = await db.supabase.auth

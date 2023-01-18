@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:stok_takip/models/product.dart';
-
 import '../validations/format_decimal_3by3.dart';
 
 // ignore: must_be_immutable
@@ -11,11 +11,16 @@ class SaleTableRow extends StatefulWidget {
   Product addProduct;
   List<Product> listProduct;
   List<SaleTableRow> listProductRow;
+  final Function(List<SaleTableRow> listProductRow) onItemDeleted;
+  static StreamController<int> streamControllerIndex =
+      StreamController<int>.broadcast();
+
   SaleTableRow(
       {Key? key,
       required this.addProduct,
       required this.listProduct,
-      required this.listProductRow})
+      required this.listProductRow,
+      required this.onItemDeleted})
       : super(key: key);
 
   @override
@@ -57,10 +62,9 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     int index = widget.listProduct.indexOf(widget.addProduct);
-
-                    widget.listProduct.removeAt(index);
-                    widget.listProductRow.removeAt(index);
-                    print("index : $index");
+                    SaleTableRow.streamControllerIndex.sink.add(index);
+                    /*  widget.listProduct.removeAt(index);
+                    widget.listProductRow.removeAt(index); */
                   },
                 ),
               )),
