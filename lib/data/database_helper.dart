@@ -521,15 +521,19 @@ class DbHelper {
             ['current_salling_price_without_tax']! *
         (1 + (resData[0]['tax_rate'] / 100)));
 
+    double calculateBuyingWithTax = (resData[0]
+            ['current_buying_price_without_tax']! *
+        (1 + (resData[0]['tax_rate'] / 100)));
+
     Product getProductDetailForSale = Product.saleInfo(
-      productCode: resData[0]['product_code'],
-      currentAmountOfStock: resData[0]['current_amount_of_stock'],
-      taxRate: resData[0]['tax_rate'],
-      currentBuyingPriceWithoutTax: resData[0]
-          ['current_buying_price_without_tax'],
-      currentSallingPriceWith: calculateSallingWithTax,
-      total: calculateSallingWithTax,
-    );
+        productCode: resData[0]['product_code'],
+        currentAmountOfStock: resData[0]['current_amount_of_stock'],
+        taxRate: resData[0]['tax_rate'],
+        currentBuyingPriceWithoutTax: resData[0]
+            ['current_buying_price_without_tax'],
+        currentSallingPriceWith: calculateSallingWithTax,
+        total: calculateSallingWithTax,
+        currentBuyingPriceWithTax: calculateBuyingWithTax);
 
     return getProductDetailForSale;
   }

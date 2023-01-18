@@ -1,10 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stok_takip/models/product.dart';
 import '../validations/format_decimal_3by3.dart';
+import '../utilities/dimension_font.dart';
 
 // ignore: must_be_immutable
 class SaleTableRow extends StatefulWidget {
@@ -96,6 +96,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
       keyboardType: TextInputType.number,
       maxLines: 1,
       maxLength: 3,
+      textInputAction: TextInputAction.next,
       decoration: const InputDecoration(
           counterText: "",
           contentPadding: EdgeInsets.zero,
@@ -104,6 +105,14 @@ class _SaleTableRowState extends State<SaleTableRow> {
           border: OutlineInputBorder()),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       onChanged: (value) {
+        if (int.parse(value) >= widget.addProduct.currentAmountOfStock) {
+          context.noticeBarCustom(
+              "BİLDİRİM",
+              "Stok miktarını aştınız.\n Stok : ${widget.addProduct.currentAmountOfStock}",
+              5,
+              Colors.amber.shade600);
+        }
+
         ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
         ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
         if (value.isNotEmpty) {
@@ -124,16 +133,25 @@ class _SaleTableRowState extends State<SaleTableRow> {
       controller: controllerAmount,
       textAlign: TextAlign.left,
       keyboardType: TextInputType.number,
+      textInputAction: TextInputAction.done,
       maxLines: 1,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.only(left: 3),
           focusedBorder:
               OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
           border: OutlineInputBorder()),
-      inputFormatters: [FormatterDecimalThreeByThree()],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       onChanged: (value) {
+        print(widget.addProduct.currentBuyingPriceWithTax);
+        if (double.parse(value) <=
+            widget.addProduct.currentBuyingPriceWithTax!) {
+          context.noticeBarCustom(
+              "BİLDİRİM",
+              "Maliyetin altına düştünüz.\n Birim Maliyet : ${widget.addProduct.currentBuyingPriceWithTax!.toStringAsFixed(2)}",
+              5,
+              Colors.amber.shade600);
+        }
         if (value.isNotEmpty) {
-          print(value);
           widget.addProduct.currentSallingPriceWith = double.tryParse(value);
           setState(() {
             widget.addProduct.total =

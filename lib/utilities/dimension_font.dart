@@ -106,6 +106,23 @@ extension DimensionFont on BuildContext {
     ).show(this);
   }
 
+  Future noticeBarCustom(String header, String message, int durationSeconds,
+      Color background) async {
+    return await Flushbar(
+      backgroundColor: background,
+      titleText: Text(
+        header,
+        textAlign: TextAlign.center,
+        style: theme.headline6!.copyWith(
+            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
+      ),
+      messageText: Text(message,
+          style: theme.headline6!.copyWith(color: Colors.white),
+          textAlign: TextAlign.center),
+      duration: Duration(seconds: durationSeconds),
+    ).show(this);
+  }
+
   Future noticeBarTrue(String message, int durationSeconds) async {
     return await Flushbar(
       backgroundColor: Colors.green,
