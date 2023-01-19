@@ -33,18 +33,13 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _formKey = GlobalKey<FormState>();
   final _valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
-  final _valueNotifierPaid = ValueNotifier<double>(0);
-  final _valueNotifierBalance = ValueNotifier<double>(0);
-  final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
+
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
 
   final _controllerSallingPriceWithoutTax = TextEditingController();
-  final _controllerCashValue = TextEditingController();
-  final _controllerBankValue = TextEditingController();
-  final _controllerEftHavaleValue = TextEditingController();
-  final _controllerPaymentTotal = TextEditingController();
+
   final _controllerInvoiceCode = TextEditingController();
   late AutovalidateMode _autovalidateMode;
 
@@ -63,6 +58,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   late List<String>? _productCodeList;
   final String _paymentSections = "Ödeme Bölümü";
   String _newSuppleirAdd = "";
+
+  /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
+  final _valueNotifierPaid = ValueNotifier<double>(0);
+  final _valueNotifierBalance = ValueNotifier<double>(0);
+  final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
+  final _controllerCashValue = TextEditingController();
+  final _controllerBankValue = TextEditingController();
+  final _controllerEftHavaleValue = TextEditingController();
+  final _controllerPaymentTotal = TextEditingController();
+
   final String _totalPayment = "Toplam Tutarı Giriniz";
   final String _balance = "Kalan Tutar : ";
   final String _paid = "Ödenen Toplam Tutar : ";
@@ -75,6 +80,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double _totalPaymentValue = 0;
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   String? _selectDateTime;
+/*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
 
   final String _labelAmountOfStock = "Stok Miktarı (Adet)";
   final String _labelKDV = "KDV Oranın Seçiniz";

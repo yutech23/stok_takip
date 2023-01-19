@@ -49,7 +49,6 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                         widget.listProduct.removeWhere((products) =>
                             products.productCode == snapshot.data);
                       }
-
                       return ListView.builder(
                           itemBuilder: (context, index) {
                             return SaleTableRow(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
@@ -8,7 +9,10 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
 import '../modified_lib/searchfield.dart';
+import '../utilities/convert_string_currency_digits.dart';
+import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
+import '../validations/format_decimal_3by3.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
 
@@ -46,17 +50,42 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   };
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
 
-  final double _saleMinWidth = 360, _saleMaxWidth = 830;
+  final double _saleMinWidth = 360, _saleMaxWidth = 880;
   final double _shareWidth = 220, _shareheight = 40;
   int tableRowIndex = 0;
   final double _widthSearch = 330;
   int simpleIntInput = 0;
-  final double _shareWidthPaymentSection = 200;
+  final double _shareWidthPaymentSection = 250;
   final double _exchangeHeight = 70;
   Product? _selectProduct;
   final List<Product> _listAddProduct = <Product>[];
 
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
+  final String _labelTotalprice = "Toplam Tutar";
+  final String _labelTaxRate = "KDV %";
+  final String _labelGeneralTotal = "Genel Toplam";
+
+  /*????????????????????????????? SON ???????????????????????????????*/
+
+  /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
+  final _valueNotifierPaid = ValueNotifier<double>(0);
+  final _valueNotifierBalance = ValueNotifier<double>(0);
+  final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
+  final _controllerCashValue = TextEditingController();
+  final _controllerBankValue = TextEditingController();
+  final _controllerEftHavaleValue = TextEditingController();
+
+  final String _balance = "Kalan Tutar : ";
+  final String _cash = "Nakit İle Ödenen Tutar";
+  final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
+  final String _bankCard = "Kart İle Ödenen Tutar";
+
+  double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
+  double _totalPaymentValue = 0;
+  String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+  String? _selectDateTime;
+
+/*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
 
   @override
   void initState() {
@@ -151,6 +180,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
                         widgetTotalPriceSection(),
+                        widgetPaymentOptions()
                       ]),
                 ]),
           )),
@@ -201,29 +231,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             );
           }
         });
-  }
-
-  ///Döviz Kurları Tablosu TableRow widgetı.
-  TableRow widgetExchangeTableRow(
-      BuildContext context, String exchangeRateName, double? exchangeRateUnit) {
-    return TableRow(children: [
-      Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Text(
-            style:
-                context.theme.subtitle1!.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-            exchangeRateName),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Text(
-            textAlign: TextAlign.start,
-            style:
-                context.theme.subtitle1!.copyWith(fontWeight: FontWeight.bold),
-            exchangeRateUnit.toString()),
-      )
-    ]);
   }
 
   ///Müşteri Search Listesi
@@ -464,42 +471,270 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   widgetTotalPriceSection() {
-    TextStyle style = context.theme.headline6!.copyWith(color: Colors.white);
     return ValueListenableBuilder<List<Product>>(
         valueListenable: SaleTableRow.valueNotifier,
         builder: (context, value, child) {
-          double toplam = 0;
-
+          ///Eklenen rünlerin Tutarlarını Topluyor
+          double totalSales = 0;
           for (var element in value) {
-            toplam = toplam + element.total!;
+            totalSales = totalSales + element.total!;
+          }
+          double? totalSalesWithoutTax;
+          int? taxRate;
+          if (value.isNotEmpty) {
+            taxRate = value[0].taxRate;
+            totalSalesWithoutTax = totalSales / ((100 + taxRate) / 100);
           }
 
           return Container(
             width: _shareWidthPaymentSection,
+            color: Colors.amber,
             child: Card(
-              color: context.extensionDefaultColor,
+              // color: context.extensionDefaultColor,
               elevation: 5,
               child: Column(children: [
-                Text(
-                  "Toplam Tutar",
-                  style: style,
-                ),
-                Text(
-                  FormatterConvert().pointToCommaAndDecimalTwo(toplam, 2),
-                  style: style,
-                ),
-                Divider(
-                  color: Colors.white,
-                  indent: 10,
-                  endIndent: 10,
-                ),
-                Text(
-                  "KDV % ",
-                  style: style,
-                )
+                widgetTotalPriceSectionHeader(context, _labelTotalprice),
+                widgetTotalPriceSectionBody(context, totalSalesWithoutTax),
+                widgetTotalPriceSectionHeader(context, _labelTaxRate),
+                widgetTotalPriceSectionBody(context, taxRate),
+                widgetTotalPriceSectionHeader(context, _labelGeneralTotal),
+                widgetTotalPriceSectionBody(context, totalSales),
               ]),
             ),
           );
         });
   }
+
+  ///EK -- Toplam Ödemelerin Başlık Bölümü
+  Container widgetTotalPriceSectionHeader(BuildContext context, String label) {
+    TextStyle styleHeader =
+        context.theme.headline6!.copyWith(color: Colors.white);
+    return Container(
+      alignment: Alignment.center,
+      width: _shareWidthPaymentSection,
+      decoration: BoxDecoration(
+        color: context.extensionDefaultColor,
+      ),
+      child: Text(
+        label,
+        style: styleHeader,
+      ),
+    );
+  }
+
+  /// EK -- Toplam Ödemelerin Gövde Bölümü
+  Container widgetTotalPriceSectionBody(
+      BuildContext context, num? totalSalesWithoutTax) {
+    TextStyle styleBody = context.theme.headline6!;
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border:
+            Border(bottom: BorderSide(color: context.extensionDefaultColor)),
+      ),
+      child: Text(
+        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
+        style: styleBody,
+      ),
+    );
+  }
+
+  ///Ödeme verilerin alındığı yer.
+  widgetPaymentOptions() {
+    return Wrap(
+      alignment: WrapAlignment.start,
+      direction: Axis.vertical,
+      spacing: context.extensionWrapSpacing20(),
+      runSpacing: context.extensionWrapSpacing20(),
+      children: [
+        Container(
+          alignment: Alignment.center,
+          width: _shareWidthPaymentSection,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            direction: Axis.vertical,
+            spacing: context.extensionWrapSpacing20(),
+            children: [
+              ///Nakit Ödeme
+              sharedTextFormField(
+                width: _shareWidthPaymentSection,
+                labelText: _cash,
+                controller: _controllerCashValue,
+                onChanged: (value) {
+                  value.isEmpty
+                      ? _cashValue = 0
+                      : _cashValue =
+                          double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                },
+              ),
+              //Bankakartı Ödeme Widget
+              sharedTextFormField(
+                width: _shareWidthPaymentSection,
+                labelText: _bankCard,
+                controller: _controllerBankValue,
+                onChanged: (value) {
+                  value.isEmpty
+                      ? _bankValue = 0
+                      : _bankValue =
+                          double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                },
+              ),
+              //EFTveHavale Ödeme Widget
+              sharedTextFormField(
+                width: _shareWidthPaymentSection,
+                labelText: _eftHavale,
+                controller: _controllerEftHavaleValue,
+                onChanged: (value) {
+                  value.isEmpty
+                      ? _eftHavaleValue = 0
+                      : _eftHavaleValue =
+                          double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                },
+              ),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          width: _shareWidthPaymentSection,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            direction: Axis.vertical,
+            spacing: context.extensionWrapSpacing20(),
+            children: [
+              ///Kalan Tutarın Bölümü.
+              shareValueListenableBuilder(
+                  valueListenable: _valueNotifierBalance, firstText: _balance)
+            ],
+          ),
+        ),
+
+        ///İleri Ödeme Tarihi Belirlenen button.
+        ///ValueListenableBuilder Buttonun aktif veya pasif olmasını belirliyor. Toplam Tutar girilmediyse Button Pasif Oluyor.
+        ValueListenableBuilder(
+          valueListenable: _valueNotifierButtonDateTimeState,
+          builder: (context, value, child) {
+            return SizedBox(
+              width: _shareWidthPaymentSection,
+              child: shareWidget.widgetElevatedButton(
+                  onPressedDoSomething: _valueNotifierButtonDateTimeState.value
+                      ? () async {
+                          //Takvimden veri alınıyor.
+                          final dataForCalendar = await pickDate();
+
+                          if (dataForCalendar != null) {
+                            //
+                            _selectDateTime = DateFormat('dd/MM/yyyy')
+                                .format(dataForCalendar);
+                            setState(() {
+                              _buttonDateTimeLabel =
+                                  "Seçilen Tarih \n ${dataForCalendar.day}/${dataForCalendar.month}/${dataForCalendar.year}";
+                            });
+                          }
+                        }
+                      : null,
+                  label: _buttonDateTimeLabel),
+            );
+          },
+        ),
+
+        ///Tutar Ve Ödemenin Yapsının Hesaplayan Button.
+        SizedBox(
+          width: _shareWidthPaymentSection,
+          child: shareWidget.widgetElevatedButton(
+              onPressedDoSomething: () {
+                _valueNotifierPaid.value =
+                    _cashValue + _bankValue + _eftHavaleValue;
+
+                _valueNotifierBalance.value =
+                    _totalPaymentValue - _valueNotifierPaid.value;
+
+                _valueNotifierButtonDateTimeState.value = false;
+
+                if (_valueNotifierBalance.value > 0) {
+                  _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
+                  _valueNotifierButtonDateTimeState.value = true;
+                }
+              },
+              label: "Hesapla"),
+        )
+      ],
+    );
+  }
+
+  shareValueListenableBuilder(
+      {required ValueNotifier<double> valueListenable,
+      required String firstText}) {
+    return ValueListenableBuilder<double>(
+      valueListenable: valueListenable,
+      builder: (context, value, child) {
+        return Container(
+          alignment: Alignment.centerLeft,
+          width: _shareWidthPaymentSection,
+          height: 43,
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: context.extensionDisableColor))),
+          child: RichText(
+            maxLines: 2,
+            text: TextSpan(children: [
+              TextSpan(
+                text: firstText,
+                style: context.theme.titleMedium!.copyWith(
+                    color: context.extensionDefaultColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
+              ),
+              TextSpan(
+                  text:
+                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrencySymbol",
+                  style: context.theme.titleMedium!.copyWith(
+                      color: Colors.red.shade900,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1))
+            ]),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
+    );
+  }
+
+  sharedTextFormField(
+      {required double width,
+      required String labelText,
+      required TextEditingController controller,
+      required void Function(String)? onChanged,
+      String? Function(String?)? validator}) {
+    return SizedBox(
+      width: width,
+      child: TextFormField(
+        validator: validator,
+        onChanged: onChanged,
+        controller: controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        inputFormatters: [
+          FormatterDecimalThreeByThree(),
+        ],
+        keyboardType: TextInputType.number,
+        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: context.extensionDefaultColor),
+          isDense: true,
+          errorBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+        ),
+      ),
+    );
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDate() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
 }
