@@ -4,9 +4,9 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
@@ -44,7 +44,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
-/*------------ SON - (PARABİRİMİ SEÇİMİ)------------------- */
+/*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
 
   final double _saleMinWidth = 360, _saleMaxWidth = 830;
   final double _shareWidth = 220, _shareheight = 40;
@@ -52,11 +52,11 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _widthSearch = 330;
   int simpleIntInput = 0;
   final double _shareWidthPaymentSection = 200;
-
+  final double _exchangeHeight = 70;
   Product? _selectProduct;
   final List<Product> _listAddProduct = <Product>[];
 
-  final double _exchangeHeight = 70;
+  /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
 
   @override
   void initState() {
@@ -67,9 +67,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
     _colorBackgroundCurrencyTRY = context.extensionDisableColor;
     _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
-/*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
+/*?????????????????? SON - PARABİRİMİ SEÇİMİ ?????????????????? */
 
+    ///Sayfa Başladığında bir kez veri çekiyor.yoksa 1 saat sonra çeker.
     exchangeRateService.getExchangeRate();
+
+    ///Her 1 saat te bir döviz kurlarını çekiyor. Future Fonksiyon.
     Timer.periodic(const Duration(hours: 1), (timer) {
       exchangeRateService.getExchangeRate();
     });
@@ -147,19 +150,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       children: [
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
-                        SizedBox(
-                          width: _shareWidthPaymentSection,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(100, 50)),
-                              onPressed: () {
-                                for (var element in _listAddProduct) {
-                                  print(
-                                      "${element.productCode} : ${element.total} : ${element.sallingAmount}");
-                                }
-                              },
-                              child: Text("Verileri Çek")),
-                        ),
+                        widgetTotalPriceSection(),
                       ]),
                 ]),
           )),
@@ -178,11 +169,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               height: _exchangeHeight,
               decoration: BoxDecoration(
                   color: context.extensionDefaultColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                  borderRadius: const BorderRadius.all(Radius.circular(10))),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("USD : ${snapshot.data!['USD']}",
+                  Text(
+                      "USD : ${FormatterConvert().pointToCommaAndDecimalTwo(snapshot.data!['USD']!, 4)}",
                       style: context.theme.headline6!
                           .copyWith(color: Colors.white)),
                   const Divider(
@@ -190,7 +182,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       endIndent: 20,
                       indent: 20,
                       height: 8),
-                  Text("EUR : ${snapshot.data!['EUR']}",
+                  Text(
+                      "EUR : ${FormatterConvert().pointToCommaAndDecimalTwo(snapshot.data!['EUR']!, 4)}",
                       style: context.theme.headline6!
                           .copyWith(color: Colors.white)),
                 ],
@@ -336,6 +329,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
             //nesne kıyaslaması yapılıyor. equatable kullanarak
             if (!_listAddProduct.contains(_selectProduct)) {
+              SaleTableRow.valueNotifier.value.add(_selectProduct!);
               setState(() {
                 _listAddProduct.add(_selectProduct!);
               });
@@ -467,5 +461,45 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   Divider widgetDivider() {
     return const Divider(color: Colors.blueGrey, thickness: 2.5, height: 40);
+  }
+
+  widgetTotalPriceSection() {
+    TextStyle style = context.theme.headline6!.copyWith(color: Colors.white);
+    return ValueListenableBuilder<List<Product>>(
+        valueListenable: SaleTableRow.valueNotifier,
+        builder: (context, value, child) {
+          double toplam = 0;
+
+          for (var element in value) {
+            toplam = toplam + element.total!;
+          }
+
+          return Container(
+            width: _shareWidthPaymentSection,
+            child: Card(
+              color: context.extensionDefaultColor,
+              elevation: 5,
+              child: Column(children: [
+                Text(
+                  "Toplam Tutar",
+                  style: style,
+                ),
+                Text(
+                  FormatterConvert().pointToCommaAndDecimalTwo(toplam, 2),
+                  style: style,
+                ),
+                Divider(
+                  color: Colors.white,
+                  indent: 10,
+                  endIndent: 10,
+                ),
+                Text(
+                  "KDV % ",
+                  style: style,
+                )
+              ]),
+            ),
+          );
+        });
   }
 }

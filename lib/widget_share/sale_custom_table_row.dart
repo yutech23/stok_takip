@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stok_takip/models/product.dart';
-import '../validations/format_decimal_3by3.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
+import 'package:stok_takip/validations/format_decimal_limit.dart';
 import '../utilities/dimension_font.dart';
 
 // ignore: must_be_immutable
@@ -12,6 +13,9 @@ class SaleTableRow extends StatefulWidget {
 
   static StreamController<String> streamControllerIndex =
       StreamController<String>.broadcast();
+
+  static ValueNotifier<List<Product>> valueNotifier =
+      ValueNotifier<List<Product>>([]);
   String? ad;
   SaleTableRow({
     Key? key,
@@ -29,8 +33,8 @@ class _SaleTableRowState extends State<SaleTableRow> {
   @override
   void initState() {
     _controllerAmount.text = widget.addProduct.sallingAmount.toString();
-    _controllerPrice.text =
-        widget.addProduct.currentSallingPriceWith!.toStringAsFixed(2);
+    _controllerPrice.text = FormatterConvert().pointToCommaAndDecimalTwo(
+        widget.addProduct.currentSallingPriceWith!, 2);
     super.initState();
   }
 
@@ -80,7 +84,8 @@ class _SaleTableRowState extends State<SaleTableRow> {
             flex: 2,
             child: Container(
                 alignment: Alignment.center,
-                child: Text(widget.addProduct.total!.toStringAsFixed(2))),
+                child: Text(
+                    FormatterConvert().currencyShow(widget.addProduct.total!))),
           ),
         ],
       ),
@@ -121,6 +126,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
             widget.addProduct.total = double.parse(value) *
                 widget.addProduct.currentSallingPriceWith!;
           });
+          SaleTableRow.valueNotifier.notifyListeners();
         }
       },
     );
@@ -140,23 +146,31 @@ class _SaleTableRowState extends State<SaleTableRow> {
           focusedBorder:
               OutlineInputBorder(borderSide: BorderSide(color: Colors.blue)),
           border: OutlineInputBorder()),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
+        FormatterDecimalLimit(decimalRange: 2)
+      ],
       onChanged: (value) {
-        print(widget.addProduct.currentBuyingPriceWithTax);
-        if (double.parse(value) <=
+        ///Maliyet altında fiyat girildiğinde bildirim veriyor.
+        if (FormatterConvert().commaToPointDouble(value) <=
             widget.addProduct.currentBuyingPriceWithTax!) {
           context.noticeBarCustom(
               "BİLDİRİM",
-              "Maliyetin altına düştünüz.\n Birim Maliyet : ${widget.addProduct.currentBuyingPriceWithTax!.toStringAsFixed(2)}",
+              "Maliyetin altına düştünüz.\n Birim Maliyet : ${FormatterConvert().pointToCommaAndDecimalTwo(widget.addProduct.currentBuyingPriceWithTax!, 2)}",
               5,
               Colors.amber.shade600);
         }
+
+        ///Girilen Değer Boş olduğunda sorun çıkmasını engelliyor.
         if (value.isNotEmpty) {
-          widget.addProduct.currentSallingPriceWith = double.tryParse(value);
+          widget.addProduct.currentSallingPriceWith =
+              FormatterConvert().commaToPointDouble(value);
           setState(() {
             widget.addProduct.total =
-                double.parse(value) * widget.addProduct.sallingAmount;
+                FormatterConvert().commaToPointDouble(value) *
+                    widget.addProduct.sallingAmount;
           });
+          SaleTableRow.valueNotifier.notifyListeners();
         }
       },
     );
