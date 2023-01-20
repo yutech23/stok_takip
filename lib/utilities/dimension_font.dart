@@ -18,6 +18,10 @@ extension DimensionFont on BuildContext {
 
   EdgeInsets extensionPadding20() => const EdgeInsets.all(20);
   EdgeInsets extensionMargin20() => const EdgeInsets.all(20);
+  EdgeInsets extensionPaddingVertical10() =>
+      const EdgeInsets.symmetric(vertical: 10);
+  EdgeInsets extensionPaddingHorizantal10() =>
+      const EdgeInsets.symmetric(horizontal: 10);
 
   EdgeInsets extensionPadding10() => const EdgeInsets.all(10);
   EdgeInsets extensionMargin10() => const EdgeInsets.all(10);

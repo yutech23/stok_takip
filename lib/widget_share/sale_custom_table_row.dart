@@ -57,11 +57,14 @@ class _SaleTableRowState extends State<SaleTableRow> {
               child: Container(
                 alignment: Alignment.center,
                 child: IconButton(
+                  focusNode: FocusNode(skipTraversal: true),
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     SaleTableRow.streamControllerIndex.sink
                         .add(widget.addProduct.productCode);
+                    SaleTableRow.valueNotifier.value.remove(widget.addProduct);
+                    SaleTableRow.valueNotifier.notifyListeners();
                   },
                 ),
               )),

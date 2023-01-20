@@ -12,7 +12,6 @@ class WidgetSaleTable extends StatefulWidget {
   WidgetSaleTable(
       {super.key,
       required this.selectUnitOfCurrencySymbol,
-      //  required this.addProduct,
       required this.listProduct});
 
   @override
@@ -20,7 +19,7 @@ class WidgetSaleTable extends StatefulWidget {
 }
 
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
-  final double _tableWidth = 570, _tableHeight = 500;
+  final double _tableWidth = 570, _tableHeight = 445;
   final double _shareheight = 40;
 
   @override
@@ -35,6 +34,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
       width: _tableWidth,
       height: _tableHeight,
       child: Card(
+        margin: EdgeInsets.zero,
         elevation: 5,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
