@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:stok_takip/bloc/sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
@@ -52,6 +53,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   };
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
 
+  /*-----------------------BAŞLANGIÇ - SATIŞ TABLO ------------------ */
+
+  final List<Product> _listAddProduct = <Product>[];
+
+  /*?????????????????????? SON - SATIŞ TABLO ?????????????????????????*/
+
   final double _saleMinWidth = 360, _saleMaxWidth = 880;
   final double _shareWidth = 220, _shareheight = 40;
   int tableRowIndex = 0;
@@ -60,7 +67,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _shareWidthPaymentSection = 250;
   final double _exchangeHeight = 70;
   Product? _selectProduct;
-  final List<Product> _listAddProduct = <Product>[];
 
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
@@ -177,7 +183,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             ),
                           ],
                         ),
-                        widgetTotalPriceSectionRow()
                       ]),
                   Wrap(
                       direction: Axis.vertical,
@@ -341,13 +346,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             //seçilen ürün kodunun özellikleri alınıyor.
             _selectProduct = await db
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
-            //nesne kıyaslaması yapılıyor. equatable kullanarak
+
+            blocSale.streamAddProduct(_selectProduct!);
+
+            /* //nesne kıyaslaması yapılıyor. equatable kullanarak
             if (!_listAddProduct.contains(_selectProduct)) {
               SaleTableRow.valueNotifier.value.add(_selectProduct!);
               setState(() {
                 _listAddProduct.add(_selectProduct!);
               });
-            }
+            } */
           }
         },
         label: Text(_labelAddProduct),
@@ -553,38 +561,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   ///EK -- Toplam Ödemelerin Başlık Bölümü
-  Container widgetTotalPriceSectionHeader(
-      BuildContext context, String label, Color backgroundColor) {
-    TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
-    return Container(
-      alignment: Alignment.center,
-      width: _shareWidthPaymentSection,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-      ),
-      child: Text(
-        label,
-        style: styleHeader,
-      ),
-    );
-  }
-
-  /// EK -- Toplam Ödemelerin Gövde Bölümü
-  Container widgetTotalPriceSectionBody(
-      BuildContext context, num? totalSalesWithoutTax) {
-    TextStyle styleBody = context.theme.headline6!;
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.center,
-      child: Text(
-        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
-        style: styleBody,
-      ),
-    );
-  }
-
-  ///EK -- Toplam Ödemelerin Başlık Bölümü
   widgetTotalPriceSectionHeader1(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
@@ -652,6 +628,38 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
           style: styleBody,
         ),
+      ),
+    );
+  }
+
+  ///EK -- Toplam Ödemelerin Başlık Bölümü
+  Container widgetTotalPriceSectionHeader(
+      BuildContext context, String label, Color backgroundColor) {
+    TextStyle styleHeader =
+        context.theme.headline6!.copyWith(color: Colors.white);
+    return Container(
+      alignment: Alignment.center,
+      width: _shareWidthPaymentSection,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+      ),
+      child: Text(
+        label,
+        style: styleHeader,
+      ),
+    );
+  }
+
+  /// EK -- Toplam Ödemelerin Gövde Bölümü
+  Container widgetTotalPriceSectionBody(
+      BuildContext context, num? totalSalesWithoutTax) {
+    TextStyle styleBody = context.theme.headline6!;
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: Text(
+        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
+        style: styleBody,
       ),
     );
   }

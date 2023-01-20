@@ -22,7 +22,7 @@ class AuthController {
 
   controllerAuth() async {
     // final user = await db.supabase.auth.currentUser;
-    final Session? userSession = await db.supabase.auth.currentSession;
+    /*    final Session? userSession = await db.supabase.auth.currentSession;
 
     if (userSession?.accessToken != null) {
       // await db.supabase.auth.setSession(userSession!.refreshToken!);
@@ -31,7 +31,7 @@ class AuthController {
       print("Session YOKK");
       //Browser Bulunan Local Storage veriler temizleniyor.
       SecurityStorageUser.deleteStorege();
-    }
+    } */
 
     // Login Sayfasına yönlendiriliyor
   }
