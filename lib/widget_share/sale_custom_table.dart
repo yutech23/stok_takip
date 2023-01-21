@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stok_takip/bloc/sale.dart';
+import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
 import '../models/product.dart';
@@ -21,13 +21,12 @@ class WidgetSaleTable extends StatefulWidget {
 }
 
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
-  final double _tableWidth = 570, _tableHeight = 445;
+  final double _tableWidth = 570, _tableHeight = 463;
   final double _shareheight = 40;
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
   final String _labelGeneralTotal = "Genel Toplam";
-  double _totalSales = 0;
 
   /*????????????????????????????? SON ???????????????????????????????*/
 
@@ -52,7 +51,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                 "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
             Expanded(
                 child: StreamBuilder<List<Product>>(
-                    stream: blocSale.getStream,
+                    stream: blocSale.getStreamListProduct,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         return ListView.builder(
@@ -126,34 +125,53 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
     );
   }
 
+  ///Toplam Tutar, Kdv Ve Genel toplam tutarı Tablosu
   widgetTableTotalPrice() {
     return SizedBox(
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(2),
-          1: FlexColumnWidth(2),
-          2: FlexColumnWidth(1),
-          3: FlexColumnWidth(1),
-          4: FlexColumnWidth(2),
-          5: FlexColumnWidth(2),
-        },
-        children: [widgetExchangeTableRow()],
-      ),
+      child: StreamBuilder<Map<String, num>>(
+          stream: blocSale.getStreamTotalPrice,
+          initialData: const {
+            'total_without_tax': 0,
+            'kdv': 0,
+            'total_with_tax': 0
+          },
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(2),
+                  1: FlexColumnWidth(2),
+                  2: FlexColumnWidth(1),
+                  3: FlexColumnWidth(1),
+                  4: FlexColumnWidth(2),
+                  5: FlexColumnWidth(2),
+                },
+                children: [
+                  partOfWidgetTotalTableRow(
+                      snapshot.data!['total_without_tax']!,
+                      snapshot.data!['kdv']!,
+                      snapshot.data!['total_with_tax']!)
+                ],
+              );
+            }
+            return Container();
+          }),
     );
   }
 
-  ///Döviz Kurları Tablosu TableRow widgetı.
-  TableRow widgetExchangeTableRow() {
+  /// Toplam Tutar, Kdv Ve Genel toplam tutarı Satır
+  partOfWidgetTotalTableRow(
+      num totalPriceWithoutTax, num kdv, num totalPriceWithTax) {
     return TableRow(children: [
       widgetTotalPriceSectionHeader1(
           context, _labelTotalprice, context.extensionDefaultColor),
-      widgetTotalPriceSectionBody1(context, 1000),
+      widgetTotalPriceSectionBody1(context, totalPriceWithoutTax),
       widgetTotalPriceSectionHeaderKDV(
           context, _labelTaxRate, context.extensionDefaultColor),
-      widgetTotalPriceSectionBodyKDV(context, 18),
+      widgetTotalPriceSectionBodyKDV(context, kdv),
       widgetTotalPriceSectionHeader1(
           context, _labelGeneralTotal, context.extensionDefaultColor),
-      widgetTotalPriceSectionBody1(context, _totalSales),
+      widgetTotalPriceSectionBody1(context, totalPriceWithTax),
     ]);
   }
 

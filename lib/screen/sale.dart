@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:stok_takip/bloc/sale.dart';
+import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
@@ -10,12 +10,9 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
-import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
 import '../modified_lib/searchfield.dart';
-import '../utilities/convert_string_currency_digits.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/format_decimal_3by3.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
 
@@ -68,21 +65,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _exchangeHeight = 70;
   Product? _selectProduct;
 
-  /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
-  final String _labelTotalprice = "Toplam Tutar";
-  final String _labelTaxRate = "KDV %";
-  final String _labelGeneralTotal = "Genel Toplam";
-  double _totalSales = 0;
-
-  /*????????????????????????????? SON ???????????????????????????????*/
-
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
-  final _valueNotifierPaid = ValueNotifier<double>(0);
-  final _valueNotifierBalance = ValueNotifier<double>(0);
+
   final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
-  final _valueNotifierCashValue = ValueNotifier<double>(0);
-  final _valueNotifierBankCardValue = ValueNotifier<double>(0);
-  final _valueNotifierEftAndHavaleValue = ValueNotifier<double>(0);
   final _controllerCashValue = TextEditingController();
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
@@ -93,15 +78,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
 
-  double _cashValue = 0, _bankValue = 0, _eftHavaleValue = 0;
-
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   String? _selectDateTime;
 
 /*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
+  num? totalPriceForListProduct;
+
+  late final StreamSubscription _streamSubScriptionBalanceValue;
 
   @override
   void initState() {
+    blocSale.getTotalPriceSection();
 /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
     _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
     _selectUnitOfCurrencyAbridgment =
@@ -117,6 +104,15 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     ///Her 1 saat te bir döviz kurlarını çekiyor. Future Fonksiyon.
     Timer.periodic(const Duration(hours: 1), (timer) {
       exchangeRateService.getExchangeRate();
+    });
+
+    _streamSubScriptionBalanceValue =
+        blocSale.getStreamPaymentSystem.listen((event) {
+      if (event > 0) {
+        _valueNotifierButtonDateTimeState.value = true;
+      } else {
+        _valueNotifierButtonDateTimeState.value = false;
+      }
     });
     super.initState();
   }
@@ -192,7 +188,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       children: [
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
-                        widgetTotalPriceSection(),
+                        widgetPaymentInformationSection(),
                       ]),
                 ]),
           )),
@@ -347,8 +343,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             _selectProduct = await db
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
-            blocSale.streamAddProduct(_selectProduct!);
-
+            blocSale.addProduct(_selectProduct!);
+            blocSale.getTotalPriceSection();
+            blocSale.balance();
             /* //nesne kıyaslaması yapılıyor. equatable kullanarak
             if (!_listAddProduct.contains(_selectProduct)) {
               SaleTableRow.valueNotifier.value.add(_selectProduct!);
@@ -482,158 +479,22 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
-  widgetTotalPriceSection() {
-    return ValueListenableBuilder<List<Product>>(
-        valueListenable: SaleTableRow.valueNotifier,
-        builder: (context, value, child) {
-          ///Eklenen rünlerin Tutarlarını Topluyor
-          _totalSales = 0;
-          for (var element in value) {
-            _totalSales = _totalSales + element.total!;
-          }
-          double? totalSalesWithoutTax;
-          int? taxRate;
-          if (value.isNotEmpty) {
-            taxRate = value[0].taxRate;
-            totalSalesWithoutTax = _totalSales / ((100 + taxRate) / 100);
-          }
-          calculateBalance();
-
-          return Container(
-            width: _shareWidthPaymentSection,
-            child: Card(
-              margin: EdgeInsets.zero,
-              elevation: 5,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    widgetTotalPriceSectionHeader(
-                        context, _labelPaymentInfo, Colors.grey),
-                    widgetPaymentOptions(),
-                  ]),
-            ),
-          );
-        });
-  }
-
-  ///Toplam Tutar Ve Genel Tutarın hesaplandığı yer
-  ///Normalde Sale_custom_table sayfasında yapılmalı ama ilk dizayna uymadığından
-  ///sorun çıkıyor. Buradan ürünlerin toplam fiyatı alınıp Ödeme bilgiler bölümünden
-  ///kalan tutarı hesaplama için yapılıyor. Ayrıca Calculatebalance Var Baştan
-  ///dizayn
-  widgetTotalPriceSectionRow() {
-    return ValueListenableBuilder<List<Product>>(
-        valueListenable: SaleTableRow.valueNotifier,
-        builder: (context, value, child) {
-          ///Eklenen rünlerin Tutarlarını Topluyor
-          _totalSales = 0;
-          for (var element in value) {
-            _totalSales = _totalSales + element.total!;
-          }
-          double? totalSalesWithoutTax;
-          int? taxRate;
-          if (value.isNotEmpty) {
-            taxRate = value[0].taxRate;
-            totalSalesWithoutTax = _totalSales / ((100 + taxRate) / 100);
-          }
-          calculateBalance();
-
-          return SizedBox(
-            width: 570,
-            child: Card(
-              margin: EdgeInsets.zero,
-              elevation: 5,
-              child:
-                  Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                widgetTotalPriceSectionHeader1(
-                    context, _labelTotalprice, context.extensionDefaultColor),
-                widgetTotalPriceSectionBody1(context, totalSalesWithoutTax),
-                widgetTotalPriceSectionHeaderKDV(
-                    context, _labelTaxRate, context.extensionDefaultColor),
-                widgetTotalPriceSectionBodyKDV(context, taxRate),
-                widgetTotalPriceSectionHeader1(
-                    context, _labelGeneralTotal, context.extensionDefaultColor),
-                widgetTotalPriceSectionBody1(context, _totalSales),
-              ]),
-            ),
-          );
-        });
-  }
-
-  ///EK -- Toplam Ödemelerin Başlık Bölümü
-  widgetTotalPriceSectionHeader1(
-      BuildContext context, String label, Color backgroundColor) {
-    TextStyle styleHeader =
-        context.theme.titleMedium!.copyWith(color: Colors.white);
-    return Expanded(
-      flex: 2,
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-        ),
-        child: Text(
-          label,
-          style: styleHeader,
-        ),
-      ),
-    );
-  }
-
-  /// EK -- Toplam Ödemelerin Gövde Bölümü
-  widgetTotalPriceSectionBody1(
-      BuildContext context, num? totalSalesWithoutTax) {
-    TextStyle styleBody = context.theme.titleMedium!;
-    return Expanded(
-      flex: 2,
-      child: Container(
-        alignment: Alignment.center,
-        child: Text(
-          FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
-          style: styleBody,
-        ),
+  widgetPaymentInformationSection() {
+    return SizedBox(
+      width: _shareWidthPaymentSection,
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 5,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
+          widgetPaymentOptions(),
+        ]),
       ),
     );
   }
 
   ///EK -- Toplam Ödemelerin Başlık Bölümü
-  widgetTotalPriceSectionHeaderKDV(
-      BuildContext context, String label, Color backgroundColor) {
-    TextStyle styleHeader =
-        context.theme.titleMedium!.copyWith(color: Colors.white);
-    return Expanded(
-      flex: 1,
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-        ),
-        child: Text(
-          label,
-          style: styleHeader,
-        ),
-      ),
-    );
-  }
-
-  /// EK -- Toplam Ödemelerin Gövde Bölümü
-  widgetTotalPriceSectionBodyKDV(
-      BuildContext context, num? totalSalesWithoutTax) {
-    TextStyle styleBody = context.theme.titleMedium!;
-    return Expanded(
-      flex: 1,
-      child: Container(
-        alignment: Alignment.center,
-        child: Text(
-          FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
-          style: styleBody,
-        ),
-      ),
-    );
-  }
-
-  ///EK -- Toplam Ödemelerin Başlık Bölümü
-  Container widgetTotalPriceSectionHeader(
+  Container partOfWidgetHeader(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
         context.theme.headline6!.copyWith(color: Colors.white);
@@ -650,24 +511,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     );
   }
 
-  /// EK -- Toplam Ödemelerin Gövde Bölümü
-  Container widgetTotalPriceSectionBody(
-      BuildContext context, num? totalSalesWithoutTax) {
-    TextStyle styleBody = context.theme.headline6!;
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.center,
-      child: Text(
-        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
-        style: styleBody,
-      ),
-    );
-  }
-
   ///Ödeme verilerin alındığı yer.
   widgetPaymentOptions() {
     return Container(
-      padding: EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 10),
       alignment: Alignment.center,
       width: _shareWidthPaymentSection,
       child: Wrap(
@@ -682,12 +529,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             controller: _controllerCashValue,
             onChanged: (value) {
               if (value.isNotEmpty) {
-                _valueNotifierCashValue.value =
-                    FormatterConvert().commaToPointDouble(value);
+                blocSale.setPaymentCashValue(value);
               } else {
-                _valueNotifierCashValue.value = 0;
+                blocSale.setPaymentCashValue("0");
               }
-              calculateBalance();
             },
           ),
           //Bankakartı Ödeme Widget
@@ -697,12 +542,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             controller: _controllerBankValue,
             onChanged: (value) {
               if (value.isNotEmpty) {
-                _valueNotifierBankCardValue.value =
-                    FormatterConvert().commaToPointDouble(value);
+                blocSale.setPaymentBankCardValue(value);
               } else {
-                _valueNotifierBankCardValue.value = 0;
+                blocSale.setPaymentBankCardValue("0");
               }
-              calculateBalance();
             },
           ),
           //EFTveHavale Ödeme Widget
@@ -712,17 +555,15 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             controller: _controllerEftHavaleValue,
             onChanged: (value) {
               if (value.isNotEmpty) {
-                _valueNotifierEftAndHavaleValue.value =
-                    FormatterConvert().commaToPointDouble(value);
+                blocSale.setPaymentEftHavaleValue(value);
               } else {
-                _valueNotifierEftAndHavaleValue.value = 0;
+                blocSale.setPaymentEftHavaleValue("0");
               }
-              calculateBalance();
             },
           ),
 
           ///kalan Tutar
-          partOfwidgetValueListenableBuilderPaid(),
+          partOfwidgetStreamBuilderPaid(),
 
           ///İleri Ödeme Tarihi Belirlenen button.
           ///ValueListenableBuilder Buttonun aktif veya pasif olmasını belirliyor. Toplam Tutar girilmediyse Button Pasif Oluyor.
@@ -760,58 +601,49 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     );
   }
 
-  ///Kalan tutarı hesaplıyor ve ona göre ödeme tarihi butttonu aktif ediyor.
-  void calculateBalance() {
-    _valueNotifierBalance.value = _totalSales -
-        _valueNotifierCashValue.value -
-        _valueNotifierBankCardValue.value -
-        _valueNotifierEftAndHavaleValue.value;
-    if (_valueNotifierBalance.value > 0) {
-      _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
-      _valueNotifierButtonDateTimeState.value = true;
-    } else {
-      _valueNotifierButtonDateTimeState.value = false;
-    }
-  }
-
-  partOfwidgetValueListenableBuilderPaid() {
+  /// Kalan Tutar Bölümü
+  partOfwidgetStreamBuilderPaid() {
     return Container(
       alignment: Alignment.center,
       width: _shareWidthPaymentSection,
-      child: ValueListenableBuilder<double>(
-        valueListenable: _valueNotifierBalance,
-        builder: (context, value, child) {
-          return Container(
-            padding: context.extensionPaddingHorizantal10(),
-            alignment: Alignment.centerLeft,
-            width: _shareWidthPaymentSection,
-            height: 43,
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(color: context.extensionDisableColor))),
-            child: RichText(
-              maxLines: 2,
-              text: TextSpan(children: [
-                TextSpan(
-                  text: _balance,
-                  style: context.theme.titleMedium!.copyWith(
-                      color: context.extensionDefaultColor,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1),
+      child: StreamBuilder<double>(
+          stream: blocSale.getStreamPaymentSystem,
+          initialData: 0,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Container(
+                padding: context.extensionPaddingHorizantal10(),
+                alignment: Alignment.centerLeft,
+                width: _shareWidthPaymentSection,
+                height: 43,
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom:
+                            BorderSide(color: context.extensionDisableColor))),
+                child: RichText(
+                  maxLines: 2,
+                  text: TextSpan(children: [
+                    TextSpan(
+                      text: _balance,
+                      style: context.theme.titleMedium!.copyWith(
+                          color: context.extensionDefaultColor,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1),
+                    ),
+                    TextSpan(
+                        text:
+                            "${FormatterConvert().currencyShow(snapshot.data)} $_selectUnitOfCurrencySymbol",
+                        style: context.theme.titleMedium!.copyWith(
+                            color: Colors.red.shade900,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1))
+                  ]),
+                  textAlign: TextAlign.center,
                 ),
-                TextSpan(
-                    text:
-                        "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
-                    style: context.theme.titleMedium!.copyWith(
-                        color: Colors.red.shade900,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1))
-              ]),
-              textAlign: TextAlign.center,
-            ),
-          );
-        },
-      ),
+              );
+            }
+            return Center(child: CircularProgressIndicator());
+          }),
     );
   }
 
@@ -820,23 +652,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       padding: context.extensionPaddingHorizantal10(),
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
-          onPressedDoSomething: () {
-            /* ///Toplam Ödenen Miktar
-                  _valueNotifierPaid.value =
-                      _cashValue + _bankValue + _eftHavaleValue;
-
-                  ///Kalan Borç
-                  _valueNotifierBalance.value =
-                      _totalSales - _valueNotifierPaid.value;
-
-                  _valueNotifierButtonDateTimeState.value = false;
-
-                  if (_valueNotifierBalance.value > 0) {
-                    _buttonDateTimeLabel = "Ödeme Tarihi Seçiniz";
-                    _valueNotifierButtonDateTimeState.value = true;
-                  } */
-          },
-          label: "Satışı Tamamla"),
+          onPressedDoSomething: () {}, label: "Satışı Tamamla"),
     );
   }
 

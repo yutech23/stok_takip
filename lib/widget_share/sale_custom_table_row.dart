@@ -1,7 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
@@ -14,8 +14,6 @@ class SaleTableRow extends StatefulWidget {
   static StreamController<String> streamControllerIndex =
       StreamController<String>.broadcast();
 
-  static ValueNotifier<List<Product>> valueNotifier =
-      ValueNotifier<List<Product>>([]);
   String? ad;
   SaleTableRow({
     Key? key,
@@ -61,10 +59,9 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    SaleTableRow.streamControllerIndex.sink
-                        .add(widget.addProduct.productCode);
-                    SaleTableRow.valueNotifier.value.remove(widget.addProduct);
-                    SaleTableRow.valueNotifier.notifyListeners();
+                    blocSale
+                        .removeFromListProduct(widget.addProduct.productCode);
+                    blocSale.getTotalPriceSection();
                   },
                 ),
               )),
@@ -113,23 +110,31 @@ class _SaleTableRowState extends State<SaleTableRow> {
           border: OutlineInputBorder()),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       onChanged: (value) {
-        if (int.parse(value) >= widget.addProduct.currentAmountOfStock) {
-          context.noticeBarCustom(
-              "BİLDİRİM",
-              "Stok miktarını aştınız.\n Stok : ${widget.addProduct.currentAmountOfStock}",
-              5,
-              Colors.amber.shade600);
-        }
-
         ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
         ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
         if (value.isNotEmpty) {
+          if (int.parse(value) >= widget.addProduct.currentAmountOfStock) {
+            context.noticeBarCustom(
+                "BİLDİRİM",
+                "Stok miktarını aştınız.\n Stok : ${widget.addProduct.currentAmountOfStock}",
+                5,
+                Colors.amber.shade600);
+          }
+
           widget.addProduct.sallingAmount = int.tryParse(value)!;
           setState(() {
             widget.addProduct.total = double.parse(value) *
                 widget.addProduct.currentSallingPriceWith!;
           });
-          SaleTableRow.valueNotifier.notifyListeners();
+          blocSale.getTotalPriceSection();
+          blocSale.balance();
+        } else {
+          widget.addProduct.sallingAmount = 0;
+          setState(() {
+            widget.addProduct.total = 0;
+          });
+          blocSale.getTotalPriceSection();
+          blocSale.balance();
         }
       },
     );
@@ -173,7 +178,15 @@ class _SaleTableRowState extends State<SaleTableRow> {
                 FormatterConvert().commaToPointDouble(value) *
                     widget.addProduct.sallingAmount;
           });
-          SaleTableRow.valueNotifier.notifyListeners();
+          blocSale.getTotalPriceSection();
+          blocSale.balance();
+        } else {
+          widget.addProduct.currentSallingPriceWith = 0;
+          setState(() {
+            widget.addProduct.total = 0;
+          });
+          blocSale.getTotalPriceSection();
+          blocSale.balance();
         }
       },
     );
