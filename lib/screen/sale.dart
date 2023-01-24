@@ -7,6 +7,7 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/popup/popup_add_customer.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
@@ -286,7 +287,15 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       child: ElevatedButton.icon(
         //  style: ElevatedButton.styleFrom(minimumSize: const Size(220, 48)),
         icon: const Icon(Icons.person_add),
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              String ad = "yusuf";
+              return PopupCustomerAdd(ad);
+            },
+          );
+        },
         label: Text(_labelNewCustomer),
       ),
     );

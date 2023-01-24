@@ -62,6 +62,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
                     blocSale
                         .removeFromListProduct(widget.addProduct.productCode);
                     blocSale.getTotalPriceSection();
+                    blocSale.balance();
                   },
                 ),
               )),

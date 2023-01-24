@@ -55,11 +55,7 @@ class _ScreenCustomerSave extends State with Validation {
   Customer? _customer;
 
   //Müşteri Tipi Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
-  var customerTypeitems = <String>[
-    "Şahıs Firma",
-    "Kurumsal Firma",
-    "Tedarikçi"
-  ];
+  var customerTypeitems = <String>["Şahıs", "Şirket", "Tedarikçi"];
   String? _customerType;
 
   void _getCustomerType(String value) {
@@ -94,10 +90,10 @@ class _ScreenCustomerSave extends State with Validation {
   //DropdownButtonFormField farklı bir sınıftan setState Fonksiyonu ile veri almak için kullanılan Contrast yapısı.
   void _fillListViewByRoleType() {
     setState(() {
-      if (_customerType == "Şahıs Firma") {
+      if (_customerType == "Şahıs") {
         listCustomerRegister.clear();
         listeEklemeSahis();
-      } else if (_customerType == "Kurumsal Firma") {
+      } else if (_customerType == "Şirket") {
         listCustomerRegister.clear();
         listeEklemeCompany();
       } else if (_customerType == "Tedarikçi") {
@@ -414,16 +410,16 @@ class _ScreenCustomerSave extends State with Validation {
       children: [
         Expanded(
           child: shareWidget.widgetTextFieldInput(
-              controller: _controllerCargoName,
-              etiket: "Kargo Firma Adını Giriniz",
-              validationFunc: validateNotEmpty),
+            controller: _controllerCargoName,
+            etiket: "Kargo Firma Adını Giriniz",
+          ),
         ),
         context.extensionWidhSizedBox20(),
         Expanded(
           child: shareWidget.widgetTextFieldInput(
-              controller: _controllerCargoCode,
-              etiket: "Kargo Kodu Giriniz",
-              validationFunc: validateNotEmpty),
+            controller: _controllerCargoCode,
+            etiket: "Kargo Kodu Giriniz",
+          ),
         ),
       ],
     );
@@ -452,7 +448,7 @@ class _ScreenCustomerSave extends State with Validation {
         onPressed: () async {
           setState(() {
             if (_formKey.currentState!.validate()) {
-              if (_customerType == 'Şahıs Firma') {
+              if (_customerType == 'Şahıs') {
                 _customer = Customer.soleTrader(
                     soleTraderName: _controllerName.text,
                     soleTraderLastName: _controllerLastName.text,
@@ -483,7 +479,7 @@ class _ScreenCustomerSave extends State with Validation {
                     context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
-              } else if (_customerType == 'Kurumsal Firma') {
+              } else if (_customerType == 'Şirket') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
