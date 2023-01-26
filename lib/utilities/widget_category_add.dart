@@ -36,7 +36,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
   final int _lengthCategory = 5;
 
   final GlobalKey<FormState> _globalFormKey = GlobalKey<FormState>();
-  final GlobalKey _globalListviewKey = GlobalKey();
+
   final ValueNotifier<int> _categoryAddIndex = ValueNotifier<int>(0);
 
   final List<TextEditingController> _controllerCategories = [];

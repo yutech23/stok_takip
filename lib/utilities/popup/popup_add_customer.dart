@@ -47,7 +47,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   Customer? _customer;
 
   final double _widthPopup = 400;
-
+  final _responseWidth = const BoxConstraints(maxWidth: 400, minWidth: 200);
   @override
   void initState() {
     _visibleDistrict = false;
@@ -77,25 +77,19 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
           key: _formKey,
           autovalidateMode: _autovalidateMode,
           child: Container(
-            padding: context.extensionPadding20(),
+            width: MediaQuery.of(context).size.width < 500 ? 360 : 400,
+            padding: context.extensionPadding10(),
             alignment: Alignment.center,
-            width: _widthPopup,
-            child: Wrap(
-                alignment: WrapAlignment.center,
-                direction: Axis.vertical,
-                verticalDirection: VerticalDirection.down,
-                runAlignment: WrapAlignment.center,
-                runSpacing: context.extensionWrapSpacing10(),
-                spacing: context.extensionWrapSpacing10(),
-                children: [
-                  widgetTextFieldFormName(),
-                  widgetTextFieldFormLastName(),
-                  widgetCountryPhoneNumber(),
-                  widgetRowCityAndDistrict(),
-                  widgetTaxOfficeAndTaxCodeInfo(),
-                  widgetCargoCompanyAndCargoCode(),
-                  widgetCustomerSaveButton(),
-                ]),
+            child: Column(children: [
+              widgetTextFieldFormName(),
+              Divider(height: 10),
+              widgetTextFieldFormLastName(),
+              widgetCountryPhoneNumber(),
+              widgetRowCityAndDistrict(),
+              widgetTaxOfficeAndTaxCodeInfo(),
+              widgetCargoCompanyAndCargoCode(),
+              widgetCustomerSaveButton(),
+            ]),
           ),
         ),
       ),
@@ -103,8 +97,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   }
 
   widgetTextFieldFormName() {
-    return SizedBox(
-      width: _widthShareInputText,
+    return Container(
+      constraints: _responseWidth,
       child: shareWidget.widgetTextFieldInput(
           inputFormat: [FormatterUpperCaseTextFormatter()],
           controller: _controllerName,
@@ -116,8 +110,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   }
 
   widgetTextFieldFormLastName() {
-    return SizedBox(
-      width: _widthShareInputText,
+    return Container(
+      constraints: _responseWidth,
       child: shareWidget.widgetTextFieldInput(
           inputFormat: [FormatterUpperCaseTextFormatter()],
           controller: _controllerLastName,
@@ -231,26 +225,36 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
 
 //İl ve İlçe Satır Fonksiyonu
   widgetRowCityAndDistrict() {
-    return SizedBox(
-      width: _widthShareInputText,
+    return Container(
+      constraints: _responseWidth,
       child: Wrap(
+        alignment: WrapAlignment.center,
+        direction: Axis.vertical,
+        spacing: context.extensionWrapSpacing10(),
         children: [
-          Row(
+          Wrap(
+            alignment: WrapAlignment.start,
+            direction: Axis.vertical,
+            spacing: context.extensionWrapSpacing10(),
             children: [
-              Expanded(
+              Container(
+                constraints: _responseWidth,
                 child: widgetSearchDropdownCities(),
               ),
-              context.extensionWidhSizedBox20(),
-              Expanded(child: widgetSearchDropdownDistrict()),
+              Container(
+                  constraints: _responseWidth,
+                  child: widgetSearchDropdownDistrict()),
             ],
           ),
-          const Divider(color: Colors.transparent),
-          shareWidget.widgetTextFieldInput(
-              controller: _controllerAdress,
-              etiket: "Adres",
-              focusValue: false,
-              karakterGostermeDurumu: false,
-              validationFunc: validateAddress),
+          Container(
+            constraints: _responseWidth,
+            child: shareWidget.widgetTextFieldInput(
+                controller: _controllerAdress,
+                etiket: "Adres",
+                focusValue: false,
+                karakterGostermeDurumu: false,
+                validationFunc: validateAddress),
+          ),
         ],
       ),
     );
@@ -304,8 +308,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
 
   ///Vergi Daire ve Vergi Numara Satırı
   widgetTaxOfficeAndTaxCodeInfo() {
-    return SizedBox(
-      width: _widthShareInputText,
+    return Container(
+      constraints: _responseWidth,
       child: Row(
         children: [
           Expanded(child: widgetSearchDropdownTaxOfficeList()),
@@ -327,8 +331,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   }
 
   widgetCargoCompanyAndCargoCode() {
-    return SizedBox(
-      width: _widthShareInputText,
+    return Container(
+      constraints: _responseWidth,
       child: Row(
         children: [
           Expanded(
@@ -361,7 +365,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
-      width: _widthShareInputText,
+      constraints: _responseWidth,
       child: shareWidget.widgetIntlPhoneField(
         controllerPhoneNumber: _controllerPhoneNumber,
       ),
