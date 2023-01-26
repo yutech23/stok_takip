@@ -45,9 +45,10 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   String? _selectedTaxOffice;
   late bool _visibleDistrict;
   Customer? _customer;
+  late double _widthMediaQuery;
 
   final double _widthPopup = 400;
-  final _responseWidth = const BoxConstraints(maxWidth: 400, minWidth: 200);
+  final _responseWidth = const BoxConstraints(maxWidth: 600, minWidth: 200);
   @override
   void initState() {
     _visibleDistrict = false;
@@ -62,6 +63,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
 
   @override
   Widget build(BuildContext context) {
+    getWidthScreenSize(context);
     return buildCustomerRegister();
   }
 
@@ -77,17 +79,26 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
           key: _formKey,
           autovalidateMode: _autovalidateMode,
           child: Container(
-            width: MediaQuery.of(context).size.width < 500 ? 360 : 400,
+            width: _widthMediaQuery,
             padding: context.extensionPadding10(),
             alignment: Alignment.center,
             child: Column(children: [
               widgetTextFieldFormName(),
-              Divider(height: 10),
+              spaceColumn,
               widgetTextFieldFormLastName(),
+              spaceColumn,
               widgetCountryPhoneNumber(),
-              widgetRowCityAndDistrict(),
+              spaceColumn,
+              _widthMediaQuery < 500
+                  ? widgetColumnCityAndDistrictMobil()
+                  : widgetRowCityAndDistrict(),
+              spaceColumn,
+              widgetAddress(),
+              spaceColumn,
               widgetTaxOfficeAndTaxCodeInfo(),
+              spaceColumn,
               widgetCargoCompanyAndCargoCode(),
+              spaceColumn,
               widgetCustomerSaveButton(),
             ]),
           ),
@@ -227,36 +238,48 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   widgetRowCityAndDistrict() {
     return Container(
       constraints: _responseWidth,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        direction: Axis.vertical,
-        spacing: context.extensionWrapSpacing10(),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Wrap(
-            alignment: WrapAlignment.start,
-            direction: Axis.vertical,
-            spacing: context.extensionWrapSpacing10(),
-            children: [
-              Container(
-                constraints: _responseWidth,
-                child: widgetSearchDropdownCities(),
-              ),
-              Container(
-                  constraints: _responseWidth,
-                  child: widgetSearchDropdownDistrict()),
-            ],
+          Expanded(
+            child: widgetSearchDropdownCities(),
           ),
-          Container(
-            constraints: _responseWidth,
-            child: shareWidget.widgetTextFieldInput(
-                controller: _controllerAdress,
-                etiket: "Adres",
-                focusValue: false,
-                karakterGostermeDurumu: false,
-                validationFunc: validateAddress),
-          ),
+          spaceRowSizedBox,
+          Expanded(child: widgetSearchDropdownDistrict()),
         ],
       ),
+    );
+  }
+
+//Mobil
+  widgetColumnCityAndDistrictMobil() {
+    return Container(
+      height: 110,
+      constraints: _responseWidth,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: widgetSearchDropdownCities(),
+          ),
+          spaceColumn,
+          Expanded(child: widgetSearchDropdownDistrict()),
+        ],
+      ),
+    );
+  }
+
+  widgetAddress() {
+    return Container(
+      constraints: _responseWidth,
+      child: shareWidget.widgetTextFieldInput(
+          controller: _controllerAdress,
+          etiket: "Adres",
+          focusValue: false,
+          karakterGostermeDurumu: false,
+          validationFunc: validateAddress),
     );
   }
 
@@ -426,5 +449,10 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
             ),
           )),
     );
+  }
+
+  void getWidthScreenSize(BuildContext context) {
+    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 360 : 600;
+    print(_widthMediaQuery);
   }
 }

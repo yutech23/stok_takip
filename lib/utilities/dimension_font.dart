@@ -146,6 +146,9 @@ extension DimensionFont on BuildContext {
   }
 }
 
+Widget spaceColumn = const Divider(height: 10);
+Widget spaceRowSizedBox = const SizedBox(width: 10);
+
 extension ExtensionPadding on TextStyle {
   Color? get sabitColor {
     return Colors.cyanAccent;
@@ -156,5 +159,3 @@ extension CapExtension on String {
   String get inCaps => '${this[0].toUpperCase()}${substring(1)}';
   String get allInCaps => toUpperCase();
 }
-
-extension DefaultEdgeInsets on BorderRadius {}
