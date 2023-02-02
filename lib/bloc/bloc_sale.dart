@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'package:stok_takip/models/product.dart';
+import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
 class BlocSale {
   List<Product> listProduct = <Product>[];
   Map<String, num> totalPriceAndKdv = <String, num>{};
-  Map<String, String> _paymentSystem = {
+  final Map<String, String> _paymentSystem = {
     "cash": "0",
     "bankCard": "0",
     "EftHavale": "0"
   };
+  int kdv = 8;
 
   final StreamController<List<Product>> _streamControllerIndex =
       StreamController<List<Product>>.broadcast();
 
-  final StreamController<Map<String, num>> _streamControllerTotalPrice =
+  final StreamController<Map<String, num>> _streamControllerTotalPriceSection =
       StreamController.broadcast();
 
   final StreamController<double> _streamControllerPaymentSystem =
@@ -22,8 +24,10 @@ class BlocSale {
 
   Stream<List<Product>> get getStreamListProduct =>
       _streamControllerIndex.stream;
-  Stream<Map<String, num>> get getStreamTotalPrice =>
-      _streamControllerTotalPrice.stream;
+
+  Stream<Map<String, num>> get getStreamTotalPriceSection =>
+      _streamControllerTotalPriceSection.stream;
+
   Stream<double> get getStreamPaymentSystem =>
       _streamControllerPaymentSystem.stream;
 
@@ -39,17 +43,6 @@ class BlocSale {
   void removeFromListProduct(String productCode) {
     listProduct.removeWhere((element) => element.productCode == productCode);
     _streamControllerIndex.sink.add(listProduct);
-  }
-
-  //DataTable Toplam Tutar , KDV ve Genel Toplam tekrar dolduruyor.
-  void getTotalPriceSection() {
-    totalPriceAndKdv.addAll({
-      'total_without_tax': getProductTotalWithoutPrice(),
-      'kdv': getProductKDV(),
-      'total_with_tax': getProductTotalValue()
-    });
-
-    _streamControllerTotalPrice.sink.add(totalPriceAndKdv);
   }
 
 /*----------------------BAŞLANGIÇ - ÖDEME SİSTEMİ ------------------------ */
@@ -79,7 +72,35 @@ class BlocSale {
   }
 
 /*--------------------------------------------------------------------- */
+
+  //DataTable Toplam Tutar , KDV ve Genel Toplam tekrar dolduruyor.
+  void getTotalPriceSection(String unitOfCurrency) {
+    if (unitOfCurrency == "₺") {
+      totalPriceAndKdv.addAll({
+        'total_without_tax': getProductTotalValue(),
+        'kdv': kdv,
+        'total_with_tax': getProductTotalValueWithTax(),
+      });
+    } else if (unitOfCurrency == "\$") {
+      totalPriceAndKdv.addAll({
+        'total_without_tax':
+            getProductTotalValue() / exchangeRateService.exchangeRate['USD']!,
+        'kdv': kdv,
+        'total_with_tax': getProductTotalValueWithTax(),
+      });
+    } else if (unitOfCurrency == "€") {
+      totalPriceAndKdv.addAll({
+        'total_without_tax': getProductTotalValue(),
+        'kdv': kdv,
+        'total_with_tax': getProductTotalValueWithTax(),
+      });
+    }
+
+    _streamControllerTotalPriceSection.sink.add(totalPriceAndKdv);
+  }
+
 /*------------------Total Fiyatların Hesaplandığı yer ------------------ */
+
   double getProductTotalValue() {
     double totalPrice = 0;
 
@@ -91,26 +112,37 @@ class BlocSale {
     return totalPrice;
   }
 
-  // KDV
-  int getProductKDV() {
-    int kdv = 0;
+  ///Ürünlerin KDV değerini okuyor ve ona göre kdv işlem yapıyor. Müşteri anlok olarak KDV değerini Değiştirmek istediği için TextFormField çevrildi.
+/*   // KDV
+  int getProductKDV(String? newKDV) {
     if (listProduct.isNotEmpty) {
       kdv = listProduct[0].taxRate;
     }
+
     return kdv;
   }
+ */
+  //Yeni KDV Eklendiği Yer
+  set setKdv(String newKDV) => kdv = int.parse(newKDV);
 
-  double getProductTotalWithoutPrice() {
+  double getProductTotalValueWithTax() {
     double totalPriceWithoutTax = 0;
     if (listProduct.isNotEmpty) {
-      totalPriceWithoutTax =
-          getProductTotalValue() / ((100 + getProductKDV()) / 100);
+      totalPriceWithoutTax = getProductTotalValue() * ((100 + kdv) / 100);
     }
     return totalPriceWithoutTax;
   }
 
   /*--------------------------------------------------------------------- */
+  /*----------------- Başlangıç Fiyat Birimini Değiştirme---------------- */
+  changeUnitOfCurrencyRate(double currencyValue) {
+    totalPriceAndKdv['USD'] =
+        totalPriceAndKdv['total_without_tax']! / currencyValue;
 
+    totalPriceAndKdv['total_with_tax'] =
+        totalPriceAndKdv['total_with_tax']! / currencyValue;
+  }
+  /*--------------------------------------------------------------------- */
 }
 
 final blocSale = BlocSale();

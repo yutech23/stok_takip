@@ -24,16 +24,18 @@ class Product {
     required this.category,
   });
 
-  Product.saleInfo(
-      {required this.productCode,
-      required this.currentAmountOfStock,
-      required this.taxRate,
-      required this.currentBuyingPriceWithoutTax,
-      this.currentSallingPriceWith,
-      this.total,
-      this.sallingAmount = 1,
-      this.index,
-      this.currentBuyingPriceWithTax});
+  Product.saleInfo({
+    required this.productCode,
+    required this.currentAmountOfStock,
+    required this.taxRate,
+    required this.currentBuyingPriceWithoutTax,
+    this.currentBuyingPriceWithTax,
+    this.currentSallingPriceWithoutTax,
+    this.currentSallingPriceWith,
+    this.total,
+    this.sallingAmount = 1,
+    this.index,
+  });
 
   @override
   bool operator ==(Object other) =>

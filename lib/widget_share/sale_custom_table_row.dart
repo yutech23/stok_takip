@@ -32,7 +32,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
   void initState() {
     _controllerAmount.text = widget.addProduct.sallingAmount.toString();
     _controllerPrice.text = FormatterConvert().pointToCommaAndDecimalTwo(
-        widget.addProduct.currentSallingPriceWith!, 2);
+        widget.addProduct.currentSallingPriceWithoutTax!, 2);
     super.initState();
   }
 
@@ -125,7 +125,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
           widget.addProduct.sallingAmount = int.tryParse(value)!;
           setState(() {
             widget.addProduct.total = double.parse(value) *
-                widget.addProduct.currentSallingPriceWith!;
+                widget.addProduct.currentSallingPriceWithoutTax!;
           });
           blocSale.getTotalPriceSection();
           blocSale.balance();
@@ -162,17 +162,17 @@ class _SaleTableRowState extends State<SaleTableRow> {
       onChanged: (value) {
         ///Maliyet altında fiyat girildiğinde bildirim veriyor.
         if (FormatterConvert().commaToPointDouble(value) <=
-            widget.addProduct.currentBuyingPriceWithTax!) {
+            widget.addProduct.currentBuyingPriceWithoutTax!) {
           context.noticeBarCustom(
               "BİLDİRİM",
-              "Maliyetin altına düştünüz.\n Birim Maliyet : ${FormatterConvert().pointToCommaAndDecimalTwo(widget.addProduct.currentBuyingPriceWithTax!, 2)}",
+              "Maliyetin altına düştünüz.\n Birim Maliyet : ${FormatterConvert().pointToCommaAndDecimalTwo(widget.addProduct.currentBuyingPriceWithoutTax!, 2)}",
               5,
               Colors.amber.shade600);
         }
 
         ///Girilen Değer Boş olduğunda sorun çıkmasını engelliyor.
         if (value.isNotEmpty) {
-          widget.addProduct.currentSallingPriceWith =
+          widget.addProduct.currentSallingPriceWithoutTax =
               FormatterConvert().commaToPointDouble(value);
           setState(() {
             widget.addProduct.total =
@@ -182,7 +182,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
           blocSale.getTotalPriceSection();
           blocSale.balance();
         } else {
-          widget.addProduct.currentSallingPriceWith = 0;
+          widget.addProduct.currentSallingPriceWithoutTax = 0;
           setState(() {
             widget.addProduct.total = 0;
           });

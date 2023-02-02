@@ -49,6 +49,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
+  double _usdValue = 0;
+  double _euroValue = 0;
+
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
 
   /*-----------------------BAŞLANGIÇ - SATIŞ TABLO ------------------ */
@@ -97,6 +100,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
     _colorBackgroundCurrencyTRY = context.extensionDisableColor;
     _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
+
 /*?????????????????? SON - PARABİRİMİ SEÇİMİ ?????????????????? */
 
     ///Sayfa Başladığında bir kez veri çekiyor.yoksa 1 saat sonra çeker.
@@ -203,6 +207,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         stream: exchangeRateService.getStreamExchangeRate.stream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            _usdValue = snapshot.data!['USD']!;
+            _euroValue = snapshot.data!['EUR']!;
+
             return Container(
               width: _shareWidthPaymentSection,
               height: _exchangeHeight,
@@ -388,18 +395,21 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               children: [
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
-                      setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["Türkiye"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["Türkiye"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDisableColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDefaultColor;
-                      });
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+                      if (_selectUnitOfCurrencySymbol != "₺") {
+                        setState(() {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["Türkiye"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDisableColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDefaultColor;
+                        });
+                      }
                     },
                     sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyTRY),
@@ -408,18 +418,22 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 ),
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
-                      setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["amerika"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["amerika"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDisableColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDefaultColor;
-                      });
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+                      if (_selectUnitOfCurrencySymbol != "\$") {
+                        setState(() {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["amerika"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["amerika"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDisableColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDefaultColor;
+                          blocSale.changeUnitOfCurrencyRate(_usdValue);
+                        });
+                      }
                     },
                     sembol: _mapUnitOfCurrency["amerika"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyUSD),
@@ -428,18 +442,22 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 ),
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
-                      setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["avrupa"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["avrupa"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDisableColor;
-                      });
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+                      if (_selectUnitOfCurrencySymbol != "€") {
+                        setState(() {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["avrupa"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["avrupa"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDisableColor;
+                          blocSale.changeUnitOfCurrencyRate(_euroValue);
+                        });
+                      }
                     },
                     sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyEUR),

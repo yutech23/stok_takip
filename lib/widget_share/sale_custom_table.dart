@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/widget_share/sale_custom_table_row.dart';
@@ -8,7 +9,6 @@ import '../validations/format_convert_point_comma.dart';
 // ignore: must_be_immutable
 class WidgetSaleTable extends StatefulWidget {
   String selectUnitOfCurrencySymbol;
-
   List<Product> listProduct;
 
   WidgetSaleTable(
@@ -26,9 +26,11 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
-  final String _labelGeneralTotal = "Genel Toplam";
+  final String _labelGeneralTotal = "KDV'li Tutar";
 
   /*????????????????????????????? SON ???????????????????????????????*/
+
+  final TextEditingController _controllerKDV = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                         return Container();
                       }
                     })),
-            widgetTableTotalPrice()
+            widgetTableTotalPriceSection()
           ],
         ),
       ),
@@ -126,13 +128,14 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   }
 
   ///Toplam Tutar, Kdv Ve Genel toplam tutarı Tablosu
-  widgetTableTotalPrice() {
+  widgetTableTotalPriceSection() {
     return SizedBox(
+      height: 35,
       child: StreamBuilder<Map<String, num>>(
-          stream: blocSale.getStreamTotalPrice,
+          stream: blocSale.getStreamTotalPriceSection,
           initialData: const {
             'total_without_tax': 0,
-            'kdv': 0,
+            'kdv': 8, //Başlangıçtaki değer ataması veri gelmediğinde
             'total_with_tax': 0
           },
           builder: (context, snapshot) {
@@ -222,7 +225,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
     );
   }
 
-  /// EK -- Toplam Ödemelerin Gövde Bölümü
+  /*  /// EK -- Toplam Ödemelerin Gövde Bölümü -- Veriyi Ürünler bilgisinden alındığında
   widgetTotalPriceSectionBodyKDV(
       BuildContext context, num? totalSalesWithoutTax) {
     TextStyle styleBody = context.theme.titleMedium!;
@@ -233,5 +236,45 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
         style: styleBody,
       ),
     );
+  } */
+
+  /// EK -- Toplam Ödemelerin Gövde Bölümü
+  widgetTotalPriceSectionBodyKDV(BuildContext context, num? KDV) {
+    //_controllerKDV.text = KDV.toString();
+    TextStyle styleBody = context.theme.titleMedium!;
+    return Container(
+        alignment: Alignment.center,
+        child: TextFormField(
+          initialValue: KDV.toString(),
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          maxLines: 1,
+          maxLength: 3,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+              isCollapsed: true,
+              counterText: "",
+              contentPadding: EdgeInsets.symmetric(vertical: 4),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue)),
+              border: OutlineInputBorder()),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
+          ],
+          onChanged: (value) {
+            ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
+            ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
+            if (value.isNotEmpty) {
+              blocSale.setKdv = value;
+
+              blocSale.getTotalPriceSection();
+              blocSale.balance();
+            } else {
+              blocSale.setKdv = "0";
+              blocSale.getTotalPriceSection();
+              blocSale.balance();
+            }
+          },
+        ));
   }
 }

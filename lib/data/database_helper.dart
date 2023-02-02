@@ -532,7 +532,9 @@ class DbHelper {
         currentBuyingPriceWithoutTax: resData[0]
             ['current_buying_price_without_tax'],
         currentSallingPriceWith: calculateSallingWithTax,
-        total: calculateSallingWithTax,
+        currentSallingPriceWithoutTax: resData[0]
+            ['current_salling_price_without_tax'],
+        total: resData[0]['current_salling_price_without_tax'],
         currentBuyingPriceWithTax: calculateBuyingWithTax);
 
     return getProductDetailForSale;
