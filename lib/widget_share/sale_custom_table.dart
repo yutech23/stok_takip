@@ -30,8 +30,6 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   /*????????????????????????????? SON ???????????????????????????????*/
 
-  final TextEditingController _controllerKDV = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return buildProdcutSaleList();
@@ -60,6 +58,8 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                             itemBuilder: (context, index) {
                               return SaleTableRow(
                                 addProduct: snapshot.data![index],
+                                selectUnitOfCurrencySymbol:
+                                    widget.selectUnitOfCurrencySymbol,
                               );
                             },
                             itemCount: snapshot.data!.length);
@@ -111,16 +111,14 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
             child: Container(
                 padding: paddingAll,
                 alignment: Alignment.center,
-                child: Text("$price (${widget.selectUnitOfCurrencySymbol})",
-                    style: defaultStyle)),
+                child: Text("$price (₺)", style: defaultStyle)),
           ),
           Expanded(
             flex: 2,
             child: Container(
                 padding: paddingAll,
                 alignment: Alignment.center,
-                child: Text("$total (${widget.selectUnitOfCurrencySymbol})",
-                    style: defaultStyle)),
+                child: Text("$total (₺)", style: defaultStyle)),
           ),
         ],
       ),
@@ -202,7 +200,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
     return Container(
       alignment: Alignment.center,
       child: Text(
-        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0),
+        "${FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0)}${widget.selectUnitOfCurrencySymbol}",
         style: styleBody,
       ),
     );
@@ -267,11 +265,11 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
             if (value.isNotEmpty) {
               blocSale.setKdv = value;
 
-              blocSale.getTotalPriceSection();
+              blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
               blocSale.balance();
             } else {
               blocSale.setKdv = "0";
-              blocSale.getTotalPriceSection();
+              blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
               blocSale.balance();
             }
           },

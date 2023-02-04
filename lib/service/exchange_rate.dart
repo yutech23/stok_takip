@@ -7,11 +7,12 @@ class ExchangeRateApi {
   final _streamControllerExchangeRate =
       StreamController<Map<String, double>>.broadcast();
 
-  StreamController<Map<String, double>> get getStreamExchangeRate =>
-      _streamControllerExchangeRate;
+  Stream<Map<String, double>> get getStreamExchangeRate =>
+      _streamControllerExchangeRate.stream;
 
+Map<String, double> exchangeRate = {};
   Future getExchangeRate() async {
-    Map<String, double> exchangeRate = {};
+    
     try {
       Response response = await _dio.get(
         'http://54.144.168.5:8081/api/exchange/?interval=600',

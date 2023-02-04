@@ -5,7 +5,13 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
 class BlocSale {
   List<Product> listProduct = <Product>[];
-  Map<String, num> totalPriceAndKdv = <String, num>{};
+  List<double> listUSD = <double>[];
+  Map<String, num> totalPriceAndKdv = <String, num>{
+    'total_without_tax': 0,
+    'kdv': 8,
+    'total_with_tax': 0,
+  };
+
   final Map<String, String> _paymentSystem = {
     "cash": "0",
     "bankCard": "0",
@@ -74,27 +80,28 @@ class BlocSale {
 /*--------------------------------------------------------------------- */
 
   //DataTable Toplam Tutar , KDV ve Genel Toplam tekrar dolduruyor.
-  void getTotalPriceSection(String unitOfCurrency) {
-    if (unitOfCurrency == "₺") {
-      totalPriceAndKdv.addAll({
-        'total_without_tax': getProductTotalValue(),
-        'kdv': kdv,
-        'total_with_tax': getProductTotalValueWithTax(),
-      });
+  void getTotalPriceSection(String? unitOfCurrency) {
+    getProductTotalValue();
+    if (unitOfCurrency == "₺" || unitOfCurrency == null) {
+      totalPriceAndKdv['total_without_tax'] = getProductTotalValue();
+      totalPriceAndKdv['kdv'] = kdv;
+      totalPriceAndKdv['total_with_tax'] = getProductTotalValueWithTax();
+
+      print("girdi ");
     } else if (unitOfCurrency == "\$") {
-      totalPriceAndKdv.addAll({
-        'total_without_tax':
-            getProductTotalValue() / exchangeRateService.exchangeRate['USD']!,
-        'kdv': kdv,
-        'total_with_tax': getProductTotalValueWithTax(),
-      });
+      totalPriceAndKdv['total_without_tax'] =
+          getProductTotalValue() / exchangeRateService.exchangeRate['USD']!;
+      totalPriceAndKdv['kdv'] = kdv;
+      totalPriceAndKdv['total_with_tax'] = getProductTotalValueWithTax() /
+          exchangeRateService.exchangeRate['USD']!;
     } else if (unitOfCurrency == "€") {
-      totalPriceAndKdv.addAll({
-        'total_without_tax': getProductTotalValue(),
-        'kdv': kdv,
-        'total_with_tax': getProductTotalValueWithTax(),
-      });
+      totalPriceAndKdv['total_without_tax'] =
+          getProductTotalValue() / exchangeRateService.exchangeRate['EUR']!;
+      totalPriceAndKdv['kdv'] = kdv;
+      totalPriceAndKdv['total_with_tax'] = getProductTotalValueWithTax() /
+          exchangeRateService.exchangeRate['EUR']!;
     }
+    balance();
 
     _streamControllerTotalPriceSection.sink.add(totalPriceAndKdv);
   }
@@ -105,9 +112,9 @@ class BlocSale {
     double totalPrice = 0;
 
     if (listProduct.isNotEmpty) {
-      listProduct.forEach((element) {
+      for (var element in listProduct) {
         totalPrice = totalPrice + element.total!;
-      });
+      }
     }
     return totalPrice;
   }

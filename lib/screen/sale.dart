@@ -92,7 +92,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   @override
   void initState() {
-    blocSale.getTotalPriceSection();
+    _selectUnitOfCurrencySymbol = "₺";
+    blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
 /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
     _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
     _selectUnitOfCurrencyAbridgment =
@@ -125,7 +126,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   @override
   void dispose() {
     super.dispose();
-    exchangeRateService.getStreamExchangeRate.close();
   }
 
   @override
@@ -204,7 +204,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   StreamBuilder<Map<String, double>> widgetExchangeRate() {
     return StreamBuilder<Map<String, double>>(
         initialData: const {'USD': 0, 'EUR': 0},
-        stream: exchangeRateService.getStreamExchangeRate.stream,
+        stream: exchangeRateService.getStreamExchangeRate,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             _usdValue = snapshot.data!['USD']!;
@@ -360,7 +360,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
             blocSale.addProduct(_selectProduct!);
-            blocSale.getTotalPriceSection();
+            blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
             blocSale.balance();
             /* //nesne kıyaslaması yapılıyor. equatable kullanarak
             if (!_listAddProduct.contains(_selectProduct)) {
@@ -409,6 +409,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           _colorBackgroundCurrencyEUR =
                               context.extensionDefaultColor;
                         });
+                        blocSale
+                            .getTotalPriceSection(_selectUnitOfCurrencySymbol);
                       }
                     },
                     sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
@@ -431,7 +433,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                               context.extensionDisableColor;
                           _colorBackgroundCurrencyEUR =
                               context.extensionDefaultColor;
-                          blocSale.changeUnitOfCurrencyRate(_usdValue);
+                          blocSale.getTotalPriceSection(
+                              _selectUnitOfCurrencySymbol);
                         });
                       }
                     },
@@ -455,7 +458,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                               context.extensionDefaultColor;
                           _colorBackgroundCurrencyEUR =
                               context.extensionDisableColor;
-                          blocSale.changeUnitOfCurrencyRate(_euroValue);
+                          blocSale.getTotalPriceSection(
+                              _selectUnitOfCurrencySymbol);
                         });
                       }
                     },

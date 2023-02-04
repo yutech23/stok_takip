@@ -94,10 +94,10 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
                   : widgetRowCityAndDistrict(),
               spaceColumn,
               widgetAddress(),
-              spaceColumn,
+              /*  spaceColumn,
               widgetTaxOfficeAndTaxCodeInfo(),
               spaceColumn,
-              widgetCargoCompanyAndCargoCode(),
+              widgetCargoCompanyAndCargoCode(), */
               spaceColumn,
               widgetCustomerSaveButton(),
             ]),
