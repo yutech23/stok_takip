@@ -101,6 +101,8 @@ class BlocSale {
       totalPriceAndKdv['total_with_tax'] = getProductTotalValueWithTax() /
           exchangeRateService.exchangeRate['EUR']!;
     }
+
+    ///Satıl Ekranındaki Kalan Tutarı güncelliyor
     balance();
 
     _streamControllerTotalPriceSection.sink.add(totalPriceAndKdv);

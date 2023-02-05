@@ -111,7 +111,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Container(
       constraints: _responseWidth,
       child: shareWidget.widgetTextFieldInput(
-          inputFormat: [FormatterUpperCaseTextFormatter()],
+          inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\D]'))],
           controller: _controllerName,
           etiket: _labelCustomerName,
           focusValue: false,
