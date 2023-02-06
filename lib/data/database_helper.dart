@@ -270,8 +270,6 @@ class DbHelper {
           'adress': customerSoleTrader.adress,
           'tax_office': customerSoleTrader.taxOffice,
           'tax_number': customerSoleTrader.taxNumber,
-          'cargo_company': customerSoleTrader.cargoName,
-          'cargo_number': customerSoleTrader.cargoNumber
         }
       ]);
       return "";

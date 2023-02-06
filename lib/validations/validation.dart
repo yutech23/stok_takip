@@ -93,6 +93,13 @@ mixin Validation {
     return null;
   }
 
+  String? validateTCNumber(String? value) {
+    if (value!.length != 11) {
+      return '11 haneden küçük olamaz.';
+    }
+    return null;
+  }
+
   String? validateAddress(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı boş bırakmayınız';

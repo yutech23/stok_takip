@@ -16,18 +16,17 @@ class Customer {
   late String? iban;
   late String? supplierName;
 
-  Customer.soleTrader(
-      {this.type = "Şahıs Firma",
-      this.soleTraderName,
-      this.soleTraderLastName,
-      required this.phone,
-      this.city,
-      this.district,
-      this.adress,
-      this.taxOffice,
-      this.taxNumber,
-      this.cargoName,
-      this.cargoNumber});
+  Customer.soleTrader({
+    this.type = "Şahıs Firma",
+    this.soleTraderName,
+    this.soleTraderLastName,
+    required this.phone,
+    this.city,
+    this.district,
+    this.adress,
+    this.taxOffice,
+    this.taxNumber,
+  });
   Customer.company({
     this.type = "Kurumsal Firma",
     required this.companyName,

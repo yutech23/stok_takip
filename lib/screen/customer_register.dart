@@ -39,12 +39,14 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerBankName = TextEditingController();
   final _controllerIban = TextEditingController();
   final _controllerSupplierName = TextEditingController();
+  final _controllerTC = TextEditingController();
 
   final String _labelBankName = "Banka İsmi";
   final String _labelCompanyName = "Firma Adını Giriniz";
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
   final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
+  final String _labelTC = "TC Kimlik Numara";
 
   late List<dynamic> listCustomerRegister;
 
@@ -56,7 +58,7 @@ class _ScreenCustomerSave extends State with Validation {
 
   //Müşteri Tipi Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
   var customerTypeitems = <String>["Şahıs", "Şirket", "Tedarikçi"];
-  String? _customerType;
+  String? _customerType = "Şahıs";
 
   void _getCustomerType(String value) {
     setState(() {
@@ -71,6 +73,12 @@ class _ScreenCustomerSave extends State with Validation {
     listCustomerRegister = <dynamic>[];
     _visibleDistrict = false;
     _controllerIban.text = "TR";
+    _customerType = "Şahıs";
+
+    ///İlk ekran açıldığında gelmesi için burası koyuldu. Bir sorun il ilçe seçimini
+    ///listenin içine alındığında il seçiminde ilçe çıkmıyor. visible konusu çalışmıyor.
+    ///liste içindeki nesneye ulaşılmıyor.
+    listeEklemeSahis();
   }
 
   @override
@@ -142,14 +150,14 @@ class _ScreenCustomerSave extends State with Validation {
                 widgetListCustomerInformationInput(),
                 //Deprecated yaptım.
                 //  widgetPhoneNumber(),
-                widgetCountryPhoneNumber(),
-                const Divider(),
                 widgetRowCityAndDistrict(),
                 const Divider(),
                 widgetTaxOfficeAndTaxCodeInfo(),
                 const Divider(),
-                widgetCargoCompanyAndCargoCode(),
-                const Divider(),
+                _customerType != "Şahıs"
+                    ? widgetCargoCompanyAndCargoCode()
+                    : const SizedBox(),
+                _customerType != "Şahıs" ? const Divider() : const SizedBox(),
                 widgetCustomerSaveButton(),
                 const Divider(),
               ]),
@@ -165,9 +173,7 @@ class _ScreenCustomerSave extends State with Validation {
         shrinkWrap: true,
         itemCount: listCustomerRegister.length,
         itemBuilder: ((context, index) {
-          return Container(
-            child: Center(child: listCustomerRegister[index]),
-          );
+          return Center(child: listCustomerRegister[index]);
         }),
         separatorBuilder: (context, index) => const Divider(
               color: Colors.transparent,
@@ -368,6 +374,14 @@ class _ScreenCustomerSave extends State with Validation {
 
   listeEklemeSahis() {
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
+        inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\d]'))],
+        controller: _controllerTC,
+        etiket: _labelTC,
+        focusValue: false,
+        karakterGostermeDurumu: false,
+        maxCharacter: 11,
+        validationFunc: validateTCNumber));
+    listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerName,
         etiket: _labelCustomerName,
@@ -381,6 +395,7 @@ class _ScreenCustomerSave extends State with Validation {
         focusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName));
+    listCustomerRegister.add(widgetCountryPhoneNumber());
   }
 
   listeEklemeCompany() {
@@ -389,6 +404,7 @@ class _ScreenCustomerSave extends State with Validation {
         controller: _controllerCompanyName,
         etiket: _labelCompanyName,
         validationFunc: validateFirstAndLastName));
+    listCustomerRegister.add(widgetCountryPhoneNumber());
   }
 
   listeEklemeSupplier() {
@@ -403,6 +419,7 @@ class _ScreenCustomerSave extends State with Validation {
         etiket: _labelBankName));
     listCustomerRegister
         .add(shareWidget.widgetTextFieldIban(controller: _controllerIban));
+    listCustomerRegister.add(widgetCountryPhoneNumber());
   }
 
   widgetCargoCompanyAndCargoCode() {
@@ -450,16 +467,15 @@ class _ScreenCustomerSave extends State with Validation {
             if (_formKey.currentState!.validate()) {
               if (_customerType == 'Şahıs') {
                 _customer = Customer.soleTrader(
-                    soleTraderName: _controllerName.text,
-                    soleTraderLastName: _controllerLastName.text,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                    city: _selectedCity,
-                    district: _selectDistrict,
-                    adress: _controllerAdress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
+                  soleTraderName: _controllerName.text,
+                  soleTraderLastName: _controllerLastName.text,
+                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                  city: _selectedCity,
+                  district: _selectDistrict,
+                  adress: _controllerAdress.text,
+                  taxOffice: _selectedTaxOffice,
+                  taxNumber: _controllerTaxNumber.text,
+                );
 
                 db.saveCustomerSoleTrader(_customer!).then((resValue) {
                   if (resValue.isEmpty) {
@@ -472,8 +488,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _selectedTaxOffice = "";
                     _controllerAdress.clear();
                     _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
+
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
                     context.noticeBarError("Kayıt Başarısız", 2);

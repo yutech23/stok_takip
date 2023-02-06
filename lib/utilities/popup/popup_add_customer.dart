@@ -403,16 +403,15 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
             setState(() {
               if (_formKey.currentState!.validate()) {
                 _customer = Customer.soleTrader(
-                    soleTraderName: _controllerName.text,
-                    soleTraderLastName: _controllerLastName.text,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                    city: _selectedCity,
-                    district: _selectDistrict,
-                    adress: _controllerAdress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
+                  soleTraderName: _controllerName.text,
+                  soleTraderLastName: _controllerLastName.text,
+                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                  city: _selectedCity,
+                  district: _selectDistrict,
+                  adress: _controllerAdress.text,
+                  taxOffice: _selectedTaxOffice,
+                  taxNumber: _controllerTaxNumber.text,
+                );
 
                 db.saveCustomerSoleTrader(_customer!).then((resValue) {
                   if (resValue.isEmpty) {
