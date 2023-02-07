@@ -156,37 +156,35 @@ class BlocSale {
 
   /*--------------------------------------------------------------------- */
   /*---------------------------BAŞLANGIÇ - KAYIT------------------------- */
-  save(
-      String customerType,
-      String totalPaymentWithoutTax,
-      String kdvRate,
-      String? cashPayment,
-      String? bankcardPayment,
-      String? eftHavalePayment,
-      String unitOfCurrency,
-      DateTime? paymentNextDate,
-      List<SaleDetail> listSoldProduct) {
+  save({
+    required String customerType,
+    String? cashPayment,
+    String? bankcardPayment,
+    String? eftHavalePayment,
+    required String unitOfCurrency,
+    DateTime? paymentNextDate,
+  }) {
     final Sale soldProducts = Sale();
 
     soldProducts.customerType = customerType;
     soldProducts.unitOfCurrency = unitOfCurrency;
     soldProducts.paymentNextDate = paymentNextDate;
-    soldProducts.totalPaymentWithoutTax = double.parse(totalPaymentWithoutTax);
+    soldProducts.totalPaymentWithoutTax =
+        totalPriceAndKdv['total_without_tax']!.toDouble();
     soldProducts.cashPayment = double.tryParse(cashPayment!);
-    soldProducts.bankcardPayment = double.tryParse(bankcardPayment!);
-    soldProducts.eftHavalePayment = double.tryParse(eftHavalePayment!);
-    soldProducts.kdvRate = int.parse(kdvRate);
+    soldProducts.bankcardPayment = double.parse(bankcardPayment!) ?? 0;
+    soldProducts.eftHavalePayment = double.tryParse(eftHavalePayment!) ?? 0;
+    soldProducts.kdvRate = kdv;
     soldProducts.paymentNextDate = paymentNextDate;
-    soldProducts.soldProducts = listSoldProduct;
 
     print(customerType);
     print(unitOfCurrency);
     print(paymentNextDate);
-    print(totalPaymentWithoutTax);
+    print(soldProducts.totalPaymentWithoutTax);
     print(cashPayment);
     print(bankcardPayment);
     print(eftHavalePayment);
-    print(kdvRate);
+    print(kdv);
     print(soldProducts);
 
     //db.saveSale(soldProducts);

@@ -87,7 +87,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
 /*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
   num? totalPriceForListProduct;
-
+  late String _selectCustomerType;
   late final StreamSubscription _streamSubScriptionBalanceValue;
 
   @override
@@ -282,7 +282,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               suggestions: listSearch,
               focusNode: _focusSearchCustomer,
               onSuggestionTap: (selectedValue) {
-                print(selectedValue.item);
+                _selectCustomerType = selectedValue.item!;
                 _focusSearchCustomer.unfocus();
               },
               maxSuggestionsInViewPort: 6,
@@ -693,7 +693,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () {
-            //  blocSale.save();
+            blocSale.save(
+                customerType: _selectCustomerType,
+                unitOfCurrency: _selectUnitOfCurrencyAbridgment,
+                cashPayment: _controllerCashValue.text,
+                bankcardPayment: _controllerBankValue.text,
+                eftHavalePayment: _controllerEftHavaleValue.text);
           },
           label: "Satışı Tamamla"),
     );
