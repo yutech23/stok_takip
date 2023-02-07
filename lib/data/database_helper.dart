@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/payment.dart';
+import 'package:stok_takip/models/sale.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
 import '../models/product.dart';
@@ -268,8 +269,8 @@ class DbHelper {
           'city': customerSoleTrader.city,
           'district': customerSoleTrader.district,
           'adress': customerSoleTrader.adress,
-          'tax_office': customerSoleTrader.taxOffice,
-          'tax_number': customerSoleTrader.taxNumber,
+          'tc_no': customerSoleTrader.TCno,
+          'type': customerSoleTrader.type
         }
       ]);
       return "";
@@ -668,27 +669,33 @@ class DbHelper {
 
   /*-----------------------SATIŞ EKRANI İŞLEMLERİ----------------------------*/
   ///***********************Product işlemleri*********************************
-  Future<List<String>> fetchCustomerAndPhone() async {
-    final listCustomer = <String>[];
+  Future<List<Map<String, String>>> fetchCustomerAndPhone() async {
+    final listCustomer = <Map<String, String>>[];
 
     try {
       final List<Map<String, dynamic>> resDataSoleTrader = await supabase
           .from('customer_sole_trader')
-          .select('name,last_name,phone');
+          .select('name,last_name,phone,type');
 
       final List<Map<String, dynamic>> resDataCompany =
-          await supabase.from('customer_company').select('name,phone');
+          await supabase.from('customer_company').select('name,phone,type');
 
       // Burada veritabanından gelen "data" değişkenine atanıyor.
       // Liste içinde map geliyor.
       for (var item in resDataSoleTrader) {
-        listCustomer.add("${item['name']} ${item['last_name']}");
-        listCustomer.add(item['phone']);
+        listCustomer.add({
+          'type': item['type'],
+          'name': "${item['name']} ${item['last_name']}",
+          'phone': item['phone']
+        });
       }
 
       for (var item in resDataCompany) {
-        listCustomer.add(item['name']);
-        listCustomer.add(item['phone']);
+        listCustomer.add({
+          'type': item['type'],
+          'name': item['name'],
+          'phone': item['phone']
+        });
       }
       return listCustomer;
     } on PostgrestException catch (e) {
@@ -696,6 +703,29 @@ class DbHelper {
       return listCustomer;
     }
   }
+
+  Future saveSale(Sale soldProducts) async {
+    try {
+      await supabase.from('sales').insert([
+        {
+          'customer_type': soldProducts.customerType,
+          'total_payment_without_tax': soldProducts.totalPaymentWithoutTax,
+          'kdv_rate': soldProducts.kdvRate,
+          'cash_payment': soldProducts.cashPayment,
+          'bankcard_payment': soldProducts.bankcardPayment,
+          'eft_havale_payment': soldProducts.eftHavalePayment,
+          'unit_of_currency': soldProducts.unitOfCurrency,
+          'payment_next_date': soldProducts.paymentNextDate
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata New Product Add : ${e.message}");
+      return e.message;
+    }
+  }
+
+  /*----------------------------------------------------------------------- */
 }
 
 final db = DbHelper();

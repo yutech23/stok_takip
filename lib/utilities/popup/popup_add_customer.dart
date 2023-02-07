@@ -32,11 +32,12 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   final _controllerCargoCode = TextEditingController();
   final _controllerCargoName = TextEditingController();
   final _controllerCompanyName = TextEditingController();
-
   final _controllerIban = TextEditingController();
+  final _controllerTC = TextEditingController();
 
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
+  final String _labelTC = "TC Kimlik Numarası giriniz";
 
   final double _widthShareInputText = 360;
 
@@ -46,9 +47,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   late bool _visibleDistrict;
   Customer? _customer;
   late double _widthMediaQuery;
-
-  final double _widthPopup = 400;
   final _responseWidth = const BoxConstraints(maxWidth: 600, minWidth: 200);
+
   @override
   void initState() {
     _visibleDistrict = false;
@@ -83,6 +83,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
             padding: context.extensionPadding10(),
             alignment: Alignment.center,
             child: Column(children: [
+              widgetTextFieldTC(),
+              spaceColumn,
               widgetTextFieldFormName(),
               spaceColumn,
               widgetTextFieldFormLastName(),
@@ -96,7 +98,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
               widgetAddress(),
               /*  spaceColumn,
               widgetTaxOfficeAndTaxCodeInfo(),
-              spaceColumn,
+              spaceColumn,as
               widgetCargoCompanyAndCargoCode(), */
               spaceColumn,
               widgetCustomerSaveButton(),
@@ -107,11 +109,29 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     );
   }
 
+  widgetTextFieldTC() {
+    //TC Kimlik Numarası girilen biryer.
+    return Container(
+      constraints: _responseWidth,
+      child: shareWidget.widgetTextFieldInput(
+        inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\d]'))],
+        controller: _controllerTC,
+        etiket: _labelTC,
+        focusValue: false,
+        karakterGostermeDurumu: false,
+        maxCharacter: 11,
+      ),
+    );
+  }
+
   widgetTextFieldFormName() {
     return Container(
       constraints: _responseWidth,
       child: shareWidget.widgetTextFieldInput(
-          inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\D]'))],
+          inputFormat: [
+            FormatterUpperCaseTextFormatter(),
+            FilteringTextInputFormatter.allow(RegExp(r'[\D]'))
+          ],
           controller: _controllerName,
           etiket: _labelCustomerName,
           focusValue: false,
@@ -409,8 +429,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
                   city: _selectedCity,
                   district: _selectDistrict,
                   adress: _controllerAdress.text,
-                  taxOffice: _selectedTaxOffice,
-                  taxNumber: _controllerTaxNumber.text,
+                  TCno: _controllerTC.text,
                 );
 
                 db.saveCustomerSoleTrader(_customer!).then((resValue) {
@@ -421,11 +440,9 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
                     _controllerPhoneNumber.clear();
                     _selectDistrict = "";
                     _selectedCity = "";
-                    _selectedTaxOffice = "";
                     _controllerAdress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
+                    _controllerTC.clear();
+
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
                     context.noticeBarError("Kayıt Başarısız", 2);

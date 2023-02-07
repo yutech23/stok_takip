@@ -15,20 +15,22 @@ class Customer {
   late String? bankName;
   late String? iban;
   late String? supplierName;
+  // ignore: non_constant_identifier_names
+  late String? TCno;
 
   Customer.soleTrader({
-    this.type = "Şahıs Firma",
+    this.type = "Şahıs",
     this.soleTraderName,
     this.soleTraderLastName,
     required this.phone,
     this.city,
     this.district,
     this.adress,
-    this.taxOffice,
-    this.taxNumber,
+    // ignore: non_constant_identifier_names
+    this.TCno,
   });
   Customer.company({
-    this.type = "Kurumsal Firma",
+    this.type = "Firma",
     required this.companyName,
     required this.phone,
     required this.city,

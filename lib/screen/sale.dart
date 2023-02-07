@@ -61,13 +61,14 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   /*?????????????????????? SON - SATIŞ TABLO ?????????????????????????*/
 
   final double _saleMinWidth = 360, _saleMaxWidth = 880;
-  final double _shareWidth = 220, _shareheight = 40;
+  final double _shareheight = 40;
   int tableRowIndex = 0;
   final double _widthSearch = 330;
   int simpleIntInput = 0;
   final double _shareWidthPaymentSection = 250;
   final double _exchangeHeight = 70;
   Product? _selectProduct;
+  late double _widthMediaQuery;
 
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
 
@@ -81,7 +82,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
-
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
   String? _selectDateTime;
 
@@ -130,6 +130,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   @override
   Widget build(BuildContext context) {
+    getWidthScreenSize(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(_labelHeading),
@@ -253,9 +254,18 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   widgetSearchFieldCustomer() {
     return SizedBox(
       width: _widthSearch,
-      child: FutureBuilder<List<String>>(
+      child: FutureBuilder<List<Map<String, String>>>(
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
+            List<SearchFieldListItem<String>> listSearch =
+                <SearchFieldListItem<String>>[];
+
+            for (var element in snapshot.data!) {
+              listSearch.add(
+                  SearchFieldListItem(element['name']!, item: element['type']));
+              listSearch.add(SearchFieldListItem(element['phone']!,
+                  item: element['type']));
+            }
             return SearchField(
               searchHeight: _shareheight,
               validator: validateNotEmpty,
@@ -269,11 +279,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide(),
                   )),
-              suggestions: snapshot.data!.map((e) {
-                return SearchFieldListItem(e);
-              }).toList(),
+              suggestions: listSearch,
               focusNode: _focusSearchCustomer,
               onSuggestionTap: (selectedValue) {
+                print(selectedValue.item);
                 _focusSearchCustomer.unfocus();
               },
               maxSuggestionsInViewPort: 6,
@@ -290,7 +299,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   widgetButtonNewCustomer() {
     return SizedBox(
       height: _shareheight,
-      width: _shareWidth,
+      width: _widthMediaQuery,
       child: ElevatedButton.icon(
         //  style: ElevatedButton.styleFrom(minimumSize: const Size(220, 48)),
         icon: const Icon(Icons.person_add),
@@ -349,7 +358,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   widgetButtonAddProduct() {
     return SizedBox(
       height: _shareheight,
-      width: _shareWidth,
+      width: _widthMediaQuery,
       child: ElevatedButton.icon(
         // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),
         icon: const Icon(Icons.playlist_add),
@@ -683,7 +692,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       padding: context.extensionPaddingHorizantal10(),
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
-          onPressedDoSomething: () {}, label: "Satışı Tamamla"),
+          onPressedDoSomething: () {
+            //  blocSale.save();
+          },
+          label: "Satışı Tamamla"),
     );
   }
 
@@ -725,4 +737,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         firstDate: DateTime(2022),
         lastDate: DateTime(2050),
       );
+
+  void getWidthScreenSize(BuildContext context) {
+    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
+    print(_widthMediaQuery);
+  }
 }

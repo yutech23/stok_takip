@@ -46,7 +46,7 @@ class _ScreenCustomerSave extends State with Validation {
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
   final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
-  final String _labelTC = "TC Kimlik Numara";
+  final String _labelTC = "TC Kimlik Numarası giriniz";
 
   late List<dynamic> listCustomerRegister;
 
@@ -116,6 +116,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Yeni Müşteri Kayıt Formu"),
+        // ignore: prefer_const_literals_to_create_immutables
         actions: [
           const ShareWidgetAppbarSetting(),
         ],
@@ -152,8 +153,10 @@ class _ScreenCustomerSave extends State with Validation {
                 //  widgetPhoneNumber(),
                 widgetRowCityAndDistrict(),
                 const Divider(),
-                widgetTaxOfficeAndTaxCodeInfo(),
-                const Divider(),
+                _customerType != "Şahıs"
+                    ? widgetTaxOfficeAndTaxCodeInfo()
+                    : const SizedBox(),
+                _customerType != "Şahıs" ? const Divider() : const SizedBox(),
                 _customerType != "Şahıs"
                     ? widgetCargoCompanyAndCargoCode()
                     : const SizedBox(),
@@ -373,14 +376,15 @@ class _ScreenCustomerSave extends State with Validation {
   }
 
   listeEklemeSahis() {
+    //TC Kimlik Numarası girilen biryer.
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
-        inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\d]'))],
-        controller: _controllerTC,
-        etiket: _labelTC,
-        focusValue: false,
-        karakterGostermeDurumu: false,
-        maxCharacter: 11,
-        validationFunc: validateTCNumber));
+      inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\d]'))],
+      controller: _controllerTC,
+      etiket: _labelTC,
+      focusValue: false,
+      karakterGostermeDurumu: false,
+      maxCharacter: 11,
+    ));
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerName,
@@ -473,8 +477,7 @@ class _ScreenCustomerSave extends State with Validation {
                   city: _selectedCity,
                   district: _selectDistrict,
                   adress: _controllerAdress.text,
-                  taxOffice: _selectedTaxOffice,
-                  taxNumber: _controllerTaxNumber.text,
+                  TCno: _controllerTC.text,
                 );
 
                 db.saveCustomerSoleTrader(_customer!).then((resValue) {
@@ -487,7 +490,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _selectedCity = "";
                     _selectedTaxOffice = "";
                     _controllerAdress.clear();
-                    _controllerTaxNumber.clear();
+                    _controllerTC.clear();
 
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {

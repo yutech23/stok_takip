@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
+import 'package:stok_takip/models/sale.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
@@ -151,7 +153,44 @@ class BlocSale {
     totalPriceAndKdv['total_with_tax'] =
         totalPriceAndKdv['total_with_tax']! / currencyValue;
   }
+
   /*--------------------------------------------------------------------- */
+  /*---------------------------BAŞLANGIÇ - KAYIT------------------------- */
+  save(
+      String customerType,
+      String totalPaymentWithoutTax,
+      String kdvRate,
+      String? cashPayment,
+      String? bankcardPayment,
+      String? eftHavalePayment,
+      String unitOfCurrency,
+      DateTime? paymentNextDate,
+      List<SaleDetail> listSoldProduct) {
+    final Sale soldProducts = Sale();
+
+    soldProducts.customerType = customerType;
+    soldProducts.unitOfCurrency = unitOfCurrency;
+    soldProducts.paymentNextDate = paymentNextDate;
+    soldProducts.totalPaymentWithoutTax = double.parse(totalPaymentWithoutTax);
+    soldProducts.cashPayment = double.tryParse(cashPayment!);
+    soldProducts.bankcardPayment = double.tryParse(bankcardPayment!);
+    soldProducts.eftHavalePayment = double.tryParse(eftHavalePayment!);
+    soldProducts.kdvRate = int.parse(kdvRate);
+    soldProducts.paymentNextDate = paymentNextDate;
+    soldProducts.soldProducts = listSoldProduct;
+
+    print(customerType);
+    print(unitOfCurrency);
+    print(paymentNextDate);
+    print(totalPaymentWithoutTax);
+    print(cashPayment);
+    print(bankcardPayment);
+    print(eftHavalePayment);
+    print(kdvRate);
+    print(soldProducts);
+
+    //db.saveSale(soldProducts);
+  }
 }
 
 final blocSale = BlocSale();
