@@ -21,6 +21,18 @@ class BlocSale {
   };
   int kdv = 8;
 
+  clearValues() {
+    listProduct.clear();
+    listUSD.clear();
+    totalPriceAndKdv = <String, num>{
+      'total_without_tax': 0,
+      'kdv': 8,
+      'total_with_tax': 0,
+    };
+
+    _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
+  }
+
   final StreamController<List<Product>> _streamControllerIndex =
       StreamController<List<Product>>.broadcast();
 
@@ -192,7 +204,7 @@ class BlocSale {
     }
     soldProducts.soldProductsList = listDetailProducts;
 
-    String resDataBase = await db.saveSale(soldProducts);
+    String resDataBase = await db.saveSale(soldProducts, listProduct);
 
     if (resDataBase.isEmpty) {
       listProduct.clear();

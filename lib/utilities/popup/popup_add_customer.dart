@@ -420,39 +420,41 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
       width: _widthShareInputText,
       child: ElevatedButton(
           onPressed: () async {
-            setState(() {
-              if (_formKey.currentState!.validate()) {
-                _customer = Customer.soleTrader(
-                  soleTraderName: _controllerName.text,
-                  soleTraderLastName: _controllerLastName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  adress: _controllerAdress.text,
-                  TCno: _controllerTC.text,
-                );
+            if (_formKey.currentState!.validate()) {
+              _customer = Customer.soleTrader(
+                soleTraderName: _controllerName.text,
+                soleTraderLastName: _controllerLastName.text,
+                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                city: _selectedCity,
+                district: _selectDistrict,
+                adress: _controllerAdress.text,
+                TCno: _controllerTC.text,
+              );
 
-                db.saveCustomerSoleTrader(_customer!).then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
-                    _selectDistrict = "";
-                    _selectedCity = "";
-                    _controllerAdress.clear();
-                    _controllerTC.clear();
+              String resDataValue = await db.saveCustomerSoleTrader(_customer!);
 
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
-                  } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
-                  }
-                });
-                context.noticeBarTrue("Kayıt Başarılı", 2);
+              if (resDataValue.isEmpty) {
+                _controllerName.clear();
+                _controllerLastName.clear();
+                _controllerCompanyName.clear();
+                _controllerPhoneNumber.clear();
+                _selectDistrict = "";
+                _selectedCity = "";
+                _controllerAdress.clear();
+                _controllerTC.clear();
+
+                // ignore: use_build_context_synchronously
+                context
+                    .noticeBarTrue("Kayıt Başarılı", 2)
+                    .then((value) => Navigator.of(context).pop());
               } else {
-                context.noticeBarError("Lütfen bilgileri eksiksiz giriniz.", 2);
+                // ignore: use_build_context_synchronously
+                context.noticeBarError(
+                    "Kayıt Başarısız \n HATA : $resDataValue", 3);
               }
-            });
+            } else {
+              context.noticeBarError("Lütfen bilgileri eksiksiz giriniz.", 2);
+            }
           },
           child: Container(
             alignment: Alignment.center,

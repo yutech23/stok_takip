@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
@@ -95,6 +96,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 /*-------------------------------------------------------------- */
   @override
   void initState() {
+    blocSale.clearValues();
     _selectUnitOfCurrencySymbol = "₺";
     blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
 /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
@@ -123,11 +125,14 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         _valueNotifierButtonDateTimeState.value = false;
       }
     });
+
     super.initState();
   }
 
   @override
   void dispose() {
+    blocSale.clearValues();
+    _listAddProduct.clear();
     super.dispose();
   }
 
@@ -257,13 +262,31 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   widgetSearchFieldCustomer() {
     return SizedBox(
       width: _widthSearch,
-      child: FutureBuilder<List<Map<String, String>>>(
+      child: StreamBuilder2(
         builder: (context, snapshot) {
-          if (!snapshot.hasError && snapshot.hasData) {
+          if (snapshot.snapshot1.hasData && snapshot.snapshot2.hasData) {
+            final listCustomer = <Map<String, String>>[];
+            listCustomer.clear();
+
+            for (var item in snapshot.snapshot1.data) {
+              listCustomer.add({
+                'type': item['type'],
+                'name': "${item['name']} ${item['last_name']}",
+                'phone': item['phone']
+              });
+            }
+            for (var item in snapshot.snapshot2.data) {
+              listCustomer.add({
+                'type': item['type'],
+                'name': item['name'],
+                'phone': item['phone']
+              });
+            }
+
             List<SearchFieldListItem<String>> listSearch =
                 <SearchFieldListItem<String>>[];
 
-            for (var element in snapshot.data!) {
+            for (var element in listCustomer) {
               ///item müşterinin type atıyorum.
               listSearch.add(
                   SearchFieldListItem(element['name']!, item: element['type']));
@@ -291,7 +314,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon numarsı üzerinden id buluncak. telefon numarası unique. Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
                 _customerPhone = selectedValue.searchKey;
-                for (var element in snapshot.data!) {
+                for (var element in listCustomer) {
                   if (element['name'] == selectedValue.searchKey) {
                     _customerPhone = element['phone']!;
                     break;
@@ -305,7 +328,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           }
           return Container();
         },
-        future: db.fetchCustomerAndPhone(),
+        streams: StreamTuple2(db.fetchSoloCustomerAndPhoneStream(),
+            db.fetchCompanyCustomerAndPhoneStream()),
       ),
     );
   }
@@ -732,6 +756,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       _mapUnitOfCurrency["Türkiye"]["symbol"];
                   _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
                 });
+                context.noticeBarTrue("Satış işlemi gerçekleşti.", 2);
               } else {
                 context.noticeBarError(
                     "Veritabanı Hatası : Kayıt gerçekleşmedi.", 3);

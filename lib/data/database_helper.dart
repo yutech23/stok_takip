@@ -669,7 +669,7 @@ class DbHelper {
 
   /*-----------------------SATIŞ EKRANI İŞLEMLERİ----------------------------*/
   ///***********************Product işlemleri*********************************
-  Future<List<Map<String, String>>> fetchCustomerAndPhone() async {
+  /* Future<List<Map<String, String>>> fetchCustomerAndPhone() async {
     final listCustomer = <Map<String, String>>[];
 
     try {
@@ -702,9 +702,38 @@ class DbHelper {
       print("Hata Product Code : ${e.message}");
       return listCustomer;
     }
+  } */
+/*------------------------ POP-UP Müşteri ARAMA BÖLÜMÜ--------------------*/
+//Şahıs müşterileri getiriyor.
+  Stream fetchSoloCustomerAndPhoneStream() {
+    try {
+      final resDataSoleTrader = supabase
+          .from('customer_sole_trader')
+          .stream(primaryKey: ['customer_id']);
+
+      return resDataSoleTrader;
+    } on PostgrestException catch (e) {
+      print("Hata Product Code : ${e.message}");
+
+      return const Stream.empty();
+    }
   }
 
-  Future<String> saveSale(Sale soldProducts) async {
+//Firma Müşterilerini getiriyor
+  Stream fetchCompanyCustomerAndPhoneStream() {
+    try {
+      final resDataCompany =
+          supabase.from('customer_company').stream(primaryKey: ['customer_id']);
+
+      return resDataCompany;
+    } on PostgrestException catch (e) {
+      print("Hata Product Code : ${e.message}");
+      return const Stream.empty();
+    }
+  }
+
+/*-----------------------------ARA SON---------------------------------------*/
+  Future<String> saveSale(Sale soldProducts, List<Product> listProduct) async {
     try {
       final List<dynamic> customerId;
       final List<Map<String, dynamic>> tempSoldProductsList =
@@ -735,12 +764,24 @@ class DbHelper {
         }
       ]).select();
 
-      for (var element in soldProducts.soldProductsList) {
+      for (var elementSold in soldProducts.soldProductsList) {
+        for (var orjinalProduct in listProduct) {
+          if (orjinalProduct.productCode == elementSold.productCode) {
+            int newStockAmount =
+                orjinalProduct.currentAmountOfStock - elementSold.productAmount;
+            print("newdeger : $newStockAmount ");
+            await supabase
+                .from('product')
+                .update({'current_amount_of_stock': newStockAmount}).eq(
+                    'product_code', elementSold.productCode);
+          }
+        }
+
         tempSoldProductsList.add({
           'sales_fk': res[0]['invoice_number'],
-          'product_code': element.productCode,
-          'product_amount': element.productAmount,
-          'product_price_without_tax': element.productPriceWithoutTax
+          'product_code': elementSold.productCode,
+          'product_amount': elementSold.productAmount,
+          'product_price_without_tax': elementSold.productPriceWithoutTax
         });
       }
       await supabase.from('sales_detail').insert(tempSoldProductsList);
