@@ -1,5 +1,7 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 class Sale {
   late String customerType;
+  late String customerPhone;
   late double totalPaymentWithoutTax;
   late int kdvRate;
   double? cashPayment;
@@ -7,12 +9,18 @@ class Sale {
   double? eftHavalePayment;
   late String unitOfCurrency;
   DateTime? saleDate;
-  DateTime? paymentNextDate;
-  late List<SaleDetail> soldProducts;
+  String? paymentNextDate;
+  late List<SaleDetail> soldProductsList;
 }
 
 class SaleDetail {
   late String productCode;
   late int productAmount;
   late double productPriceWithoutTax;
+
+  SaleDetail({
+    required this.productCode,
+    required this.productAmount,
+    required this.productPriceWithoutTax,
+  });
 }

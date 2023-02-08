@@ -14,7 +14,7 @@ class BlocSale {
     'total_with_tax': 0,
   };
 
-  final Map<String, String> _paymentSystem = {
+  Map<String, String> _paymentSystem = {
     "cash": "0",
     "bankCard": "0",
     "EftHavale": "0"
@@ -88,8 +88,6 @@ class BlocSale {
       totalPriceAndKdv['total_without_tax'] = getProductTotalValue();
       totalPriceAndKdv['kdv'] = kdv;
       totalPriceAndKdv['total_with_tax'] = getProductTotalValueWithTax();
-
-      print("girdi ");
     } else if (unitOfCurrency == "\$") {
       totalPriceAndKdv['total_without_tax'] =
           getProductTotalValue() / exchangeRateService.exchangeRate['USD']!;
@@ -156,38 +154,84 @@ class BlocSale {
 
   /*--------------------------------------------------------------------- */
   /*---------------------------BAŞLANGIÇ - KAYIT------------------------- */
-  save({
+  Future<String> save({
     required String customerType,
+    required String customerPhone,
     String? cashPayment,
     String? bankcardPayment,
     String? eftHavalePayment,
     required String unitOfCurrency,
-    DateTime? paymentNextDate,
-  }) {
+    String? paymentNextDate,
+  }) async {
     final Sale soldProducts = Sale();
+    final List<SaleDetail> listDetailProducts = <SaleDetail>[];
 
     soldProducts.customerType = customerType;
+    soldProducts.customerPhone = customerPhone;
     soldProducts.unitOfCurrency = unitOfCurrency;
     soldProducts.paymentNextDate = paymentNextDate;
     soldProducts.totalPaymentWithoutTax =
         totalPriceAndKdv['total_without_tax']!.toDouble();
-    soldProducts.cashPayment = double.tryParse(cashPayment!);
-    soldProducts.bankcardPayment = double.parse(bankcardPayment!) ?? 0;
-    soldProducts.eftHavalePayment = double.tryParse(eftHavalePayment!) ?? 0;
+
+    soldProducts.cashPayment =
+        FormatterConvert().commaToPointDouble(cashPayment!);
+    soldProducts.bankcardPayment =
+        FormatterConvert().commaToPointDouble(bankcardPayment!);
+    soldProducts.eftHavalePayment =
+        FormatterConvert().commaToPointDouble(eftHavalePayment!);
     soldProducts.kdvRate = kdv;
     soldProducts.paymentNextDate = paymentNextDate;
 
-    print(customerType);
+    ///Satılan Ürünlerin Listesi Ürün kodu, Miktar, Fiyat(KDVsiz)
+    for (var element in listProduct) {
+      listDetailProducts.add(SaleDetail(
+        productCode: element.productCode,
+        productAmount: element.sallingAmount,
+        productPriceWithoutTax: element.currentSallingPriceWithoutTax!,
+      ));
+    }
+    soldProducts.soldProductsList = listDetailProducts;
+
+    String resDataBase = await db.saveSale(soldProducts);
+
+    if (resDataBase.isEmpty) {
+      listProduct.clear();
+      totalPriceAndKdv = {
+        'total_without_tax': 0,
+        'kdv': 8,
+        'total_with_tax': 0,
+      };
+      _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
+
+      kdv = 8;
+
+      _streamControllerIndex.add(listProduct);
+      _streamControllerPaymentSystem.add(0);
+      _streamControllerTotalPriceSection.add(totalPriceAndKdv);
+    }
+
+    return resDataBase;
+
+    ///Test Ekranı
+
+    /*
+    print(soldProducts.soldProducts[0].productCode);
+     print(customerType);
     print(unitOfCurrency);
     print(paymentNextDate);
     print(soldProducts.totalPaymentWithoutTax);
-    print(cashPayment);
-    print(bankcardPayment);
-    print(eftHavalePayment);
+    print(soldProducts.cashPayment);
+    print(soldProducts.bankcardPayment);
+    print(soldProducts.eftHavalePayment);
     print(kdv);
-    print(soldProducts);
 
-    //db.saveSale(soldProducts);
+    for (var element in listProduct) {
+      print(element.productCode);
+      print(element.sallingAmount);
+      print(element.currentSallingPriceWithoutTax);
+      print(element.total);
+      print("***********");
+    } */
   }
 }
 

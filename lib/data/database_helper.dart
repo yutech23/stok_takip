@@ -704,11 +704,27 @@ class DbHelper {
     }
   }
 
-  Future saveSale(Sale soldProducts) async {
+  Future<String> saveSale(Sale soldProducts) async {
     try {
-      await supabase.from('sales').insert([
+      final List<dynamic> customerId;
+      final List<Map<String, dynamic>> tempSoldProductsList =
+          <Map<String, dynamic>>[];
+      if (soldProducts.customerType == "Şahıs") {
+        customerId = await supabase
+            .from('customer_sole_trader')
+            .select('customer_id')
+            .eq('phone', soldProducts.customerPhone);
+      } else {
+        customerId = await supabase
+            .from('customer_company')
+            .select('customer_id')
+            .eq('phone', soldProducts.customerPhone);
+      }
+
+      final res = await supabase.from('sales').insert([
         {
           'customer_type': soldProducts.customerType,
+          'customer_fk': customerId[0]['customer_id'],
           'total_payment_without_tax': soldProducts.totalPaymentWithoutTax,
           'kdv_rate': soldProducts.kdvRate,
           'cash_payment': soldProducts.cashPayment,
@@ -717,7 +733,18 @@ class DbHelper {
           'unit_of_currency': soldProducts.unitOfCurrency,
           'payment_next_date': soldProducts.paymentNextDate
         }
-      ]);
+      ]).select();
+
+      for (var element in soldProducts.soldProductsList) {
+        tempSoldProductsList.add({
+          'sales_fk': res[0]['invoice_number'],
+          'product_code': element.productCode,
+          'product_amount': element.productAmount,
+          'product_price_without_tax': element.productPriceWithoutTax
+        });
+      }
+      await supabase.from('sales_detail').insert(tempSoldProductsList);
+
       return "";
     } on PostgrestException catch (e) {
       print("Hata New Product Add : ${e.message}");

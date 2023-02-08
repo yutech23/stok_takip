@@ -83,13 +83,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+
   String? _selectDateTime;
+  DateTime? _nextPaymentDateTime;
 
 /*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
   num? totalPriceForListProduct;
   late String _selectCustomerType;
+  late String _customerPhone;
   late final StreamSubscription _streamSubScriptionBalanceValue;
-
+/*-------------------------------------------------------------- */
   @override
   void initState() {
     _selectUnitOfCurrencySymbol = "₺";
@@ -261,6 +264,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 <SearchFieldListItem<String>>[];
 
             for (var element in snapshot.data!) {
+              ///item müşterinin type atıyorum.
               listSearch.add(
                   SearchFieldListItem(element['name']!, item: element['type']));
               listSearch.add(SearchFieldListItem(element['phone']!,
@@ -283,6 +287,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               focusNode: _focusSearchCustomer,
               onSuggestionTap: (selectedValue) {
                 _selectCustomerType = selectedValue.item!;
+
+                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon numarsı üzerinden id buluncak. telefon numarası unique. Müşteri seçer iken id çekmiyoruz güvenlik için.
+                //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
+                _customerPhone = selectedValue.searchKey;
+                for (var element in snapshot.data!) {
+                  if (element['name'] == selectedValue.searchKey) {
+                    _customerPhone = element['phone']!;
+                    break;
+                  }
+                }
+
                 _focusSearchCustomer.unfocus();
               },
               maxSuggestionsInViewPort: 6,
@@ -619,9 +634,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             ? () async {
                                 //Takvimden veri alınıyor.
                                 final dataForCalendar = await pickDate();
-
+                                _nextPaymentDateTime = dataForCalendar;
                                 if (dataForCalendar != null) {
-                                  //
                                   _selectDateTime = DateFormat('dd/MM/yyyy')
                                       .format(dataForCalendar);
                                   setState(() {
@@ -687,18 +701,45 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     );
   }
 
+  //Satış Gerçekleştirme Buttonu
   Container widgetButtonSale(BuildContext context) {
     return Container(
       padding: context.extensionPaddingHorizantal10(),
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
-          onPressedDoSomething: () {
-            blocSale.save(
+          onPressedDoSomething: () async {
+            if (_controllerSearchProductCode.text.isNotEmpty ||
+                _controllerSearchCustomer.text.isNotEmpty) {
+              String res = await blocSale.save(
                 customerType: _selectCustomerType,
+                customerPhone: _customerPhone,
                 unitOfCurrency: _selectUnitOfCurrencyAbridgment,
                 cashPayment: _controllerCashValue.text,
                 bankcardPayment: _controllerBankValue.text,
-                eftHavalePayment: _controllerEftHavaleValue.text);
+                eftHavalePayment: _controllerEftHavaleValue.text,
+                paymentNextDate: _selectDateTime,
+              );
+              if (res.isEmpty) {
+                _controllerBankValue.clear();
+                _controllerEftHavaleValue.clear();
+                _controllerCashValue.clear();
+                _controllerSearchCustomer.clear();
+                _controllerSearchProductCode.clear();
+                setState(() {
+                  _selectUnitOfCurrencyAbridgment =
+                      _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                  _selectUnitOfCurrencySymbol =
+                      _mapUnitOfCurrency["Türkiye"]["symbol"];
+                  _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+                });
+              } else {
+                context.noticeBarError(
+                    "Veritabanı Hatası : Kayıt gerçekleşmedi.", 3);
+              }
+            } else {
+              context.noticeBarError(
+                  "Müşteri ve ürün seçimini yapmış olduğunuzdan emin olun.", 3);
+            }
           },
           label: "Satışı Tamamla"),
     );
@@ -745,6 +786,5 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   void getWidthScreenSize(BuildContext context) {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
-    print(_widthMediaQuery);
   }
 }
