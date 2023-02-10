@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
@@ -10,7 +11,7 @@ import 'package:stok_takip/screen/drawer.dart';
 import 'package:stok_takip/utilities/convert_string_currency_digits.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+
 import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
@@ -244,6 +245,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         if (!snapshot.hasError && snapshot.hasData) {
           _productCodeList = snapshot.data;
           return SearchField(
+            searchHeight: 70,
             validator: validateNotEmpty,
             controller: _controllerProductCode,
             searchInputDecoration: const InputDecoration(
@@ -303,21 +305,25 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return Row(
       children: [
         ///Tedarikçi Ekleme Buttonu.
-        SizedBox(
-          height: 50,
-          child: FloatingActionButton(
-            heroTag: "Tedarikçi Arama",
-            autofocus: false,
-            focusNode: FocusNode(skipTraversal: true),
-            child: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return PopupSupplierRegister(_controllerSupplier.text);
-                },
-              );
-            },
+        Container(
+          height: 70,
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 50,
+            child: FloatingActionButton(
+              heroTag: "Tedarikçi Arama",
+              autofocus: false,
+              focusNode: FocusNode(skipTraversal: true),
+              child: const Icon(Icons.add),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return PopupSupplierRegister(_controllerSupplier.text);
+                  },
+                );
+              },
+            ),
           ),
         ),
         context.extensionWidhSizedBox20(),
@@ -329,6 +335,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   snapshot.hasData &&
                   snapshot.data!.isNotEmpty) {
                 return SearchField(
+                  searchHeight: 70,
                   validator: validateNotEmpty,
                   inputFormatters: [FormatterUpperCaseTextFormatter()],
                   controller: _controllerSupplier,
@@ -373,10 +380,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           height: 220,
           decoration: BoxDecoration(border: Border.all()),
           child: _visibleQrCode
-              ? QrImage(
+              ? PrettyQr(
+                  typeNumber: 2,
+                  size: 200,
                   data: _controllerProductCode.text,
-                  version: QrVersions.auto,
-                  size: 200.0,
+                  errorCorrectLevel: QrErrorCorrectLevel.L,
                 )
               : Text(
                   "QR-Kod Oluşturmadınız",

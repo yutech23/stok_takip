@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
+import 'package:stok_takip/bloc/bloc_invoice.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
@@ -17,6 +18,9 @@ import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class ScreenSale extends StatefulWidget {
   const ScreenSale({super.key});
@@ -673,7 +677,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               );
             },
           ),
-          widgetButtonSale(context)
+          widgetButtonSale(context),
+          widgetButtonPrint()
         ],
       ),
     );
@@ -811,5 +816,78 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   void getWidthScreenSize(BuildContext context) {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
+  }
+
+  widgetButtonPrint() {
+    return ElevatedButton(onPressed: createPDF, child: Text("Yazdır"));
+  }
+
+  createPDF() async {
+    await blocInvoice.getCompanyInformation();
+
+    final doc = pw.Document();
+    //final image = await imageFromAssetBundle('assets/image.png');
+    String svgRaw = await rootBundle.loadString('/logo.svg');
+    final svgImage = pw.SvgImage(svg: svgRaw);
+
+    var myFont = await PdfGoogleFonts.openSansMedium();
+    final pw.TextStyle letterCharacter =
+        pw.TextStyle(font: myFont, fontSize: 9);
+    final pw.TextStyle letterCharacterBold =
+        pw.TextStyle(font: myFont, fontSize: 9, fontWeight: pw.FontWeight.bold);
+
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a5,
+      margin: const pw.EdgeInsets.all(20),
+      build: (context) {
+        return pw.Container(
+            alignment: pw.Alignment.topCenter,
+            child: pw.Column(children: [
+              pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+                  children: [
+                    pw.Container(
+                      padding: pw.EdgeInsets.all(4),
+                      decoration: pw.BoxDecoration(
+                          border: pw.Border.symmetric(
+                              horizontal: pw.BorderSide(width: 2))),
+                      width: 180,
+                      child: pw.RichText(
+                          text: pw.TextSpan(
+                              text:
+                                  "${blocInvoice.getInvoice!.name.toUpperCase()} \n",
+                              style: letterCharacter,
+                              children: [
+                            pw.TextSpan(
+                                text: "Adres : ",
+                                style: letterCharacterBold,
+                                children: [
+                                  pw.TextSpan(
+                                      text:
+                                          "${blocInvoice.getInvoice!.address.toUpperCase()}\n")
+                                ]),
+                            pw.TextSpan(
+                                text: "Tel : ",
+                                style: letterCharacterBold,
+                                children: [
+                                  pw.TextSpan(
+                                      text:
+                                          "${blocInvoice.getInvoice!.phone.toUpperCase()}\n")
+                                ])
+                          ])),
+                    ),
+                    pw.Container(width: 150, height: 70, child: svgImage)
+                  ])
+            ]));
+      },
+    ));
+
+    await Printing.layoutPdf(
+      onLayout: (format) async => doc.save(),
+    );
+
+    /* //Başka uygulamada paylaşmak istersen 
+    await Printing.sharePdf(bytes: await doc.save(), filename: 'fatura.pdf');
+     */
   }
 }

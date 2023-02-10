@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/payment.dart';
@@ -86,7 +86,7 @@ class DbHelper {
   Future<List<dynamic>> fetchPageInfoByRole(String isRole) async {
     List<dynamic> data = [];
     try {
-      final data = await db.supabase
+      data = await db.supabase
           .from('path_role_permission')
           .select('class_name')
           .eq('role_id', int.parse(isRole));
@@ -794,6 +794,26 @@ class DbHelper {
   }
 
   /*----------------------------------------------------------------------- */
+  fetchCompanyLogo() async {
+    /*  final Uint8List bucket =
+        await supabase.storage.from('logo').('logo.png'); */
+
+    final Bucket bucket = await supabase.storage.getBucket('logo');
+
+    print(bucket);
+  }
+
+  Future<List<dynamic>> fetchMyCompanyInformation() async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase.from('company_information').select('*');
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata New Product Add : ${e.message}");
+      return res;
+    }
+  }
 }
 
 final db = DbHelper();

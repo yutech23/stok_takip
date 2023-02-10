@@ -1,4 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:qr/qr.dart';
+import 'package:stok_takip/data/database_helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Test extends StatefulWidget {
   const Test({super.key});
@@ -41,12 +46,9 @@ class _TestState extends State<Test> {
     return Scaffold(
       body: Center(
           child: Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [],
-        ),
-      )),
+              color: Colors.amber,
+              height: 70,
+              child: Image.asset("asset/logo.png"))),
     );
   }
 }
