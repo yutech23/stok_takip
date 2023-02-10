@@ -268,7 +268,7 @@ class DbHelper {
           'phone': customerSoleTrader.phone,
           'city': customerSoleTrader.city,
           'district': customerSoleTrader.district,
-          'adress': customerSoleTrader.adress,
+          'address': customerSoleTrader.address,
           'tc_no': customerSoleTrader.TCno,
           'type': customerSoleTrader.type
         }
@@ -290,7 +290,7 @@ class DbHelper {
           'phone': customerCompany.phone,
           'city': customerCompany.city,
           'district': customerCompany.district,
-          'adress': customerCompany.adress,
+          'address': customerCompany.address,
           'tax_office': customerCompany.taxOffice,
           'tax_number': customerCompany.taxNumber,
           'cargo_company': customerCompany.cargoName,
@@ -316,7 +316,7 @@ class DbHelper {
           'phone': supplier.phone,
           'city': supplier.city,
           'district': supplier.district,
-          'adress': supplier.adress,
+          'address': supplier.address,
           'tax_office': supplier.taxOffice,
           'tax_number': supplier.taxNumber,
           'cargo_company': supplier.cargoName,
@@ -733,7 +733,9 @@ class DbHelper {
   }
 
 /*-----------------------------ARA SON---------------------------------------*/
-  Future<String> saveSale(Sale soldProducts, List<Product> listProduct) async {
+  Future<Map<String, dynamic>> saveSale(
+      Sale soldProducts, List<Product> listProduct) async {
+    Map<String, dynamic> resData = {'hata': null, 'invoice_number': null};
     try {
       final List<dynamic> customerId;
       final List<Map<String, dynamic>> tempSoldProductsList =
@@ -762,7 +764,7 @@ class DbHelper {
           'unit_of_currency': soldProducts.unitOfCurrency,
           'payment_next_date': soldProducts.paymentNextDate
         }
-      ]).select();
+      ]).select('invoice_number');
 
       for (var elementSold in soldProducts.soldProductsList) {
         for (var orjinalProduct in listProduct) {
@@ -786,23 +788,44 @@ class DbHelper {
       }
       await supabase.from('sales_detail').insert(tempSoldProductsList);
 
-      return "";
+      resData['invoice_number'] = res[0]['invoice_number'];
+
+      return resData;
     } on PostgrestException catch (e) {
-      print("Hata New Product Add : ${e.message}");
-      return e.message;
+      print("Hata Save Sale : ${e.message}");
+      resData['hata'] = e.message;
+      return resData;
     }
   }
 
   /*----------------------------------------------------------------------- */
-  fetchCompanyLogo() async {
-    /*  final Uint8List bucket =
-        await supabase.storage.from('logo').('logo.png'); */
-
-    final Bucket bucket = await supabase.storage.getBucket('logo');
-
-    print(bucket);
+  /*-----------------------------FATURA İŞLEMLERİ---------------------------*/
+  //Seçilen müşteri bilgileri alınıyor
+  Future<List<dynamic>> fetchSelectCustomerInformation(
+      String customerType, String customerPhone) async {
+    List<dynamic> resCustomerInfo = [];
+    try {
+      if (customerType == "Şahıs") {
+        resCustomerInfo = await supabase
+            .from('customer_sole_trader')
+            .select('name,last_name,phone,address,city,district,tc_no,type')
+            .eq('phone', customerPhone);
+        //seçilen kişi Firma ise burası çalışıyor.
+      } else {
+        resCustomerInfo = await supabase
+            .from('customer_company')
+            .select(
+                'name,phone,address,city,district,tax_number,tax_office,type')
+            .eq('phone', customerPhone);
+      }
+      return resCustomerInfo;
+    } on PostgrestException catch (e) {
+      print("Hata : ${e.message}");
+      return resCustomerInfo;
+    }
   }
 
+  //Kendi şirket Bilgilerini çekiyor.
   Future<List<dynamic>> fetchMyCompanyInformation() async {
     List<dynamic> res = [];
     try {
@@ -814,6 +837,8 @@ class DbHelper {
       return res;
     }
   }
+
+  /**---------------------------------------------------------------- */
 }
 
 final db = DbHelper();

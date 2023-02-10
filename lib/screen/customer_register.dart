@@ -31,7 +31,7 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerName = TextEditingController();
   final _controllerLastName = TextEditingController();
   final _controllerPhoneNumber = TextEditingController();
-  final _controllerAdress = TextEditingController();
+  final _controlleraddress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
   final _controllerCargoName = TextEditingController();
@@ -86,7 +86,7 @@ class _ScreenCustomerSave extends State with Validation {
     _controllerName.dispose();
     _controllerLastName.dispose();
     _controllerPhoneNumber.dispose();
-    _controllerAdress.dispose();
+    _controlleraddress.dispose();
     _controllerTaxNumber.dispose();
     _controllerCargoCode.dispose();
     _controllerCargoName.dispose();
@@ -299,7 +299,7 @@ class _ScreenCustomerSave extends State with Validation {
         ),
         const Divider(color: Colors.transparent),
         shareWidget.widgetTextFieldInput(
-            controller: _controllerAdress,
+            controller: _controlleraddress,
             etiket: "Adres",
             focusValue: false,
             karakterGostermeDurumu: false,
@@ -476,7 +476,7 @@ class _ScreenCustomerSave extends State with Validation {
                   phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
-                  adress: _controllerAdress.text,
+                  address: _controlleraddress.text,
                   TCno: _controllerTC.text,
                 );
 
@@ -489,7 +489,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _selectDistrict = "";
                     _selectedCity = "";
                     _selectedTaxOffice = "";
-                    _controllerAdress.clear();
+                    _controlleraddress.clear();
                     _controllerTC.clear();
 
                     context.noticeBarTrue("Kayıt Başarılı", 2);
@@ -503,7 +503,7 @@ class _ScreenCustomerSave extends State with Validation {
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
-                    adress: _controllerAdress.text,
+                    address: _controlleraddress.text,
                     taxOffice: _selectedTaxOffice,
                     taxNumber: _controllerTaxNumber.text,
                     cargoName: _controllerCargoName.text,
@@ -515,7 +515,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
                     _controllerPhoneNumber.clear();
-                    _controllerAdress.clear();
+                    _controlleraddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
@@ -539,7 +539,7 @@ class _ScreenCustomerSave extends State with Validation {
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
-                    adress: _controllerAdress.text,
+                    address: _controlleraddress.text,
                     taxOffice: _selectedTaxOffice,
                     taxNumber: _controllerTaxNumber.text,
                     cargoName: _controllerCargoName.text,
@@ -554,7 +554,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
                     _controllerPhoneNumber.clear();
-                    _controllerAdress.clear();
+                    _controlleraddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();

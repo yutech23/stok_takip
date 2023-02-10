@@ -27,7 +27,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   final _controllerName = TextEditingController();
   final _controllerLastName = TextEditingController();
   final _controllerPhoneNumber = TextEditingController();
-  final _controllerAdress = TextEditingController();
+  final _controlleraddress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
   final _controllerCargoName = TextEditingController();
@@ -295,7 +295,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Container(
       constraints: _responseWidth,
       child: shareWidget.widgetTextFieldInput(
-          controller: _controllerAdress,
+          controller: _controlleraddress,
           etiket: "Adres",
           focusValue: false,
           karakterGostermeDurumu: false,
@@ -427,7 +427,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
                 phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                 city: _selectedCity,
                 district: _selectDistrict,
-                adress: _controllerAdress.text,
+                address: _controlleraddress.text,
                 TCno: _controllerTC.text,
               );
 
@@ -440,7 +440,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
                 _controllerPhoneNumber.clear();
                 _selectDistrict = "";
                 _selectedCity = "";
-                _controllerAdress.clear();
+                _controlleraddress.clear();
                 _controllerTC.clear();
 
                 // ignore: use_build_context_synchronously

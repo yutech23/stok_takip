@@ -6,6 +6,7 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/bloc/bloc_invoice.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -739,7 +740,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           onPressedDoSomething: () async {
             if (_controllerSearchProductCode.text.isNotEmpty ||
                 _controllerSearchCustomer.text.isNotEmpty) {
-              String res = await blocSale.save(
+              final res = await blocSale.save(
                 customerType: _selectCustomerType,
                 customerPhone: _customerPhone,
                 unitOfCurrency: _selectUnitOfCurrencyAbridgment,
@@ -748,7 +749,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 eftHavalePayment: _controllerEftHavaleValue.text,
                 paymentNextDate: _selectDateTime,
               );
-              if (res.isEmpty) {
+              if (res['hata'] == null) {
                 _controllerBankValue.clear();
                 _controllerEftHavaleValue.clear();
                 _controllerCashValue.clear();
@@ -824,6 +825,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   createPDF() async {
     await blocInvoice.getCompanyInformation();
+    await blocInvoice.getCustomerInformation(
+        _selectCustomerType, _customerPhone);
+
+    print("fatura no ${blocSale.getInvoiceNumber}");
 
     final doc = pw.Document();
     //final image = await imageFromAssetBundle('assets/image.png');
@@ -836,6 +841,81 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     final pw.TextStyle letterCharacterBold =
         pw.TextStyle(font: myFont, fontSize: 9, fontWeight: pw.FontWeight.bold);
 
+//Tablo Row yapıldı Yer.
+    pw.TableRow buildRow(List<String> cells) => pw.TableRow(
+            children: cells.map((cell) {
+          return pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(4, 2, 0, 2),
+              child: pw.Text(
+                cell,
+                style: letterCharacterBold,
+              ));
+        }).toList());
+
+    ///SATIŞ yapılan Kişi ve Firma Biligilerin blundu yer.
+    pw.RichText buildRichText() {
+      if (_selectCustomerType == "Şahıs") {
+        return pw.RichText(
+            text: pw.TextSpan(
+                text:
+                    "${blocInvoice.getCustomerInfo.soleTraderName} ${blocInvoice.getCustomerInfo.soleTraderLastName} \n",
+                style: letterCharacter,
+                children: [
+              pw.TextSpan(
+                  text: "Adres : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getCustomerInfo.address!.toUpperCase()}\n")
+                  ]),
+              pw.TextSpan(
+                  text: "Tel : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getCustomerInfo.phone.toUpperCase()}\n")
+                  ]),
+              pw.TextSpan(
+                  text:
+                      "TCKN : ${blocInvoice.getCustomerInfo.TCno!.toUpperCase()}\n")
+            ]));
+
+        ///Fİrmaların Verisisnin Dolduğu yer
+      } else {
+        return pw.RichText(
+            text: pw.TextSpan(
+                text: "${blocInvoice.getCustomerInfo.companyName}  \n",
+                style: letterCharacter,
+                children: [
+              pw.TextSpan(
+                  text: "Adres : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getCustomerInfo.address!.toUpperCase()}\n")
+                  ]),
+              pw.TextSpan(
+                  text: "Tel : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getCustomerInfo.phone.toUpperCase()}\n")
+                  ]),
+              pw.TextSpan(
+                  text:
+                      "Vergi Dairesi : ${blocInvoice.getCustomerInfo.taxOffice!.toUpperCase()}\n"),
+              pw.TextSpan(
+                  text:
+                      "Vergi No : ${blocInvoice.getCustomerInfo.taxNumber!.toUpperCase()}\n")
+            ]));
+      }
+    }
+
+    ///Dökümanın oluşturlduğu yer.
     doc.addPage(pw.Page(
       pageFormat: PdfPageFormat.a5,
       margin: const pw.EdgeInsets.all(20),
@@ -847,10 +927,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                   children: [
                     pw.Container(
-                      padding: pw.EdgeInsets.all(4),
+                      padding: const pw.EdgeInsets.all(4),
                       decoration: pw.BoxDecoration(
                           border: pw.Border.symmetric(
-                              horizontal: pw.BorderSide(width: 2))),
+                              horizontal: const pw.BorderSide(width: 2))),
                       width: 180,
                       child: pw.RichText(
                           text: pw.TextSpan(
@@ -877,6 +957,19 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           ])),
                     ),
                     pw.Container(width: 150, height: 70, child: svgImage)
+                  ]),
+              pw.Divider(borderStyle: pw.BorderStyle.none),
+              pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+                  children: [
+                    pw.Container(
+                        padding: const pw.EdgeInsets.all(4),
+                        decoration: pw.BoxDecoration(
+                            border: pw.Border.symmetric(
+                                horizontal: const pw.BorderSide(width: 2))),
+                        width: 180,
+                        child: buildRichText()),
+                    pdfWidgetDateTimeAndInvoice(buildRow),
                   ])
             ]));
       },
@@ -889,5 +982,24 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     /* //Başka uygulamada paylaşmak istersen 
     await Printing.sharePdf(bytes: await doc.save(), filename: 'fatura.pdf');
      */
+  }
+
+  pw.Table pdfWidgetDateTimeAndInvoice(
+      pw.TableRow Function(List<String> cells) buildRow) {
+    final zaman = DateTime.now();
+
+    print(zaman);
+    return pw.Table(
+        columnWidths: {
+          0: const pw.FixedColumnWidth(100),
+          1: const pw.FixedColumnWidth(60)
+        },
+        border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+        children: [
+          buildRow(['İrsaliye No:', blocSale.getInvoiceNumber.toString()]),
+          buildRow(
+              ['Düzenlenme Tarihi:', DateFormat('dd/MM/yyyy').format(zaman)]),
+          buildRow(['Düzenlenme Zamanı:', DateFormat.Hms().format(zaman)]),
+        ]);
   }
 }

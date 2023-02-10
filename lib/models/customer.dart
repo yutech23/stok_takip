@@ -7,7 +7,7 @@ class Customer {
   late String phone;
   late String? city;
   late String? district;
-  late String? adress;
+  late String? address;
   late String? taxOffice;
   late String? taxNumber;
   late String? cargoName;
@@ -25,7 +25,7 @@ class Customer {
     required this.phone,
     this.city,
     this.district,
-    this.adress,
+    this.address,
     // ignore: non_constant_identifier_names
     this.TCno,
   });
@@ -35,7 +35,7 @@ class Customer {
     required this.phone,
     required this.city,
     required this.district,
-    required this.adress,
+    required this.address,
     required this.taxOffice,
     required this.taxNumber,
     this.cargoName,
@@ -47,7 +47,7 @@ class Customer {
     required this.phone,
     required this.city,
     required this.district,
-    required this.adress,
+    required this.address,
     required this.taxOffice,
     required this.taxNumber,
     this.cargoName,

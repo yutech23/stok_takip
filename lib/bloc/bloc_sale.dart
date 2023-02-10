@@ -8,6 +8,8 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 class BlocSale {
   List<Product> listProduct = <Product>[];
   List<double> listUSD = <double>[];
+  int? _invoiceNumber;
+
   Map<String, num> totalPriceAndKdv = <String, num>{
     'total_without_tax': 0,
     'kdv': 8,
@@ -32,6 +34,8 @@ class BlocSale {
 
     _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
   }
+
+  int? get getInvoiceNumber => _invoiceNumber;
 
   final StreamController<List<Product>> _streamControllerIndex =
       StreamController<List<Product>>.broadcast();
@@ -166,7 +170,7 @@ class BlocSale {
 
   /*--------------------------------------------------------------------- */
   /*---------------------------BAŞLANGIÇ - KAYIT------------------------- */
-  Future<String> save({
+  Future<Map<String, dynamic>> save({
     required String customerType,
     required String customerPhone,
     String? cashPayment,
@@ -204,9 +208,12 @@ class BlocSale {
     }
     soldProducts.soldProductsList = listDetailProducts;
 
-    String resDataBase = await db.saveSale(soldProducts, listProduct);
+    Map<String, dynamic> resDataBase =
+        await db.saveSale(soldProducts, listProduct);
 
-    if (resDataBase.isEmpty) {
+    _invoiceNumber = resDataBase['invoice_number'];
+
+    if (resDataBase['hata'] == null) {
       listProduct.clear();
       totalPriceAndKdv = {
         'total_without_tax': 0,
