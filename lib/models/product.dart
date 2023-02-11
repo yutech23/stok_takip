@@ -4,13 +4,13 @@ class Product {
   String productCode;
   int currentAmountOfStock;
   int taxRate;
-  double? currentBuyingPriceWithoutTax;
-  double? currentBuyingPriceWithTax;
-  double? currentSallingPriceWithoutTax;
+  num? currentBuyingPriceWithoutTax;
+  num? currentBuyingPriceWithTax;
+  num? currentSallingPriceWithoutTax;
   Category? category;
-  double? currentSallingPriceWith;
+  num? currentSallingPriceWith;
   int sallingAmount = 1;
-  double? total;
+  num? total;
   int? index;
 /*   TextEditingController controllerSallingAmount = TextEditingController();
   TextEditingController controllerSallingPriceWithTax = TextEditingController(); */

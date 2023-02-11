@@ -1012,7 +1012,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     AutovalidateMode autovalidateMode = AutovalidateMode.onUserInteraction;
     int? oldStockValue = selectedProduct.currentAmountOfStock;
     double? oldBuyingPriceWithoutTax =
-        selectedProduct.currentBuyingPriceWithoutTax;
+        selectedProduct.currentBuyingPriceWithoutTax!.toDouble();
     int newStockValue;
 
     ///Gelen Değerler Atanıyor
@@ -1123,7 +1123,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                         ///fiyat ortalama hesabı ve yeni fiyatın belirlenmesi
                         double newAverageBuyingPriceWithoutTax =
-                            (oldStockValue * oldBuyingPriceWithoutTax! +
+                            (oldStockValue * oldBuyingPriceWithoutTax +
                                     newStockValue * newBuyingPriceWithoutTax) /
                                 (oldStockValue + newStockValue);
                         double profit = newSallingPriceWithoutTax -

@@ -2,7 +2,7 @@
 class Sale {
   late String customerType;
   late String customerPhone;
-  late double totalPaymentWithoutTax;
+  late num totalPaymentWithoutTax;
   late int kdvRate;
   double? cashPayment;
   double? bankcardPayment;
@@ -16,7 +16,7 @@ class Sale {
 class SaleDetail {
   late String productCode;
   late int productAmount;
-  late double productPriceWithoutTax;
+  late num productPriceWithoutTax;
 
   SaleDetail({
     required this.productCode,
