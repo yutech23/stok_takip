@@ -679,7 +679,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             },
           ),
           widgetButtonSale(context),
-          widgetButtonPrint()
         ],
       ),
     );
@@ -738,8 +737,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
-            if (_controllerSearchProductCode.text.isNotEmpty ||
-                _controllerSearchCustomer.text.isNotEmpty) {
+            print(blocSale.listProduct.length);
+            if (_controllerSearchProductCode.text.isNotEmpty &&
+                blocSale.listProduct.length >= 1) {
               final res = await blocSale.save(
                 customerType: _selectCustomerType,
                 customerPhone: _customerPhone,
@@ -750,6 +750,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 paymentNextDate: _selectDateTime,
               );
               if (res['hata'] == null) {
+                await buildPopupDialog(context);
                 _controllerBankValue.clear();
                 _controllerEftHavaleValue.clear();
                 _controllerCashValue.clear();
@@ -763,6 +764,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
                 });
                 context.noticeBarTrue("Satış işlemi gerçekleşti.", 2);
+                blocSale.clearValues();
               } else {
                 context.noticeBarError(
                     "Veritabanı Hatası : Kayıt gerçekleşmedi.", 3);
@@ -819,11 +821,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
   }
 
-  widgetButtonPrint() {
-    return ElevatedButton(onPressed: createPDF, child: Text("Yazdır"));
-  }
-
-  createPDF() async {
+  createPdfInvoice() async {
     await blocInvoice.getCompanyInformation();
     await blocInvoice.getCustomerInformation(
         _selectCustomerType, _customerPhone);
@@ -1114,5 +1112,45 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               ['Düzenlenme Tarihi:', DateFormat('dd/MM/yyyy').format(zaman)]),
           buildRow(['Düzenlenme Zamanı:', DateFormat.Hms().format(zaman)]),
         ]);
+  }
+
+  ///Stok Kodu aynı girildiğinde Ekran Hatası için.
+  buildPopupDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('UYARI',
+              textAlign: TextAlign.center,
+              style: context.theme.headline5!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          content: Text("İrsaliye Faturası yazdırmak ister misin?",
+              style: context.theme.headline6!
+                  .copyWith(fontWeight: FontWeight.bold)),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: <Widget>[
+            SizedBox(
+              width: 150,
+              child: ElevatedButton(
+                  onPressed: () async {
+                    await createPdfInvoice();
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Yazdır")),
+            ),
+            SizedBox(
+              width: 150,
+              child: ElevatedButton(
+                child: const Text("İptal"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

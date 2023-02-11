@@ -32,8 +32,12 @@ class BlocSale {
       'kdv': 8,
       'total_with_tax': 0,
     };
-
+    kdv = 8;
     _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
+
+    _streamControllerIndex.add(listProduct);
+    _streamControllerPaymentSystem.add(0);
+    _streamControllerTotalPriceSection.add(totalPriceAndKdv);
   }
 
   double get getBalanceValue => _balance;
@@ -107,7 +111,7 @@ class BlocSale {
 
 /*--------------------------------------------------------------------- */
 
-  //DataTable Toplam Tutar , KDV ve Genel Toplam tekrar dolduruyor.
+  //DataTable daki Toplam Tutar , KDV ve Genel Toplam tekrar dolduruyor.
   void getTotalPriceSection(String? unitOfCurrency) {
     getProductTotalValue();
     if (unitOfCurrency == "₺" || unitOfCurrency == null) {
@@ -222,22 +226,6 @@ class BlocSale {
         await db.saveSale(soldProducts, listProduct);
 
     _invoiceNumber = resDataBase['invoice_number'];
-
-    if (resDataBase['hata'] == null) {
-      listProduct.clear();
-      totalPriceAndKdv = {
-        'total_without_tax': 0,
-        'kdv': 8,
-        'total_with_tax': 0,
-      };
-      _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
-
-      kdv = 8;
-
-      _streamControllerIndex.add(listProduct);
-      _streamControllerPaymentSystem.add(0);
-      _streamControllerTotalPriceSection.add(totalPriceAndKdv);
-    }
 
     return resDataBase;
 
