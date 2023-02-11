@@ -179,7 +179,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.setUserId(userInfo['id']!);
                 SecurityStorageUser.setUserAccessToken(
                     userInfo['accessToken']!);
-                SecurityStorageUser.sertUserRefleshToken(
+                SecurityStorageUser.setUserRefleshToken(
                     userInfo['refreshToken']!);
 
                 ///SingIn fonksiyonu supabase farklı bir table olduğu için
@@ -188,6 +188,11 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                     await db.fetchNameSurnameRole(userInfo['id']);
 
                 authController.role = userNameSurnameRole.role!;
+                //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
+                final roleList =
+                    await db.fetchPageInfoByRole(authController.role);
+                await SecurityStorageUser.setPageList(roleList);
+
                 SecurityStorageUser.setUserName(userNameSurnameRole.name!);
                 SecurityStorageUser.setUserLastName(
                     userNameSurnameRole.lastName!);

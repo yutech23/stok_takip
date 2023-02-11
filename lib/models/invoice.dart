@@ -4,11 +4,13 @@ class Invoice {
   late String address;
   late String phone;
   late String logoPath;
+  String? instgramAddress;
 
   Invoice({
     required this.name,
     required this.address,
     required this.phone,
     required this.logoPath,
+    this.instgramAddress,
   });
 }

@@ -16,7 +16,8 @@ class BlocInvoice {
         name: companyInformation[0]['name'],
         address: companyInformation[0]['address'],
         phone: companyInformation[0]['phone'],
-        logoPath: companyInformation[0]['logo_path']);
+        logoPath: companyInformation[0]['logo_path'],
+        instgramAddress: companyInformation[0]['instagram']);
   }
 
   Future<Customer> getCustomerInformation(

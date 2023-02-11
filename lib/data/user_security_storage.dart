@@ -13,8 +13,16 @@ class SecurityStorageUser {
       await storage.write(key: 'id', value: id);
   static Future setUserAccessToken(String accessToken) async =>
       await storage.write(key: 'accessToken', value: accessToken);
-  static Future sertUserRefleshToken(String refleshToken) async =>
+  static Future setUserRefleshToken(String refleshToken) async =>
       await storage.write(key: 'refleshToken', value: refleshToken);
+  static Future setPageList(List<dynamic> pageList) async {
+    String pages = "";
+    for (var page in pageList) {
+      pages += page['class_name'] + "-";
+    }
+
+    await storage.write(key: 'pageList', value: pages);
+  }
 
   static Future<String?> getUserName() async => await storage.read(key: 'name');
 
@@ -25,6 +33,8 @@ class SecurityStorageUser {
       await storage.read(key: 'accessToken');
   static Future<String?> getUserRefleshToken() async =>
       await storage.read(key: 'refleshToken');
+  static Future<String?> getPageList() async =>
+      await storage.read(key: 'pageList');
 
   static Future deleteStorege() async => await storage.deleteAll();
 }

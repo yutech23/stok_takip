@@ -38,18 +38,13 @@ class _MyDrawerState extends State<MyDrawer> {
     'Test'
   ];
 
-  final List<Widget> listWidgetMenuByRole = [];
+  late List<Widget> listWidgetMenuByRole = [];
 
   @override
   void initState() {
     super.initState();
     getNameAndSurenameFromStorage();
-    //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
-    db.fetchPageInfoByRole(authController.role).then((value) {
-      setState(() {
-        listFuncForRole(value);
-      });
-    });
+    getPagesListByRole();
   }
 
   @override
@@ -67,6 +62,13 @@ class _MyDrawerState extends State<MyDrawer> {
       nameAndLastnameFirstLatter =
           name[0].toUpperCase() + lastName[0].toUpperCase();
     });
+  }
+
+  getPagesListByRole() async {
+    String? pagesList = await SecurityStorageUser.getPageList();
+    List<String> pages = pagesList!.split('-');
+    listFuncForRole(pages);
+    print(pages);
   }
 
   @override
@@ -162,8 +164,8 @@ class _MyDrawerState extends State<MyDrawer> {
     //Buradaki for döngüleri menü sıralaması belirlenen sırada olması sağlıyor.
     for (var orderMenuItem in _orderMenu) {
       for (var element in listPathMenuByRole) {
-        if (orderMenuItem == element['class_name']) {
-          switch (element['class_name']) {
+        if (orderMenuItem == element) {
+          switch (element) {
             case "RouteCustomerRegister":
               listWidgetMenuByRole.add(widgetMenuItem(
                   context,

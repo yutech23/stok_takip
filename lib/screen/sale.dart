@@ -14,6 +14,7 @@ import 'package:stok_takip/utilities/popup/popup_add_customer.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
+import 'package:turkish/turkish.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
@@ -825,18 +826,19 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     await blocInvoice.getCompanyInformation();
     await blocInvoice.getCustomerInformation(
         _selectCustomerType, _customerPhone);
-    double balance;
-    blocSale.getStreamPaymentSystem.listen((event) {});
+
     final doc = pw.Document();
     //final image = await imageFromAssetBundle('assets/image.png');
     String svgRaw = await rootBundle.loadString('/logo.svg');
     final svgImage = pw.SvgImage(svg: svgRaw);
 
     var myFont = await PdfGoogleFonts.openSansMedium();
+
     final pw.TextStyle letterCharacter =
         pw.TextStyle(font: myFont, fontSize: 9);
     final pw.TextStyle letterCharacterBold =
         pw.TextStyle(font: myFont, fontSize: 9, fontWeight: pw.FontWeight.bold);
+
     final pw.TextStyle letterCharacterHeader = pw.TextStyle(
         font: myFont, fontSize: 11, fontWeight: pw.FontWeight.bold);
 
@@ -879,7 +881,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ));
         }).toList());
 
-    ///SATIŞ yapılan Kişi ve Firma Biligilerin blundu yer.
+    ///SATIŞ yapılan Kişi ve Firma Bilgilerin blundu yer.
     pw.RichText buildRichTextCompanyAndSoloInformation() {
       if (_selectCustomerType == "Şahıs") {
         return pw.RichText(
@@ -894,7 +896,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pw.TextSpan(
                         text:
-                            "${blocInvoice.getCustomerInfo.address!.toUpperCase()}\n")
+                            "${blocInvoice.getCustomerInfo.address!.toUpperCaseTr()}\n")
                   ]),
               pw.TextSpan(
                   text: "Tel : ",
@@ -902,11 +904,11 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pw.TextSpan(
                         text:
-                            "${blocInvoice.getCustomerInfo.phone.toUpperCase()}\n")
+                            "${blocInvoice.getCustomerInfo.phone.toUpperCaseTr()}\n")
                   ]),
               pw.TextSpan(
                   text:
-                      "TCKN : ${blocInvoice.getCustomerInfo.TCno!.toUpperCase()}\n")
+                      "TCKN : ${blocInvoice.getCustomerInfo.TCno!.toUpperCaseTr()}\n")
             ]));
 
         ///Fİrmaların Verisisnin Dolduğu yer
@@ -922,7 +924,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pw.TextSpan(
                         text:
-                            "${blocInvoice.getCustomerInfo.address!.toUpperCase()}\n")
+                            "${blocInvoice.getCustomerInfo.address!.toUpperCaseTr()}\n")
                   ]),
               pw.TextSpan(
                   text: "Tel : ",
@@ -975,6 +977,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ]);
     }
 
+    print(blocInvoice.getInvoice!.name.toUpperCaseTr());
+
     ///Şirket Bilgilerin Widget Bölümü.
     pw.Container pdfWidgetMyCompanyInfo(
         pw.TextStyle letterCharacter, pw.TextStyle letterCharacterBold) {
@@ -985,7 +989,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         width: 180,
         child: pw.RichText(
             text: pw.TextSpan(
-                text: "${blocInvoice.getInvoice!.name.toUpperCase()} \n",
+                text: "${blocInvoice.getInvoice!.name.toUpperCaseTr()} \n",
                 style: letterCharacter,
                 children: [
               pw.TextSpan(
@@ -994,7 +998,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pw.TextSpan(
                         text:
-                            "${blocInvoice.getInvoice!.address.toUpperCase()}\n")
+                            "${blocInvoice.getInvoice!.address.toUpperCaseTr()}\n")
                   ]),
               pw.TextSpan(
                   text: "Tel : ",
@@ -1002,7 +1006,14 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pw.TextSpan(
                         text:
-                            "${blocInvoice.getInvoice!.phone.toUpperCase()}\n")
+                            "${blocInvoice.getInvoice!.phone.toUpperCaseTr()}\n")
+                  ]),
+              pw.TextSpan(
+                  text: "instagram Adresi : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text: "${blocInvoice.getInvoice!.instgramAddress}\n")
                   ])
             ])),
       );
