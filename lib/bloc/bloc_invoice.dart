@@ -48,6 +48,10 @@ class BlocInvoice {
 
     return _customerInfo;
   }
+
+  double calculatorKdvValue(int kdvRate, double totalPriceWithoutTax) {
+    return totalPriceWithoutTax * (kdvRate / 100);
+  }
 }
 
 BlocInvoice blocInvoice = BlocInvoice();

@@ -10,6 +10,7 @@ class BlocSale {
   List<double> listUSD = <double>[];
   int? _invoiceNumber;
 
+  double _balance = 0;
   Map<String, num> totalPriceAndKdv = <String, num>{
     'total_without_tax': 0,
     'kdv': 8,
@@ -35,6 +36,7 @@ class BlocSale {
     _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
   }
 
+  double get getBalanceValue => _balance;
   int? get getInvoiceNumber => _invoiceNumber;
 
   final StreamController<List<Product>> _streamControllerIndex =
@@ -71,13 +73,21 @@ class BlocSale {
 
 /*----------------------BAŞLANGIÇ - ÖDEME SİSTEMİ ------------------------ */
   balance() {
-    double balance = 0;
+    double araIslem = 0;
     _paymentSystem.forEach((key, value) {
-      balance += FormatterConvert().commaToPointDouble(value);
+      araIslem += FormatterConvert().commaToPointDouble(value);
     });
-    double? araIslem;
-    araIslem = totalPriceAndKdv['total_with_tax']! - balance;
-    _streamControllerPaymentSystem.sink.add(araIslem);
+
+    _balance = totalPriceAndKdv['total_with_tax']! - araIslem;
+    _streamControllerPaymentSystem.sink.add(_balance);
+  }
+
+  double paymentTotalValue() {
+    double paymentTotal = 0;
+    _paymentSystem.forEach((key, value) {
+      paymentTotal += FormatterConvert().commaToPointDouble(value);
+    });
+    return paymentTotal;
   }
 
   setPaymentCashValue(String cashValue) {

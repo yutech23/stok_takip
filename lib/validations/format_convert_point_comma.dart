@@ -12,6 +12,7 @@ class FormatterConvert {
     return double.parse(valueString.replaceAll(",", "."));
   }
 
+  //Basamak basamak ayırır.
   String currencyShow(dynamic value) {
     var turkishCurrencyFormat =
         NumberFormat.currency(locale: 'tr_TR', decimalDigits: 2, symbol: '');

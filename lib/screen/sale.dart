@@ -827,9 +827,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     await blocInvoice.getCompanyInformation();
     await blocInvoice.getCustomerInformation(
         _selectCustomerType, _customerPhone);
-
-    print("fatura no ${blocSale.getInvoiceNumber}");
-
+    double balance;
+    blocSale.getStreamPaymentSystem.listen((event) {});
     final doc = pw.Document();
     //final image = await imageFromAssetBundle('assets/image.png');
     String svgRaw = await rootBundle.loadString('/logo.svg');
@@ -840,6 +839,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         pw.TextStyle(font: myFont, fontSize: 9);
     final pw.TextStyle letterCharacterBold =
         pw.TextStyle(font: myFont, fontSize: 9, fontWeight: pw.FontWeight.bold);
+    final pw.TextStyle letterCharacterHeader = pw.TextStyle(
+        font: myFont, fontSize: 11, fontWeight: pw.FontWeight.bold);
 
 //Tablo Row yapıldı Yer.
     pw.TableRow buildRow(List<String> cells) => pw.TableRow(
@@ -851,9 +852,37 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 style: letterCharacterBold,
               ));
         }).toList());
+    pw.TableRow buildRowRight(List<String> cells) => pw.TableRow(
+            children: cells.map((cell) {
+          return pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(4, 2, 2, 2),
+              child: pw.Text(
+                textAlign: pw.TextAlign.right,
+                cell,
+                style: letterCharacterBold,
+              ));
+        }).toList());
+
+    pw.TableRow buildRowCenter(List<String> cells) => pw.TableRow(
+            children: cells.map((cell) {
+          return pw.Center(
+              child: pw.Text(
+            cell,
+            style: letterCharacterBold,
+          ));
+        }).toList());
+
+    pw.TableRow buildRowHeader(List<String> cells) => pw.TableRow(
+            children: cells.map((cell) {
+          return pw.Center(
+              child: pw.Text(
+            cell,
+            style: letterCharacterHeader,
+          ));
+        }).toList());
 
     ///SATIŞ yapılan Kişi ve Firma Biligilerin blundu yer.
-    pw.RichText buildRichText() {
+    pw.RichText buildRichTextCompanyAndSoloInformation() {
       if (_selectCustomerType == "Şahıs") {
         return pw.RichText(
             text: pw.TextSpan(
@@ -915,6 +944,72 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       }
     }
 
+    ///Ürünlerin Listeye Eklendiği List.
+    List<pw.TableRow> buildRowProductList() {
+      List<pw.TableRow> listTableRow = [];
+      for (var element in blocSale.listProduct) {
+        listTableRow.add(buildRowCenter([
+          element.productCode,
+          element.sallingAmount.toString(),
+          "${FormatterConvert().currencyShow(element.currentSallingPriceWithoutTax)} ${_mapUnitOfCurrency["Türkiye"]["abridgment"]}",
+          "${FormatterConvert().currencyShow(element.total)} ${_mapUnitOfCurrency["Türkiye"]["abridgment"]}",
+        ]));
+      }
+      return listTableRow;
+    }
+
+    ///Ürünler Listesinin Widget bölümü.
+    pw.Table pdfWidgetTableProductList(
+        pw.TableRow Function(List<String> cells) buildRowHeader,
+        List<pw.TableRow> Function() buildRowProductList) {
+      return pw.Table(
+          columnWidths: {
+            0: const pw.FixedColumnWidth(140),
+            1: const pw.FixedColumnWidth(50),
+            2: const pw.FixedColumnWidth(80),
+            3: const pw.FixedColumnWidth(80)
+          },
+          border: pw.TableBorder.all(color: PdfColors.black, width: 1),
+          children: [
+            buildRowHeader(['MAL NO', 'MİKTAR', 'FİYAT', 'TUTAR']),
+            for (int i = 0; i < buildRowProductList().length; i++)
+              buildRowProductList()[i],
+          ]);
+    }
+
+    ///Şirket Bilgilerin Widget Bölümü.
+    pw.Container pdfWidgetMyCompanyInfo(
+        pw.TextStyle letterCharacter, pw.TextStyle letterCharacterBold) {
+      return pw.Container(
+        padding: const pw.EdgeInsets.all(4),
+        decoration: const pw.BoxDecoration(
+            border: pw.Border.symmetric(horizontal: pw.BorderSide(width: 2))),
+        width: 180,
+        child: pw.RichText(
+            text: pw.TextSpan(
+                text: "${blocInvoice.getInvoice!.name.toUpperCase()} \n",
+                style: letterCharacter,
+                children: [
+              pw.TextSpan(
+                  text: "Adres : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getInvoice!.address.toUpperCase()}\n")
+                  ]),
+              pw.TextSpan(
+                  text: "Tel : ",
+                  style: letterCharacterBold,
+                  children: [
+                    pw.TextSpan(
+                        text:
+                            "${blocInvoice.getInvoice!.phone.toUpperCase()}\n")
+                  ])
+            ])),
+      );
+    }
+
     ///Dökümanın oluşturlduğu yer.
     doc.addPage(pw.Page(
       pageFormat: PdfPageFormat.a5,
@@ -923,54 +1018,71 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         return pw.Container(
             alignment: pw.Alignment.topCenter,
             child: pw.Column(children: [
+              ///İlk Satır
               pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                   children: [
-                    pw.Container(
-                      padding: const pw.EdgeInsets.all(4),
-                      decoration: pw.BoxDecoration(
-                          border: pw.Border.symmetric(
-                              horizontal: const pw.BorderSide(width: 2))),
-                      width: 180,
-                      child: pw.RichText(
-                          text: pw.TextSpan(
-                              text:
-                                  "${blocInvoice.getInvoice!.name.toUpperCase()} \n",
-                              style: letterCharacter,
-                              children: [
-                            pw.TextSpan(
-                                text: "Adres : ",
-                                style: letterCharacterBold,
-                                children: [
-                                  pw.TextSpan(
-                                      text:
-                                          "${blocInvoice.getInvoice!.address.toUpperCase()}\n")
-                                ]),
-                            pw.TextSpan(
-                                text: "Tel : ",
-                                style: letterCharacterBold,
-                                children: [
-                                  pw.TextSpan(
-                                      text:
-                                          "${blocInvoice.getInvoice!.phone.toUpperCase()}\n")
-                                ])
-                          ])),
-                    ),
+                    pdfWidgetMyCompanyInfo(
+                        letterCharacter, letterCharacterBold),
                     pw.Container(width: 150, height: 70, child: svgImage)
                   ]),
-              pw.Divider(borderStyle: pw.BorderStyle.none),
+              pdfwidgetDivider(),
+
+              ///ikinci Satır
               pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                   children: [
                     pw.Container(
                         padding: const pw.EdgeInsets.all(4),
-                        decoration: pw.BoxDecoration(
+                        decoration: const pw.BoxDecoration(
                             border: pw.Border.symmetric(
-                                horizontal: const pw.BorderSide(width: 2))),
+                                horizontal: pw.BorderSide(width: 2))),
                         width: 180,
-                        child: buildRichText()),
+                        child: buildRichTextCompanyAndSoloInformation()),
                     pdfWidgetDateTimeAndInvoice(buildRow),
-                  ])
+                  ]),
+              pdfwidgetDivider(height: 20),
+
+              ///Ürün Tablosu
+              pdfWidgetTableProductList(buildRowHeader, buildRowProductList),
+              pdfwidgetDivider(height: 20),
+              pw.Container(
+                  alignment: pw.Alignment.centerRight,
+                  child: pw.SizedBox(
+                      width: 220,
+                      child: pw.Table(
+                          columnWidths: {
+                            0: const pw.FixedColumnWidth(130),
+                            1: const pw.FixedColumnWidth(90),
+                          },
+                          border: pw.TableBorder.all(
+                              color: PdfColors.black, width: 1),
+                          children: [
+                            buildRowRight([
+                              'Mal Hizmet Toplam Tutarı',
+                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_without_tax'])} $_selectUnitOfCurrencyAbridgment"
+                            ]),
+                            buildRowRight([
+                              'Hesaplanan KDV(%${blocSale.totalPriceAndKdv['kdv']})',
+                              "${FormatterConvert().currencyShow(blocInvoice.calculatorKdvValue(blocSale.totalPriceAndKdv['kdv']!.toInt(), blocSale.totalPriceAndKdv['total_without_tax']!.toDouble()))} $_selectUnitOfCurrencyAbridgment"
+                            ]),
+                            buildRowRight([
+                              'Vergiler Dahil Toplam Tutar',
+                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_with_tax'])} $_selectUnitOfCurrencyAbridgment"
+                            ]),
+                            buildRowRight([
+                              'Ödenen Tutar',
+                              "${FormatterConvert().currencyShow(blocSale.paymentTotalValue())} $_selectUnitOfCurrencyAbridgment"
+                            ]),
+                            buildRowRight([
+                              'Kalan Borç Tutar',
+                              "${FormatterConvert().currencyShow(blocSale.getBalanceValue)} $_selectUnitOfCurrencyAbridgment"
+                            ]),
+                            buildRowRight([
+                              'Ödeme Tarihi ',
+                              _selectDateTime ?? 'Girilmedi'
+                            ])
+                          ])))
             ]));
       },
     ));
@@ -984,11 +1096,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
      */
   }
 
+  pw.Divider pdfwidgetDivider({double? height}) =>
+      pw.Divider(borderStyle: pw.BorderStyle.none, height: height);
+
   pw.Table pdfWidgetDateTimeAndInvoice(
       pw.TableRow Function(List<String> cells) buildRow) {
     final zaman = DateTime.now();
-
-    print(zaman);
     return pw.Table(
         columnWidths: {
           0: const pw.FixedColumnWidth(100),
