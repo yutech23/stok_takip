@@ -22,22 +22,27 @@ import 'drawer.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+
 class ScreenSale extends StatefulWidget {
   const ScreenSale({super.key});
+
   @override
   State<ScreenSale> createState() => _ScreenSallingState();
 }
+
 class _ScreenSallingState extends State<ScreenSale> with Validation {
   final GlobalKey<FormState> _formKeySale = GlobalKey();
   final _controllerSearchCustomer = TextEditingController();
   final _focusSearchCustomer = FocusNode();
   final _controllerSearchProductCode = TextEditingController();
   final _focusSearchProductCode = FocusNode();
+
   final String _labelHeading = "Satış Ekranı";
   final String _labelNewCustomer = "Yeni Müşteri Ekle";
   final String _labelSearchCustomer = "Müşteri İsmi Veya Telefon Numarası ";
   final String _labelSearchProductCode = "Ürün Kodunu Seçiniz";
   final String _labelAddProduct = "Ürünü Ekle";
+
   /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
   late Color _colorBackgroundCurrencyUSD;
   late Color _colorBackgroundCurrencyTRY;
@@ -52,10 +57,15 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   };
   double _usdValue = 0;
   double _euroValue = 0;
+
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
+
   /*-----------------------BAŞLANGIÇ - SATIŞ TABLO ------------------ */
+
   final List<Product> _listAddProduct = <Product>[];
+
   /*?????????????????????? SON - SATIŞ TABLO ?????????????????????????*/
+
   final double _saleMinWidth = 360, _saleMaxWidth = 880;
   final double _shareheight = 40;
   int tableRowIndex = 0;
@@ -65,19 +75,24 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _exchangeHeight = 70;
   Product? _selectProduct;
   late double _widthMediaQuery;
+
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
+
   final _valueNotifierButtonDateTimeState = ValueNotifier<bool>(false);
   final _controllerCashValue = TextEditingController();
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
+
   final String _balance = "Kalan Tutar : ";
   final String _cash = "Nakit İle Ödenen Tutar";
   final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+
   String? _selectDateTime;
   DateTime? _nextPaymentDateTime;
+
 /*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
   num? totalPriceForListProduct;
   late String _selectCustomerType;
@@ -96,13 +111,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
     _colorBackgroundCurrencyTRY = context.extensionDisableColor;
     _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
+
 /*?????????????????? SON - PARABİRİMİ SEÇİMİ ?????????????????? */
+
     ///Sayfa Başladığında bir kez veri çekiyor.yoksa 1 saat sonra çeker.
     exchangeRateService.getExchangeRate();
+
     ///Her 1 saat te bir döviz kurlarını çekiyor. Future Fonksiyon.
     Timer.periodic(const Duration(hours: 1), (timer) {
       exchangeRateService.getExchangeRate();
     });
+
     _streamSubScriptionBalanceValue =
         blocSale.getStreamPaymentSystem.listen((event) {
       if (event > 0) {
@@ -111,20 +130,24 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         _valueNotifierButtonDateTimeState.value = false;
       }
     });
+
     super.initState();
   }
+
   @override
   void dispose() {
     blocSale.clearValues();
     _listAddProduct.clear();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     getWidthScreenSize(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(_labelHeading),
+
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         // ignore: prefer_const_literals_to_create_immutables
         actions: [
@@ -135,6 +158,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       drawer: const MyDrawer(),
     );
   }
+
   buildSale() {
     return Form(
         key: _formKeySale,
@@ -189,6 +213,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           )),
         ));
   }
+
   ///Döviz Kurları Tablosu
   StreamBuilder<Map<String, double>> widgetExchangeRate() {
     return StreamBuilder<Map<String, double>>(
@@ -198,6 +223,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           if (snapshot.hasData) {
             _usdValue = snapshot.data!['USD']!;
             _euroValue = snapshot.data!['EUR']!;
+
             return Container(
               width: _shareWidthPaymentSection,
               height: _exchangeHeight,
@@ -236,6 +262,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           }
         });
   }
+
   ///Müşteri Search Listesi
   widgetSearchFieldCustomer() {
     return SizedBox(
@@ -245,6 +272,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           if (snapshot.snapshot1.hasData && snapshot.snapshot2.hasData) {
             final listCustomer = <Map<String, String>>[];
             listCustomer.clear();
+
             for (var item in snapshot.snapshot1.data) {
               listCustomer.add({
                 'type': item['type'],
@@ -259,8 +287,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 'phone': item['phone']
               });
             }
+
             List<SearchFieldListItem<String>> listSearch =
                 <SearchFieldListItem<String>>[];
+
             for (var element in listCustomer) {
               ///item müşterinin type atıyorum.
               listSearch.add(
@@ -285,6 +315,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               focusNode: _focusSearchCustomer,
               onSuggestionTap: (selectedValue) {
                 _selectCustomerType = selectedValue.item!;
+
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon numarsı üzerinden id buluncak. telefon numarası unique. Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
                 _customerPhone = selectedValue.searchKey;
@@ -294,6 +325,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                     break;
                   }
                 }
+
                 _focusSearchCustomer.unfocus();
               },
               maxSuggestionsInViewPort: 6,
@@ -306,6 +338,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Yeni Müşteri Ekleme
   widgetButtonNewCustomer() {
     return SizedBox(
@@ -327,6 +360,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Ürün Search Listesi
   widgetSearchFieldProductCode() {
     return SizedBox(
@@ -363,6 +397,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Yeni Ürün Ekleme
   widgetButtonAddProduct() {
     return SizedBox(
@@ -376,6 +411,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             //seçilen ürün kodunun özellikleri alınıyor.
             _selectProduct = await db
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
+
             blocSale.addProduct(_selectProduct!);
             blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
             blocSale.balance();
@@ -392,6 +428,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Para birimin seçildi yer
   widgetCurrencySelectSection() {
     return Stack(
@@ -502,6 +539,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ],
     );
   }
+
   ///Ek- Parabirimi Seçildiği yer için yardımcı Widget
   partOfWidgetshareInkwellCurrency(
       {required void Function()? onTap,
@@ -523,6 +561,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ),
         ));
   }
+
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
   widgetPaymentInformationSection() {
     return SizedBox(
@@ -537,6 +576,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///EK -- Toplam Ödemelerin Başlık Bölümü
   Container partOfWidgetHeader(
       BuildContext context, String label, Color backgroundColor) {
@@ -554,6 +594,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Ödeme verilerin alındığı yer.
   widgetPaymentOptions() {
     return Container(
@@ -604,8 +645,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               }
             },
           ),
+
           ///kalan Tutar
           partOfwidgetStreamBuilderPaid(),
+
           ///İleri Ödeme Tarihi Belirlenen button.
           ///ValueListenableBuilder Buttonun aktif veya pasif olmasını belirliyor. Toplam Tutar girilmediyse Button Pasif Oluyor.
           ValueListenableBuilder(
@@ -639,22 +682,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         ],
       ),
     );
-
-    
-          
-            
-    
-
-          
-          
-            
-    
-
-          
-    
-    @@ -737,9 +738,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
   }
+
   /// Kalan Tutar Bölümü
   partOfwidgetStreamBuilderPaid() {
     return Container(
@@ -700,6 +729,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           }),
     );
   }
+
   //Satış Gerçekleştirme Buttonu
   Container widgetButtonSale(BuildContext context) {
     return Container(
@@ -713,16 +743,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               final res = await blocSale.save(
                 customerType: _selectCustomerType,
                 customerPhone: _customerPhone,
-
-    
-        
-          
-    
-
-        
-    
-    @@ -750,7 +750,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
                 unitOfCurrency: _selectUnitOfCurrencyAbridgment,
                 cashPayment: _controllerCashValue.text,
                 bankcardPayment: _controllerBankValue.text,
@@ -734,16 +754,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 _controllerBankValue.clear();
                 _controllerEftHavaleValue.clear();
                 _controllerCashValue.clear();
-
-    
-        
-          
-    
-
-        
-    
-    @@ -764,7 +763,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
                 _controllerSearchCustomer.clear();
                 _controllerSearchProductCode.clear();
                 setState(() {
@@ -758,21 +768,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               } else {
                 context.noticeBarError(
                     "Veritabanı Hatası : Kayıt gerçekleşmedi.", 3);
-
-    
-          
-            
-    
-
-          
-          
-            
-    
-
-          
-    
-    @@ -821,12 +819,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
               }
             } else {
               context.noticeBarError(
@@ -782,6 +777,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           label: "Satışı Tamamla"),
     );
   }
+
   sharedTextFormField(
       {required double width,
       required String labelText,
@@ -812,6 +808,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       ),
     );
   }
+
   ///Tarih seçildiği yer.
   Future<DateTime?> pickDate() => showDatePicker(
         context: context,
@@ -819,6 +816,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         firstDate: DateTime(2022),
         lastDate: DateTime(2050),
       );
+
   void getWidthScreenSize(BuildContext context) {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
   }
@@ -832,17 +830,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     final doc = pw.Document();
     //final image = await imageFromAssetBundle('assets/image.png');
     String svgRaw = await rootBundle.loadString('/logo.svg');
-
-    
-        
-          
-    
-
-        
-    
-    @@ -837,8 +840,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
     final svgImage = pw.SvgImage(svg: svgRaw);
+
     var myFont = await PdfGoogleFonts.openSansMedium();
     final pw.TextStyle letterCharacter =
         pw.TextStyle(font: myFont, fontSize: 9);
@@ -853,16 +842,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
 //Tablo Row yapıldı Yer.
     pw.TableRow buildRow(List<String> cells) => pw.TableRow(
-
-    
-        
-          
-    
-
-        
-    
-    @@ -850,37 +851,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
             children: cells.map((cell) {
           return pw.Padding(
               padding: const pw.EdgeInsets.fromLTRB(4, 2, 0, 2),
@@ -905,21 +884,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       if (_selectCustomerType == "Şahıs") {
         return pw.RichText(
             text: pw.TextSpan(
-
-    
-          
-            
-    
-
-          
-          
-            
-    
-
-          
-    
-    @@ -942,72 +915,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
                 text:
                     "${blocInvoice.getCustomerInfo.soleTraderName} ${blocInvoice.getCustomerInfo.soleTraderLastName} \n",
                 style: letterCharacter,
@@ -944,6 +908,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   text:
                       "TCKN : ${blocInvoice.getCustomerInfo.TCno!.toUpperCase()}\n")
             ]));
+
         ///Fİrmaların Verisisnin Dolduğu yer
       } else {
         return pw.RichText(
@@ -1046,16 +1011,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     ///Dökümanın oluşturlduğu yer.
     doc.addPage(pw.Page(
       pageFormat: PdfPageFormat.a5,
-
-    
-        
-          
-    
-
-        
-    
-    @@ -1016,71 +923,54 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
       margin: const pw.EdgeInsets.all(20),
       build: (context) {
         return pw.Container(
@@ -1130,18 +1085,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       },
     ));
 
-    
-        
-          
-    
-
-        
-    
-    @@ -1094,12 +984,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
     await Printing.layoutPdf(
       onLayout: (format) async => doc.save(),
     );
+
     /* //Başka uygulamada paylaşmak istersen 
     await Printing.sharePdf(bytes: await doc.save(), filename: 'fatura.pdf');
      */
@@ -1156,16 +1103,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     return pw.Table(
         columnWidths: {
           0: const pw.FixedColumnWidth(100),
-
-    
-        
-          
-    
-
-        
-    
-    @@ -1108,49 +995,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
-  
           1: const pw.FixedColumnWidth(60)
         },
         border: pw.TableBorder.all(color: PdfColors.black, width: 1),
