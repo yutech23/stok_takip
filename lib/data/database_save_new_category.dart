@@ -17,12 +17,7 @@ class DbCategory {
     //validate() değeri null ise dönen değer true bu sayede if bloku çalışır. dataBase
     //kayıt işlemleri gerçekleşir.
     bool saveController = true;
-    if (formKey.currentState!.validate() &&
-        category.category1!.isNotEmpty &&
-        category.category2!.isNotEmpty &&
-        category.category3!.isNotEmpty &&
-        category.category4!.isNotEmpty &&
-        category.category5!.isNotEmpty) {
+    if (formKey.currentState!.validate() && category.category1!.isNotEmpty) {
       ///Kategoride aynı veri olup olmadığını kontrol ediliyor ki Tekrar aynı
       ///kategori oluşturulmasın için burada kontrol ediliyor.
 
@@ -43,30 +38,49 @@ class DbCategory {
             {'name': category.category1},
           ]).select();
 
-          final resCategory2Id = await db.supabase.from('category2').insert([
+          List<Map<String, dynamic>>? resCategory2Id;
+          List<Map<String, dynamic>>? resCategory3Id;
+          List<Map<String, dynamic>>? resCategory4Id;
+          List<Map<String, dynamic>>? resSubSave5;
+          print("burdayım");
+
+          print(category.category2.runtimeType);
+          print(category.category3);
+          print(category.category4);
+          print(category.category5);
+
+          print("girdim");
+          resCategory2Id = await db.supabase.from('category2').insert([
             {
               'name': category.category2,
               'fk_category1_id': Map.of(resCategory1Id[0]).values.first
             }
           ]).select();
-          final resCategory3Id = await db.supabase.from('category3').insert([
+
+          print("girdim1");
+          resCategory3Id = await db.supabase.from('category3').insert([
             {
               'name': category.category3,
-              'fk_category2_id': Map.of(resCategory2Id[0]).values.first
+              'fk_category2_id': Map.of(resCategory2Id![0]).values.first
             }
           ]).select();
-          final resCategory4Id = await db.supabase.from('category4').insert([
+
+          print("girdim2");
+          resCategory4Id = await db.supabase.from('category4').insert([
             {
               'name': category.category4,
-              'fk_category3_id': Map.of(resCategory3Id[0]).values.first
+              'fk_category3_id': Map.of(resCategory3Id![0]).values.first
             }
           ]).select();
-          final resSubSave5 = await db.supabase.from('category5').insert([
+
+          print("girdim3");
+          resSubSave5 = await db.supabase.from('category5').insert([
             {
               'name': category.category5,
-              'fk_category4_id': Map.of(resCategory4Id[0]).values.first
+              'fk_category4_id': Map.of(resCategory4Id![0]).values.first
             }
           ]);
+
           error = "";
         } on PostgrestException catch (e) {
           print("Hata Category Add : ${e.message}");

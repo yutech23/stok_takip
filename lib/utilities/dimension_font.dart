@@ -26,8 +26,11 @@ extension DimensionFont on BuildContext {
   EdgeInsets extensionPadding10() => const EdgeInsets.all(10);
   EdgeInsets extensionMargin10() => const EdgeInsets.all(10);
 
+  SizedBox extensionWidhSizedBox10() => const SizedBox(width: 10);
   SizedBox extensionWidhSizedBox20() => const SizedBox(width: 20);
   SizedBox extensionHighSizedBox20() => const SizedBox(height: 20);
+  SizedBox extensionHighSizedBox10() => const SizedBox(height: 10);
+
   double extensionWrapSpacing10() => 10;
   double extensionWrapSpacing20() => 20;
 

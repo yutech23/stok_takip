@@ -265,8 +265,11 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
                   if (!snapshot.hasError && snapshot.hasData) {
                     List<Map<int, String>> _category2Name = [];
                     for (var element in snapshot.data!) {
-                      _category2Name
-                          .add({element['category2_id']: element['name']});
+                      print(element);
+                      if (element['name'].isNotEmpty) {
+                        _category2Name
+                            .add({element['category2_id']: element['name']});
+                      }
                     }
                     return Scrollbar(
                       controller: controllerScroll,
@@ -927,7 +930,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               controller: _controllerCategories[i],
               etiket: "Kategori-${categoryNo} Elemanını Giriniz",
               inputFormat: [FormatterUpperCaseCapitalEachWordTextFormatter()],
-              validationFunc: validateNotEmpty,
+              //validationFunc: validateNotEmpty,
               enable: _enableCategoryTextFormField[i])));
 
       if (i != 4) {

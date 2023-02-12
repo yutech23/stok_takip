@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -100,6 +102,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
 /*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
+
+/*-------------------KATEGORİ BÖLÜMÜ----------------------*/
+  final String _categorySections = "Kategori";
+  String categoryList = "";
+  final ScrollController _controllerscrollCategory = ScrollController();
+/**-------------------------------------------------------- */
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
   int _selectedTaxToInt = 0;
@@ -207,20 +215,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       ),
                       widgetSearchTextFieldSupplier(),
                     ]),
+                widgetDividerHeader(_categorySections, 35),
+                widgetCategorySelectSection(),
                 const Divider(),
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  direction: Axis.horizontal,
-                  verticalDirection: VerticalDirection.down,
-                  spacing: 20,
-                  runSpacing: 20,
-                  children: [
-                    widgetQrCodeSection(),
-                    widgetCategorySelectSection(),
-                  ],
-                ),
-                const Divider(),
-                widgetDividerHeader(_paymentSections),
+                widgetDividerHeader(_paymentSections, null),
                 widgetPaymentOptions(),
                 Divider(
                     color: context.extensionLineColor,
@@ -252,7 +250,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 errorBorder: OutlineInputBorder(
                   borderSide: BorderSide(),
                 ),
-                label: Text("Ürün Kodunu Giriniz"),
+                label: Text("Ürün Kodunu Giriniz (Barkod Kodu)"),
                 prefixIcon: Icon(Icons.search, color: Colors.black),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(),
@@ -326,7 +324,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ),
           ),
         ),
-        context.extensionWidhSizedBox20(),
+        context.extensionWidhSizedBox10(),
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: db.getSuppliersNameStream(),
@@ -426,7 +424,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         ));
   }
 
-  widgetCategorySelectSection() {
+  widgetCategorySelectSectionTable() {
     return SizedBox(
       height: 300,
       width: 220,
@@ -546,6 +544,86 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Kategori Bölümü
+  widgetCategorySelectSection() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+            height: 50,
+            child: FloatingActionButton(
+              heroTag: "Kategori Button",
+              focusColor: context.extensionDisableColor,
+              hoverColor: Colors.grey,
+              child: const Icon(Icons.add),
+              onPressed: () {
+                widgetCategorySelectPopUp();
+              },
+            ),
+          ),
+          _category.category1 != null
+              ? widgetCategorySelected()
+              : Container(
+                  width: 220,
+                  alignment: Alignment.center,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: context.extensionDefaultColor,
+                      borderRadius: context.extensionRadiusDefault5),
+                  child: Text(
+                    "Kategori Seçilmedi.",
+                    style:
+                        context.theme.headline6!.copyWith(color: Colors.white),
+                  ),
+                ),
+        ],
+      ),
+    );
+  }
+
+  widgetCategorySelected() {
+    return Container(
+      constraints: BoxConstraints(
+          minWidth: _containerMainMinWidth,
+          maxWidth: _containerMainMaxWidth - 100,
+          minHeight: 50,
+          maxHeight: 60),
+      padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+          color: context.extensionDefaultColor,
+          borderRadius: context.extensionRadiusDefault5),
+      child: RichText(
+          text: TextSpan(children: [
+        TextSpan(
+            text: "Seçilen Kategori: ",
+            style: context.theme.subtitle1!.copyWith(color: Colors.white)),
+        for (int i = 0; i < _categoryList.length - 1; i++)
+          TextSpan(
+            text: "${_categoryList[i]}> ",
+            style: context.theme.subtitle1!.copyWith(color: Colors.white),
+          ),
+        TextSpan(
+            text: _categoryList[_categoryList.length - 1],
+            style: context.theme.subtitle1!.copyWith(color: Colors.white)),
+      ])),
+    );
+  }
+
+  void fillSelectedCategory() {
+    categoryList = "Seçilen Kategori> ";
+    for (var i = 0; i < _categoryList.length; i++) {
+      if (i != _categoryList.length - 1) {
+        categoryList += "${_categoryList[i]}> ";
+      } else {
+        categoryList += _categoryList[i];
+      }
+    }
+  }
+
   ///Kategori Seç tıklandığı açılan pop-up Kategori seçme
   Future widgetCategorySelectPopUp() {
     return showDialog(
@@ -583,6 +661,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       _categoryList.add(_category.category4!.values.first);
                       _categoryList.add(_category.category5!.values.first);
                     });
+                    fillSelectedCategory();
                     Navigator.of(context).pop();
                   }
                 },
@@ -673,11 +752,12 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   }
 
   /// Bölüm Başlığı Orta kısmında Başlık yazılı.
-  widgetDividerHeader(String header) {
+  widgetDividerHeader(String header, double? height) {
     return Row(
       children: [
         Expanded(
           child: Divider(
+            height: height,
             color: context.extensionLineColor,
             thickness: 2.5,
             indent: 30,
@@ -690,6 +770,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 fontWeight: FontWeight.bold)),
         Expanded(
             child: Divider(
+          height: height,
           color: context.extensionLineColor,
           thickness: 2.5,
           indent: 10,
@@ -991,99 +1072,94 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   ///Ürün Kaydı yapıldı yer.
   widgetSaveProduct() {
     return ElevatedButton(
-      onPressed: _isThereProductCode
-          ? () async {
-              if (_formKey.currentState!.validate() &&
-                  _category.category1 != null &&
-                  _controllerProductCode.text.isNotEmpty) {
-                bool isThereProductCodeByProductList =
-                    _productCodeList!.contains(_controllerProductCode.text);
+      onPressed: () async {
+        if (_formKey.currentState!.validate() &&
+            _category.category1 != null &&
+            _controllerProductCode.text.isNotEmpty) {
+          bool isThereProductCodeByProductList =
+              _productCodeList!.contains(_controllerProductCode.text);
 
-                if (isThereProductCodeByProductList == false) {
-                  ///Depo seçimi koyulmadığından bu bölüm şimdilik sabit veriliyor.
-                  const storehouse = "Ana Depo";
+          if (isThereProductCodeByProductList == false) {
+            ///Depo seçimi koyulmadığından bu bölüm şimdilik sabit veriliyor.
+            const storehouse = "Ana Depo";
 
-                  ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
-                  var product = Product(
-                    productCode: _controllerProductCode.text,
-                    currentAmountOfStock:
-                        int.parse(_controllerProductAmountOfStock.text),
-                    taxRate: _selectedTaxToInt,
-                    currentBuyingPriceWithoutTax:
-                        _valueNotifierProductBuyWithoutTax.value,
-                    currentSallingPriceWithoutTax:
-                        double.parse(_controllerSallingPriceWithoutTax.text),
-                    category: _category,
-                  );
+            ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
+            var product = Product(
+              productCode: _controllerProductCode.text,
+              currentAmountOfStock:
+                  int.parse(_controllerProductAmountOfStock.text),
+              taxRate: _selectedTaxToInt,
+              currentBuyingPriceWithoutTax:
+                  _valueNotifierProductBuyWithoutTax.value,
+              currentSallingPriceWithoutTax:
+                  double.parse(_controllerSallingPriceWithoutTax.text),
+              category: _category,
+            );
 
-                  ///ÖDEME TÜRÜNÜN EKLENMESİ.
-                  var payment = Payment(
-                      suppliersFk: _controllerSupplier.text,
-                      productFk: _controllerProductCode.text,
-                      amountOfStock:
-                          int.parse(_controllerProductAmountOfStock.text),
-                      invoiceCode: _controllerInvoiceCode.text,
-                      unitOfCurrency: _selectUnitOfCurrencyAbridgment,
-                      total: double.parse(
-                          _controllerPaymentTotal.text.replaceAll(".", "")),
-                      cash: double.tryParse(
-                          _controllerCashValue.text.replaceAll(".", "")),
-                      bankcard: double.tryParse(
-                          _controllerBankValue.text.replaceAll(".", "")),
-                      eftHavale: double.tryParse(
-                          _controllerEftHavaleValue.text.replaceAll(".", "")),
-                      buyingPriceWithoutTax:
-                          _valueNotifierProductBuyWithoutTax.value,
-                      sallingPriceWithoutTax:
-                          double.parse(_controllerSallingPriceWithoutTax.text),
-                      repaymentDateTime: _selectDateTime);
+            ///ÖDEME TÜRÜNÜN EKLENMESİ.
+            var payment = Payment(
+                suppliersFk: _controllerSupplier.text,
+                productFk: _controllerProductCode.text,
+                amountOfStock: int.parse(_controllerProductAmountOfStock.text),
+                invoiceCode: _controllerInvoiceCode.text,
+                unitOfCurrency: _selectUnitOfCurrencyAbridgment,
+                total: double.parse(
+                    _controllerPaymentTotal.text.replaceAll(".", "")),
+                cash: double.tryParse(
+                    _controllerCashValue.text.replaceAll(".", "")),
+                bankcard: double.tryParse(
+                    _controllerBankValue.text.replaceAll(".", "")),
+                eftHavale: double.tryParse(
+                    _controllerEftHavaleValue.text.replaceAll(".", "")),
+                buyingPriceWithoutTax: _valueNotifierProductBuyWithoutTax.value,
+                sallingPriceWithoutTax:
+                    double.parse(_controllerSallingPriceWithoutTax.text),
+                repaymentDateTime: _selectDateTime);
 
-                  ///KAYITIN GERÇEKLEŞTİĞİ YER.
-                  if (_valueNotifierBalance.value >= 0) {
-                    db.saveNewProduct(product, payment).then((value) {
-                      /// kayıt başarılı olunca degerleri sıfırlıyor.
-                      if (value.isEmpty) {
-                        _controllerInvoiceCode.clear();
-                        _controllerPaymentTotal.clear();
-                        _controllerEftHavaleValue.clear();
-                        _controllerBankValue.clear();
-                        _controllerSupplier.clear();
-                        _controllerCashValue.clear();
-                        _valueNotifierBalance.value = 0;
-                        _valueNotifierPaid.value = 0;
-                        _controllerSallingPriceWithoutTax.clear();
-                        _controllerProductAmountOfStock.clear();
-                        _valueNotifierProductSaleWithTax.value = 0;
-                        _valueNotifierProductBuyWithoutTax.value = 0;
+            ///KAYITIN GERÇEKLEŞTİĞİ YER.
+            if (_valueNotifierBalance.value >= 0) {
+              db.saveNewProduct(product, payment).then((value) {
+                /// kayıt başarılı olunca degerleri sıfırlıyor.
+                if (value.isEmpty) {
+                  _controllerInvoiceCode.clear();
+                  _controllerPaymentTotal.clear();
+                  _controllerEftHavaleValue.clear();
+                  _controllerBankValue.clear();
+                  _controllerSupplier.clear();
+                  _controllerCashValue.clear();
+                  _valueNotifierBalance.value = 0;
+                  _valueNotifierPaid.value = 0;
+                  _controllerSallingPriceWithoutTax.clear();
+                  _controllerProductAmountOfStock.clear();
+                  _valueNotifierProductSaleWithTax.value = 0;
+                  _valueNotifierProductBuyWithoutTax.value = 0;
 
-                        ///global olarak tanımladığı için peş peşe 2 ürün kaydetmek olduğunda değerler global değişken olduğu için veriler bir sonrakiye girişi etkiliyor. O yüzden sıfırlamak lazım.
-                        _cashValue = 0;
-                        _bankValue = 0;
-                        _eftHavaleValue = 0;
-                        _totalPaymentValue = 0;
+                  ///global olarak tanımladığı için peş peşe 2 ürün kaydetmek olduğunda değerler global değişken olduğu için veriler bir sonrakiye girişi etkiliyor. O yüzden sıfırlamak lazım.
+                  _cashValue = 0;
+                  _bankValue = 0;
+                  _eftHavaleValue = 0;
+                  _totalPaymentValue = 0;
 
-                        setState(() {
-                          _controllerProductCode.clear();
-                          _visibleQrCode = false;
-                          _categoryList.clear();
-                        });
-                        context.noticeBarTrue("Ürün kaydedildi.", 1);
-                      }
-                    });
-                  } else {
-                    context.noticeBarError(
-                        "Kalan Tutar 0'dan küçük olamaz.", 2);
-                  }
-                } else {
-                  context.extensionShowErrorSnackBar(
-                      message: "Kayıtlı bir ürün kodu girdiniz.");
+                  setState(() {
+                    _controllerProductCode.clear();
+                    _visibleQrCode = false;
+                    _categoryList.clear();
+                  });
+                  context.noticeBarTrue("Ürün kaydedildi.", 1);
                 }
-              } else {
-                context.extensionShowErrorSnackBar(
-                    message: "Lütfen Gerekli Alanları Doldurun");
-              }
+              });
+            } else {
+              context.noticeBarError("Kalan Tutar 0'dan küçük olamaz.", 2);
             }
-          : null,
+          } else {
+            context.extensionShowErrorSnackBar(
+                message: "Kayıtlı bir ürün kodu girdiniz.");
+          }
+        } else {
+          context.extensionShowErrorSnackBar(
+              message: "Lütfen Gerekli Alanları Doldurun");
+        }
+      },
       child: const Text(
         "Kaydet",
       ),
@@ -1289,4 +1365,14 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       ],
     );
   }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        // etc.
+      };
 }
