@@ -23,6 +23,7 @@ class WidgetSaleTable extends StatefulWidget {
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
   final double _tableWidth = 570, _tableHeight = 463;
   final double _shareheight = 40;
+  double? _responceWidth;
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
@@ -38,6 +39,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   @override
   Widget build(BuildContext context) {
+    getWidthScreenSize(context);
     return buildProdcutSaleList();
   }
 
@@ -186,7 +188,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   widgetTotalPriceSectionHeader1(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.titleMedium!.copyWith(color: Colors.white);
+        context.theme.headline6!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -280,5 +282,13 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
             }
           },
         ));
+  }
+
+  getWidthScreenSize(BuildContext context) {
+    TextStyle styleHeader;
+    MediaQuery.of(context).size.width < 500
+        ? styleHeader = context.theme.headline6!.copyWith(color: Colors.white)
+        : styleHeader =
+            context.theme.titleMedium!.copyWith(color: Colors.white);
   }
 }

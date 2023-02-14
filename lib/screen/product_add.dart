@@ -1389,6 +1389,5 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   getWidthScreenSize(BuildContext context) {
     _responceWidth = MediaQuery.of(context).size.width < 500 ? 250 : 600;
-    print(_responceWidth);
   }
 }

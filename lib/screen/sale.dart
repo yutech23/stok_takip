@@ -98,6 +98,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   num? totalPriceForListProduct;
   late String _selectCustomerType;
   late String _customerPhone;
+
+  ///Kalan tutarı dinleyere "Ödeme tarihi Ekle" aktif veya pasif oluyor.
   late final StreamSubscription _streamSubScriptionBalanceValue;
 /*-------------------------------------------------------------- */
   @override
@@ -450,22 +452,23 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
-                      if (_selectUnitOfCurrencySymbol != "₺") {
-                        setState(() {
-                          _selectUnitOfCurrencyAbridgment =
-                              _mapUnitOfCurrency["Türkiye"]["abridgment"];
-                          _selectUnitOfCurrencySymbol =
-                              _mapUnitOfCurrency["Türkiye"]["symbol"];
-                          _colorBackgroundCurrencyTRY =
-                              context.extensionDisableColor;
-                          _colorBackgroundCurrencyUSD =
-                              context.extensionDefaultColor;
-                          _colorBackgroundCurrencyEUR =
-                              context.extensionDefaultColor;
-                        });
-                        blocSale
-                            .getTotalPriceSection(_selectUnitOfCurrencySymbol);
-                      }
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["Türkiye"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                        if (_selectUnitOfCurrencySymbol != "₺") {
+                          blocSale.getTotalPriceSection(
+                              _selectUnitOfCurrencySymbol);
+                        }
+                      });
                     },
                     sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyTRY),
@@ -475,22 +478,23 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
-                      if (_selectUnitOfCurrencySymbol != "\$") {
-                        setState(() {
-                          _selectUnitOfCurrencyAbridgment =
-                              _mapUnitOfCurrency["amerika"]["abridgment"];
-                          _selectUnitOfCurrencySymbol =
-                              _mapUnitOfCurrency["amerika"]["symbol"];
-                          _colorBackgroundCurrencyTRY =
-                              context.extensionDefaultColor;
-                          _colorBackgroundCurrencyUSD =
-                              context.extensionDisableColor;
-                          _colorBackgroundCurrencyEUR =
-                              context.extensionDefaultColor;
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["amerika"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["amerika"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                        if (_selectUnitOfCurrencySymbol != "\$") {
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
-                        });
-                      }
+                        }
+                      });
                     },
                     sembol: _mapUnitOfCurrency["amerika"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyUSD),
@@ -500,22 +504,23 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 partOfWidgetshareInkwellCurrency(
                     onTap: () {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
-                      if (_selectUnitOfCurrencySymbol != "€") {
-                        setState(() {
-                          _selectUnitOfCurrencyAbridgment =
-                              _mapUnitOfCurrency["avrupa"]["abridgment"];
-                          _selectUnitOfCurrencySymbol =
-                              _mapUnitOfCurrency["avrupa"]["symbol"];
-                          _colorBackgroundCurrencyTRY =
-                              context.extensionDefaultColor;
-                          _colorBackgroundCurrencyUSD =
-                              context.extensionDefaultColor;
-                          _colorBackgroundCurrencyEUR =
-                              context.extensionDisableColor;
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["avrupa"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["avrupa"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDisableColor;
+                        if (_selectUnitOfCurrencySymbol != "€") {
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
-                        });
-                      }
+                        }
+                      });
                     },
                     sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
                     backgroundColor: _colorBackgroundCurrencyEUR),
@@ -738,7 +743,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
-            if (_controllerSearchProductCode.text.isNotEmpty &&
+            if (_controllerSearchProductCode.text != "" &&
                 blocSale.listProduct.length >= 1) {
               final res = await blocSale.save(
                 customerType: _selectCustomerType,
@@ -827,9 +832,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         _selectCustomerType, _customerPhone);
 
     final doc = pw.Document();
-    //final image = await imageFromAssetBundle('assets/image.png');
-    String svgRaw = await rootBundle.loadString('/logo.svg');
-    final svgImage = pw.SvgImage(svg: svgRaw);
+    final pngImage = await imageFromAssetBundle('assets/logo.png');
+/*     String svgRaw = await rootBundle.loadString('/logo.svg');
+    final svgImage = pw.SvgImage(svg: svgRaw); */
 
     var myFont = await PdfGoogleFonts.openSansMedium();
 
@@ -1030,7 +1035,11 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   children: [
                     pdfWidgetMyCompanyInfo(
                         letterCharacter, letterCharacterBold),
-                    pw.Container(width: 150, height: 70, child: svgImage)
+                    pw.Container(
+                        color: PdfColors.amber,
+                        width: 150,
+                        height: 100,
+                        child: pw.Image(fit: pw.BoxFit.fitWidth, pngImage))
                   ]),
               pdfwidgetDivider(),
 

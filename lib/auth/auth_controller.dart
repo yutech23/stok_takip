@@ -21,18 +21,18 @@ class AuthController {
   }
 
   controllerAuth() async {
-    // final user = await db.supabase.auth.currentUser;
-    /*    final Session? userSession = await db.supabase.auth.currentSession;
+    /*    // final user = await db.supabase.auth.currentUser;
+    final Session? userSession = await db.supabase.auth.currentSession;
 
     if (userSession?.accessToken != null) {
-      // await db.supabase.auth.setSession(userSession!.refreshToken!);
+      await db.supabase.auth.setSession(userSession!.refreshToken!);
       //  print("session : ${userSession!.accessToken}");
     } else {
       print("Session YOKK");
       //Browser Bulunan Local Storage veriler temizleniyor.
       SecurityStorageUser.deleteStorege();
-    } */
-
+    }
+ */
     // Login Sayfasına yönlendiriliyor
   }
 }
