@@ -924,11 +924,11 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
     int categoryNo = 1;
     for (var i = 0; i < 5; i++) {
       _controllerCategories.add(TextEditingController());
-      _listCategoryCreate.add(Container(
+      _listCategoryCreate.add(SizedBox(
           width: 200,
           child: widgetTextFieldByCategory(
               controller: _controllerCategories[i],
-              etiket: "Kategori-${categoryNo} Elemanını Giriniz",
+              etiket: "Kategori-$categoryNo Elemanını Giriniz",
               inputFormat: [FormatterUpperCaseCapitalEachWordTextFormatter()],
               //validationFunc: validateNotEmpty,
               enable: _enableCategoryTextFormField[i])));
@@ -942,7 +942,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
       }
       categoryNo++;
     }
-    _listCategoryCreate.add(Divider());
+    _listCategoryCreate.add(const Divider());
     _listCategoryCreate.add(widgetSaveOnButtonByCategory());
   }
 
@@ -960,12 +960,12 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
       validator: validationFunc,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             fontSize: 14,
           ),
           labelText: etiket,
-          border:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.amber))),
+          border: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.amber))),
       inputFormatters: inputFormat,
     );
   }
@@ -973,18 +973,22 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
 // #endregion
   ElevatedButton widgetSaveOnButtonByCategory() {
     return ElevatedButton(
-        child: const Text("Kategoriyi Kaydet"),
         onPressed: _disableButtonValue
             ? null
             : () {
                 if (_categoryAddIndex.value != 0) {
                   //  _globalFormKey.currentState!.validate();
                 }
+
+                ///textfiled girilen kategori adlarını burada Oluşturlan
+                ///CategoryString nesnesinin içine atılıyor.Bunuda database gönderiliyor.
                 _newCategoryAdd.category1 = _controllerCategories[0].text;
                 _newCategoryAdd.category2 = _controllerCategories[1].text;
                 _newCategoryAdd.category3 = _controllerCategories[2].text;
                 _newCategoryAdd.category4 = _controllerCategories[3].text;
                 _newCategoryAdd.category5 = _controllerCategories[4].text;
+                print(
+                    "atanana deger : ${_controllerCategories[1].text.runtimeType}");
 
                 if (_categoryAddIndex.value == 1) {
                   dbCategory
@@ -1073,6 +1077,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
                     }
                   });
                 }
-              });
+              },
+        child: const Text("Kategoriyi Kaydet"));
   }
 }

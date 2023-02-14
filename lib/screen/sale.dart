@@ -738,7 +738,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       width: _shareWidthPaymentSection,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
-            print(blocSale.listProduct.length);
             if (_controllerSearchProductCode.text.isNotEmpty &&
                 blocSale.listProduct.length >= 1) {
               final res = await blocSale.save(
@@ -976,8 +975,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               buildRowProductList()[i],
           ]);
     }
-
-    print(blocInvoice.getInvoice!.name.toUpperCaseTr());
 
     ///Şirket Bilgilerin Widget Bölümü.
     pw.Container pdfWidgetMyCompanyInfo(

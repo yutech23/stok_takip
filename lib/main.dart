@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
@@ -31,6 +32,13 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('tr', 'TR'), Locale('en', 'US')],
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior()
+          .copyWith(scrollbars: true, dragDevices: {
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.touch,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown
+      }),
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.blueGrey.shade900),

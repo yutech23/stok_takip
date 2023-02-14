@@ -13,7 +13,6 @@ import 'package:stok_takip/screen/drawer.dart';
 import 'package:stok_takip/utilities/convert_string_currency_digits.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-
 import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
@@ -36,18 +35,15 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final _formKey = GlobalKey<FormState>();
   final _valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
   final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
-
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
-
   final _controllerSallingPriceWithoutTax = TextEditingController();
-
   final _controllerInvoiceCode = TextEditingController();
   late AutovalidateMode _autovalidateMode;
 
   final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
-
+  double? _responceWidth;
   // late Product? _product;
 
   late Category _category;
@@ -106,7 +102,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 /*-------------------KATEGORİ BÖLÜMÜ----------------------*/
   final String _categorySections = "Kategori";
   String categoryList = "";
-  final ScrollController _controllerscrollCategory = ScrollController();
+
 /**-------------------------------------------------------- */
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
@@ -165,6 +161,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   double sideLength = 50;
   @override
   Widget build(BuildContext context) {
+    print("deneme: ${MediaQuery.of(context).size.width}");
+    getWidthScreenSize(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Yeni Ürün Ekleme"),
@@ -213,10 +211,17 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           ),
                         ],
                       ),
-                      widgetSearchTextFieldSupplier(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: widgetSearchTextFieldSupplier(),
+                      )
                     ]),
                 widgetDividerHeader(_categorySections, 35),
-                widgetCategorySelectSection(),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: widgetCategorySelectSection(),
+                ),
                 const Divider(),
                 widgetDividerHeader(_paymentSections, null),
                 widgetPaymentOptions(),
@@ -364,7 +369,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  ///Qr-Code Blok kodu
+/*   ///Qr-Code Blok kodu
   widgetQrCodeSection() {
     return Container(
       width: 220,
@@ -422,7 +427,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         child: const Text(
           "QR-Kod Oluştur",
         ));
-  }
+  } */
 
   widgetCategorySelectSectionTable() {
     return SizedBox(
@@ -567,12 +572,16 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           _category.category1 != null
               ? widgetCategorySelected()
               : Container(
-                  width: 220,
+                  width: _responceWidth,
                   alignment: Alignment.center,
-                  height: 50,
                   decoration: BoxDecoration(
                       color: context.extensionDefaultColor,
                       borderRadius: context.extensionRadiusDefault5),
+                  constraints: const BoxConstraints(
+                      /*    minWidth: _containerMainMinWidth,
+                      maxWidth: _containerMainMaxWidth - 140, */
+                      minHeight: 50,
+                      maxHeight: 60),
                   child: Text(
                     "Kategori Seçilmedi.",
                     style:
@@ -586,9 +595,10 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   widgetCategorySelected() {
     return Container(
+      width: _responceWidth,
       constraints: BoxConstraints(
           minWidth: _containerMainMinWidth,
-          maxWidth: _containerMainMaxWidth - 100,
+          maxWidth: _containerMainMaxWidth - 140,
           minHeight: 50,
           maxHeight: 60),
       padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -639,33 +649,44 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   .copyWith(fontWeight: FontWeight.bold)),
           content: Container(
             width: 600,
+            constraints: const BoxConstraints(maxHeight: 500),
             child: WidgetCategoryShow(_category),
-            constraints: BoxConstraints(maxHeight: 500),
           ),
           actions: [
             ElevatedButton(
                 onPressed: () {
-                  if (_category.category1 == null ||
-                      _category.category2 == null ||
-                      _category.category3 == null ||
-                      _category.category4 == null ||
-                      _category.category5 == null) {
+                  //Kategorinin boş olup olmadığını kontrol ederek bildirim hatası veriyor.
+                  if (_category.category1 == null) {
                     context.extensionShowErrorSnackBar(
                         message: "Lütfen Kategori Seçimini Tamamlayınız");
                   } else {
                     setState(() {
                       _categoryList.clear();
-                      _categoryList.add(_category.category1!.values.first);
-                      _categoryList.add(_category.category2!.values.first);
-                      _categoryList.add(_category.category3!.values.first);
-                      _categoryList.add(_category.category4!.values.first);
-                      _categoryList.add(_category.category5!.values.first);
+
+                      ///BU bölümde kategory boş gelen veri sorun oluyor.
+                      /// Category Sınıfı içinde değişkenlere 'null' atanamıyor.
+
+                      if (_category.category1?.values.first != null) {
+                        _categoryList.add(_category.category1!.values.first);
+                      }
+                      if (_category.category2?.values.first != null) {
+                        _categoryList.add(_category.category2!.values.first);
+                      }
+                      if (_category.category3?.values.first != null) {
+                        _categoryList.add(_category.category3!.values.first);
+                      }
+                      if (_category.category4?.values.first != null) {
+                        _categoryList.add(_category.category4!.values.first);
+                      }
+                      if (_category.category5?.values.first != null) {
+                        _categoryList.add(_category.category5!.values.first);
+                      }
                     });
                     fillSelectedCategory();
                     Navigator.of(context).pop();
                   }
                 },
-                child: Text('Seç'))
+                child: const Text('Seç'))
           ],
         );
       },
@@ -795,7 +816,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   widgetPaymentOptions() {
     double insideContainerWidth = 250;
     return Container(
-      padding: context.extensionPadding20(),
+      //  padding: context.extensionPadding20(),
       width: context.extendFixedWightContainer,
       alignment: Alignment.center,
       child: Wrap(
@@ -953,7 +974,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   ///Maliyeti Stok ve Birim Satışı Bölümü.
   widgetProductUnitSection() {
     return SizedBox(
-      width: 500,
+      width: 520,
       child: Wrap(
         direction: Axis.horizontal,
         verticalDirection: VerticalDirection.down,
@@ -962,7 +983,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         runSpacing: context.extensionWrapSpacing10(),
         children: [
           SizedBox(
-            width: 230,
+            width: _shareTextFormFieldPaymentSystemWidth,
             height: 70,
             //Stok Sayısının Girildiği Yer.
             child: shareWidget.widgetTextFieldInput(
@@ -984,7 +1005,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ),
           ),
           Container(
-            width: 230,
+            width: _shareTextFormFieldPaymentSystemWidth,
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -1013,7 +1034,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ),
           ),
           SizedBox(
-            width: 230,
+            width: _shareTextFormFieldPaymentSystemWidth,
             height: 70,
             child: shareWidget.widgetTextFieldInput(
               etiket: 'Vergiler Hariç Satış (Birim Fiyat)',
@@ -1035,7 +1056,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ),
           ),
           Container(
-            width: 230,
+            width: _shareTextFormFieldPaymentSystemWidth,
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -1265,7 +1286,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   widgetWrapTextFieldMinAndMaxWidth(Widget widget) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 250, maxWidth: 345),
+      constraints: const BoxConstraints(minWidth: 250, maxWidth: 325),
       child: widget,
     );
   }
@@ -1365,14 +1386,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       ],
     );
   }
-}
 
-class MyCustomScrollBehavior extends MaterialScrollBehavior {
-  // Override behavior methods and getters like dragDevices
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        // etc.
-      };
+  getWidthScreenSize(BuildContext context) {
+    _responceWidth = MediaQuery.of(context).size.width < 500 ? 250 : 600;
+    print(_responceWidth);
+  }
 }

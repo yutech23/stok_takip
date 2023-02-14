@@ -38,48 +38,52 @@ class DbCategory {
             {'name': category.category1},
           ]).select();
 
-          List<Map<String, dynamic>>? resCategory2Id;
-          List<Map<String, dynamic>>? resCategory3Id;
-          List<Map<String, dynamic>>? resCategory4Id;
-          List<Map<String, dynamic>>? resSubSave5;
-          print("burdayım");
+          dynamic resCategory2Id;
+          dynamic resCategory3Id;
+          dynamic resCategory4Id;
+          dynamic resSubSave5;
 
-          print(category.category2.runtimeType);
+          print(category.category2);
           print(category.category3);
           print(category.category4);
           print(category.category5);
+          print(Map.of(resCategory1Id[0]).values.first);
 
-          print("girdim");
-          resCategory2Id = await db.supabase.from('category2').insert([
-            {
-              'name': category.category2,
-              'fk_category1_id': Map.of(resCategory1Id[0]).values.first
-            }
-          ]).select();
+          if (category.category2 != "") {
+            resCategory2Id = await db.supabase.from('category2').insert([
+              {
+                'name': category.category2,
+                'fk_category1_id': Map.of(resCategory1Id[0]).values.first
+              }
+            ]).select();
+          }
 
-          print("girdim1");
-          resCategory3Id = await db.supabase.from('category3').insert([
-            {
-              'name': category.category3,
-              'fk_category2_id': Map.of(resCategory2Id![0]).values.first
-            }
-          ]).select();
+          if (category.category3 != "") {
+            resCategory3Id = await db.supabase.from('category3').insert([
+              {
+                'name': category.category3,
+                'fk_category2_id': Map.of(resCategory2Id![0]).values.first
+              }
+            ]).select();
+          }
 
-          print("girdim2");
-          resCategory4Id = await db.supabase.from('category4').insert([
-            {
-              'name': category.category4,
-              'fk_category3_id': Map.of(resCategory3Id![0]).values.first
-            }
-          ]).select();
+          if (category.category4 != "") {
+            resCategory4Id = await db.supabase.from('category4').insert([
+              {
+                'name': category.category4,
+                'fk_category3_id': Map.of(resCategory3Id![0]).values.first
+              }
+            ]).select();
+          }
 
-          print("girdim3");
-          resSubSave5 = await db.supabase.from('category5').insert([
-            {
-              'name': category.category5,
-              'fk_category4_id': Map.of(resCategory4Id![0]).values.first
-            }
-          ]);
+          if (category.category5 != "") {
+            resSubSave5 = await db.supabase.from('category5').insert([
+              {
+                'name': category.category5,
+                'fk_category4_id': Map.of(resCategory4Id![0]).values.first
+              }
+            ]);
+          }
 
           error = "";
         } on PostgrestException catch (e) {
@@ -118,10 +122,10 @@ class DbCategory {
       required CategoryString categoryString,
       required ValueNotifier<int> categoryIndex}) async {
     bool saveController = true;
-    if (categoryString.category2!.isNotEmpty &&
-        categoryString.category3!.isNotEmpty &&
-        categoryString.category4!.isNotEmpty &&
-        categoryString.category5!.isNotEmpty) {
+
+    ///Aynı isimden girişler önlemek için bı ve fordöngüsü kullanılıyor.List
+    ///boş olduğında saveController ="True" yaparak kayıt sistemine gidiyor.
+    if (categoryString.category2!.isNotEmpty) {
       final getCategory2 = await db.supabase
           .from('category2')
           .select('name')
@@ -134,34 +138,46 @@ class DbCategory {
         }
       }
 
+      List<Map<String, dynamic>> resSubSave2;
+      dynamic resSubSave3;
+      dynamic resSubSave4;
+      dynamic resSubSave5;
+
       if (saveController) {
         String error;
         try {
-          final resSubSave2 = await db.supabase.from('category2').insert([
+          resSubSave2 = await db.supabase.from('category2').insert([
             {
               'name': categoryString.category2,
               'fk_category1_id': categoryMap.category1!.keys.first
             }
           ]).select();
+          print("sonuc : $resSubSave2");
 
-          final resSubSave3 = await db.supabase.from('category3').insert([
-            {
-              'name': categoryString.category3,
-              'fk_category2_id': Map.of(resSubSave2[0]).values.first
-            }
-          ]).select();
-          final resSubSave4 = await db.supabase.from('category4').insert([
-            {
-              'name': categoryString.category4,
-              'fk_category3_id': Map.of(resSubSave3[0]).values.first
-            }
-          ]).select();
-          final resSubSave5 = await db.supabase.from('category5').insert([
-            {
-              'name': categoryString.category5,
-              'fk_category4_id': Map.of(resSubSave4[0]).values.first
-            }
-          ]);
+          if (categoryString.category3 != "") {
+            resSubSave3 = await db.supabase.from('category3').insert([
+              {
+                'name': categoryString.category3,
+                'fk_category2_id': Map.of(resSubSave2[0]).values.first
+              }
+            ]).select();
+          }
+          if (categoryString.category4 != "") {
+            resSubSave4 = await db.supabase.from('category4').insert([
+              {
+                'name': categoryString.category4,
+                'fk_category3_id': Map.of(resSubSave3[0]).values.first
+              }
+            ]).select();
+          }
+          if (categoryString.category5 != "") {
+            resSubSave5 = await db.supabase.from('category5').insert([
+              {
+                'name': categoryString.category5,
+                'fk_category4_id': Map.of(resSubSave4[0]).values.first
+              }
+            ]);
+          }
           error = "";
         } on PostgrestException catch (e) {
           print("Hata Category Add1 : ${e.message}");
@@ -199,9 +215,10 @@ class DbCategory {
       required CategoryString categoryString,
       required ValueNotifier<int> categoryIndex}) async {
     bool saveController = true;
-    if (categoryString.category3!.isNotEmpty &&
-        categoryString.category4!.isNotEmpty &&
-        categoryString.category5!.isNotEmpty) {
+
+    ///Aynı isimden girişler önlemek için bı ve fordöngüsü kullanılıyor.List
+    ///boş olduğında saveController ="True" yaparak kayıt sistemine gidiyor.
+    if (categoryString.category3!.isNotEmpty) {
       final getCategory3 = await db.supabase
           .from('category3')
           .select('name')
@@ -213,28 +230,35 @@ class DbCategory {
           break;
         }
       }
+      dynamic resSubSave3;
+      dynamic resSubSave4;
+      dynamic resSubSave5;
 
       if (saveController) {
         String error;
         try {
-          final resSubSave3 = await db.supabase.from('category3').insert([
+          resSubSave3 = await db.supabase.from('category3').insert([
             {
               'name': categoryString.category3,
               'fk_category2_id': categoryMap.category2!.keys.first
             }
           ]).select();
-          final resSubSave4 = await db.supabase.from('category4').insert([
-            {
-              'name': categoryString.category4,
-              'fk_category3_id': Map.of(resSubSave3[0]).values.first
-            }
-          ]).select();
-          final resSubSave5 = await db.supabase.from('category5').insert([
-            {
-              'name': categoryString.category5,
-              'fk_category4_id': Map.of(resSubSave4[0]).values.first
-            }
-          ]).select();
+          if (categoryString.category4 != "") {
+            resSubSave4 = await db.supabase.from('category4').insert([
+              {
+                'name': categoryString.category4,
+                'fk_category3_id': Map.of(resSubSave3[0]).values.first
+              }
+            ]).select();
+          }
+          if (categoryString.category5 != "") {
+            resSubSave5 = await db.supabase.from('category5').insert([
+              {
+                'name': categoryString.category5,
+                'fk_category4_id': Map.of(resSubSave4[0]).values.first
+              }
+            ]).select();
+          }
           error = "";
         } on PostgrestException catch (e) {
           print("Hata Category Add-2 : ${e.message}");
@@ -272,8 +296,10 @@ class DbCategory {
       required CategoryString categoryString,
       required ValueNotifier<int> categoryIndex}) async {
     bool saveController = true;
-    if (categoryString.category4!.isNotEmpty &&
-        categoryString.category5!.isNotEmpty) {
+
+    ///Aynı isimden girişler önlemek için bı ve fordöngüsü kullanılıyor.List
+    ///boş olduğında saveController ="True" yaparak kayıt sistemine gidiyor.
+    if (categoryString.category4!.isNotEmpty) {
       final getCategory4 = await db.supabase
           .from('category4')
           .select('name')
@@ -285,22 +311,27 @@ class DbCategory {
           break;
         }
       }
+      dynamic resSubSave4;
+      dynamic resSubSave5;
 
       if (saveController) {
         String error;
         try {
-          final resSubSave4 = await db.supabase.from('category4').insert([
+          resSubSave4 = await db.supabase.from('category4').insert([
             {
               'name': categoryString.category4,
               'fk_category3_id': categoryMap.category3!.keys.first
             }
           ]).select();
-          final resSubSave5 = await db.supabase.from('category5').insert([
-            {
-              'name': categoryString.category5,
-              'fk_category4_id': Map.of(resSubSave4[0]).values.first
-            }
-          ]);
+
+          if (categoryString.category5 != "") {
+            final resSubSave5 = await db.supabase.from('category5').insert([
+              {
+                'name': categoryString.category5,
+                'fk_category4_id': Map.of(resSubSave4[0]).values.first
+              }
+            ]);
+          }
           error = "";
         } on PostgrestException catch (e) {
           print("Hata Categry Add- 4 : ${e.message}");

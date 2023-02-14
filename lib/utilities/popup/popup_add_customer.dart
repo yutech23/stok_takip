@@ -469,8 +469,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     );
   }
 
-  void getWidthScreenSize(BuildContext context) {
+  getWidthScreenSize(BuildContext context) {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 360 : 600;
-    print(_widthMediaQuery);
   }
 }
