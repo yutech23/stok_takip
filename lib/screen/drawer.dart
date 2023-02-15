@@ -153,8 +153,9 @@ class _MyDrawerState extends State<MyDrawer> {
           SecurityStorageUser.deleteStorege();
         },
         child: Text(_labelExit,
-            style: context.theme.headline6!
-                .copyWith(color: Colors.white, letterSpacing: 1)),
+            style: context.theme.titleSmall!.copyWith(
+              color: Colors.white,
+            )),
       ),
     );
   }
