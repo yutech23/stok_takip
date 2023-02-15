@@ -39,7 +39,6 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   @override
   Widget build(BuildContext context) {
-    getWidthScreenSize(context);
     return buildProdcutSaleList();
   }
 
@@ -85,11 +84,10 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   ///Tablo Başlık Bölümü
   widgetColumnHeaderTable(String productName, String amount, String price,
       String total, String delete) {
-    TextStyle defaultStyle =
-        context.theme.headline6!.copyWith(color: Colors.white);
+    TextStyle defaultStyle = getWidthScreenSize(context);
     const EdgeInsets paddingAll = EdgeInsets.all(5);
     return Container(
-      height: _shareheight,
+      height: getHighScreenSizeTableHeader(context),
       color: context.extensionDefaultColor,
       child: Row(
         children: [
@@ -188,8 +186,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   widgetTotalPriceSectionHeader1(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
+        context.theme.titleMedium!.copyWith(color: Colors.white);
     return Container(
+      height: getHighScreenSizeTotalPrice(context),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -206,6 +205,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
       BuildContext context, num? totalSalesWithoutTax) {
     TextStyle styleBody = context.theme.titleMedium!;
     return Container(
+      height: getHighScreenSizeTotalPrice(context),
       alignment: Alignment.center,
       child: Text(
         "${FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0)}${widget.selectUnitOfCurrencySymbol}",
@@ -220,6 +220,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
     TextStyle styleHeader =
         context.theme.titleMedium!.copyWith(color: Colors.white);
     return Container(
+      height: getHighScreenSizeTotalPrice(context),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -247,8 +248,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   /// EK -- Toplam Ödemelerin Gövde Bölümü
   widgetTotalPriceSectionBodyKDV(BuildContext context, num? KDV) {
     //_controllerKDV.text = KDV.toString();
-    TextStyle styleBody = context.theme.titleMedium!;
+    TextStyle styleBody = context.theme.titleSmall!;
     return Container(
+        height: getHighScreenSizeTotalPrice(context),
         alignment: Alignment.center,
         child: TextFormField(
           initialValue: KDV.toString(),
@@ -258,7 +260,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
           maxLength: 3,
           textInputAction: TextInputAction.next,
           decoration: const InputDecoration(
-              isCollapsed: true,
+              isCollapsed: false,
               counterText: "",
               contentPadding: EdgeInsets.symmetric(vertical: 4),
               focusedBorder: OutlineInputBorder(
@@ -286,9 +288,23 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   getWidthScreenSize(BuildContext context) {
     TextStyle styleHeader;
-    MediaQuery.of(context).size.width < 500
-        ? styleHeader = context.theme.headline6!.copyWith(color: Colors.white)
-        : styleHeader =
-            context.theme.titleMedium!.copyWith(color: Colors.white);
+    print(MediaQuery.of(context).size.width);
+    if (MediaQuery.of(context).size.width < 500) {
+      styleHeader = context.theme.titleMedium!.copyWith(color: Colors.white);
+    } else {
+      styleHeader = context.theme.headline6!.copyWith(color: Colors.white);
+    }
+    return styleHeader;
+  }
+
+  getHighScreenSizeTableHeader(BuildContext context) {
+    double retHeigh =
+        MediaQuery.of(context).size.width < 500 ? 60 : _shareheight;
+    return retHeigh;
+  }
+
+  getHighScreenSizeTotalPrice(BuildContext context) {
+    double retHeigh = MediaQuery.of(context).size.width < 500 ? 50 : 30;
+    return retHeigh;
   }
 }
