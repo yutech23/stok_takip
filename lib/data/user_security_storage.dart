@@ -16,6 +16,7 @@ class SecurityStorageUser {
   static Future setUserRefleshToken(String refleshToken) async =>
       await storage.write(key: 'refleshToken', value: refleshToken);
   static Future setPageList(List<dynamic> pageList) async {
+    print("set : $pageList");
     String pages = "";
     for (var page in pageList) {
       pages += page['class_name'] + "-";

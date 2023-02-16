@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
           dividerColor: Colors.transparent),
       routerDelegate:
           //  AutoRouterDelegate(_appRouter, initialRoutes: [const RouteLogin()]),
-          AutoRouterDelegate(_appRouter, initialRoutes: [const RouteSale()]),
+          AutoRouterDelegate(_appRouter, initialRoutes: [const RouteCari()]),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }

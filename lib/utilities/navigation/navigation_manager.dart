@@ -8,6 +8,7 @@ import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/navigation/auth_guard.dart';
 import 'package:stok_takip/utilities/navigation/custom_router_builder.dart';
+import '../../screen/cari.dart';
 import '../../screen/category_edit.dart';
 import '../../screen/customer_register.dart';
 import '../../screen/sign_up.dart';
@@ -62,6 +63,12 @@ import '../../screen/user_setting.dart';
   CustomRoute(
       page: ScreenSale,
       path: ConstRoute.sale,
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
+  CustomRoute(
+      page: ScreenCari,
+      path: ConstRoute.cari,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),

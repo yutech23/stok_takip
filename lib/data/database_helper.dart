@@ -90,7 +90,7 @@ class DbHelper {
           .from('path_role_permission')
           .select('class_name')
           .eq('role_id', int.parse(isRole));
-
+      print(data);
       return data;
     } catch (e) {
       return data;

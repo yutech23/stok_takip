@@ -27,6 +27,7 @@ class _MyDrawerState extends State<MyDrawer> {
   final String _labelTest = 'Test';
   final String _labelExit = 'Güvenli Çıkış';
   final String _labelSale = "Satış Ekranı";
+  final String _labelCari = "Cari işlemler";
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
     'RouteSale',
@@ -35,7 +36,8 @@ class _MyDrawerState extends State<MyDrawer> {
     'RouteCategoryEdit',
     'RouteProductAdd',
     'RouteStockEdit',
-    'Test'
+    'RouteCari',
+    'Test',
   ];
 
   late List<Widget> listWidgetMenuByRole = [];
@@ -131,8 +133,8 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           Text(
             listItemName,
-            style:
-                context.theme.headline6!.copyWith(fontWeight: FontWeight.bold),
+            style: context.theme.titleMedium!
+                .copyWith(fontWeight: FontWeight.bold),
           )
         ]),
       ),
@@ -153,7 +155,7 @@ class _MyDrawerState extends State<MyDrawer> {
           SecurityStorageUser.deleteStorege();
         },
         child: Text(_labelExit,
-            style: context.theme.titleSmall!.copyWith(
+            style: context.theme.headline6!.copyWith(
               color: Colors.white,
             )),
       ),
@@ -196,6 +198,10 @@ class _MyDrawerState extends State<MyDrawer> {
             case "RouteSale":
               listWidgetMenuByRole.add(widgetMenuItem(context,
                   const RouteSale(), Icons.point_of_sale_rounded, _labelSale));
+              break;
+            case "RouteCari":
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context, const RouteCari(), Icons.person_search, _labelCari));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(
