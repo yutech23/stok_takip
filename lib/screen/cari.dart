@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:stok_takip/bloc/bloc_cari.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 
 import '../utilities/widget_appbar_setting.dart';
+import '../validations/format_date_time.dart';
 import 'drawer.dart';
 
 class ScreenCari extends StatefulWidget {
@@ -15,24 +18,33 @@ class ScreenCari extends StatefulWidget {
 }
 
 class _ScreenCariState extends State<ScreenCari> {
+  final _formKeyCari = GlobalKey<FormState>();
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1000;
   final String _labelHeading = "Cari Hesaplar";
   final String _labelInvoice = "Fatura No";
-  final _formKeyCari = GlobalKey<FormState>();
-
+  final String _labelSearchInvoice = "Ara";
+  late BlocCari blocCari;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
-  late DateTime _startDateTime;
-  late DateTime _endDateTime;
 
-  TextEditingController _controllerStartDate = TextEditingController();
-  TextEditingController _controllerEndDate = TextEditingController();
+  DateTimeRange? selectDateTimeRange;
+  final String _labelStartDate = "Başlangıç Tarihi";
+  final String _labelEndDate = "Bitiş Tarihi";
+  final String _labelSelectedTime = "Tarih Seç";
+
+  final TextEditingController _controllerStartDate = TextEditingController();
+  final TextEditingController _controllerEndDate = TextEditingController();
   /*----------------------------------------------------------------------- */
+
+  /*-------------------BAŞLANGIÇ MÜŞTERİ ADI İLE ARAMA---------------------*/
+  final TextEditingController _controllerSearchByName = TextEditingController();
+  final String _labelGetCari = "Cari Getir";
+
+  /*--------------------------------------------------------------------- */
+
   @override
   void initState() {
-    _startDateTime = DateTime.now();
-    _endDateTime = DateTime.now().add(const Duration(days: 7));
-
+    blocCari = BlocCari();
     super.initState();
   }
 
@@ -79,7 +91,8 @@ class _ScreenCariState extends State<ScreenCari> {
                     runSpacing: context.extensionWrapSpacing10(),
                     children: [
                       widgetSearchFieldInvoice(),
-                      widgetRangeSelectDateTime()
+                      widgetRangeSelectDateTime(),
+                      widgetGetCariByName()
                     ],
                   ),
                   Wrap(
@@ -91,11 +104,10 @@ class _ScreenCariState extends State<ScreenCari> {
                 ]),
           )),
         ));
-    ;
   }
 
   widgetSearchFieldInvoice() {
-    return Container(
+    return SizedBox(
       width: _shareMinWidth,
       child: Row(children: [
         Expanded(
@@ -105,10 +117,8 @@ class _ScreenCariState extends State<ScreenCari> {
           width: 100,
           child: ElevatedButton.icon(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              double labe = 10;
-            },
-            label: Text("Ara"),
+            onPressed: () {},
+            label: Text(_labelSearchInvoice),
           ),
         ),
       ]),
@@ -124,32 +134,35 @@ class _ScreenCariState extends State<ScreenCari> {
                 width: _shareMinWidth,
                 child: ElevatedButton.icon(
                     onPressed: () => pickDateRange(),
-                    icon: Icon(Icons.date_range),
-                    label: Text("Tarih Seç"))),
+                    icon: const Icon(Icons.date_range),
+                    label: Text(_labelSelectedTime))),
             context.extensionHighSizedBox10(),
             Row(
               children: [
                 Expanded(
-                    child: shareWidget.widgetTextFieldInput(
-                        controller: _controllerStartDate,
-                        etiket: "Başlangıç Tarihi")),
+                  child: shareWidget.widgetTextFieldInput(inputFormat: [
+                    LengthLimitingTextInputFormatter(10),
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+                  ], controller: _controllerStartDate, etiket: _labelStartDate),
+                ),
                 context.extensionWidhSizedBox10(),
                 Expanded(
-                    child: shareWidget.widgetTextFieldInput(
-                        controller: _controllerStartDate,
-                        etiket: "Başlangıç Tarihi"))
+                  child: shareWidget.widgetTextFieldInput(inputFormat: [
+                    LengthLimitingTextInputFormatter(10),
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+                  ], controller: _controllerEndDate, etiket: _labelEndDate),
+                )
               ],
             ),
           ],
         ));
   }
 
+  ///tarihin seçilip geldiği yer.
   Future<DateTimeRange?> pickDateRange() async {
-    DateTimeRange? _selectDateTimeRange = DateTimeRange(
-        start: DateTime.now(),
-        end: DateTime.now().add(const Duration(days: 7)));
+    DateTimeRange? selectDateTimeRange;
 
-    return _selectDateTimeRange = await showDateRangePicker(
+    selectDateTimeRange = await showDateRangePicker(
         context: context,
         initialDateRange: DateTimeRange(
             start: DateTime.now(),
@@ -168,14 +181,31 @@ class _ScreenCariState extends State<ScreenCari> {
                 ),
               ],
             ));
+//seçilen tarihler inputlara aktarılıyor.
+    _controllerStartDate.text =
+        dateTimeConvertFormatString(selectDateTimeRange!.start);
+
+    _controllerEndDate.text =
+        dateTimeConvertFormatString(selectDateTimeRange.end);
   }
 
   String dateTimeConvertFormatString(DateTime dateTime) {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }
 
-  ///Müşteri Search Listesi
-  /* widgetSearchFieldCustomer() {
+  widgetGetCariByName() {
+    return SizedBox(
+        width: _shareMinWidth,
+        child: shareWidget.widgetElevatedButton(
+            onPressedDoSomething: () async {
+              await blocCari.getAllCustomerAndSuppliers();
+              final deger = blocCari.getAllCustomerAndSuppliersMap;
+            },
+            label: _labelGetCari));
+  }
+
+  ///Müşteri adı ile arama
+/*   widgetSearchFieldCustomer() {
     return StreamBuilder(
       builder: (context, snapshot) {
         if (snapshot.snapshot.hasData) {
@@ -209,7 +239,6 @@ class _ScreenCariState extends State<ScreenCari> {
           }
           return SearchField(
             searchHeight: _shareheight,
-            validator: validateNotEmpty,
             controller: _controllerSearchCustomer,
             searchInputDecoration: InputDecoration(
                 errorBorder: const OutlineInputBorder(
@@ -246,4 +275,5 @@ class _ScreenCariState extends State<ScreenCari> {
           db.fetchCompanyCustomerAndPhoneStream()),
     );
   } */
+
 }

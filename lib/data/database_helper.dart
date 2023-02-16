@@ -838,7 +838,43 @@ class DbHelper {
     }
   }
 
-  /**---------------------------------------------------------------- */
+  /*---------------------------------------------------------------- */
+  /*-----------------------------CARİ EKRANIN İŞLEMLERİ-------------------- */
+
+  Future<List<dynamic>> fetchCustomerSolo() async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase
+          .from('customer_sole_trader')
+          .select('name, last_name,type');
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Sahıs: ${e.message}");
+      return res;
+    }
+  }
+
+  Future<List<dynamic>> fetchCustomerCompany() async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase.from('customer_company').select('name,type');
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Firma: ${e.message}");
+      return res;
+    }
+  }
+
+  Future<List<dynamic>> fetchSuppliers() async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase.from('suppliers').select('name,type');
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Tedarikci: ${e.message}");
+      return res;
+    }
+  }
 }
 
 final db = DbHelper();
