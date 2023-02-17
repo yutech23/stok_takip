@@ -21,10 +21,11 @@ class _ScreenCariState extends State<ScreenCari> {
   final _formKeyCari = GlobalKey<FormState>();
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1000;
+  final double _shareHeightInputTextField = 40;
   final String _labelHeading = "Cari Hesaplar";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Ara";
-  late BlocCari blocCari;
+  late BlocCari _blocCari = BlocCari();
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   DateTimeRange? selectDateTimeRange;
@@ -39,12 +40,13 @@ class _ScreenCariState extends State<ScreenCari> {
   /*-------------------BAŞLANGIÇ MÜŞTERİ ADI İLE ARAMA---------------------*/
   final TextEditingController _controllerSearchByName = TextEditingController();
   final String _labelGetCari = "Cari Getir";
+  final String _labelSearchCustomerName = "Müşteri Adı";
+  final double _searchByNameItemHeight = 30;
 
   /*--------------------------------------------------------------------- */
 
   @override
   void initState() {
-    blocCari = BlocCari();
     super.initState();
   }
 
@@ -109,6 +111,7 @@ class _ScreenCariState extends State<ScreenCari> {
   widgetSearchFieldInvoice() {
     return SizedBox(
       width: _shareMinWidth,
+      height: _shareHeightInputTextField,
       child: Row(children: [
         Expanded(
             child: shareWidget.widgetTextFieldInput(etiket: _labelInvoice)),
@@ -132,27 +135,34 @@ class _ScreenCariState extends State<ScreenCari> {
           children: [
             SizedBox(
                 width: _shareMinWidth,
+                height: _shareHeightInputTextField,
                 child: ElevatedButton.icon(
                     onPressed: () => pickDateRange(),
                     icon: const Icon(Icons.date_range),
                     label: Text(_labelSelectedTime))),
             context.extensionHighSizedBox10(),
-            Row(
-              children: [
-                Expanded(
-                  child: shareWidget.widgetTextFieldInput(inputFormat: [
-                    LengthLimitingTextInputFormatter(10),
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
-                  ], controller: _controllerStartDate, etiket: _labelStartDate),
-                ),
-                context.extensionWidhSizedBox10(),
-                Expanded(
-                  child: shareWidget.widgetTextFieldInput(inputFormat: [
-                    LengthLimitingTextInputFormatter(10),
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
-                  ], controller: _controllerEndDate, etiket: _labelEndDate),
-                )
-              ],
+            SizedBox(
+              height: _shareHeightInputTextField,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: shareWidget.widgetTextFieldInput(
+                        inputFormat: [
+                          LengthLimitingTextInputFormatter(10),
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+                        ],
+                        controller: _controllerStartDate,
+                        etiket: _labelStartDate),
+                  ),
+                  context.extensionWidhSizedBox10(),
+                  Expanded(
+                    child: shareWidget.widgetTextFieldInput(inputFormat: [
+                      LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+                    ], controller: _controllerEndDate, etiket: _labelEndDate),
+                  )
+                ],
+              ),
             ),
           ],
         ));
@@ -196,12 +206,55 @@ class _ScreenCariState extends State<ScreenCari> {
   widgetGetCariByName() {
     return SizedBox(
         width: _shareMinWidth,
-        child: shareWidget.widgetElevatedButton(
-            onPressedDoSomething: () async {
-              await blocCari.getAllCustomerAndSuppliers();
-              final deger = blocCari.getAllCustomerAndSuppliersMap;
-            },
-            label: _labelGetCari));
+        height: _shareHeightInputTextField,
+        child: Row(
+          children: [
+            FutureBuilder<List<Map<String, String>>>(
+                future: _blocCari.getAllCustomerAndSuppliers(),
+                builder: (context, snapshot) {
+                  List<SearchFieldListItem<String>> listSearch =
+                      <SearchFieldListItem<String>>[];
+                  listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+
+                  if (snapshot.hasData && !snapshot.hasError) {
+                    listSearch.clear();
+                    for (var element in snapshot.data!) {
+                      listSearch.add(SearchFieldListItem(element['name']!,
+                          item: element['type']));
+                    }
+                  }
+                  return Flexible(
+                    flex: 3,
+                    child: SearchField(
+                      searchHeight: _shareHeightInputTextField,
+                      itemHeight: _searchByNameItemHeight,
+                      searchInputDecoration: InputDecoration(
+                          errorBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(),
+                          ),
+                          label: Text(_labelSearchCustomerName),
+                          prefixIcon:
+                              const Icon(Icons.search, color: Colors.black),
+                          enabledBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(),
+                          )),
+                      controller: _controllerSearchByName,
+                      suggestions: listSearch,
+                      maxSuggestionsInViewPort: 6,
+                    ),
+                  );
+                }),
+            context.extensionWidhSizedBox10(),
+            Flexible(
+              flex: 2,
+              child: shareWidget.widgetElevatedButton(
+                  onPressedDoSomething: () async {
+                    await blocCari.getAllCustomerAndSuppliers();
+                  },
+                  label: _labelGetCari),
+            ),
+          ],
+        ));
   }
 
   ///Müşteri adı ile arama

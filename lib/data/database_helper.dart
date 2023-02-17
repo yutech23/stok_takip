@@ -90,7 +90,7 @@ class DbHelper {
           .from('path_role_permission')
           .select('class_name')
           .eq('role_id', int.parse(isRole));
-      print(data);
+
       return data;
     } catch (e) {
       return data;
@@ -100,7 +100,6 @@ class DbHelper {
   Future refleshToken(String refleshToken) async {
     try {
       final data = await db.supabase.auth.setSession(refleshToken);
-      print("veri : $data");
     } on PostgrestException catch (e) {
       print("erorr :${e.message}");
     }
@@ -134,8 +133,8 @@ class DbHelper {
   Future<String> signUpMy(Kullanici kullanici) async {
     //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
     try {
-      final resAuth = await db.supabase.auth
-          .signUpMy(email: kullanici.email!, password: kullanici.password!);
+      final resAuth = await db.supabase.auth.signInWithPassword(
+          email: kullanici.email!, password: kullanici.password!);
 
       //Kullanıcı Role Kaydı
       final roleIdJson = await db.supabase

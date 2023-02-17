@@ -1,16 +1,20 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:stok_takip/data/database_helper.dart';
 
+import '../modified_lib/searchfield.dart';
+
 class BlocCari {
   List<Map<String, String>> _allCustomerAndSuppliers = [];
+  List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
+
   BlocCari() {
     getAllCustomerAndSuppliers();
   }
 
-  List<Map<String, String>> get getAllCustomerAndSuppliersMap =>
-      _allCustomerAndSuppliers;
+  Future<List<Map<String, String>>> get getAllCustomerAndSuppliersMap =>
+      Future.value(_allCustomerAndSuppliers);
 
-  getAllCustomerAndSuppliers() async {
+  Future<List<Map<String, String>>> getAllCustomerAndSuppliers() async {
     final resCustomerSolo = await db.fetchCustomerSolo();
     for (var element in resCustomerSolo) {
       String araDeger = element['name'] + " " + element['last_name'];
@@ -29,7 +33,14 @@ class BlocCari {
       _allCustomerAndSuppliers
           .add({'type': element['type'], 'name': element['name']});
     }
-    print(_allCustomerAndSuppliers);
+    return _allCustomerAndSuppliers;
+  }
+
+  fillSearchNameAllCustomerAndSuppliers() {
+    for (var element in _allCustomerAndSuppliers) {
+      listSearchFieldListItemForAllCustomer
+          .add(SearchFieldListItem(element['name']!, item: element['type']));
+    }
   }
 }
 
