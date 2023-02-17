@@ -6,9 +6,11 @@ import '../modified_lib/searchfield.dart';
 class BlocCari {
   List<Map<String, String>> _allCustomerAndSuppliers = [];
   List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
+  List<Map<String, dynamic>> _cariDataTable = [];
 
   BlocCari() {
     getAllCustomerAndSuppliers();
+    db.fetchCari({'Şahıs': '72'});
   }
 
   Future<List<Map<String, String>>> get getAllCustomerAndSuppliersMap =>
@@ -42,6 +44,8 @@ class BlocCari {
           .add(SearchFieldListItem(element['name']!, item: element['type']));
     }
   }
+
+  fillCariDataTable(Map<String, String> customerInfo) {}
 }
 
 BlocCari blocCari = BlocCari();

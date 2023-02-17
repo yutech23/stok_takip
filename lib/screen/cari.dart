@@ -1,3 +1,4 @@
+import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,8 @@ import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 
+import '../modified_lib/datatable_header.dart';
+import '../modified_lib/responsive_datatable.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_date_time.dart';
 import 'drawer.dart';
@@ -20,12 +23,12 @@ class ScreenCari extends StatefulWidget {
 class _ScreenCariState extends State<ScreenCari> {
   final _formKeyCari = GlobalKey<FormState>();
   final double _shareMinWidth = 360;
-  final double _shareMaxWidth = 1000;
+  final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
   final String _labelHeading = "Cari Hesaplar";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Ara";
-  late BlocCari _blocCari = BlocCari();
+  final BlocCari _blocCari = BlocCari();
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   DateTimeRange? selectDateTimeRange;
@@ -44,9 +47,98 @@ class _ScreenCariState extends State<ScreenCari> {
   final double _searchByNameItemHeight = 30;
 
   /*--------------------------------------------------------------------- */
-
+  /*------------------DATATABLE ----------------------------------------*/
+  late final List<DatatableHeader> _headers;
+  late List<Map<String, dynamic>> _sourceList;
+  final List<Map<String, dynamic>> _selected = [];
+  late List<bool>? _expanded;
+  final double _dataTableWidth = 730;
+  final double _dataTableHeight = 500;
   @override
   void initState() {
+    /*-------------------DATATABLE--------------------------------------- */
+    _sourceList = [];
+    _headers = [];
+
+    _headers.add(DatatableHeader(
+        text: "Tarih - Saat",
+        value: "dateTime",
+        show: true,
+        sortable: true,
+        flex: 3,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Tür",
+        value: "type",
+        show: true,
+        flex: 2,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Müşteri İsmi",
+        value: "customerName",
+        show: true,
+        flex: 3,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Fatura No",
+        value: "invoiceNumber",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Toplam Tutar",
+        value: "totalPrice",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Ödenen Tutar",
+        value: "payment",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Kalan Tutar",
+        value: "balance",
+        show: true,
+        sortable: false,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Detay",
+        value: "detail",
+        show: true,
+        sortable: false,
+        flex: 2,
+        sourceBuilder: (value, row) {
+          return Container(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              padding: const EdgeInsets.only(bottom: 20),
+              alignment: Alignment.center,
+              icon: const Icon(Icons.list),
+              onPressed: () {},
+            ),
+          );
+        },
+        textAlign: TextAlign.center));
+    _sourceList.add({
+      //  'productId': item['product_id'],
+      'dateTime': "02/12/2023 14:30",
+      'type': 'Holding',
+      'customerName': 'YUSUF COŞKKUN Karahan',
+      'invoiceNumber': 23,
+      'totalPrice': 200000.56,
+      'payment': 100000002,
+      'balance': 50000
+    });
+    _expanded = List.generate(_sourceList[0].length, (index) => false);
+
     super.initState();
   }
 
@@ -81,33 +173,47 @@ class _ScreenCariState extends State<ScreenCari> {
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Wrap(
-                alignment: WrapAlignment.center,
+                alignment: WrapAlignment.start,
                 runSpacing: context.extensionWrapSpacing10(),
                 spacing: context.extensionWrapSpacing20(),
+                direction: Axis.horizontal,
                 children: [
-                  Wrap(
-                    direction: Axis.vertical,
-                    verticalDirection: VerticalDirection.down,
-                    alignment: WrapAlignment.center,
-                    spacing: context.extensionWrapSpacing20(),
-                    runSpacing: context.extensionWrapSpacing10(),
-                    children: [
-                      widgetSearchFieldInvoice(),
-                      widgetRangeSelectDateTime(),
-                      widgetGetCariByName()
-                    ],
-                  ),
-                  Wrap(
-                      direction: Axis.vertical,
+                  Column(children: [
+                    Wrap(
                       alignment: WrapAlignment.center,
                       runSpacing: context.extensionWrapSpacing10(),
-                      spacing: context.extensionWrapSpacing20(),
-                      children: []),
+                      spacing: context.extensionWrapSpacing10(),
+                      children: [
+                        //Tarih Bölümü Seçme
+                        widgetRangeSelectDateTime(),
+                        //Fatura Kodu ile Arama Bölümü
+                        Wrap(
+                          direction: Axis.vertical,
+                          verticalDirection: VerticalDirection.down,
+                          alignment: WrapAlignment.center,
+                          spacing: context.extensionWrapSpacing10(),
+                          runSpacing: context.extensionWrapSpacing10(),
+                          children: [
+                            widgetSearchFieldInvoice(),
+                          ],
+                        ),
+                      ],
+                    ),
+                    context.extensionHighSizedBox10(),
+                    widgetGetCariByName(),
+                    widgetDateTable(),
+                  ]),
+                  Container(
+                    width: 360,
+                    height: 800,
+                    color: Colors.amber,
+                  )
                 ]),
           )),
         ));
   }
 
+  ///Fatura no ile arama
   widgetSearchFieldInvoice() {
     return SizedBox(
       width: _shareMinWidth,
@@ -128,44 +234,20 @@ class _ScreenCariState extends State<ScreenCari> {
     );
   }
 
+  ///Zaman Aralı Seçildiği yer
   widgetRangeSelectDateTime() {
     return SizedBox(
-        width: _shareMinWidth,
-        child: Column(
-          children: [
-            SizedBox(
-                width: _shareMinWidth,
-                height: _shareHeightInputTextField,
-                child: ElevatedButton.icon(
-                    onPressed: () => pickDateRange(),
-                    icon: const Icon(Icons.date_range),
-                    label: Text(_labelSelectedTime))),
-            context.extensionHighSizedBox10(),
-            SizedBox(
-              height: _shareHeightInputTextField,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: shareWidget.widgetTextFieldInput(
-                        inputFormat: [
-                          LengthLimitingTextInputFormatter(10),
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
-                        ],
-                        controller: _controllerStartDate,
-                        etiket: _labelStartDate),
-                  ),
-                  context.extensionWidhSizedBox10(),
-                  Expanded(
-                    child: shareWidget.widgetTextFieldInput(inputFormat: [
-                      LengthLimitingTextInputFormatter(10),
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
-                    ], controller: _controllerEndDate, etiket: _labelEndDate),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ));
+      width: _shareMinWidth,
+      height: _shareHeightInputTextField,
+      child: Row(
+        children: [
+          shareWidgetDateTimeTextFormField(
+              _controllerStartDate, _labelStartDate),
+          context.extensionWidhSizedBox10(),
+          shareWidgetDateTimeTextFormField(_controllerEndDate, _labelEndDate),
+        ],
+      ),
+    );
   }
 
   ///tarihin seçilip geldiği yer.
@@ -197,15 +279,18 @@ class _ScreenCariState extends State<ScreenCari> {
 
     _controllerEndDate.text =
         dateTimeConvertFormatString(selectDateTimeRange.end);
+    return null;
   }
 
+  ///Textfield ekranına basmak için DateTime verisini String çeviriyor.
   String dateTimeConvertFormatString(DateTime dateTime) {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }
 
+  ///isim ile cari getirme
   widgetGetCariByName() {
     return SizedBox(
-        width: _shareMinWidth,
+        width: _dataTableWidth,
         height: _shareHeightInputTextField,
         child: Row(
           children: [
@@ -223,8 +308,7 @@ class _ScreenCariState extends State<ScreenCari> {
                           item: element['type']));
                     }
                   }
-                  return Flexible(
-                    flex: 3,
+                  return Expanded(
                     child: SearchField(
                       searchHeight: _shareHeightInputTextField,
                       itemHeight: _searchByNameItemHeight,
@@ -245,16 +329,116 @@ class _ScreenCariState extends State<ScreenCari> {
                   );
                 }),
             context.extensionWidhSizedBox10(),
-            Flexible(
-              flex: 2,
-              child: shareWidget.widgetElevatedButton(
-                  onPressedDoSomething: () async {
-                    await blocCari.getAllCustomerAndSuppliers();
-                  },
-                  label: _labelGetCari),
+            SizedBox(
+              width: 360,
+              child: ElevatedButton.icon(
+                  icon: Icon(Icons.format_list_bulleted_sharp),
+                  style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () async {},
+                  label: Text(_labelGetCari)),
             ),
           ],
         ));
+  }
+
+  ///cari Liste tablosu
+  widgetDateTable() {
+    return SizedBox(
+      width: _dataTableWidth,
+      height: _dataTableHeight,
+      child: ResponsiveDatatable(
+        reponseScreenSizes: [ScreenSize.xs],
+
+        ///Search kısmını oluşturuyoruz.
+        actions: [
+          /* Expanded(
+                          child: TextField(
+                        controller: _controllerTextProductCode,
+                        onChanged: (value) {
+                          _selectedSearchValue = value;
+
+                          searchTextFieldFiltre(value);
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Ürün Kodu ile Arama Yapınız',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      )) */
+        ],
+        headers: _headers,
+        source: _sourceList,
+        selecteds: _selected,
+        expanded: _expanded,
+        autoHeight: false,
+        /* commonMobileView: true,
+                    dropContainer: (value) {
+                      return Text(value['productCode'] +
+                          value['amountOfStock'].toString());
+                    }, */
+        sortColumn: 'dataTime',
+        footers: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(color: Colors.amber),
+              height: 50, //Fotter kısmın yüksekliği bozulmasın diye belirtim
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: RichText(
+                text: TextSpan(
+                    text: "Toplam ürün sayısı : ",
+                    style: context.theme.headline6,
+                    children: [
+                      TextSpan(
+                          text: "200",
+                          style: context.theme.headline6!.copyWith(
+                              fontWeight: FontWeight.bold, color: Colors.red)),
+                    ]),
+              ),
+            ),
+          ),
+        ],
+        headerDecoration: BoxDecoration(
+            color: Colors.blueGrey.shade900,
+            border:
+                const Border(bottom: BorderSide(color: Colors.red, width: 1))),
+        selectedDecoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: Colors.green[300]!, width: 1)),
+          color: Colors.green,
+        ),
+        headerTextStyle:
+            context.theme.titleMedium!.copyWith(color: Colors.white),
+        rowTextStyle: context.theme.titleSmall,
+        selectedTextStyle: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  ///Zaman Aralık için textformfiled
+  Expanded shareWidgetDateTimeTextFormField(
+      TextEditingController controller, String label) {
+    return Expanded(
+        child: TextFormField(
+      textAlign: TextAlign.start,
+      controller: controller,
+      keyboardType: TextInputType.datetime,
+      decoration: InputDecoration(
+          contentPadding: const EdgeInsets.only(top: 40),
+          prefixIcon: IconButton(
+            color: context.extensionDefaultColor,
+            icon: const Icon(Icons.date_range),
+            onPressed: () => pickDateRange(),
+          ),
+          counterText: "",
+          labelText: label,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          )),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(10),
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+      ],
+    ));
   }
 
   ///Müşteri adı ile arama

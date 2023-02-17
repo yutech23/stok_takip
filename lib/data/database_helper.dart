@@ -843,9 +843,7 @@ class DbHelper {
   Future<List<dynamic>> fetchCustomerSolo() async {
     List<dynamic> res = [];
     try {
-      res = await db.supabase
-          .from('customer_sole_trader')
-          .select('name, last_name,type');
+      res = await db.supabase.from('customer_sole_trader').select('phone');
       return res;
     } on PostgrestException catch (e) {
       print("Hata Cari Sahıs: ${e.message}");
@@ -873,6 +871,15 @@ class DbHelper {
       print("Hata Cari Tedarikci: ${e.message}");
       return res;
     }
+  }
+
+  Future<List<dynamic>> fetchCari(Map<String, String> customerInfo) async {
+    final res = await db.supabase.from('sales').select('''
+      customer_fk,
+      customer_solo_trader:customer_id(phone)
+    ''');
+    print(res);
+    return res;
   }
 }
 

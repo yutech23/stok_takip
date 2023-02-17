@@ -244,7 +244,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _category3 = [];
     _category4 = [];
     _category5 = [];
-    _headers = [];
+
     _sourceProductTableOrjinalRange = [];
     _sourceProductTableSearch = [];
     _sourceProductTableOrjinal = [];
@@ -260,7 +260,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _sourceList.add(_sourceProductTableSearchRange);
 
     _stream = db.fetchProductDetail();
-
+    _headers = [];
     _headers.add(DatatableHeader(
         text: "Ürün Kodu",
         value: "productCode",
