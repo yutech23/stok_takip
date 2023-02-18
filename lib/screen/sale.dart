@@ -6,6 +6,8 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/bloc/bloc_invoice.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
@@ -744,17 +746,21 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
             if (_controllerSearchProductCode.text != "" &&
+                // ignore: prefer_is_empty
                 blocSale.listProduct.length >= 1) {
+              String? userId = dbHive.getValues('uuid');
+
               final res = await blocSale.save(
-                customerType: _selectCustomerType,
-                customerPhone: _customerPhone,
-                unitOfCurrency: _selectUnitOfCurrencyAbridgment,
-                cashPayment: _controllerCashValue.text,
-                bankcardPayment: _controllerBankValue.text,
-                eftHavalePayment: _controllerEftHavaleValue.text,
-                paymentNextDate: _selectDateTime,
-              );
+                  customerType: _selectCustomerType,
+                  customerPhone: _customerPhone,
+                  unitOfCurrency: _selectUnitOfCurrencyAbridgment,
+                  cashPayment: _controllerCashValue.text,
+                  bankcardPayment: _controllerBankValue.text,
+                  eftHavalePayment: _controllerEftHavaleValue.text,
+                  paymentNextDate: _selectDateTime,
+                  userId: userId!);
               if (res['hata'] == null) {
+                // ignore: use_build_context_synchronously
                 await buildPopupDialog(context);
                 _controllerBankValue.clear();
                 _controllerEftHavaleValue.clear();
@@ -768,6 +774,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       _mapUnitOfCurrency["Türkiye"]["symbol"];
                   _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
                 });
+                // ignore: use_build_context_synchronously
                 context.noticeBarTrue("Satış işlemi gerçekleşti.", 2);
                 blocSale.clearValues();
               } else {

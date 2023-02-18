@@ -8,20 +8,15 @@ class BlocCari {
   List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
   List<Map<String, dynamic>> _cariDataTable = [];
 
-  BlocCari() {
-    getAllCustomerAndSuppliers();
-    db.fetchCari({'Şahıs': '72'});
-  }
-
-  Future<List<Map<String, String>>> get getAllCustomerAndSuppliersMap =>
-      Future.value(_allCustomerAndSuppliers);
+  /* Future<List<Map<String, String>>> get getAllCustomerAndSuppliersMap =>
+      Future.value(_allCustomerAndSuppliers); */
 
   Future<List<Map<String, String>>> getAllCustomerAndSuppliers() async {
-    final resCustomerSolo = await db.fetchCustomerSolo();
+    /* final resCustomerSolo = await db.fetchCustomerSolo();
     for (var element in resCustomerSolo) {
       String araDeger = element['name'] + " " + element['last_name'];
       _allCustomerAndSuppliers.add({'type': element['type'], 'name': araDeger});
-    }
+    }  */
     final resCustomerCompany = await db.fetchCustomerCompany();
 
     for (var element in resCustomerCompany) {
@@ -35,17 +30,17 @@ class BlocCari {
       _allCustomerAndSuppliers
           .add({'type': element['type'], 'name': element['name']});
     }
+    // print(resCustomerSolo);
+    print(resCustomerCompany);
+    print(resSuppliers);
     return _allCustomerAndSuppliers;
   }
 
-  fillSearchNameAllCustomerAndSuppliers() {
+  /* fillSearchNameAllCustomerAndSuppliers() {
     for (var element in _allCustomerAndSuppliers) {
       listSearchFieldListItemForAllCustomer
           .add(SearchFieldListItem(element['name']!, item: element['type']));
     }
-  }
+  } */
 
-  fillCariDataTable(Map<String, String> customerInfo) {}
 }
-
-BlocCari blocCari = BlocCari();

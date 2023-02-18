@@ -56,6 +56,7 @@ class _ScreenCariState extends State<ScreenCari> {
   final double _dataTableHeight = 500;
   @override
   void initState() {
+    _blocCari.getAllCustomerAndSuppliers();
     /*-------------------DATATABLE--------------------------------------- */
     _sourceList = [];
     _headers = [];
@@ -200,7 +201,7 @@ class _ScreenCariState extends State<ScreenCari> {
                       ],
                     ),
                     context.extensionHighSizedBox10(),
-                    widgetGetCariByName(),
+                    //  widgetGetCariByName(),
                     widgetDateTable(),
                   ]),
                   Container(
@@ -288,20 +289,21 @@ class _ScreenCariState extends State<ScreenCari> {
   }
 
   ///isim ile cari getirme
-  widgetGetCariByName() {
+  /*  widgetGetCariByName() {
     return SizedBox(
         width: _dataTableWidth,
         height: _shareHeightInputTextField,
         child: Row(
           children: [
             FutureBuilder<List<Map<String, String>>>(
-                future: _blocCari.getAllCustomerAndSuppliers(),
+                future: _blocCari.getAllCustomerAndSuppliersMap,
                 builder: (context, snapshot) {
                   List<SearchFieldListItem<String>> listSearch =
                       <SearchFieldListItem<String>>[];
                   listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
 
                   if (snapshot.hasData && !snapshot.hasError) {
+                    print(snapshot.data);
                     listSearch.clear();
                     for (var element in snapshot.data!) {
                       listSearch.add(SearchFieldListItem(element['name']!,
@@ -339,7 +341,7 @@ class _ScreenCariState extends State<ScreenCari> {
             ),
           ],
         ));
-  }
+  } */
 
   ///cari Liste tablosu
   widgetDateTable() {

@@ -761,7 +761,8 @@ class DbHelper {
           'bankcard_payment': soldProducts.bankcardPayment,
           'eft_havale_payment': soldProducts.eftHavalePayment,
           'unit_of_currency': soldProducts.unitOfCurrency,
-          'payment_next_date': soldProducts.paymentNextDate
+          'payment_next_date': soldProducts.paymentNextDate,
+          'seller': soldProducts.userId
         }
       ]).select('invoice_number');
 
@@ -770,7 +771,7 @@ class DbHelper {
           if (orjinalProduct.productCode == elementSold.productCode) {
             int newStockAmount =
                 orjinalProduct.currentAmountOfStock - elementSold.productAmount;
-            print("newdeger : $newStockAmount ");
+
             await supabase
                 .from('product')
                 .update({'current_amount_of_stock': newStockAmount}).eq(
@@ -839,7 +840,7 @@ class DbHelper {
 
   /*---------------------------------------------------------------- */
   /*-----------------------------CARİ EKRANIN İŞLEMLERİ-------------------- */
-
+//TODO:buradan başla
   Future<List<dynamic>> fetchCustomerSolo() async {
     List<dynamic> res = [];
     try {
@@ -873,14 +874,14 @@ class DbHelper {
     }
   }
 
-  Future<List<dynamic>> fetchCari(Map<String, String> customerInfo) async {
+  /*  Future<List<dynamic>> fetchCari(Map<String, String> customerInfo) async {
     final res = await db.supabase.from('sales').select('''
       customer_fk,
       customer_solo_trader:customer_id(phone)
     ''');
     print(res);
     return res;
-  }
+  } */
 }
 
 final db = DbHelper();

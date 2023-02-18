@@ -11,6 +11,7 @@ class Sale {
   DateTime? saleDate;
   String? paymentNextDate;
   late List<SaleDetail> soldProductsList;
+  late String userId;
 }
 
 class SaleDetail {

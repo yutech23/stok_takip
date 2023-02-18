@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:qr/qr.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Test extends StatefulWidget {
@@ -44,11 +46,15 @@ class _TestState extends State<Test> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-          child: Container(
-              color: Colors.amber,
-              height: 70,
-              child: Image.asset("asset/logo.png"))),
-    );
+        body: Center(
+            child: Container(
+                width: 300,
+                color: Colors.amber,
+                height: 70,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      print("kullanici ${SecurityStorageUser.getUserId()}");
+                    },
+                    child: Text("Getir")))));
   }
 }

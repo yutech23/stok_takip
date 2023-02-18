@@ -1,22 +1,30 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecurityStorageUser {
   static const storage = FlutterSecureStorage();
 
+/*   static Future setKey(List<int> key) async =>
+      await storage.write(key: 'key', value: base64UrlEncode(key)); */
+
   static Future setUserName(String userName) async =>
       await storage.write(key: 'name', value: userName);
+
   static Future setUserLastName(String lastName) async =>
       await storage.write(key: 'lastName', value: lastName);
-  static Future setUserRole(String role) async =>
-      await storage.write(key: 'role', value: role);
+
+  static Future setUserRole(String role) async {
+    await storage.write(key: 'role', value: role);
+  }
+
   static Future setUserId(String id) async =>
-      await storage.write(key: 'id', value: id);
+      await storage.write(key: 'uuid', value: id);
+
   static Future setUserAccessToken(String accessToken) async =>
       await storage.write(key: 'accessToken', value: accessToken);
   static Future setUserRefleshToken(String refleshToken) async =>
       await storage.write(key: 'refleshToken', value: refleshToken);
   static Future setPageList(List<dynamic> pageList) async {
-    print("set : $pageList");
     String pages = "";
     for (var page in pageList) {
       pages += page['class_name'] + "-";
@@ -25,8 +33,8 @@ class SecurityStorageUser {
     await storage.write(key: 'pageList', value: pages);
   }
 
+  static Future<dynamic> getUserId() async => await storage.read(key: 'uuid');
   static Future<String?> getUserName() async => await storage.read(key: 'name');
-
   static Future<String?> getUserLastName() async =>
       await storage.read(key: 'lastName');
   static Future<String?> getUserRole() async => await storage.read(key: 'role');

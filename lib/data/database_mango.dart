@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:hive_flutter/adapters.dart';
+import 'package:stok_takip/data/user_security_storage.dart';
 
 class DbHive {
   DbHive._init();
@@ -13,6 +16,16 @@ class DbHive {
   Future<void> initDbHive(String boxName) async {
     await Hive.initFlutter();
     _box = await Hive.openBox(boxName);
+
+    /*  final encryptionKey = await SecurityStorageUser.getkey();
+    dynamic key;
+    if (encryptionKey == null) {
+      key = Hive.generateSecureKey();
+      await SecurityStorageUser.setKey(key);
+    } else {
+      key = base64Url.decode(encryptionKey);
+    }
+    _box = await Hive.openBox(boxName, encryptionCipher: HiveAesCipher(key)); */
   }
 
   Future<void> addToBox(String value) async {
@@ -23,7 +36,11 @@ class DbHive {
     await _box.put(key, value);
   }
 
-  Iterable<String>? getValues(String key) {
+  delete(String key) async {
+    await _box.delete(key);
+  }
+
+  getValues(String key) {
     return _box.get(key);
   }
 

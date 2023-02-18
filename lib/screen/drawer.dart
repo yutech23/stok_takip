@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
@@ -70,7 +70,6 @@ class _MyDrawerState extends State<MyDrawer> {
     String? pagesList = await SecurityStorageUser.getPageList();
     List<String> pages = pagesList!.split('-');
     listFuncForRole(pages);
-    print(pages);
   }
 
   @override
@@ -153,6 +152,8 @@ class _MyDrawerState extends State<MyDrawer> {
           context.router.pushNamed(ConstRoute.init);
           //Chrome Store tutulan verileri siliyor.
           SecurityStorageUser.deleteStorege();
+          //tuttuğum hive içindeki veriyi siliyor.
+          dbHive.delete('uuid');
         },
         child: Text(_labelExit,
             style: context.theme.headline6!.copyWith(

@@ -3,7 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
+import 'data/database_mango.dart';
 import 'utilities/navigation/auth_guard.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -12,7 +14,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbBaslat();
   await authController.controllerAuth();
-  // await dbHive.initDbHive(Sabitler.dbHiveBoxName);
+  await dbHive.initDbHive(Sabitler.dbHiveBoxName);
   runApp(const MyApp());
 }
 

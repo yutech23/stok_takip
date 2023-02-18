@@ -1,12 +1,15 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
+import 'package:synchronized/extension.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
@@ -176,7 +179,14 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 // ignore: use_build_context_synchronously
                 context.noticeBarTrue("Giriş başarılı.", 1);
                 authController.setAuthTrue();
-                SecurityStorageUser.setUserId(userInfo['id']!);
+                /*  SecurityStorageUser.setUserId(userInfo['id'].toString());
+                print("ana veri tipi: ${userInfo['id'].runtimeType}");
+                print("ana veri : ${userInfo['id']}");
+
+                print("store : ${await SecurityStorageUser.getUserId()}"); */
+
+                dbHive.putToBox('uuid', userInfo['id']);
+
                 SecurityStorageUser.setUserAccessToken(
                     userInfo['accessToken']!);
                 SecurityStorageUser.setUserRefleshToken(

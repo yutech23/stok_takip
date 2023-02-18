@@ -184,18 +184,18 @@ class BlocSale {
 
   /*--------------------------------------------------------------------- */
   /*---------------------------BAŞLANGIÇ - KAYIT------------------------- */
-  Future<Map<String, dynamic>> save({
-    required String customerType,
-    required String customerPhone,
-    String? cashPayment,
-    String? bankcardPayment,
-    String? eftHavalePayment,
-    required String unitOfCurrency,
-    String? paymentNextDate,
-  }) async {
+  Future<Map<String, dynamic>> save(
+      {required String customerType,
+      required String customerPhone,
+      String? cashPayment,
+      String? bankcardPayment,
+      String? eftHavalePayment,
+      required String unitOfCurrency,
+      String? paymentNextDate,
+      required String userId}) async {
     final Sale soldProducts = Sale();
     final List<SaleDetail> listDetailProducts = <SaleDetail>[];
-
+    soldProducts.userId = userId;
     soldProducts.customerType = customerType;
     soldProducts.customerPhone = customerPhone;
     soldProducts.unitOfCurrency = unitOfCurrency;
