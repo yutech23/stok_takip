@@ -27,8 +27,8 @@ class _ScreenCariState extends State<ScreenCari> {
   final double _shareHeightInputTextField = 40;
   final String _labelHeading = "Cari Hesaplar";
   final String _labelInvoice = "Fatura No";
-  final String _labelSearchInvoice = "Ara";
-  final BlocCari _blocCari = BlocCari();
+  final String _labelSearchInvoice = "Fatura No ile";
+  late final BlocCari _blocCari;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   DateTimeRange? selectDateTimeRange;
@@ -56,7 +56,8 @@ class _ScreenCariState extends State<ScreenCari> {
   final double _dataTableHeight = 500;
   @override
   void initState() {
-    _blocCari.getAllCustomerAndSuppliers();
+    _blocCari = BlocCari();
+
     /*-------------------DATATABLE--------------------------------------- */
     _sourceList = [];
     _headers = [];
@@ -201,7 +202,7 @@ class _ScreenCariState extends State<ScreenCari> {
                       ],
                     ),
                     context.extensionHighSizedBox10(),
-                    //  widgetGetCariByName(),
+                    widgetGetCariByName(),
                     widgetDateTable(),
                   ]),
                   Container(
@@ -224,7 +225,7 @@ class _ScreenCariState extends State<ScreenCari> {
             child: shareWidget.widgetTextFieldInput(etiket: _labelInvoice)),
         context.extensionWidhSizedBox10(),
         SizedBox(
-          width: 100,
+          width: 180,
           child: ElevatedButton.icon(
             icon: const Icon(Icons.search),
             onPressed: () {},
@@ -256,31 +257,34 @@ class _ScreenCariState extends State<ScreenCari> {
     DateTimeRange? selectDateTimeRange;
 
     selectDateTimeRange = await showDateRangePicker(
-        context: context,
-        initialDateRange: DateTimeRange(
+            context: context,
+            initialDateRange: DateTimeRange(
+                start: DateTime.now(),
+                end: DateTime.now().add(const Duration(days: 7))),
+            firstDate: DateTime(2010),
+            lastDate: DateTime(2035),
+            builder: (context, child) => Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 100.0),
+                      child: SizedBox(
+                        height: 500,
+                        width: 450,
+                        child: child,
+                      ),
+                    ),
+                  ],
+                )) ??
+        DateTimeRange(
             start: DateTime.now(),
-            end: DateTime.now().add(const Duration(days: 7))),
-        firstDate: DateTime(2010),
-        lastDate: DateTime(2035),
-        builder: (context, child) => Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 100.0),
-                  child: SizedBox(
-                    height: 500,
-                    width: 450,
-                    child: child,
-                  ),
-                ),
-              ],
-            ));
+            end: DateTime.now().add(const Duration(days: 7)));
+
 //seçilen tarihler inputlara aktarılıyor.
     _controllerStartDate.text =
-        dateTimeConvertFormatString(selectDateTimeRange!.start);
+        dateTimeConvertFormatString(selectDateTimeRange.start);
 
     _controllerEndDate.text =
         dateTimeConvertFormatString(selectDateTimeRange.end);
-    return null;
   }
 
   ///Textfield ekranına basmak için DateTime verisini String çeviriyor.
@@ -289,24 +293,25 @@ class _ScreenCariState extends State<ScreenCari> {
   }
 
   ///isim ile cari getirme
-  /*  widgetGetCariByName() {
+  widgetGetCariByName() {
     return SizedBox(
         width: _dataTableWidth,
         height: _shareHeightInputTextField,
         child: Row(
           children: [
-            FutureBuilder<List<Map<String, String>>>(
-                future: _blocCari.getAllCustomerAndSuppliersMap,
+            StreamBuilder<List<Map<String, String>>>(
+                stream: _blocCari.getStreamAllCustomer,
                 builder: (context, snapshot) {
                   List<SearchFieldListItem<String>> listSearch =
                       <SearchFieldListItem<String>>[];
                   listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
 
                   if (snapshot.hasData && !snapshot.hasError) {
-                    print(snapshot.data);
                     listSearch.clear();
+
                     for (var element in snapshot.data!) {
-                      listSearch.add(SearchFieldListItem(element['name']!,
+                      listSearch.add(SearchFieldListItem(
+                          "${element['type']} - ${element['name']!}",
                           item: element['type']));
                     }
                   }
@@ -326,22 +331,42 @@ class _ScreenCariState extends State<ScreenCari> {
                           )),
                       controller: _controllerSearchByName,
                       suggestions: listSearch,
+                      onSuggestionTap: (p0) {
+                        print(p0.searchKey);
+                        List<String> convertMap = p0.searchKey.split(' - ');
+
+                        if (convertMap[0] == 'Şahıs') {
+                          _blocCari.setterSelectedCustomer = {
+                            'type': convertMap[0],
+                            'name': convertMap[1],
+                            'phone': convertMap[2]
+                          };
+                        } else {
+                          _blocCari.setterSelectedCustomer = {
+                            'type': convertMap[0],
+                            'name': convertMap[1]
+                          };
+                        }
+                      },
                       maxSuggestionsInViewPort: 6,
                     ),
                   );
                 }),
             context.extensionWidhSizedBox10(),
             SizedBox(
-              width: 360,
+              width: 180,
               child: ElevatedButton.icon(
                   icon: Icon(Icons.format_list_bulleted_sharp),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-                  onPressed: () async {},
+                  onPressed: () async {
+                    print(await _blocCari
+                        .getCustomerId(_blocCari.getterSelectedCustomer));
+                  },
                   label: Text(_labelGetCari)),
             ),
           ],
         ));
-  } */
+  }
 
   ///cari Liste tablosu
   widgetDateTable() {
@@ -429,7 +454,7 @@ class _ScreenCariState extends State<ScreenCari> {
           prefixIcon: IconButton(
             color: context.extensionDefaultColor,
             icon: const Icon(Icons.date_range),
-            onPressed: () => pickDateRange(),
+            onPressed: () async => await pickDateRange(),
           ),
           counterText: "",
           labelText: label,

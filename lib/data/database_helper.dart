@@ -840,11 +840,13 @@ class DbHelper {
 
   /*---------------------------------------------------------------- */
   /*-----------------------------CARİ EKRANIN İŞLEMLERİ-------------------- */
-//TODO:buradan başla
+
   Future<List<dynamic>> fetchCustomerSolo() async {
     List<dynamic> res = [];
     try {
-      res = await db.supabase.from('customer_sole_trader').select('phone');
+      res = await db.supabase
+          .from('customer_sole_trader')
+          .select('name,last_name,type,phone');
       return res;
     } on PostgrestException catch (e) {
       print("Hata Cari Sahıs: ${e.message}");
@@ -856,6 +858,7 @@ class DbHelper {
     List<dynamic> res = [];
     try {
       res = await db.supabase.from('customer_company').select('name,type');
+
       return res;
     } on PostgrestException catch (e) {
       print("Hata Cari Firma: ${e.message}");
@@ -872,6 +875,25 @@ class DbHelper {
       print("Hata Cari Tedarikci: ${e.message}");
       return res;
     }
+  }
+
+  ///Customer Id Öğrenme
+  Future<int> fetchCustomerIdForCari(
+      Map<String, dynamic> customerTypeAndPhoneName) async {
+    late List<dynamic> customerId;
+    if (customerTypeAndPhoneName['type'] == 'Şahıs') {
+      customerId = await db.supabase
+          .from('customer_sole_trader')
+          .select('customer_id')
+          .eq('phone', customerTypeAndPhoneName['phone']);
+    } else if (customerTypeAndPhoneName['type'] == 'Firma') {
+      customerId = await db.supabase
+          .from('customer_company')
+          .select('customer_id')
+          .eq('name', customerTypeAndPhoneName['name']);
+    }
+
+    return customerId[0]['customer_id'];
   }
 
   /*  Future<List<dynamic>> fetchCari(Map<String, String> customerInfo) async {
