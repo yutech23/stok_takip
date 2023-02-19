@@ -34,7 +34,6 @@ class _ScreenCariState extends State<ScreenCari> {
   DateTimeRange? selectDateTimeRange;
   final String _labelStartDate = "Başlangıç Tarihi";
   final String _labelEndDate = "Bitiş Tarihi";
-  final String _labelSelectedTime = "Tarih Seç";
 
   final TextEditingController _controllerStartDate = TextEditingController();
   final TextEditingController _controllerEndDate = TextEditingController();
@@ -49,17 +48,17 @@ class _ScreenCariState extends State<ScreenCari> {
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  late List<Map<String, dynamic>> _sourceList;
+  late List<Map<String, dynamic>> _soldListCustomerInitData;
   final List<Map<String, dynamic>> _selected = [];
   late List<bool>? _expanded;
   final double _dataTableWidth = 730;
-  final double _dataTableHeight = 500;
+  final double _dataTableHeight = 710;
   @override
   void initState() {
     _blocCari = BlocCari();
 
     /*-------------------DATATABLE--------------------------------------- */
-    _sourceList = [];
+    _soldListCustomerInitData = [];
     _headers = [];
 
     _headers.add(DatatableHeader(
@@ -129,18 +128,17 @@ class _ScreenCariState extends State<ScreenCari> {
           );
         },
         textAlign: TextAlign.center));
-    _sourceList.add({
-      //  'productId': item['product_id'],
-      'dateTime': "02/12/2023 14:30",
-      'type': 'Holding',
-      'customerName': 'YUSUF COŞKKUN Karahan',
-      'invoiceNumber': 23,
-      'totalPrice': 200000.56,
-      'payment': 100000002,
-      'balance': 50000
+    _soldListCustomerInitData.add({
+      'dateTime': "",
+      'type': "",
+      'customerName': "",
+      'invoiceNumber': "",
+      'totalPrice': "",
+      'payment': "",
+      'balance': ""
     });
-    _expanded = List.generate(_sourceList[0].length, (index) => false);
-
+    _expanded =
+        List.generate(_soldListCustomerInitData[0].length, (index) => false);
     super.initState();
   }
 
@@ -301,6 +299,7 @@ class _ScreenCariState extends State<ScreenCari> {
           children: [
             StreamBuilder<List<Map<String, String>>>(
                 stream: _blocCari.getStreamAllCustomer,
+                initialData: [],
                 builder: (context, snapshot) {
                   List<SearchFieldListItem<String>> listSearch =
                       <SearchFieldListItem<String>>[];
@@ -356,11 +355,10 @@ class _ScreenCariState extends State<ScreenCari> {
             SizedBox(
               width: 180,
               child: ElevatedButton.icon(
-                  icon: Icon(Icons.format_list_bulleted_sharp),
+                  icon: const Icon(Icons.format_list_bulleted_sharp),
                   style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
                   onPressed: () async {
-                    print(await _blocCari
-                        .getCustomerId(_blocCari.getterSelectedCustomer));
+                    await _blocCari.getSoldListOfSelectedCustomer();
                   },
                   label: Text(_labelGetCari)),
             ),
@@ -370,75 +368,86 @@ class _ScreenCariState extends State<ScreenCari> {
 
   ///cari Liste tablosu
   widgetDateTable() {
-    return SizedBox(
-      width: _dataTableWidth,
-      height: _dataTableHeight,
-      child: ResponsiveDatatable(
-        reponseScreenSizes: [ScreenSize.xs],
+    return StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _blocCari.getStreamSoldList,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && !snapshot.hasError) {
+            _expanded = List.generate(snapshot.data!.length, (index) => false);
+            print("*************************");
+            print(snapshot.data);
+          }
+          return SizedBox(
+            width: _dataTableWidth,
+            height: _dataTableHeight,
+            child: ResponsiveDatatable(
+              reponseScreenSizes: const [ScreenSize.xs],
 
-        ///Search kısmını oluşturuyoruz.
-        actions: [
-          /* Expanded(
-                          child: TextField(
-                        controller: _controllerTextProductCode,
-                        onChanged: (value) {
-                          _selectedSearchValue = value;
-
-                          searchTextFieldFiltre(value);
-                        },
-                        decoration: const InputDecoration(
-                          hintText: 'Ürün Kodu ile Arama Yapınız',
-                          prefixIcon: Icon(Icons.search),
-                        ),
-                      )) */
-        ],
-        headers: _headers,
-        source: _sourceList,
-        selecteds: _selected,
-        expanded: _expanded,
-        autoHeight: false,
-        /* commonMobileView: true,
-                    dropContainer: (value) {
-                      return Text(value['productCode'] +
-                          value['amountOfStock'].toString());
-                    }, */
-        sortColumn: 'dataTime',
-        footers: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(color: Colors.amber),
-              height: 50, //Fotter kısmın yüksekliği bozulmasın diye belirtim
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: RichText(
-                text: TextSpan(
-                    text: "Toplam ürün sayısı : ",
-                    style: context.theme.headline6,
-                    children: [
-                      TextSpan(
-                          text: "200",
-                          style: context.theme.headline6!.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.red)),
-                    ]),
+              ///Search kısmını oluşturuyoruz.
+              actions: [
+                /* Expanded(
+                        child: TextField(
+                      controller: _controllerTextProductCode,
+                      onChanged: (value) {
+                        _selectedSearchValue = value;
+      
+                        searchTextFieldFiltre(value);
+                      },
+                      decoration: const InputDecoration(
+                        hintText: 'Ürün Kodu ile Arama Yapınız',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    )) */
+              ],
+              headers: _headers,
+              source: snapshot.data,
+              selecteds: _selected,
+              expanded: _expanded,
+              autoHeight: false,
+              /* commonMobileView: true,
+                  dropContainer: (value) {
+                    return Text(value['productCode'] +
+                        value['amountOfStock'].toString());
+                  }, */
+              sortColumn: 'dataTime',
+              footers: [
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(color: Colors.amber),
+                    height:
+                        50, //Fotter kısmın yüksekliği bozulmasın diye belirtim
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: RichText(
+                      text: TextSpan(
+                          text: "Toplam ürün sayısı : ",
+                          style: context.theme.headline6,
+                          children: [
+                            TextSpan(
+                                text: "200",
+                                style: context.theme.headline6!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red)),
+                          ]),
+                    ),
+                  ),
+                ),
+              ],
+              headerDecoration: BoxDecoration(
+                  color: Colors.blueGrey.shade900,
+                  border: const Border(
+                      bottom: BorderSide(color: Colors.red, width: 1))),
+              selectedDecoration: BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(color: Colors.green[300]!, width: 1)),
+                color: Colors.green,
               ),
+              headerTextStyle:
+                  context.theme.titleMedium!.copyWith(color: Colors.white),
+              rowTextStyle: context.theme.titleSmall,
+              selectedTextStyle: const TextStyle(color: Colors.white),
             ),
-          ),
-        ],
-        headerDecoration: BoxDecoration(
-            color: Colors.blueGrey.shade900,
-            border:
-                const Border(bottom: BorderSide(color: Colors.red, width: 1))),
-        selectedDecoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Colors.green[300]!, width: 1)),
-          color: Colors.green,
-        ),
-        headerTextStyle:
-            context.theme.titleMedium!.copyWith(color: Colors.white),
-        rowTextStyle: context.theme.titleSmall,
-        selectedTextStyle: const TextStyle(color: Colors.white),
-      ),
-    );
+          );
+        });
   }
 
   ///Zaman Aralık için textformfiled

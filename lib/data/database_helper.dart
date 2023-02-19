@@ -878,7 +878,7 @@ class DbHelper {
   }
 
   ///Customer Id Öğrenme
-  Future<int> fetchCustomerIdForCari(
+  Future<int> fetchSelectedCustomerIdForCari(
       Map<String, dynamic> customerTypeAndPhoneName) async {
     late List<dynamic> customerId;
     if (customerTypeAndPhoneName['type'] == 'Şahıs') {
@@ -896,14 +896,16 @@ class DbHelper {
     return customerId[0]['customer_id'];
   }
 
-  /*  Future<List<dynamic>> fetchCari(Map<String, String> customerInfo) async {
-    final res = await db.supabase.from('sales').select('''
-      customer_fk,
-      customer_solo_trader:customer_id(phone)
-    ''');
-    print(res);
+  Future<List<dynamic>> fetchSoldListOfSelectedCustomerById(
+      String customerType, int customerId) async {
+    final res = await db.supabase
+        .from('sales')
+        .select(
+            'invoice_number,sale_date,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
+        .match({'customer_type': customerType, 'customer_fk': customerId});
+
     return res;
-  } */
+  }
 }
 
 final db = DbHelper();

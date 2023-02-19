@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
 class ShareFunc {
-  double getWidthScreenSize(BuildContext context) {
-    late double widthMediaQuery;
-    widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 360 : 600;
-    return widthMediaQuery;
+  static double calculateWithKDV(num value, num kdv) {
+    return value + (value * (kdv / 100));
+  }
+
+  static double calculateWithoutKDV(num value, num kdv) {
+    return value / ((100 + kdv) / 100);
   }
 }
 
