@@ -10,7 +10,7 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/format_date_time.dart';
+import '../validations/format_convert_point_comma.dart';
 import 'drawer.dart';
 
 class ScreenCari extends StatefulWidget {
@@ -50,7 +50,6 @@ class _ScreenCariState extends State<ScreenCari> {
   late final List<DatatableHeader> _headers;
   late List<Map<String, dynamic>> _soldListCustomerInitData;
   final List<Map<String, dynamic>> _selected = [];
-  late List<bool>? _expanded;
   final double _dataTableWidth = 730;
   final double _dataTableHeight = 710;
   @override
@@ -137,8 +136,7 @@ class _ScreenCariState extends State<ScreenCari> {
       'payment': "",
       'balance': ""
     });
-    _expanded =
-        List.generate(_soldListCustomerInitData[0].length, (index) => false);
+
     super.initState();
   }
 
@@ -352,102 +350,126 @@ class _ScreenCariState extends State<ScreenCari> {
                   );
                 }),
             context.extensionWidhSizedBox10(),
-            SizedBox(
-              width: 180,
-              child: ElevatedButton.icon(
-                  icon: const Icon(Icons.format_list_bulleted_sharp),
-                  style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-                  onPressed: () async {
-                    await _blocCari.getSoldListOfSelectedCustomer();
-                  },
-                  label: Text(_labelGetCari)),
-            ),
+            widgetButtonCariGetir(),
           ],
         ));
   }
 
+  widgetButtonCariGetir() {
+    return SizedBox(
+      width: 180,
+      child: ElevatedButton.icon(
+          icon: const Icon(Icons.format_list_bulleted_sharp),
+          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+          onPressed: () async {
+            if (_controllerSearchByName.text == "") {
+              _blocCari.setterSelectedCustomer = {};
+            } else {
+              await _blocCari.getSoldListOfSelectedCustomer();
+            }
+          },
+          label: Text(_labelGetCari)),
+    );
+  }
+
   ///cari Liste tablosu
   widgetDateTable() {
-    return StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _blocCari.getStreamSoldList,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && !snapshot.hasError) {
-            _expanded = List.generate(snapshot.data!.length, (index) => false);
-            print("*************************");
-            print(snapshot.data);
-          }
-          return SizedBox(
-            width: _dataTableWidth,
-            height: _dataTableHeight,
-            child: ResponsiveDatatable(
-              reponseScreenSizes: const [ScreenSize.xs],
-
-              ///Search kısmını oluşturuyoruz.
-              actions: [
-                /* Expanded(
-                        child: TextField(
-                      controller: _controllerTextProductCode,
-                      onChanged: (value) {
-                        _selectedSearchValue = value;
-      
-                        searchTextFieldFiltre(value);
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'Ürün Kodu ile Arama Yapınız',
-                        prefixIcon: Icon(Icons.search),
+    return SizedBox(
+      width: _dataTableWidth,
+      height: _dataTableHeight,
+      child: Card(
+        margin: const EdgeInsets.only(top: 5),
+        elevation: 5,
+        shadowColor: Colors.black,
+        clipBehavior: Clip.none,
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _blocCari.getStreamSoldList.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && !snapshot.hasError) {
+                print("*************************");
+                print(snapshot.data);
+              }
+              return ResponsiveDatatable(
+                reponseScreenSizes: const [ScreenSize.xs],
+                onSelect: (value, data) {
+                  print(data);
+                },
+                headers: _headers,
+                source: snapshot.data,
+                selecteds: _selected,
+                expanded: _blocCari.getterExpandad,
+                autoHeight: false,
+                sortColumn: 'dataTime',
+                onTabRow: (value) {
+                  print(value);
+                },
+                footers: [
+                  Expanded(
+                    child: Container(
+                      decoration:
+                          BoxDecoration(color: context.extensionDefaultColor),
+                      height:
+                          40, //Fotter kısmın yüksekliği bozulmasın diye belirtim
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: RichText(
+                        text: TextSpan(
+                            text: "Toplam Tutar : ",
+                            style: context.theme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                                color: Colors.white),
+                            children: [
+                              TextSpan(
+                                text: FormatterConvert().currencyShow(_blocCari
+                                    .getterCalculationRow['totalPrice']),
+                                style: context.theme.titleMedium!
+                                    .copyWith(color: Colors.white),
+                              ),
+                              TextSpan(
+                                  text: "   Ödenen Tutar : ",
+                                  style: const TextStyle(
+                                      color: Colors.white, letterSpacing: 1),
+                                  children: [
+                                    TextSpan(
+                                        text: FormatterConvert().currencyShow(
+                                            _blocCari.getterCalculationRow[
+                                                'totalPayment']),
+                                        style: context.theme.titleMedium!
+                                            .copyWith(color: Colors.white))
+                                  ]),
+                              TextSpan(text: "   Kalan Tutar : ", children: [
+                                TextSpan(
+                                    text: FormatterConvert().currencyShow(
+                                        _blocCari
+                                            .getterCalculationRow['balance']),
+                                    style: context.theme.titleMedium!.copyWith(
+                                        letterSpacing: 1,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white))
+                              ]),
+                            ]),
                       ),
-                    )) */
-              ],
-              headers: _headers,
-              source: snapshot.data,
-              selecteds: _selected,
-              expanded: _expanded,
-              autoHeight: false,
-              /* commonMobileView: true,
-                  dropContainer: (value) {
-                    return Text(value['productCode'] +
-                        value['amountOfStock'].toString());
-                  }, */
-              sortColumn: 'dataTime',
-              footers: [
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(color: Colors.amber),
-                    height:
-                        50, //Fotter kısmın yüksekliği bozulmasın diye belirtim
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: RichText(
-                      text: TextSpan(
-                          text: "Toplam ürün sayısı : ",
-                          style: context.theme.headline6,
-                          children: [
-                            TextSpan(
-                                text: "200",
-                                style: context.theme.headline6!.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red)),
-                          ]),
                     ),
                   ),
+                ],
+                headerDecoration: BoxDecoration(
+                    color: Colors.blueGrey.shade900,
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.red, width: 1))),
+                selectedDecoration: const BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                  color: Colors.green,
                 ),
-              ],
-              headerDecoration: BoxDecoration(
-                  color: Colors.blueGrey.shade900,
-                  border: const Border(
-                      bottom: BorderSide(color: Colors.red, width: 1))),
-              selectedDecoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(color: Colors.green[300]!, width: 1)),
-                color: Colors.green,
-              ),
-              headerTextStyle:
-                  context.theme.titleMedium!.copyWith(color: Colors.white),
-              rowTextStyle: context.theme.titleSmall,
-              selectedTextStyle: const TextStyle(color: Colors.white),
-            ),
-          );
-        });
+                headerTextStyle:
+                    context.theme.titleMedium!.copyWith(color: Colors.white),
+                rowTextStyle: context.theme.titleSmall,
+                selectedTextStyle: const TextStyle(color: Colors.grey),
+              );
+            }),
+      ),
+    );
   }
 
   ///Zaman Aralık için textformfiled
@@ -476,77 +498,4 @@ class _ScreenCariState extends State<ScreenCari> {
       ],
     ));
   }
-
-  ///Müşteri adı ile arama
-/*   widgetSearchFieldCustomer() {
-    return StreamBuilder(
-      builder: (context, snapshot) {
-        if (snapshot.snapshot.hasData) {
-          final listCustomer = <Map<String, String>>[];
-          listCustomer.clear();
-
-          for (var item in snapshot.snapshot1.data) {
-            listCustomer.add({
-              'type': item['type'],
-              'name': "${item['name']} ${item['last_name']}",
-              'phone': item['phone']
-            });
-          }
-          for (var item in snapshot.snapshot2.data) {
-            listCustomer.add({
-              'type': item['type'],
-              'name': item['name'],
-              'phone': item['phone']
-            });
-          }
-
-          List<SearchFieldListItem<String>> listSearch =
-              <SearchFieldListItem<String>>[];
-
-          for (var element in listCustomer) {
-            ///item müşterinin type atıyorum.
-            listSearch.add(
-                SearchFieldListItem(element['name']!, item: element['type']));
-            listSearch.add(
-                SearchFieldListItem(element['phone']!, item: element['type']));
-          }
-          return SearchField(
-            searchHeight: _shareheight,
-            controller: _controllerSearchCustomer,
-            searchInputDecoration: InputDecoration(
-                errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-                label: Text(_labelSearchCustomer),
-                prefixIcon: const Icon(Icons.search, color: Colors.black),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                )),
-            suggestions: listSearch,
-            focusNode: _focusSearchCustomer,
-            onSuggestionTap: (selectedValue) {
-              _selectCustomerType = selectedValue.item!;
-
-              ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon numarsı üzerinden id buluncak. telefon numarası unique. Müşteri seçer iken id çekmiyoruz güvenlik için.
-              //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
-              _customerPhone = selectedValue.searchKey;
-              for (var element in listCustomer) {
-                if (element['name'] == selectedValue.searchKey) {
-                  _customerPhone = element['phone']!;
-                  break;
-                }
-              }
-
-              _focusSearchCustomer.unfocus();
-            },
-            maxSuggestionsInViewPort: 6,
-          );
-        }
-        return Container();
-      },
-      streams: StreamTuple2(db.fetchSoloCustomerAndPhoneStream(),
-          db.fetchCompanyCustomerAndPhoneStream()),
-    );
-  } */
-
 }

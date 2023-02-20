@@ -41,7 +41,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final _focusSearchProductCode = FocusNode();
 
   final String _labelHeading = "Satış Ekranı";
-  final String _labelNewCustomer = "Yeni Müşteri Ekle";
+  final String _labelNewCustomer = "Yeni Müşteri";
   final String _labelSearchCustomer = "Müşteri İsmi Veya Telefon Numarası ";
   final String _labelSearchProductCode = "Ürün Kodunu Seçiniz";
   final String _labelAddProduct = "Ürünü Ekle";
@@ -72,7 +72,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _saleMinWidth = 360, _saleMaxWidth = 880;
   final double _shareheight = 40;
   int tableRowIndex = 0;
-  final double _widthSearch = 330;
+  final double _widthSearch = 360, _shareheightButton = 300;
   int simpleIntInput = 0;
   final double _shareWidthPaymentSection = 250;
   final double _exchangeHeight = 70;
@@ -298,9 +298,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
             for (var element in listCustomer) {
               ///item müşterinin type atıyorum.
-              listSearch.add(
-                  SearchFieldListItem(element['name']!, item: element['type']));
-              listSearch.add(SearchFieldListItem(element['phone']!,
+              listSearch.add(SearchFieldListItem(
+                  "${element['type']} - ${element['name']!} - ${element['phone']}",
                   item: element['type']));
             }
             return SearchField(
@@ -318,6 +317,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   )),
               suggestions: listSearch,
               focusNode: _focusSearchCustomer,
+              searchStyle: TextStyle(
+                fontSize: 14,
+                overflow: TextOverflow.fade,
+              ),
               onSuggestionTap: (selectedValue) {
                 _selectCustomerType = selectedValue.item!;
 
@@ -830,7 +833,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       );
 
   void getWidthScreenSize(BuildContext context) {
-    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 220;
+    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 190;
   }
 
   createPdfInvoice() async {

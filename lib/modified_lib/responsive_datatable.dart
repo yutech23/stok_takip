@@ -313,6 +313,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
     final _rowDecoration = widget.rowDecoration ?? _decoration;
     final _selectedDecoration = widget.selectedDecoration ?? _decoration;
     List<Widget> widgets = [];
+
     for (var index = 0; index < widget.source!.length; index++) {
       //kaynaktaki liste içinde Map veriyor tek tek döngüde
       final data = widget.source![index];
@@ -480,6 +481,11 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                 // desktopList
                 if (widget.source != null && widget.source!.isNotEmpty)
                   Expanded(child: ListView(children: desktopList())),
+              if (widget.source == null || widget.source!.isEmpty)
+                Expanded(
+                    child: Center(
+                  child: Text("Müşteri Seçilmedi"),
+                )),
 
               //footer
               if (widget.footers != null)
