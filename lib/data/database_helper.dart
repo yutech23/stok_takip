@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:stok_takip/env/env.dart';
+import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/sale.dart';
@@ -896,6 +897,7 @@ class DbHelper {
     return customerId[0]['customer_id'];
   }
 
+  ///Seçilen müşterinin tipi ve id ile satış listesi çekiliyor.
   Future<List<dynamic>> fetchSoldListOfSelectedCustomerById(
       String customerType, int customerId) async {
     final res = await db.supabase
@@ -905,6 +907,30 @@ class DbHelper {
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
     return res;
+  }
+
+  /// Seçilen müşteri alınan veya yapılan ödemeler getirir. Cari tablo
+  insertCariBySelectedCustomer(CariGetPay pay) async {
+    Map<String, dynamic> resData = {'hata': null};
+    try {
+      resData['hata'] = await supabase.from('cari').insert([
+        {
+          'customer_type': pay.customerType,
+          'customer_fk': pay.customerFk,
+          'cash_payment': pay.cashPayment,
+          'bankcard_payment': pay.bankcardPayment,
+          'eft_havale_payment': pay.eftHavalePayment,
+          'unit_of_currency': pay.unitOfCurrency,
+          'seller': pay.sellerId
+        }
+      ]);
+
+      return resData;
+    } on PostgrestException catch (e) {
+      print("Hata Ödeme Alma : ${e.message}");
+      resData['hata'] = e.message;
+      return resData;
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_cari.dart';
+import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
@@ -11,6 +12,7 @@ import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
+import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
 
 class ScreenCari extends StatefulWidget {
@@ -29,6 +31,7 @@ class _ScreenCariState extends State<ScreenCari> {
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Fatura No ile";
   late final BlocCari _blocCari;
+  late CariGetPay cariGetpay;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   DateTimeRange? selectDateTimeRange;
@@ -52,6 +55,36 @@ class _ScreenCariState extends State<ScreenCari> {
   final List<Map<String, dynamic>> _selected = [];
   final double _dataTableWidth = 730;
   final double _dataTableHeight = 710;
+/*------------------------------------------------------------------------- */
+  /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
+
+  final _controllerCashValue = TextEditingController();
+  final _controllerBankValue = TextEditingController();
+  final _controllerEftHavaleValue = TextEditingController();
+
+  final String _cash = "Nakit İle Ödenen Tutar";
+  final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
+  final String _bankCard = "Kart İle Ödenen Tutar";
+  final String _labelPaymentInfo = "Ödeme Bilgileri";
+  final String _labelGetPay = "Ödeme Al";
+  final String _labelPay = "Ödeme Yap";
+
+/*--------------------------------------------------------------------------- */
+  /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
+  late Color _colorBackgroundCurrencyUSD;
+  late Color _colorBackgroundCurrencyTRY;
+  late Color _colorBackgroundCurrencyEUR;
+  late String _selectUnitOfCurrencySymbol;
+  late String _selectUnitOfCurrencyAbridgment;
+  final String _labelCurrencySelect = "Para Birimi Seçiniz";
+  final Map<String, dynamic> _mapUnitOfCurrency = {
+    "Türkiye": {"symbol": "₺", "abridgment": "TL"},
+    "amerika": {"symbol": '\$', "abridgment": "USD"},
+    "avrupa": {"symbol": '€', "abridgment": "EURO"}
+  };
+  final double _widthCurrency = 250;
+
+/*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
   @override
   void initState() {
     _blocCari = BlocCari();
@@ -136,7 +169,16 @@ class _ScreenCariState extends State<ScreenCari> {
       'payment': "",
       'balance': ""
     });
+/*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
+    _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
+    _selectUnitOfCurrencyAbridgment =
+        _mapUnitOfCurrency["Türkiye"]["abridgment"];
+    _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
+    _colorBackgroundCurrencyTRY = context.extensionDisableColor;
+    _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
 
+/*----------------------------------------------------------------------- */
+    cariGetpay = CariGetPay();
     super.initState();
   }
 
@@ -201,11 +243,7 @@ class _ScreenCariState extends State<ScreenCari> {
                     widgetGetCariByName(),
                     widgetDateTable(),
                   ]),
-                  Container(
-                    width: 360,
-                    height: 800,
-                    color: Colors.amber,
-                  )
+                  widgetPaymentInformationSection()
                 ]),
           )),
         ));
@@ -297,7 +335,6 @@ class _ScreenCariState extends State<ScreenCari> {
           children: [
             StreamBuilder<List<Map<String, String>>>(
                 stream: _blocCari.getStreamAllCustomer,
-                initialData: [],
                 builder: (context, snapshot) {
                   List<SearchFieldListItem<String>> listSearch =
                       <SearchFieldListItem<String>>[];
@@ -329,7 +366,7 @@ class _ScreenCariState extends State<ScreenCari> {
                       controller: _controllerSearchByName,
                       suggestions: listSearch,
                       onSuggestionTap: (p0) {
-                        print(p0.searchKey);
+                        ///Her şeçimde müşteri bilgileri atanıyor.
                         List<String> convertMap = p0.searchKey.split(' - ');
 
                         if (convertMap[0] == 'Şahıs') {
@@ -355,6 +392,7 @@ class _ScreenCariState extends State<ScreenCari> {
         ));
   }
 
+  ///Button Cari Getir
   widgetButtonCariGetir() {
     return SizedBox(
       width: 180,
@@ -497,5 +535,281 @@ class _ScreenCariState extends State<ScreenCari> {
         FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
       ],
     ));
+  }
+
+  //Ödemenin Alındığı Yer - Ödeme Bilgisi
+  widgetPaymentInformationSection() {
+    return SizedBox(
+      width: _shareMinWidth,
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 5,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
+          Container(
+              margin: const EdgeInsets.only(top: 20),
+              child: widgetCurrencySelectSection()),
+          widgetPaymentOptionsTextFieldAndButton(),
+        ]),
+      ),
+    );
+  }
+
+  ///Ödeme verilerin alındığı yer.
+  widgetPaymentOptionsTextFieldAndButton() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      alignment: Alignment.center,
+      width: _shareMinWidth,
+      height: 320,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        direction: Axis.vertical,
+        spacing: 5,
+        children: [
+          ///Nakit Ödeme
+          sharedTextFormField(
+            width: _shareMinWidth - 20,
+            labelText: _cash,
+            controller: _controllerCashValue,
+            onChanged: (value) {
+              if (value.isNotEmpty) {
+                _blocCari.setPaymentCashValue(value);
+              } else {
+                _blocCari.setPaymentCashValue("0");
+              }
+            },
+          ),
+          //Bankakartı Ödeme Widget
+          sharedTextFormField(
+            width: _shareMinWidth - 20,
+            labelText: _bankCard,
+            controller: _controllerBankValue,
+            onChanged: (value) {
+              if (value.isNotEmpty) {
+                _blocCari.setPaymentBankCardValue(value);
+              } else {
+                _blocCari.setPaymentBankCardValue("0");
+              }
+            },
+          ),
+          //EFTveHavale Ödeme Widget
+          sharedTextFormField(
+            width: _shareMinWidth - 20,
+            labelText: _eftHavale,
+            controller: _controllerEftHavaleValue,
+            onChanged: (value) {
+              if (value.isNotEmpty) {
+                _blocCari.setPaymentEftHavaleValue(value);
+              } else {
+                _blocCari.setPaymentEftHavaleValue("0");
+              }
+            },
+          ),
+          shareWidget.widgetElevatedButton(
+              buttonStyle: ElevatedButton.styleFrom(
+                  fixedSize: Size(_shareMinWidth - 20, 40)),
+              onPressedDoSomething: () async {
+                print(_blocCari.getterSelectedCustomer['name']);
+
+                if (_blocCari.getterSelectedCustomer['name'] == null ||
+                    _controllerSearchByName.text == "") {
+                  context.noticeBarError("Lütfen müşteri seçiniz.", 3);
+                } else {
+                  final ret = await _blocCari
+                      .savePayment(_selectUnitOfCurrencyAbridgment);
+                  if (ret['hata'] == null) {
+                    _controllerBankValue.clear();
+                    _controllerCashValue.clear();
+                    _controllerEftHavaleValue.clear();
+                    context.noticeBarTrue("Ödeme başarılı.", 2);
+                  } else {
+                    context.noticeBarError(ret['hata'], 3);
+                  }
+                }
+              },
+              label: _labelGetPay),
+          shareWidget.widgetElevatedButton(
+              buttonStyle: ElevatedButton.styleFrom(
+                  fixedSize: Size(_shareMinWidth - 20, 40)),
+              onPressedDoSomething: () {},
+              label: _labelPay),
+        ],
+      ),
+    );
+  }
+
+  ///Payment textfield
+  sharedTextFormField(
+      {required double width,
+      required String labelText,
+      required TextEditingController controller,
+      required void Function(String)? onChanged,
+      String? Function(String?)? validator}) {
+    return Container(
+      padding: context.extensionPadding10(),
+      width: width,
+      child: TextFormField(
+        validator: validator,
+        onChanged: onChanged,
+        controller: controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
+          FormatterDecimalLimit(decimalRange: 2)
+        ],
+        keyboardType: TextInputType.number,
+        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: context.extensionDefaultColor),
+          isDense: true,
+          errorBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide()),
+        ),
+      ),
+    );
+  }
+
+  ///EK -- Toplam Ödemelerin Başlık Bölümü
+  Container partOfWidgetHeader(
+      BuildContext context, String label, Color backgroundColor) {
+    TextStyle styleHeader =
+        context.theme.headline6!.copyWith(color: Colors.white);
+    return Container(
+      alignment: Alignment.center,
+      width: _shareMinWidth,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+      ),
+      child: Text(
+        label,
+        style: styleHeader,
+      ),
+    );
+  }
+
+  ///Para birimin seçildi yer
+  widgetCurrencySelectSection() {
+    return Stack(
+      children: [
+        Positioned(
+          child: Container(
+            alignment: Alignment.center,
+            width: _widthCurrency,
+            height: 50,
+            margin: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 10),
+            decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: context.extensionRadiusDefault10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                partOfWidgetshareInkwellCurrency(
+                    onTap: () {
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["Türkiye"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["Türkiye"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyTRY),
+                const SizedBox(
+                  width: 2,
+                ),
+                partOfWidgetshareInkwellCurrency(
+                    onTap: () {
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["amerika"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["amerika"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDisableColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDefaultColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["amerika"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyUSD),
+                const SizedBox(
+                  width: 2,
+                ),
+                partOfWidgetshareInkwellCurrency(
+                    onTap: () {
+                      //Tekrar Seçildiğinde onu engellemek için if konuldu
+
+                      setState(() {
+                        _selectUnitOfCurrencyAbridgment =
+                            _mapUnitOfCurrency["avrupa"]["abridgment"];
+                        _selectUnitOfCurrencySymbol =
+                            _mapUnitOfCurrency["avrupa"]["symbol"];
+                        _colorBackgroundCurrencyTRY =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyUSD =
+                            context.extensionDefaultColor;
+                        _colorBackgroundCurrencyEUR =
+                            context.extensionDisableColor;
+                      });
+                    },
+                    sembol: _mapUnitOfCurrency["avrupa"]["symbol"],
+                    backgroundColor: _colorBackgroundCurrencyEUR),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 60,
+          child: Container(
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+            child: Text(
+              textAlign: TextAlign.center,
+              _labelCurrencySelect,
+              style: context.theme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.extensionDefaultColor),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  ///Ek- Parabirimi Seçildiği yer için yardımcı Widget
+  partOfWidgetshareInkwellCurrency(
+      {required void Function()? onTap,
+      required String sembol,
+      Color? backgroundColor}) {
+    return InkWell(
+        focusNode: FocusNode(skipTraversal: true),
+        onTap: onTap,
+        child: Container(
+          color: backgroundColor,
+          alignment: Alignment.center,
+          width: 30,
+          height: 30,
+          child: Text(
+            sembol,
+            style: context.theme.headline5!.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ));
   }
 }

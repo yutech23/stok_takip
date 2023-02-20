@@ -3,8 +3,10 @@ import 'dart:async';
 
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
+import '../data/database_mango.dart';
 import '../modified_lib/searchfield.dart';
 
 class BlocCari {
@@ -12,11 +14,21 @@ class BlocCari {
   final List<Map<String, String>> _allCustomerAndSuppliers = [];
   Map<String, String> _selectedCustomer = {};
   final List<Map<String, dynamic>> _soldListManipulatorByHeader = [];
-  late List<bool> _expanded = [false];
+  List<bool> _expanded = [false];
+  int _customerId = -1; //-1 hiç bir id yok
+
+  CariGetPay cariGetPay = CariGetPay();
+
   Map<String, num> _calculationRow = {
     'totalPrice': 0,
     'totalPayment': 0,
     'balance': 0
+  };
+
+  Map<String, String> _paymentSystem = {
+    "cash": "0",
+    "bankCard": "0",
+    "eftHavale": "0"
   };
 
   BlocCari() {
@@ -40,8 +52,35 @@ class BlocCari {
       StreamController<List<Map<String, dynamic>>>.broadcast();
 
   get getStreamSoldList => _streamControllerSoldList;
-
   get getterCalculationRow => _calculationRow;
+  get getterPaymentSystem => _paymentSystem;
+/*-------------------------ÖDEME SİSTEMİ--------------------------- */
+
+  double paymentTotalValue() {
+    double paymentTotal = 0;
+    _paymentSystem.forEach((key, value) {
+      paymentTotal += FormatterConvert().commaToPointDouble(value);
+    });
+    return paymentTotal;
+  }
+
+  setPaymentCashValue(String cashValue) {
+    _paymentSystem['cash'] = cashValue;
+  }
+
+  setPaymentBankCardValue(String bankCardValue) {
+    _paymentSystem['bankCard'] = bankCardValue;
+  }
+
+  setPaymentEftHavaleValue(String eftHavaleValue) {
+    _paymentSystem['eftHavale'] = eftHavaleValue;
+  }
+  /*---------------------------------------------------------------- */
+
+  ///Seçilen Müşterinin Id getirir.
+  getCustomerId() async {
+    _customerId = await db.fetchSelectedCustomerIdForCari(_selectedCustomer);
+  }
 
   ///Müşterileri arama için getirilen veriler(tip,isim,numara)
   Future getAllCustomerAndSuppliers() async {
@@ -76,12 +115,12 @@ class BlocCari {
     _expanded.clear();
     _soldListManipulatorByHeader.clear();
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
-    int customerId = await db.fetchSelectedCustomerIdForCari(_selectedCustomer);
+    await getCustomerId();
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
     final resSoldList = await db.fetchSoldListOfSelectedCustomerById(
-        _selectedCustomer['type']!, customerId);
+        _selectedCustomer['type']!, _customerId);
 
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
@@ -118,6 +157,26 @@ class BlocCari {
     _expanded =
         List.generate(_soldListManipulatorByHeader.length, (index) => false);
     _streamControllerSoldList.sink.add(_soldListManipulatorByHeader);
+  }
+
+  Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
+    await getCustomerId();
+    cariGetPay.customerType = _selectedCustomer['type']!;
+    cariGetPay.customerFk = _customerId;
+    cariGetPay.cashPayment = double.parse(_paymentSystem['cash']!);
+    cariGetPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
+    cariGetPay.eftHavalePayment = double.parse(_paymentSystem['eftHavale']!);
+    cariGetPay.unitOfCurrency = unitOfCurrency;
+    cariGetPay.sellerId = dbHive.getValues('uuid');
+
+    print(cariGetPay.customerType);
+    print(cariGetPay.customerFk);
+    print(cariGetPay.cashPayment);
+    print(cariGetPay.bankcardPayment);
+    print(cariGetPay.eftHavalePayment);
+    print(cariGetPay.sellerId);
+
+    return await db.insertCariBySelectedCustomer(cariGetPay);
   }
 
   /* fillSearchNameAllCustomerAndSuppliers() {

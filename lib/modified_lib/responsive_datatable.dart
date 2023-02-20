@@ -484,7 +484,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               if (widget.source == null || widget.source!.isEmpty)
                 Expanded(
                     child: Center(
-                  child: Text("Müşteri Seçilmedi"),
+                  child: Text(""),
                 )),
 
               //footer
