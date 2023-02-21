@@ -15,6 +15,7 @@ class BlocCari {
   final List<Map<String, String>> _allCustomerAndSuppliers = [];
   Map<String, String> _selectedCustomer = {};
   final List<Map<String, dynamic>> _soldListManipulatorByHeader = [];
+  final List<Map<String, dynamic>> _soldListWithFiltre = [];
   List<bool> _expanded = [false];
   int _customerId = -1; //-1 hiç bir id yok
 
@@ -224,7 +225,32 @@ class BlocCari {
   }
 
   ///Zamana Göre Filtre
-  filtreSoldListByDateTime(DateTimeRange dateTimeRange) {}
+  filtreSoldListByDateTime(DateTimeRange dateTimeRange) {
+    _soldListWithFiltre.clear();
+
+    /// Gelen Tarihde saat olmadığı için ekliyoruz çünkü verilerde zaman geliyor
+    /// filtre uygulamada problem çıkıyor.
+    DateTimeRange tempAddTime = DateTimeRange(
+        start: dateTimeRange.start,
+        end: dateTimeRange.end.add(const Duration(hours: 23, minutes: 59)));
+
+    for (var element in _soldListManipulatorByHeader) {
+      DateTime convertTemp =
+          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']);
+
+      if (convertTemp.compareTo(tempAddTime.start) >= 0 &&
+          convertTemp.compareTo(tempAddTime.end) <= 0) {
+        _soldListWithFiltre.add(element);
+      }
+    }
+    _expanded = List.generate(_soldListWithFiltre.length, (index) => false);
+
+    _streamControllerSoldList.add(_soldListWithFiltre);
+    print("*************************");
+    for (var element in _soldListWithFiltre) {
+      print(element);
+    }
+  }
   /* fillSearchNameAllCustomerAndSuppliers() {
     for (var element in _allCustomerAndSuppliers) {
       listSearchFieldListItemForAllCustomer

@@ -34,7 +34,9 @@ class _ScreenCariState extends State<ScreenCari> {
   late CariGetPay cariGetpay;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
-  DateTimeRange? selectDateTimeRange;
+  late DateTimeRange? _selectDateTimeRange;
+  DateTime _startDateTime = DateTime.now();
+  DateTime _endDateTime = DateTime.now().add(const Duration(days: 7));
   final String _labelStartDate = "Başlangıç Tarihi";
   final String _labelEndDate = "Bitiş Tarihi";
 
@@ -88,7 +90,8 @@ class _ScreenCariState extends State<ScreenCari> {
   @override
   void initState() {
     _blocCari = BlocCari();
-
+    _selectDateTimeRange =
+        DateTimeRange(start: _startDateTime, end: _endDateTime);
     /*-------------------DATATABLE--------------------------------------- */
     _soldListCustomerInitData = [];
     _headers = [];
@@ -286,42 +289,43 @@ class _ScreenCariState extends State<ScreenCari> {
     );
   }
 
-  ///tarihin seçilip geldiği yer.
+  ///Tarihin seçilip geldiği yer.
   Future<DateTimeRange?> pickDateRange() async {
-    DateTimeRange? selectDateTimeRange;
+    _selectDateTimeRange = await showDateRangePicker(
+        context: context,
+        initialDateRange:
+            DateTimeRange(start: _startDateTime, end: _endDateTime),
+        firstDate: DateTime(2010),
+        lastDate: DateTime(2035),
+        builder: (context, child) {
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: SizedBox(
+                  height: 500,
+                  width: 450,
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        });
 
-    selectDateTimeRange = await showDateRangePicker(
-            context: context,
-            initialDateRange: DateTimeRange(
-                start: DateTime.now(),
-                end: DateTime.now().add(const Duration(days: 7))),
-            firstDate: DateTime(2010),
-            lastDate: DateTime(2035),
-            builder: (context, child) => Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 100.0),
-                      child: SizedBox(
-                        height: 500,
-                        width: 450,
-                        child: child,
-                      ),
-                    ),
-                  ],
-                )) ??
-        DateTimeRange(
-            start: DateTime.now(),
-            end: DateTime.now().add(const Duration(days: 7)));
+    if (_selectDateTimeRange != null) {
+      _startDateTime = _selectDateTimeRange!.start;
+      _endDateTime = _selectDateTimeRange!.end;
+      _blocCari.filtreSoldListByDateTime(_selectDateTimeRange!);
+      //seçilen tarihler inputlara aktarılıyor.
+      _controllerStartDate.text =
+          dateTimeConvertFormatString(_selectDateTimeRange!.start);
 
-//seçilen tarihler inputlara aktarılıyor.
-    _controllerStartDate.text =
-        dateTimeConvertFormatString(selectDateTimeRange.start);
-
-    _controllerEndDate.text =
-        dateTimeConvertFormatString(selectDateTimeRange.end);
+      _controllerEndDate.text =
+          dateTimeConvertFormatString(_selectDateTimeRange!.end);
+    }
   }
 
-  ///Textfield ekranına basmak için DateTime verisini String çeviriyor.
+  ///-----Textfield ekranına basmak için DateTime verisini String çeviriyor.
   String dateTimeConvertFormatString(DateTime dateTime) {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }
