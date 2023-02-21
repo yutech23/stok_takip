@@ -909,6 +909,18 @@ class DbHelper {
     return res;
   }
 
+  ///Seçilen müşterinin tipi ve id ile Cari listesi çekiliyor.
+  Future<List<dynamic>> fetchCariPayListOfSelectedCustomerById(
+      String customerType, int customerId) async {
+    final res = await db.supabase
+        .from('cari')
+        .select(
+            'payment_date,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,seller')
+        .match({'customer_type': customerType, 'customer_fk': customerId});
+    print(res);
+    return res;
+  }
+
   /// Seçilen müşteri alınan veya yapılan ödemeler getirir. Cari tablo
   insertCariBySelectedCustomer(CariGetPay pay) async {
     Map<String, dynamic> resData = {'hata': null};

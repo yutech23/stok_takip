@@ -423,24 +423,19 @@ class _ScreenCariState extends State<ScreenCari> {
         child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: _blocCari.getStreamSoldList.stream,
             builder: (context, snapshot) {
-              if (snapshot.hasData && !snapshot.hasError) {
-                print("*************************");
-                print(snapshot.data);
-              }
+              if (snapshot.hasData && !snapshot.hasError) {}
               return ResponsiveDatatable(
+                exports: [ExportAction.print],
                 reponseScreenSizes: const [ScreenSize.xs],
-                onSelect: (value, data) {
-                  print(data);
-                },
                 headers: _headers,
                 source: snapshot.data,
                 selecteds: _selected,
                 expanded: _blocCari.getterExpandad,
                 autoHeight: false,
                 sortColumn: 'dataTime',
-                onTabRow: (value) {
-                  print(value);
-                },
+                sortAscending: true,
+                onTabRow: (value) {},
+                actions: [],
                 footers: [
                   Expanded(
                     child: Container(
@@ -606,24 +601,40 @@ class _ScreenCariState extends State<ScreenCari> {
               }
             },
           ),
+
+          ///Button Ödeme Al
           shareWidget.widgetElevatedButton(
               buttonStyle: ElevatedButton.styleFrom(
                   fixedSize: Size(_shareMinWidth - 20, 40)),
               onPressedDoSomething: () async {
-                print(_blocCari.getterSelectedCustomer['name']);
-
+                ///Müşteri seçilme veya seçildikten sonra silinme durumunda
+                ///uyarı veriyor.
                 if (_blocCari.getterSelectedCustomer['name'] == null ||
                     _controllerSearchByName.text == "") {
                   context.noticeBarError("Lütfen müşteri seçiniz.", 3);
+
+                  ///Ödeme için bir veri girilmediyse kayıt olmaması için.
+                } else if (_controllerEftHavaleValue.text == "" &&
+                    _controllerBankValue.text == "" &&
+                    _controllerCashValue.text == "") {
+                  context.noticeBarError("Ödeme alanı boş.", 3);
+
+                  ///veri kaydediliyor Burada.
                 } else {
+                  ///Dönen Veride "hata" null dönerse veri kaydediliyor.
+                  ///null dönmezse hata mesajı dönüyor.
                   final ret = await _blocCari
                       .savePayment(_selectUnitOfCurrencyAbridgment);
                   if (ret['hata'] == null) {
+                    _blocCari.resetPaymentsValue();
                     _controllerBankValue.clear();
                     _controllerCashValue.clear();
                     _controllerEftHavaleValue.clear();
+                    _blocCari.getSoldListOfSelectedCustomer();
+                    // ignore: use_build_context_synchronously
                     context.noticeBarTrue("Ödeme başarılı.", 2);
                   } else {
+                    // ignore: use_build_context_synchronously
                     context.noticeBarError(ret['hata'], 3);
                   }
                 }
@@ -639,7 +650,7 @@ class _ScreenCariState extends State<ScreenCari> {
     );
   }
 
-  ///Payment textfield
+  ///PaymentSystem textfield
   sharedTextFormField(
       {required double width,
       required String labelText,
@@ -679,6 +690,7 @@ class _ScreenCariState extends State<ScreenCari> {
     return Container(
       alignment: Alignment.center,
       width: _shareMinWidth,
+      padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
         color: backgroundColor,
       ),

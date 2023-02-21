@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
@@ -75,6 +76,12 @@ class BlocCari {
   setPaymentEftHavaleValue(String eftHavaleValue) {
     _paymentSystem['eftHavale'] = eftHavaleValue;
   }
+
+  resetPaymentsValue() {
+    setPaymentEftHavaleValue('0');
+    setPaymentCashValue('0');
+    setPaymentBankCardValue('0');
+  }
   /*---------------------------------------------------------------- */
 
   ///Seçilen Müşterinin Id getirir.
@@ -122,6 +129,10 @@ class BlocCari {
     final resSoldList = await db.fetchSoldListOfSelectedCustomerById(
         _selectedCustomer['type']!, _customerId);
 
+    final resCariList = await db.fetchCariPayListOfSelectedCustomerById(
+        _selectedCustomer['type']!, _customerId);
+
+    //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['sale_date']));
@@ -132,6 +143,14 @@ class BlocCari {
       double totalPrice = ShareFunc.calculateWithKDV(
           element['total_payment_without_tax'], element['kdv_rate']);
 
+      ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+      ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+      ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
+      _calculationRow['totalPrice'] =
+          _calculationRow['totalPrice']! + totalPrice;
+      _calculationRow['totalPayment'] =
+          _calculationRow['totalPayment']! + totalPayment;
+
       _soldListManipulatorByHeader.add({
         'dateTime': dateTime,
         'type': _selectedCustomer['type'],
@@ -141,24 +160,49 @@ class BlocCari {
         'payment': FormatterConvert().currencyShow(totalPayment),
         'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
       });
+    }
+    //Cari tablosundan gelen Veriler
+    for (var element in resCariList) {
+      String dateTime = DateFormat("dd/MM/yyyy HH:mm")
+          .format(DateTime.parse(element['payment_date']));
 
-      _calculationRow['totalPrice'] =
-          _calculationRow['totalPrice']! + totalPrice;
+      double totalPayment = element['cash_payment'] +
+          element['bankcard_payment'] +
+          element['eft_havale_payment'];
+
+      ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+      ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+      ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
       _calculationRow['totalPayment'] =
           _calculationRow['totalPayment']! + totalPayment;
-      _calculationRow['balance'] =
-          _calculationRow['balance']! + (totalPrice - totalPayment);
+
+      _soldListManipulatorByHeader.add({
+        'dateTime': dateTime,
+        'type': _selectedCustomer['type'],
+        'invoiceNumber': '-',
+        'customerName': _selectedCustomer['name'],
+        'totalPrice': '-',
+        'payment': FormatterConvert().currencyShow(totalPayment),
+        'balance': "-"
+      });
     }
 
-    ///Satılan listesinin içinde toplam tutar , ödenen tutar ve kalan tutar
-    ///hesaplanıyor.
-    for (var item in _soldListManipulatorByHeader) {}
+    ///kalan Tutar Burada Hesaplanıyor.
+    _calculationRow['balance'] =
+        _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
+
+    ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
+    ///descending olarak)
+    _soldListManipulatorByHeader.sort((m1, m2) => DateFormat('dd/MM/yyyy HH:mm')
+        .parse(m2['dateTime'])
+        .compareTo(DateFormat('dd/MM/yyyy HH:mm').parse(m1['dateTime'])));
 
     _expanded =
         List.generate(_soldListManipulatorByHeader.length, (index) => false);
     _streamControllerSoldList.sink.add(_soldListManipulatorByHeader);
   }
 
+  //Elden Alınan ödemeler Kaydediliyor
   Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
     await getCustomerId();
     cariGetPay.customerType = _selectedCustomer['type']!;
@@ -169,16 +213,18 @@ class BlocCari {
     cariGetPay.unitOfCurrency = unitOfCurrency;
     cariGetPay.sellerId = dbHive.getValues('uuid');
 
-    print(cariGetPay.customerType);
+    /*   print(cariGetPay.customerType);
     print(cariGetPay.customerFk);
     print(cariGetPay.cashPayment);
     print(cariGetPay.bankcardPayment);
     print(cariGetPay.eftHavalePayment);
-    print(cariGetPay.sellerId);
+    print(cariGetPay.sellerId); */
 
     return await db.insertCariBySelectedCustomer(cariGetPay);
   }
 
+  ///Zamana Göre Filtre
+  filtreSoldListByDateTime(DateTimeRange dateTimeRange) {}
   /* fillSearchNameAllCustomerAndSuppliers() {
     for (var element in _allCustomerAndSuppliers) {
       listSearchFieldListItemForAllCustomer

@@ -1,6 +1,11 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'datatable_header.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+enum ExportAction { print, pdf, excel, csv }
 
 class ResponsiveDatatable extends StatefulWidget {
   final bool showSelect;
@@ -10,6 +15,7 @@ class ResponsiveDatatable extends StatefulWidget {
   final Widget? title;
   final List<Widget>? actions;
   final List<Widget>? footers;
+  final List<ExportAction>? exports;
   final Function(bool? value)? onSelectAll;
   final Function(bool? value, Map<String, dynamic> data)? onSelect;
   final Function(Map<String, dynamic> value)? onTabRow;
@@ -70,6 +76,7 @@ class ResponsiveDatatable extends StatefulWidget {
     this.onSort,
     this.headers = const [],
     this.source,
+    this.exports,
     this.selecteds,
     this.title,
     this.actions,
@@ -391,6 +398,63 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
     return widgets;
   }
 
+  ///PDF ekleme
+  printPDF() {
+    Printing.layoutPdf(onLayout: ((format) {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 100,
+          build: (pw.Context context) => [
+            pw.Center(
+                heightFactor: 2.0,
+                child: pw.Text('Responsive Table Data',
+                    style: const pw.TextStyle(fontSize: 16))),
+            pw.Table(
+              defaultColumnWidth: const pw.FixedColumnWidth(120.0),
+              border: pw.TableBorder.all(
+                  color: PdfColor.fromHex('#8E8E8E'), width: 0.5),
+              children: [
+                pw.TableRow(
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.grey,
+                    ),
+                    children: [
+                      for (var column in widget.headers)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(column.text,
+                                textAlign: pw.TextAlign.center,
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)))
+                    ]),
+                for (int index = 0; index < widget.source!.length; index++)
+                  pw.TableRow(
+                    verticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    decoration: pw.BoxDecoration(
+                        color: index % 2 == 1
+                            ? PdfColors.grey200
+                            : PdfColors.white),
+                    children: [
+                      for (var column in widget.headers)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(widget.source![index][column.value]
+                                .toString())),
+                    ],
+                  )
+              ],
+            ),
+          ],
+        ),
+      );
+      return pdf.save();
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return widget.reponseScreenSizes.isNotEmpty &&
@@ -411,7 +475,18 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (widget.title != null) widget.title!,
+                      //if (widget.title != null) widget.title!,
+                      Row(
+                        children: [
+                          if (widget.title != null) widget.title!,
+                          if (widget.exports != null &&
+                              widget.exports!.contains(ExportAction.print))
+                            IconButton(
+                                onPressed: () => printPDF(),
+                                color: Theme.of(context).primaryColor,
+                                icon: const Icon(Icons.print)),
+                        ],
+                      ),
                       if (widget.actions != null) ...widget.actions!
                     ],
                   ),
@@ -464,7 +539,18 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (widget.title != null) widget.title!,
+                      // if (widget.title != null) widget.title!,
+                      Row(
+                        children: [
+                          if (widget.title != null) widget.title!,
+                          if (widget.exports != null &&
+                              widget.exports!.contains(ExportAction.print))
+                            IconButton(
+                                onPressed: () => printPDF(),
+                                color: Theme.of(context).primaryColor,
+                                icon: const Icon(Icons.print)),
+                        ],
+                      ),
                       if (widget.actions != null) ...widget.actions!
                     ],
                   ),
@@ -482,7 +568,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                 if (widget.source != null && widget.source!.isNotEmpty)
                   Expanded(child: ListView(children: desktopList())),
               if (widget.source == null || widget.source!.isEmpty)
-                Expanded(
+                const Expanded(
                     child: Center(
                   child: Text(""),
                 )),
