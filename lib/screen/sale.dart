@@ -299,7 +299,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             for (var element in listCustomer) {
               ///item müşterinin type atıyorum.
               listSearch.add(SearchFieldListItem(
-                  "${element['type']} - ${element['name']!} - ${element['phone']}",
+                  // "${element['type']} - ${element['name']!} - ${element['phone']}",
+                  "${element['phone']}",
                   item: element['type']));
             }
             return SearchField(
@@ -324,7 +325,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               onSuggestionTap: (selectedValue) {
                 _selectCustomerType = selectedValue.item!;
 
-                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon numarsı üzerinden id buluncak. telefon numarası unique. Müşteri seçer iken id çekmiyoruz güvenlik için.
+                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
+                /// numarsı üzerinden id buluncak. telefon numarası unique.
+                ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
                 _customerPhone = selectedValue.searchKey;
                 for (var element in listCustomer) {
@@ -421,6 +424,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
             blocSale.addProduct(_selectProduct!);
+
             blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
             blocSale.balance();
             /* //nesne kıyaslaması yapılıyor. equatable kullanarak

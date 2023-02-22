@@ -944,6 +944,11 @@ class DbHelper {
       return resData;
     }
   }
+
+  /// Seçilen tarih aralığına göre yapılan işlemler geliyor
+  /* Future<List<dynamic>> fetchCariByOnlyDateTime() async {
+    
+  } */
 }
 
 final db = DbHelper();

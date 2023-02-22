@@ -19,6 +19,9 @@ class BlocCari {
   List<bool> _expanded = [false];
   int _customerId = -1; //-1 hiç bir id yok
 
+  DateTime _startTime = DateTime.now();
+  DateTime _endTime = DateTime.now();
+
   CariGetPay cariGetPay = CariGetPay();
 
   Map<String, num> _calculationRow = {
@@ -56,6 +59,12 @@ class BlocCari {
   get getStreamSoldList => _streamControllerSoldList;
   get getterCalculationRow => _calculationRow;
   get getterPaymentSystem => _paymentSystem;
+
+  get getterStartDate => _startTime;
+  get getterEndDate => _endTime;
+  set setterStartDate(DateTime dateTime) => _startTime = dateTime;
+  set setterEndDate(DateTime dateTime) => _endTime = dateTime;
+
 /*-------------------------ÖDEME SİSTEMİ--------------------------- */
 
   double paymentTotalValue() {
@@ -224,15 +233,56 @@ class BlocCari {
     return await db.insertCariBySelectedCustomer(cariGetPay);
   }
 
+/*----------------------TARİHİ ALMA------------------------------- */
+
+/*---------------------------------------------------------------- */
+
   ///Zamana Göre Filtre
-  filtreSoldListByDateTime(DateTimeRange dateTimeRange) {
+  filtreSoldListByDateTime() {
+    _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
     _soldListWithFiltre.clear();
 
     /// Gelen Tarihde saat olmadığı için ekliyoruz çünkü verilerde zaman geliyor
     /// filtre uygulamada problem çıkıyor.
     DateTimeRange tempAddTime = DateTimeRange(
-        start: dateTimeRange.start,
-        end: dateTimeRange.end.add(const Duration(hours: 23, minutes: 59)));
+        start: _startTime,
+        end: _endTime.add(const Duration(hours: 23, minutes: 59)));
+
+    for (var element in _soldListManipulatorByHeader) {
+      DateTime convertTemp =
+          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']);
+
+      if (convertTemp.compareTo(tempAddTime.start) >= 0 &&
+          convertTemp.compareTo(tempAddTime.end) <= 0) {
+        _soldListWithFiltre.add(element);
+
+        if (element['totalPrice'] != "-") {
+          ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+          ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+          ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
+          _calculationRow['totalPrice'] = _calculationRow['totalPrice']! +
+              FormatterConvert().commaToPointDouble(element['totalPrice']);
+        }
+        _calculationRow['totalPayment'] = _calculationRow['totalPayment']! +
+            FormatterConvert().commaToPointDouble(element['payment']);
+      }
+    }
+
+    ///kalan Tutar Burada Hesaplanıyor.
+    _calculationRow['balance'] =
+        _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
+
+    _expanded = List.generate(_soldListWithFiltre.length, (index) => false);
+    _streamControllerSoldList.add(_soldListWithFiltre);
+  }
+
+  ///Sadece Tarih Seçildiğinde
+  getOnlyUseDateTimeForSoldList() {
+    /// Gelen Tarihde saat olmadığı için ekliyoruz çünkü verilerde zaman geliyor
+    /// filtre uygulamada problem çıkıyor.
+    DateTimeRange tempAddTime = DateTimeRange(
+        start: _startTime,
+        end: _endTime.add(const Duration(hours: 23, minutes: 59)));
 
     for (var element in _soldListManipulatorByHeader) {
       DateTime convertTemp =
@@ -244,13 +294,9 @@ class BlocCari {
       }
     }
     _expanded = List.generate(_soldListWithFiltre.length, (index) => false);
-
     _streamControllerSoldList.add(_soldListWithFiltre);
-    print("*************************");
-    for (var element in _soldListWithFiltre) {
-      print(element);
-    }
   }
+
   /* fillSearchNameAllCustomerAndSuppliers() {
     for (var element in _allCustomerAndSuppliers) {
       listSearchFieldListItemForAllCustomer

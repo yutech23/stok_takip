@@ -36,7 +36,7 @@ class _ScreenCariState extends State<ScreenCari> {
 
   late DateTimeRange? _selectDateTimeRange;
   DateTime _startDateTime = DateTime.now();
-  DateTime _endDateTime = DateTime.now().add(const Duration(days: 7));
+  DateTime _endDateTime = DateTime.now();
   final String _labelStartDate = "Başlangıç Tarihi";
   final String _labelEndDate = "Bitiş Tarihi";
 
@@ -53,7 +53,7 @@ class _ScreenCariState extends State<ScreenCari> {
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  late List<Map<String, dynamic>> _soldListCustomerInitData;
+
   final List<Map<String, dynamic>> _selected = [];
   final double _dataTableWidth = 730;
   final double _dataTableHeight = 710;
@@ -93,7 +93,7 @@ class _ScreenCariState extends State<ScreenCari> {
     _selectDateTimeRange =
         DateTimeRange(start: _startDateTime, end: _endDateTime);
     /*-------------------DATATABLE--------------------------------------- */
-    _soldListCustomerInitData = [];
+
     _headers = [];
 
     _headers.add(DatatableHeader(
@@ -163,15 +163,7 @@ class _ScreenCariState extends State<ScreenCari> {
           );
         },
         textAlign: TextAlign.center));
-    _soldListCustomerInitData.add({
-      'dateTime': "",
-      'type': "",
-      'customerName': "",
-      'invoiceNumber': "",
-      'totalPrice': "",
-      'payment': "",
-      'balance': ""
-    });
+
 /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
     _selectUnitOfCurrencySymbol = _mapUnitOfCurrency["Türkiye"]["symbol"];
     _selectUnitOfCurrencyAbridgment =
@@ -313,15 +305,15 @@ class _ScreenCariState extends State<ScreenCari> {
         });
 
     if (_selectDateTimeRange != null) {
-      _startDateTime = _selectDateTimeRange!.start;
-      _endDateTime = _selectDateTimeRange!.end;
-      _blocCari.filtreSoldListByDateTime(_selectDateTimeRange!);
+      _blocCari.setterStartDate = _selectDateTimeRange!.start;
+      _blocCari.setterEndDate = _selectDateTimeRange!.end;
+
       //seçilen tarihler inputlara aktarılıyor.
       _controllerStartDate.text =
-          dateTimeConvertFormatString(_selectDateTimeRange!.start);
+          dateTimeConvertFormatString(_blocCari.getterStartDate);
 
       _controllerEndDate.text =
-          dateTimeConvertFormatString(_selectDateTimeRange!.end);
+          dateTimeConvertFormatString(_blocCari.getterEndDate);
     }
   }
 
@@ -404,11 +396,18 @@ class _ScreenCariState extends State<ScreenCari> {
           icon: const Icon(Icons.format_list_bulleted_sharp),
           style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
           onPressed: () async {
-            if (_controllerSearchByName.text == "") {
-              _blocCari.setterSelectedCustomer = {};
-            } else {
+            if (_controllerSearchByName.text.isNotEmpty &&
+                _controllerStartDate.text == "" &&
+                _controllerEndDate.text == "") {
+              _blocCari.getSoldListOfSelectedCustomer();
+            } else if (_controllerSearchByName.text.isNotEmpty &&
+                _controllerStartDate.text.isNotEmpty &&
+                _controllerEndDate.text.isNotEmpty) {
               await _blocCari.getSoldListOfSelectedCustomer();
-            }
+              _blocCari.filtreSoldListByDateTime();
+            } else if (_controllerStartDate.text.isNotEmpty &&
+                _controllerEndDate.text.isNotEmpty &&
+                _controllerSearchByName.text == "") {}
           },
           label: Text(_labelGetCari)),
     );

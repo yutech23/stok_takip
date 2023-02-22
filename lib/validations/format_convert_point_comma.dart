@@ -9,6 +9,8 @@ class FormatterConvert {
     if (valueString.isEmpty) {
       valueString = "0";
     }
+    valueString = valueString.replaceAll('.', '');
+
     return double.parse(valueString.replaceAll(",", "."));
   }
 
