@@ -20,7 +20,8 @@ class BlocCari {
   int _customerId = -1; //-1 hiç bir id yok
 
   DateTime _startTime = DateTime.now();
-  DateTime _endTime = DateTime.now();
+  DateTime _endTime =
+      DateTime.now().add(const Duration(hours: 23, minutes: 59));
 
   CariGetPay cariGetPay = CariGetPay();
 
@@ -114,14 +115,8 @@ class BlocCari {
 
     final resCustomerCompany = await db.fetchCustomerCompany();
     for (var element in resCustomerCompany) {
-      _allCustomerAndSuppliers
-          .add({'type': element['type'], 'name': element['name']});
-    }
-
-    final resSuppliers = await db.fetchSuppliers();
-    for (var element in resSuppliers) {
-      _allCustomerAndSuppliers
-          .add({'type': element['type'], 'name': element['name']});
+      String araDeger = element['name'] + " - " + element['phone'];
+      _allCustomerAndSuppliers.add({'type': element['type'], 'name': araDeger});
     }
 
     _streamControllerAllCustomer.sink.add(_allCustomerAndSuppliers);
@@ -244,9 +239,7 @@ class BlocCari {
 
     /// Gelen Tarihde saat olmadığı için ekliyoruz çünkü verilerde zaman geliyor
     /// filtre uygulamada problem çıkıyor.
-    DateTimeRange tempAddTime = DateTimeRange(
-        start: _startTime,
-        end: _endTime.add(const Duration(hours: 23, minutes: 59)));
+    DateTimeRange tempAddTime = DateTimeRange(start: _startTime, end: _endTime);
 
     for (var element in _soldListManipulatorByHeader) {
       DateTime convertTemp =
@@ -277,31 +270,48 @@ class BlocCari {
   }
 
   ///Sadece Tarih Seçildiğinde
-  getOnlyUseDateTimeForSoldList() {
-    /// Gelen Tarihde saat olmadığı için ekliyoruz çünkü verilerde zaman geliyor
-    /// filtre uygulamada problem çıkıyor.
-    DateTimeRange tempAddTime = DateTimeRange(
-        start: _startTime,
-        end: _endTime.add(const Duration(hours: 23, minutes: 59)));
+  getOnlyUseDateTimeForSoldList() async {
+    _expanded.clear();
+    _soldListManipulatorByHeader.clear();
+    _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
 
-    for (var element in _soldListManipulatorByHeader) {
-      DateTime convertTemp =
-          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']);
+    ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
+    ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
+    final resSoldList = await db.fetchCariByOnlyDateTime();
 
-      if (convertTemp.compareTo(tempAddTime.start) >= 0 &&
-          convertTemp.compareTo(tempAddTime.end) <= 0) {
-        _soldListWithFiltre.add(element);
+    for (var element in resSoldList) {
+      DateTime convertTemp = DateTime.parse(element['sale_date']);
+
+      if (convertTemp.compareTo(_startTime) >= 0 &&
+          convertTemp.compareTo(_endTime) <= 0) {
+        String dateTime = DateFormat("dd/MM/yyyy HH:mm")
+            .format(DateTime.parse(element['sale_date']));
+
+        double totalPayment = element['cash_payment'] +
+            element['bankcard_payment'] +
+            element['eft_havale_payment'];
+        double totalPrice = ShareFunc.calculateWithKDV(
+            element['total_payment_without_tax'], element['kdv_rate']);
+
+        ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+        ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+        ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
+        _calculationRow['totalPrice'] =
+            _calculationRow['totalPrice']! + totalPrice;
+        _calculationRow['totalPayment'] =
+            _calculationRow['totalPayment']! + totalPayment;
+
+        _soldListManipulatorByHeader.add({
+          'dateTime': dateTime,
+          'type': _selectedCustomer['type'],
+          'customerName': _selectedCustomer['name'],
+          'invoiceNumber': element['invoice_number'],
+          'totalPrice': FormatterConvert().currencyShow(totalPrice),
+          'payment': FormatterConvert().currencyShow(totalPayment),
+          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+        });
+        _soldListManipulatorByHeader.add(element);
       }
     }
-    _expanded = List.generate(_soldListWithFiltre.length, (index) => false);
-    _streamControllerSoldList.add(_soldListWithFiltre);
   }
-
-  /* fillSearchNameAllCustomerAndSuppliers() {
-    for (var element in _allCustomerAndSuppliers) {
-      listSearchFieldListItemForAllCustomer
-          .add(SearchFieldListItem(element['name']!, item: element['type']));
-    }
-  } */
-
 }

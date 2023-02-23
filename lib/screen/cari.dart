@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_cari.dart';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -374,7 +375,8 @@ class _ScreenCariState extends State<ScreenCari> {
                         } else {
                           _blocCari.setterSelectedCustomer = {
                             'type': convertMap[0],
-                            'name': convertMap[1]
+                            'name': convertMap[1],
+                            'phone': convertMap[2]
                           };
                         }
                       },
@@ -646,7 +648,9 @@ class _ScreenCariState extends State<ScreenCari> {
           shareWidget.widgetElevatedButton(
               buttonStyle: ElevatedButton.styleFrom(
                   fixedSize: Size(_shareMinWidth - 20, 40)),
-              onPressedDoSomething: () {},
+              onPressedDoSomething: () async {
+                await _blocCari.getOnlyUseDateTimeForSoldList();
+              },
               label: _labelPay),
         ],
       ),

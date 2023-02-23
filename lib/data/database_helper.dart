@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/models/customer.dart';
@@ -858,7 +859,8 @@ class DbHelper {
   Future<List<dynamic>> fetchCustomerCompany() async {
     List<dynamic> res = [];
     try {
-      res = await db.supabase.from('customer_company').select('name,type');
+      res =
+          await db.supabase.from('customer_company').select('name,type,phone');
 
       return res;
     } on PostgrestException catch (e) {
@@ -917,7 +919,7 @@ class DbHelper {
         .select(
             'payment_date,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,seller')
         .match({'customer_type': customerType, 'customer_fk': customerId});
-    print(res);
+
     return res;
   }
 
@@ -946,9 +948,59 @@ class DbHelper {
   }
 
   /// Seçilen tarih aralığına göre yapılan işlemler geliyor
-  /* Future<List<dynamic>> fetchCariByOnlyDateTime() async {
-    
-  } */
+  Future<List<dynamic>> fetchCariByOnlyDateTime() async {
+    List<Map<String, dynamic>> resSold = [];
+    List<Map<String, dynamic>> resCustomerSoleInfo = [];
+    List<Map<String, dynamic>> resCustomerCompanyInfo = [];
+
+    try {
+      resSold = await db.supabase.from('sales').select('*');
+
+      resCustomerCompanyInfo = await db.supabase
+          .from('customer_company')
+          .select('type,customer_id,name,phone');
+
+      resCustomerSoleInfo = await db.supabase
+          .from('customer_sole_trader')
+          .select('type,customer_id,name,last_name,phone');
+
+      for (var element in resSold) {
+        for (var item in resCustomerSoleInfo) {
+          if (element['customer_type'] == item['type'] &&
+              element['customer_fk'] == item['customer_id']) {
+            //verilerde tekrar oluyor o yüzden siliniyor.
+
+            element.addAll({
+              'name': item['name'] + " " + item['last_name'],
+              'phone': item['phone']
+            });
+            break;
+          }
+        }
+      }
+
+      for (var element in resSold) {
+        for (var item in resCustomerCompanyInfo) {
+          if (element['customer_type'] == item['type'] &&
+              element['customer_fk'] == item['customer_id']) {
+            //verilerde tekrar oluyor o yüzden siliniyor.
+
+            element.addAll({'name': item['name'], 'phone': item['phone']});
+            break;
+          }
+        }
+      }
+
+      /* print("yeni deger. ${resSold[0]}");
+      print("yeni deger. ${resSold[1]}");
+      print("yeni deger. ${resSold[2]}");
+      print("yeni deger. ${resSold[3]}"); */
+      return resSold;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Tedarikci: ${e.message}");
+      return resSold;
+    }
+  }
 }
 
 final db = DbHelper();
