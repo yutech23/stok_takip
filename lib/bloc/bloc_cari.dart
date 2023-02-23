@@ -284,6 +284,7 @@ class BlocCari {
 
       if (convertTemp.compareTo(_startTime) >= 0 &&
           convertTemp.compareTo(_endTime) <= 0) {
+        ///Ekrana basmak için dateTime tipini String ve uygun formata çeviriyoruz.
         String dateTime = DateFormat("dd/MM/yyyy HH:mm")
             .format(DateTime.parse(element['sale_date']));
 
@@ -303,15 +304,22 @@ class BlocCari {
 
         _soldListManipulatorByHeader.add({
           'dateTime': dateTime,
-          'type': _selectedCustomer['type'],
-          'customerName': _selectedCustomer['name'],
+          'type': element['customer_type'],
+          'customerName': element['name'],
           'invoiceNumber': element['invoice_number'],
           'totalPrice': FormatterConvert().currencyShow(totalPrice),
           'payment': FormatterConvert().currencyShow(totalPayment),
           'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
         });
-        _soldListManipulatorByHeader.add(element);
       }
     }
+
+    ///kalan Tutar Burada Hesaplanıyor.
+    _calculationRow['balance'] =
+        _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
+
+    _expanded =
+        List.generate(_soldListManipulatorByHeader.length, (index) => false);
+    _streamControllerSoldList.add(_soldListManipulatorByHeader);
   }
 }

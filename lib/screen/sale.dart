@@ -299,8 +299,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             for (var element in listCustomer) {
               ///item müşterinin type atıyorum.
               listSearch.add(SearchFieldListItem(
-                  // "${element['type']} - ${element['name']!} - ${element['phone']}",
-                  "${element['phone']}",
+                  "${element['type']} - ${element['name']!} - ${element['phone']}",
                   item: element['type']));
             }
             return SearchField(
@@ -323,19 +322,24 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 overflow: TextOverflow.fade,
               ),
               onSuggestionTap: (selectedValue) {
-                _selectCustomerType = selectedValue.item!;
+                ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
+                var _customerInfoList = selectedValue.searchKey.split(' - ');
+                print(_customerInfoList);
+                _selectCustomerType = _customerInfoList[0];
 
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
                 /// numarsı üzerinden id buluncak. telefon numarası unique.
                 ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
-                _customerPhone = selectedValue.searchKey;
-                for (var element in listCustomer) {
+
+                _customerPhone = _customerInfoList[2];
+                print(_customerPhone);
+                /* for (var element in listCustomer) {
                   if (element['name'] == selectedValue.searchKey) {
                     _customerPhone = element['phone']!;
                     break;
                   }
-                }
+                } */
 
                 _focusSearchCustomer.unfocus();
               },

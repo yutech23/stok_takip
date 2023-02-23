@@ -274,9 +274,10 @@ class _ScreenCariState extends State<ScreenCari> {
       child: Row(
         children: [
           shareWidgetDateTimeTextFormField(
-              _controllerStartDate, _labelStartDate),
+              _controllerStartDate, _labelStartDate, (p0) {}),
           context.extensionWidhSizedBox10(),
-          shareWidgetDateTimeTextFormField(_controllerEndDate, _labelEndDate),
+          shareWidgetDateTimeTextFormField(
+              _controllerEndDate, _labelEndDate, (p0) {}),
         ],
       ),
     );
@@ -398,18 +399,28 @@ class _ScreenCariState extends State<ScreenCari> {
           icon: const Icon(Icons.format_list_bulleted_sharp),
           style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
           onPressed: () async {
+            ///Sadece Müşteri seçildiğinde
             if (_controllerSearchByName.text.isNotEmpty &&
                 _controllerStartDate.text == "" &&
                 _controllerEndDate.text == "") {
               _blocCari.getSoldListOfSelectedCustomer();
+              //Müşteri ve Tarihler seçildiğinde
             } else if (_controllerSearchByName.text.isNotEmpty &&
                 _controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty) {
               await _blocCari.getSoldListOfSelectedCustomer();
               _blocCari.filtreSoldListByDateTime();
+              //Sadece Tarih seçildiğinde
             } else if (_controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty &&
-                _controllerSearchByName.text == "") {}
+                _controllerSearchByName.text == "") {
+              await _blocCari.getOnlyUseDateTimeForSoldList();
+              //Tümü Boş iken buda o günkü satışları getirir
+            } else if (_controllerSearchByName.text == "" &&
+                _controllerStartDate.text == "" &&
+                _controllerEndDate.text == "") {
+              await _blocCari.getOnlyUseDateTimeForSoldList();
+            }
           },
           label: Text(_labelGetCari)),
     );
@@ -511,8 +522,8 @@ class _ScreenCariState extends State<ScreenCari> {
   }
 
   ///Zaman Aralık için textformfiled
-  Expanded shareWidgetDateTimeTextFormField(
-      TextEditingController controller, String label) {
+  Expanded shareWidgetDateTimeTextFormField(TextEditingController controller,
+      String label, Function(String)? onChanged) {
     return Expanded(
         child: TextFormField(
       textAlign: TextAlign.start,
@@ -532,8 +543,12 @@ class _ScreenCariState extends State<ScreenCari> {
           )),
       inputFormatters: [
         LengthLimitingTextInputFormatter(10),
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9/]'))
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
       ],
+      onChanged: onChanged,
+      onFieldSubmitted: (value) {
+        print(value);
+      },
     ));
   }
 
@@ -645,13 +660,11 @@ class _ScreenCariState extends State<ScreenCari> {
                 }
               },
               label: _labelGetPay),
-          shareWidget.widgetElevatedButton(
-              buttonStyle: ElevatedButton.styleFrom(
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
                   fixedSize: Size(_shareMinWidth - 20, 40)),
-              onPressedDoSomething: () async {
-                await _blocCari.getOnlyUseDateTimeForSoldList();
-              },
-              label: _labelPay),
+              onPressed: () async {},
+              child: Text(_labelPay)),
         ],
       ),
     );
