@@ -1001,6 +1001,37 @@ class DbHelper {
       return resSold;
     }
   }
+
+  ///Fatura No ile cari getirme
+  Future<Map<String, dynamic>> fetchCariByInvoiceNo(String invoiceNo) async {
+    Map<String, dynamic> res = {};
+    List<dynamic> resCustomerInfo = [];
+    try {
+      res = await db.supabase
+          .from('sales')
+          .select<Map<String, dynamic>>('*')
+          .eq('invoice_number', int.parse(invoiceNo))
+          .single();
+
+      if (res.isNotEmpty) {
+        if (res['customer_type'] == 'Şahıs') {
+          resCustomerInfo = await db.supabase
+              .from('customer_sole_trader')
+              .select('name,last_name')
+              .eq('customer_id', res['customer_fk']);
+          var tempName = resCustomerInfo[0]['name'] +
+              " " +
+              resCustomerInfo[0]['last_name'];
+
+          res.addAll({'name': tempName});
+        }
+      }
+      return res;
+    } on PostgrestException catch (e) {
+      print("Fatura No ile Cari Getirme Hata :${e.message}");
+      return res;
+    }
+  }
 }
 
 final db = DbHelper();

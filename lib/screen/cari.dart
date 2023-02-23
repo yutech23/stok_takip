@@ -86,7 +86,8 @@ class _ScreenCariState extends State<ScreenCari> {
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
   final double _widthCurrency = 250;
-
+  /*---------------------FATURA NO--------------------------------------- */
+  final _controllerInvoiceNo = TextEditingController();
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
   @override
   void initState() {
@@ -252,13 +253,16 @@ class _ScreenCariState extends State<ScreenCari> {
       height: _shareHeightInputTextField,
       child: Row(children: [
         Expanded(
-            child: shareWidget.widgetTextFieldInput(etiket: _labelInvoice)),
+            child: shareWidget.widgetTextFieldInput(
+                controller: _controllerInvoiceNo, etiket: _labelInvoice)),
         context.extensionWidhSizedBox10(),
         SizedBox(
           width: 180,
           child: ElevatedButton.icon(
             icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () async {
+              await _blocCari.getCariByInvoiceNo(_controllerInvoiceNo.text);
+            },
             label: Text(_labelSearchInvoice),
           ),
         ),
@@ -274,10 +278,18 @@ class _ScreenCariState extends State<ScreenCari> {
       child: Row(
         children: [
           shareWidgetDateTimeTextFormField(
-              _controllerStartDate, _labelStartDate, (p0) {}),
+              _controllerStartDate, _labelStartDate, (value) {
+            if (value.length == 10) {
+              _blocCari.setterStartDate = DateFormat('dd/MM/yyyy').parse(value);
+            }
+          }),
           context.extensionWidhSizedBox10(),
-          shareWidgetDateTimeTextFormField(
-              _controllerEndDate, _labelEndDate, (p0) {}),
+          shareWidgetDateTimeTextFormField(_controllerEndDate, _labelEndDate,
+              (value) {
+            if (value.length == 10) {
+              _blocCari.setterEndDate = DateFormat('dd/MM/yyyy').parse(value);
+            }
+          }),
         ],
       ),
     );
@@ -307,8 +319,7 @@ class _ScreenCariState extends State<ScreenCari> {
         });
 
     if (_selectDateTimeRange != null) {
-      _blocCari.setterStartDate = _selectDateTimeRange!.start;
-      _blocCari.setterEndDate = _selectDateTimeRange!.end;
+      _blocCari.setDateRange(_selectDateTimeRange);
 
       //seçilen tarihler inputlara aktarılıyor.
       _controllerStartDate.text =
@@ -419,6 +430,7 @@ class _ScreenCariState extends State<ScreenCari> {
             } else if (_controllerSearchByName.text == "" &&
                 _controllerStartDate.text == "" &&
                 _controllerEndDate.text == "") {
+              _blocCari.setToday();
               await _blocCari.getOnlyUseDateTimeForSoldList();
             }
           },
@@ -547,7 +559,7 @@ class _ScreenCariState extends State<ScreenCari> {
       ],
       onChanged: onChanged,
       onFieldSubmitted: (value) {
-        print(value);
+        _blocCari.setterEndDate = DateFormat('dd/MM/yyyy').parse(value);
       },
     ));
   }

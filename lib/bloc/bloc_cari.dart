@@ -19,9 +19,11 @@ class BlocCari {
   List<bool> _expanded = [false];
   int _customerId = -1; //-1 hiç bir id yok
 
-  DateTime _startTime = DateTime.now();
-  DateTime _endTime =
-      DateTime.now().add(const Duration(hours: 23, minutes: 59));
+  DateTime _startTime =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+  DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, 23, 59, 59);
 
   CariGetPay cariGetPay = CariGetPay();
 
@@ -314,6 +316,12 @@ class BlocCari {
       }
     }
 
+    ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
+    ///descending olarak)
+    _soldListManipulatorByHeader.sort((m1, m2) => DateFormat('dd/MM/yyyy HH:mm')
+        .parse(m2['dateTime'])
+        .compareTo(DateFormat('dd/MM/yyyy HH:mm').parse(m1['dateTime'])));
+
     ///kalan Tutar Burada Hesaplanıyor.
     _calculationRow['balance'] =
         _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
@@ -321,5 +329,50 @@ class BlocCari {
     _expanded =
         List.generate(_soldListManipulatorByHeader.length, (index) => false);
     _streamControllerSoldList.add(_soldListManipulatorByHeader);
+  }
+
+  ///Fatura No ile Cari getirme
+  getCariByInvoiceNo(String invoiceNo) async {
+    _expanded.clear();
+    _soldListManipulatorByHeader.clear();
+    _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
+
+    Map<String, dynamic> resCari = await db.fetchCariByInvoiceNo(invoiceNo);
+
+    String dateTime = DateFormat("dd/MM/yyyy HH:mm")
+        .format(DateTime.parse(resCari['sale_date']));
+
+    double totalPayment = resCari['cash_payment'] +
+        resCari['bankcard_payment'] +
+        resCari['eft_havale_payment'];
+    double totalPrice = ShareFunc.calculateWithKDV(
+        resCari['total_payment_without_tax'], resCari['kdv_rate']);
+
+    _soldListManipulatorByHeader.add({
+      'dateTime': dateTime,
+      'type': resCari['customer_type'],
+      'customerName': resCari['name'],
+      'invoiceNumber': resCari['invoice_number'],
+      'totalPrice': FormatterConvert().currencyShow(totalPrice),
+      'payment': FormatterConvert().currencyShow(totalPayment),
+      'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+    });
+    _expanded =
+        List.generate(_soldListManipulatorByHeader.length, (index) => false);
+    _streamControllerSoldList.add(_soldListManipulatorByHeader);
+  }
+
+  setToday() {
+    _startTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    _endTime = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
+  }
+
+  setDateRange(DateTimeRange? dateTimeRange) {
+    _startTime = dateTimeRange!.start;
+    _endTime = dateTimeRange.end
+        .add(const Duration(hours: 23, minutes: 59, seconds: 59));
   }
 }
