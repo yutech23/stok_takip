@@ -482,7 +482,11 @@ class _ScreenCariState extends State<ScreenCari> {
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
-                onTabRow: (value) {},
+                dropContainer: (value) {
+                  return Container(
+                    child: Text("merhaba"),
+                  );
+                },
                 actions: [],
                 footers: [
                   Expanded(

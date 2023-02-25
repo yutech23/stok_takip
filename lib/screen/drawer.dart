@@ -140,6 +140,31 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 
+  //Bağımlı menüler için widget
+  widgetMenuItemSubcategory(BuildContext context, String mainHeading,
+      List<String> subtitles, IconData? icon) {
+    return ExpansionTile(
+      leading: Icon(
+        icon,
+        size: 30,
+      ),
+      title: Text(
+        mainHeading,
+        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+      ),
+      children: [
+        for (String subtitle in subtitles)
+          ListTile(
+            title: Text(
+              subtitle,
+              style: context.theme.titleMedium!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+          )
+      ],
+    );
+  }
+
 //Çıkış Bölmünün widgetı.
   Widget widgetContainerExit(BuildContext context) {
     return Container(
