@@ -33,11 +33,17 @@ class BlocCari {
     'balance': 0
   };
 
+  // ignore: prefer_final_fields
   Map<String, String> _paymentSystem = {
     "cash": "0",
     "bankCard": "0",
     "eftHavale": "0"
   };
+
+  final List<Map<String, dynamic>> _saleDetailList = [];
+  List<bool> _expandedSaleDetailList = [false];
+  Map<String, dynamic> _saleInfo = {};
+  String _saleCurrencySembol = "";
 
   BlocCari() {
     getAllCustomerAndSuppliers();
@@ -67,6 +73,11 @@ class BlocCari {
   get getterEndDate => _endTime;
   set setterStartDate(DateTime dateTime) => _startTime = dateTime;
   set setterEndDate(DateTime dateTime) => _endTime = dateTime;
+
+  get getterSaleDetailList => _saleDetailList;
+  get getterExpandedSaleDetail => _expandedSaleDetailList;
+  get getterSaleInfo => _saleInfo;
+  get getterSaleCurrencySembol => _saleCurrencySembol;
 
 /*-------------------------ÖDEME SİSTEMİ--------------------------- */
 
@@ -142,12 +153,12 @@ class BlocCari {
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']));
+          .format(DateTime.parse(element['sale_date']).toLocal());
 
       double totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
           element['eft_havale_payment'];
-      double totalPrice = ShareFunc.calculateWithKDV(
+      double totalPrice = shareFunc.calculateWithKDV(
           element['total_payment_without_tax'], element['kdv_rate']);
 
       ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
@@ -171,7 +182,7 @@ class BlocCari {
     //Cari tablosundan gelen Veriler
     for (var element in resCariList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['payment_date']));
+          .format(DateTime.parse(element['payment_date']).toLocal());
 
       double totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
@@ -245,7 +256,7 @@ class BlocCari {
 
     for (var element in _soldListManipulatorByHeader) {
       DateTime convertTemp =
-          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']);
+          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']).toLocal();
 
       if (convertTemp.compareTo(tempAddTime.start) >= 0 &&
           convertTemp.compareTo(tempAddTime.end) <= 0) {
@@ -282,18 +293,18 @@ class BlocCari {
     final resSoldList = await db.fetchCariByOnlyDateTime();
 
     for (var element in resSoldList) {
-      DateTime convertTemp = DateTime.parse(element['sale_date']);
+      DateTime convertTemp = DateTime.parse(element['sale_date']).toLocal();
 
       if (convertTemp.compareTo(_startTime) >= 0 &&
           convertTemp.compareTo(_endTime) <= 0) {
         ///Ekrana basmak için dateTime tipini String ve uygun formata çeviriyoruz.
         String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-            .format(DateTime.parse(element['sale_date']));
+            .format(DateTime.parse(element['sale_date']).toLocal());
 
         double totalPayment = element['cash_payment'] +
             element['bankcard_payment'] +
             element['eft_havale_payment'];
-        double totalPrice = ShareFunc.calculateWithKDV(
+        double totalPrice = shareFunc.calculateWithKDV(
             element['total_payment_without_tax'], element['kdv_rate']);
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
@@ -345,7 +356,7 @@ class BlocCari {
     double totalPayment = resCari['cash_payment'] +
         resCari['bankcard_payment'] +
         resCari['eft_havale_payment'];
-    double totalPrice = ShareFunc.calculateWithKDV(
+    double totalPrice = shareFunc.calculateWithKDV(
         resCari['total_payment_without_tax'], resCari['kdv_rate']);
 
     _soldListManipulatorByHeader.add({
@@ -374,5 +385,42 @@ class BlocCari {
     _startTime = dateTimeRange!.start;
     _endTime = dateTimeRange.end
         .add(const Duration(hours: 23, minutes: 59, seconds: 59));
+  }
+
+  /*---------------------------------DETAY POP-UP--------------------- */
+  //Ürün listesini Getiriyor
+  getSaleDetail(int invoiceId) async {
+    _expandedSaleDetailList.clear();
+    _saleDetailList.clear();
+    final saleDetailListTemp = await db.fetchsaleDetailByInvoice(invoiceId);
+    for (var element in saleDetailListTemp) {
+      double tempTotal =
+          element['product_amount'] * element['product_price_without_tax'];
+
+      _saleDetailList.add({
+        'productCode': element['product_code'],
+        'productAmount': element['product_amount'],
+        'productPriceWithoutTax': FormatterConvert()
+            .currencyShow(element['product_price_without_tax']),
+        'productTotal': FormatterConvert().currencyShow(tempTotal)
+      });
+    }
+    _expandedSaleDetailList =
+        List.generate(_saleDetailList.length, (index) => false);
+  }
+
+  //Faturaya ait diğer bilgiler geliyor. (ödeme tipleri, düzenlem zamanı, kdv)
+  getSaleInfo(int invoiceId) async {
+    _saleInfo.clear();
+    _saleInfo = await db.fetchSaleInfoByInvocice(invoiceId);
+
+    ///Satış parabirimi simge olarak değiştiriliyor
+    if (_saleInfo['unit_of_currency'] == "TL") {
+      _saleCurrencySembol = "₺";
+    } else if (_saleInfo['unit_of_currency'] == "USD") {
+      _saleCurrencySembol = "\$";
+    } else if (_saleInfo['unit_of_currency'] == "EURO") {
+      _saleCurrencySembol = "€";
+    }
   }
 }

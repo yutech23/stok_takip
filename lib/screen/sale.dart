@@ -467,17 +467,20 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
 
                       setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["Türkiye"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["Türkiye"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDisableColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDefaultColor;
                         if (_selectUnitOfCurrencySymbol != "₺") {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["Türkiye"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["Türkiye"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDisableColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDefaultColor;
+                          print("ilk deger : $_selectUnitOfCurrencySymbol");
+
+                          print(_selectUnitOfCurrencySymbol);
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
                         }
@@ -493,17 +496,18 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
 
                       setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["amerika"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["amerika"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDisableColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDefaultColor;
                         if (_selectUnitOfCurrencySymbol != "\$") {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["amerika"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["amerika"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDisableColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDefaultColor;
+
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
                         }
@@ -519,17 +523,18 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       //Tekrar Seçildiğinde onu engellemek için if konuldu
 
                       setState(() {
-                        _selectUnitOfCurrencyAbridgment =
-                            _mapUnitOfCurrency["avrupa"]["abridgment"];
-                        _selectUnitOfCurrencySymbol =
-                            _mapUnitOfCurrency["avrupa"]["symbol"];
-                        _colorBackgroundCurrencyTRY =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyUSD =
-                            context.extensionDefaultColor;
-                        _colorBackgroundCurrencyEUR =
-                            context.extensionDisableColor;
                         if (_selectUnitOfCurrencySymbol != "€") {
+                          _selectUnitOfCurrencyAbridgment =
+                              _mapUnitOfCurrency["avrupa"]["abridgment"];
+                          _selectUnitOfCurrencySymbol =
+                              _mapUnitOfCurrency["avrupa"]["symbol"];
+                          _colorBackgroundCurrencyTRY =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyUSD =
+                              context.extensionDefaultColor;
+                          _colorBackgroundCurrencyEUR =
+                              context.extensionDisableColor;
+
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
                         }

@@ -11,6 +11,7 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
+import '../utilities/popup/popup_cari_sale_detail.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
@@ -154,15 +155,34 @@ class _ScreenCariState extends State<ScreenCari> {
         sortable: false,
         flex: 2,
         sourceBuilder: (value, row) {
-          return Container(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              padding: const EdgeInsets.only(bottom: 20),
-              alignment: Alignment.center,
-              icon: const Icon(Icons.list),
-              onPressed: () {},
-            ),
-          );
+          return row['invoiceNumber'] != "-"
+              ? Container(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    alignment: Alignment.center,
+                    icon: const Icon(Icons.list),
+                    onPressed: () async {
+                      ///Fatura No'suna göre detaylar geliyor.
+                      await _blocCari.getSaleDetail(row['invoiceNumber']);
+
+                      await _blocCari.getSaleInfo(row['invoiceNumber']);
+
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return PopupSaleDetail(_blocCari);
+                          });
+                    },
+                  ),
+                )
+              : Container(
+                  alignment: Alignment.topRight,
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
+                    child: Icon(Icons.disabled_by_default),
+                  ),
+                );
         },
         textAlign: TextAlign.center));
 
@@ -542,6 +562,7 @@ class _ScreenCariState extends State<ScreenCari> {
       controller: controller,
       keyboardType: TextInputType.datetime,
       decoration: InputDecoration(
+          hintText: "gg/aa/yyyy",
           contentPadding: const EdgeInsets.only(top: 40),
           prefixIcon: IconButton(
             color: context.extensionDefaultColor,
@@ -592,7 +613,7 @@ class _ScreenCariState extends State<ScreenCari> {
       child: Wrap(
         alignment: WrapAlignment.center,
         direction: Axis.vertical,
-        spacing: 5,
+        spacing: 10,
         children: [
           ///Nakit Ödeme
           sharedTextFormField(
@@ -672,11 +693,6 @@ class _ScreenCariState extends State<ScreenCari> {
                 }
               },
               label: _labelGetPay),
-          ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  fixedSize: Size(_shareMinWidth - 20, 40)),
-              onPressed: () async {},
-              child: Text(_labelPay)),
         ],
       ),
     );

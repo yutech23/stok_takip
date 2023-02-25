@@ -1032,6 +1032,39 @@ class DbHelper {
       return res;
     }
   }
+
+  /*-----------------------------CARİ DETAYLAR POPUP------------------- */
+  Future<List<dynamic>> fetchsaleDetailByInvoice(int invoiceId) async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase
+          .from('sales_detail')
+          .select()
+          .eq('sales_fk', invoiceId);
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Satılan ürün listesi Hata :${e.message}");
+      return res;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchSaleInfoByInvocice(int invoiceId) async {
+    Map<String, dynamic> res = {};
+    try {
+      res = await db.supabase
+          .from('sales')
+          .select(
+              'sale_date,total_payment_without_tax,kdv_rate,cash_payment,bankcard_payment,eft_havale_payment,unit_of_currency,payment_next_date,seller')
+          .eq('invoice_number', invoiceId)
+          .single();
+      print(res);
+      return res;
+    } on PostgrestException catch (e) {
+      print("Satış Detaylar satış Hata :${e.message}");
+      return res;
+    }
+  }
 }
 
 final db = DbHelper();
