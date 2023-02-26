@@ -141,27 +141,49 @@ class _MyDrawerState extends State<MyDrawer> {
   }
 
   //Bağımlı menüler için widget
-  widgetMenuItemSubcategory(BuildContext context, String mainHeading,
-      List<String> subtitles, IconData? icon) {
-    return ExpansionTile(
-      leading: Icon(
-        icon,
-        size: 30,
+  widgetMenuItemSubcategory(
+      BuildContext context,
+      String mainHeading,
+      List<String> subtitles,
+      IconData? icon,
+      List<PageRouteInfo<dynamic>> route) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+      child: ExpansionTile(
+        iconColor: Colors.amber,
+        tilePadding: EdgeInsets.zero,
+        leading: Icon(
+          icon,
+          size: 30,
+          color: context.extensionDefaultColor,
+        ),
+        title: Text(
+          mainHeading,
+          style:
+              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+        ),
+        children: [
+          for (int i = 0; i < subtitles.length; i++)
+            Container(
+              decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              child: ListTile(
+                hoverColor: Colors.grey.shade300,
+                contentPadding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
+                onTap: () {
+                  context.router.push(route[i]);
+                },
+                title: Text(
+                  subtitles[i],
+                  style: context.theme.titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+        ],
       ),
-      title: Text(
-        mainHeading,
-        style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-      ),
-      children: [
-        for (String subtitle in subtitles)
-          ListTile(
-            title: Text(
-              subtitle,
-              style: context.theme.titleMedium!
-                  .copyWith(fontWeight: FontWeight.bold),
-            ),
-          )
-      ],
     );
   }
 
@@ -226,8 +248,12 @@ class _MyDrawerState extends State<MyDrawer> {
                   const RouteSale(), Icons.point_of_sale_rounded, _labelSale));
               break;
             case "RouteCari":
-              listWidgetMenuByRole.add(widgetMenuItem(
-                  context, const RouteCari(), Icons.person_search, _labelCari));
+              listWidgetMenuByRole.add(widgetMenuItemSubcategory(
+                  context,
+                  "Cari İşlemler",
+                  ["Tedarikçi", "Müşteri"],
+                  Icons.person_search,
+                  [const RouteCari(), const RouteCari()]));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(
