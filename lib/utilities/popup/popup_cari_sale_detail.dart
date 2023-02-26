@@ -28,7 +28,16 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   final double _dataTableWidth = 560;
   final double _dataTableHeight = 400;
 /*------------------------------------------------------------------------- */
-
+/*-------------------------------ALINAN ÖDEME BİLGİLERİ-------------------- */
+  final String _labelHeaderPayment = "ALINAN ÖDEMELER";
+  final String _labelTotal = "MİKTAR";
+  final String _labelCash = "Nakit: ";
+  final String _labelCard = "Kart: ";
+  final String _labelEftHavale = "EFT/Havale: ";
+/*------------------------------------------------------------------------- */
+/*------------------------------ÖDEME TARİHİ------------------------------- */
+  final String _labelNextPaymentTime = "Ödeme Tarihi";
+/*------------------------------------------------------------------------- */
   @override
   void initState() {
     _headers = [];
@@ -82,21 +91,64 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
         _labelPopupHeader,
         style: context.theme.headline5!.copyWith(fontWeight: FontWeight.bold),
       ),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKeySupplier,
+      content: Form(
+        key: _formKeySupplier,
+        child: SingleChildScrollView(
           child: Container(
             padding: context.extensionPadding20(),
             alignment: Alignment.center,
             width: 600,
+            height: 600,
             child: Column(children: [
               const Divider(),
+              widgetDataTableNextTime(),
               widgetDateTable(),
               Divider(),
               widgetDataTablePaymentInfoAndBalance()
             ]),
           ),
         ),
+      ),
+    );
+  }
+
+  widgetDataTableNextTime() {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: Table(
+        columnWidths: const {
+          0: FixedColumnWidth(150),
+          1: FixedColumnWidth(100),
+        },
+        border: TableBorder.all(color: Colors.white),
+        children: [
+          TableRow(
+              decoration: BoxDecoration(
+                color: context.extensionDefaultColor,
+              ),
+              children: [
+                TableCell(
+                    child: Container(
+                        margin: EdgeInsets.zero,
+                        padding: const EdgeInsets.all(4),
+                        alignment: Alignment.center,
+                        child: Text(
+                          _labelNextPaymentTime,
+                          style: context.theme.titleSmall!
+                              .copyWith(color: Colors.white),
+                        ))),
+                TableCell(
+                    child: Container(
+                        margin: EdgeInsets.zero,
+                        padding: const EdgeInsets.all(4),
+                        alignment: Alignment.center,
+                        child: Text(
+                          widget.blocCari.getterSaleInfo['payment_next_date'],
+                          style: context.theme.titleSmall!
+                              .copyWith(color: Colors.white),
+                        ))),
+              ])
+        ],
       ),
     );
   }
@@ -190,15 +242,25 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   }
 
   widgetDataTablePaymentInfoAndBalance() {
-    return Table(
-      columnWidths: {
-        0: const FixedColumnWidth(160),
-        1: const FixedColumnWidth(100),
-      },
-      border: TableBorder.all(color: context.extensionDefaultColor),
+    return Wrap(
       children: [
-        for (int i = 0; i < buildRowProductList().length; i++)
-          buildRowProductList()[i],
+        Container(
+            decoration: BoxDecoration(color: context.extensionDefaultColor),
+            child: RichText(text: TextSpan(children: []))),
+        Container(
+          alignment: Alignment.centerRight,
+          child: Table(
+            columnWidths: const {
+              0: FixedColumnWidth(150),
+              1: FixedColumnWidth(100),
+            },
+            border: TableBorder.all(color: Colors.white),
+            children: [
+              for (int i = 0; i < buildRowProductList().length; i++)
+                buildRowProductList()[i],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -206,53 +268,76 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   ///Ürünlerin Listeye Eklendiği List.
   List<TableRow> buildRowProductList() {
     List<TableRow> listTableRow = [];
-
-    listTableRow.add(buildRowRight('Nakit ile ödeme :',
-        widget.blocCari.getterSaleInfo['cash_payment'].toString()));
-    listTableRow.add(buildRowCenter([
-      'Kart ile ödeme :',
-      widget.blocCari.getterSaleInfo['bankcard_payment'].toString()
-    ]));
-    listTableRow.add(buildRowCenter([
-      'EFT/Havale ile ödeme :',
-      widget.blocCari.getterSaleInfo['eft_havale_payment'].toString()
-    ]));
+    listTableRow.add(buildRowHeader(_labelHeaderPayment, _labelTotal));
+    listTableRow.add(buildRowRight(
+        _labelCash,
+        FormatterConvert().currencyShow(
+            widget.blocCari.getterSaleInfo['cash_payment'],
+            unitOfCurrency: widget.blocCari.getterSaleCurrencySembol)));
+    listTableRow.add(buildRowRight(
+        _labelCard,
+        FormatterConvert().currencyShow(
+            widget.blocCari.getterSaleInfo['bankcard_payment'],
+            unitOfCurrency: widget.blocCari.getterSaleCurrencySembol)));
+    listTableRow.add(buildRowRight(
+        _labelEftHavale,
+        FormatterConvert().currencyShow(
+            widget.blocCari.getterSaleInfo['eft_havale_payment'],
+            unitOfCurrency: widget.blocCari.getterSaleCurrencySembol)));
 
     return listTableRow;
   }
 
   TableRow buildRowRight(String header, String value) => TableRow(
           decoration: BoxDecoration(
-            color: Colors.amber,
+            color: context.extensionDefaultColor,
           ),
           children: [
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.zero,
-                    color: context.extensionDefaultColor,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.centerRight,
                     child: Text(
                       header,
-                      style: context.theme.titleMedium!
+                      style: context.theme.titleSmall!
                           .copyWith(color: Colors.white),
                     ))),
-            Text(value)
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      value,
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.white),
+                    ))),
           ]);
 
-  TableRow buildRowCenter(List<String> cells) => TableRow(
-          children: cells.map((cell) {
-        return Center(
-            child: Text(
-          cell,
-          style: context.theme.titleSmall,
-        ));
-      }).toList());
-
-  TableRow buildRowHeader(List<String> cells) => TableRow(
-          children: cells.map((cell) {
-        return Center(
-            child: Text(
-          cell,
-        ));
-      }).toList());
+  TableRow buildRowHeader(String header, String value) => TableRow(
+          decoration: BoxDecoration(
+            color: context.extensionDefaultColor,
+          ),
+          children: [
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.center,
+                    child: Text(
+                      header,
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.white),
+                    ))),
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.center,
+                    child: Text(
+                      value,
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.white),
+                    ))),
+          ]);
 }

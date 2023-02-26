@@ -15,9 +15,14 @@ class FormatterConvert {
   }
 
   //Basamak basamak ayırır.
-  String currencyShow(dynamic value) {
+  String currencyShow(dynamic value, {String? unitOfCurrency = null}) {
+    String turkishCurrencyString;
     var turkishCurrencyFormat =
         NumberFormat.currency(locale: 'tr_TR', decimalDigits: 2, symbol: '');
-    return turkishCurrencyFormat.format(value);
+    turkishCurrencyString = turkishCurrencyFormat.format(value);
+    if (unitOfCurrency != null) {
+      turkishCurrencyString = "$turkishCurrencyString $unitOfCurrency";
+    }
+    return turkishCurrencyString;
   }
 }
