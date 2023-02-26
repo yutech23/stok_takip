@@ -163,9 +163,12 @@ class _ScreenCariState extends State<ScreenCari> {
                     alignment: Alignment.center,
                     icon: const Icon(Icons.list),
                     onPressed: () async {
+                      _blocCari.setterRowCustomerInfo = row;
+                      print("zaman türü: ${row['dateTime'].runtimeType}");
+                      print("row : $row");
+
                       ///Fatura No'suna göre detaylar geliyor.
                       await _blocCari.getSaleDetail(row['invoiceNumber']);
-
                       await _blocCari.getSaleInfo(row['invoiceNumber']);
 
                       showDialog(

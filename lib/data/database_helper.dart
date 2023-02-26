@@ -1051,14 +1051,39 @@ class DbHelper {
 
   Future<Map<String, dynamic>> fetchSaleInfoByInvocice(int invoiceId) async {
     Map<String, dynamic> res = {};
+    Map<String, dynamic> resCustomerInfo = {};
     try {
       res = await db.supabase
           .from('sales')
           .select(
-              'sale_date,total_payment_without_tax,kdv_rate,cash_payment,bankcard_payment,eft_havale_payment,unit_of_currency,payment_next_date,seller')
+              'customer_type,customer_fk,sale_date,total_payment_without_tax,kdv_rate,cash_payment,bankcard_payment,eft_havale_payment,unit_of_currency,payment_next_date,seller')
           .eq('invoice_number', invoiceId)
           .single();
-      print(res);
+
+      ///Şahıs Taplosundaki Kişisel Bilgileri Getiriyor.
+      if (res['customer_type'] == 'Şahıs') {
+        resCustomerInfo = await db.supabase
+            .from('customer_sole_trader')
+            .select('phone,address,tc_no,district,city')
+            .eq('customer_id', res['customer_fk'])
+            .single();
+
+        ///Firmalar tablosunda firma bilgilerini getiriyor.
+      } else {
+        resCustomerInfo = await db.supabase
+            .from('customer_company')
+            .select('phone,address,tax_number,tax_office,district,city')
+            .eq('customer_id', res['customer_fk'])
+            .single();
+      }
+      var sellerName = await db.supabase
+          .from('users')
+          .select('name,last_name')
+          .eq('user_uuid', res['seller'])
+          .single();
+      res.addAll(resCustomerInfo);
+      res['seller'] = sellerName['name'] + " " + sellerName['last_name'];
+
       return res;
     } on PostgrestException catch (e) {
       print("Satış Detaylar satış Hata :${e.message}");

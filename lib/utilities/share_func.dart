@@ -6,6 +6,10 @@ class ShareFunc {
   double calculateWithoutKDV(num value, num kdv) {
     return value / ((100 + kdv) / 100);
   }
+
+  double calculateOnlyKdvValue(num valueWithoutKDV, num kdv) {
+    return (valueWithoutKDV * kdv) / 100;
+  }
 }
 
 final shareFunc = ShareFunc();

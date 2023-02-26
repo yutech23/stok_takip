@@ -44,6 +44,7 @@ class BlocCari {
   List<bool> _expandedSaleDetailList = [false];
   Map<String, dynamic> _saleInfo = {};
   String _saleCurrencySembol = "";
+  Map<String?, dynamic> _rowCustomerInfo = {};
 
   BlocCari() {
     getAllCustomerAndSuppliers();
@@ -78,6 +79,11 @@ class BlocCari {
   get getterExpandedSaleDetail => _expandedSaleDetailList;
   get getterSaleInfo => _saleInfo;
   get getterSaleCurrencySembol => _saleCurrencySembol;
+  get getterRowCustomerInfo => _rowCustomerInfo;
+
+  set setterRowCustomerInfo(Map<String?, dynamic> newValue) {
+    _rowCustomerInfo = newValue;
+  }
 
 /*-------------------------ÖDEME SİSTEMİ--------------------------- */
 
@@ -405,6 +411,7 @@ class BlocCari {
         'productTotal': FormatterConvert().currencyShow(tempTotal)
       });
     }
+    print("sale detay : $_saleDetailList");
     _expandedSaleDetailList =
         List.generate(_saleDetailList.length, (index) => false);
   }
@@ -422,5 +429,6 @@ class BlocCari {
     } else if (_saleInfo['unit_of_currency'] == "EURO") {
       _saleCurrencySembol = "€";
     }
+    print("satiş bilgi : ${_saleInfo}");
   }
 }
