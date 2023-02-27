@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,7 +26,7 @@ class PopupSaleDetail extends StatefulWidget {
 class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   final GlobalKey<FormState> _formKeySupplier = GlobalKey<FormState>();
 
-  final String _labelPopupHeader = "Fatura Detayları";
+  final String _labelPopupHeader = "Fatura Detay";
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
 
@@ -45,7 +43,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
 /*------------------------------------------------------------------------- */
 /*------------------------------ÖDEME TARİHİ------------------------------- */
   final String _labelNextPaymentTime = "Ödeme Tarihi";
-  final String _labelSeller = "Satış Elemanı: ";
+  final String _labelSeller = "Satış Elemanı : ";
   final double _widthShareRow = 275;
 /*------------------------------------------------------------------------- */
   @override
@@ -96,11 +94,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   ///Widget ların oluşturulduğu builder Fonksiyonu
   buildSaleDetail() {
     return AlertDialog(
-      title: Text(
-        textAlign: TextAlign.center,
-        _labelPopupHeader,
-        style: context.theme.headline5!.copyWith(fontWeight: FontWeight.bold),
-      ),
+      scrollable: true,
       content: SingleChildScrollView(
         child: Form(
           key: _formKeySupplier,
@@ -109,15 +103,30 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             alignment: Alignment.center,
             width: 600,
             child: Column(children: [
+              Center(
+                child: Text(
+                  _labelPopupHeader,
+                  style: context.theme.headline5!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  color: context.extensionDisableColor,
+                  icon: Icon(Icons.print),
+                  onPressed: () async => createPdfInvoice(),
+                ),
+              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: context.extensionWrapSpacing10(),
                 children: [widgetSallerInfo(), widgetDataTableNextTime()],
               ),
               widgetDateTable(),
-              Divider(),
+              const Divider(),
               widgetDataTablePaymentInfoAndBalance(),
-              widgetButtonPrint()
+              // widgetButtonPrint()
             ]),
           ),
         ),
@@ -134,15 +143,18 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
           0: FixedColumnWidth(140),
           1: FixedColumnWidth(135),
         },
-        border: TableBorder.all(color: Colors.white),
+        border: TableBorder.all(),
         children: [
           TableRow(
-              decoration: BoxDecoration(
+              /*  decoration: BoxDecoration(
                 color: context.extensionDefaultColor,
-              ),
+              ), */
               children: [
                 TableCell(
                     child: Container(
+                        decoration: BoxDecoration(
+                          color: context.extensionDefaultColor,
+                        ),
                         margin: EdgeInsets.zero,
                         padding: const EdgeInsets.all(4),
                         alignment: Alignment.center,
@@ -157,9 +169,11 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                         padding: const EdgeInsets.all(4),
                         alignment: Alignment.center,
                         child: Text(
-                          widget.blocCari.getterSaleInfo['seller'],
+                          widget.blocCari.getterSaleInfo['seller']
+                              .toString()
+                              .toUpperCaseTr(),
                           style: context.theme.titleSmall!
-                              .copyWith(color: Colors.white),
+                              .copyWith(color: context.extensionDefaultColor),
                         ))),
               ])
         ],
@@ -176,7 +190,8 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
           0: FixedColumnWidth(140),
           1: FixedColumnWidth(135),
         },
-        border: TableBorder.all(color: Colors.white),
+        border: TableBorder.symmetric(
+            inside: const BorderSide(color: Colors.white)),
         children: [
           TableRow(
               decoration: BoxDecoration(
@@ -198,8 +213,11 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                         margin: EdgeInsets.zero,
                         padding: const EdgeInsets.all(4),
                         alignment: Alignment.center,
+
+                        ///Deger Null Geldiğinde hata vermemesi için "-" eklendi
                         child: Text(
-                          widget.blocCari.getterSaleInfo['payment_next_date'],
+                          widget.blocCari.getterSaleInfo['payment_next_date'] ??
+                              'Girilmedi',
                           style: context.theme.titleSmall!
                               .copyWith(color: Colors.white),
                         ))),
@@ -231,7 +249,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                   decoration:
                       BoxDecoration(color: context.extensionDefaultColor),
                   height:
-                      40, //Fotter kısmın yüksekliği bozulmasın diye belirtim
+                      30, //Fotter kısmın yüksekliği bozulmasın diye belirtim
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: RichText(
@@ -252,7 +270,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                                 .copyWith(color: Colors.white),
                           ),
                           TextSpan(
-                              text: "    KDV : ",
+                              text: "   KDV : ",
                               style: const TextStyle(
                                   color: Colors.white, letterSpacing: 1),
                               children: [
@@ -304,6 +322,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
         context.theme.titleSmall!.copyWith(fontWeight: FontWeight.bold);
     if (widget.blocCari.getterSaleInfo['customer_type'] == "Şahıs") {
       return Container(
+        height: 98,
         padding: EdgeInsets.symmetric(vertical: 4),
         alignment: Alignment.centerLeft,
         width: _widthShareRow,
@@ -367,6 +386,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
       children: [
         widgetCustomerInfo(),
         Container(
+          height: 100,
           width: _widthShareRow,
           alignment: Alignment.centerRight,
           child: Table(
@@ -374,7 +394,8 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
               0: FixedColumnWidth(140),
               1: FixedColumnWidth(135),
             },
-            border: TableBorder.all(color: Colors.white),
+            border:
+                TableBorder.symmetric(inside: BorderSide(color: Colors.white)),
             children: [
               for (int i = 0; i < buildRowProductList().length; i++)
                 buildRowProductList()[i],
@@ -426,7 +447,8 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4),
+                    alignment: Alignment.centerLeft,
                     child: Text(
                       value,
                       style: context.theme.titleSmall!
@@ -469,7 +491,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
 /*     String svgRaw = await rootBundle.loadString('/logo.svg');
     final svgImage = pw.SvgImage(svg: svgRaw); */
 
-    var myFont = await PdfGoogleFonts.montserratAlternatesBlack();
+    var myFont = await PdfGoogleFonts.poppinsMedium();
 
     final pw.TextStyle letterCharacter =
         pw.TextStyle(font: myFont, fontSize: 9);
@@ -587,8 +609,8 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
         listTableRow.add(buildRowCenter([
           element['productCode'],
           element['productAmount'].toString(),
-          element['productPriceWithoutTax'],
-          "${element['productTotal']}",
+          element['productPriceWithoutTax'] + " ₺",
+          "${element['productTotal']} ₺",
         ]));
       }
       return listTableRow;
@@ -661,7 +683,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
         pw.TableRow Function(List<String> cells) buildRow) {
       return pw.Table(
           columnWidths: {
-            0: const pw.FixedColumnWidth(100),
+            0: const pw.FixedColumnWidth(110),
             1: const pw.FixedColumnWidth(60)
           },
           border: pw.TableBorder.all(color: PdfColors.black, width: 1),
@@ -730,7 +752,11 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                           children: [
                             buildRowRight([
                               'Mal Hizmet Toplam Tutarı',
-                              "${FormatterConvert().currencyShow(widget.blocCari.getterSaleInfo['total_payment_without_tax'], unitOfCurrency: widget.blocCari.getterSaleCurrencySembol)} "
+                              (FormatterConvert().currencyShow(
+                                  widget.blocCari.getterSaleInfo[
+                                      'total_payment_without_tax'],
+                                  unitOfCurrency:
+                                      widget.blocCari.getterSaleCurrencySembol))
                             ]),
                             buildRowRight([
                               'Hesaplanan KDV(%${widget.blocCari.getterSaleInfo['kdv_rate']})',

@@ -775,6 +775,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   eftHavalePayment: _controllerEftHavaleValue.text,
                   paymentNextDate: _selectDateTime,
                   userId: userId!);
+
+              ///BAŞARILI kAYIT
               if (res['hata'] == null) {
                 // ignore: use_build_context_synchronously
                 await buildPopupDialog(context);
@@ -783,12 +785,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 _controllerCashValue.clear();
                 _controllerSearchCustomer.clear();
                 _controllerSearchProductCode.clear();
+                _selectDateTime = null;
                 setState(() {
+                  ///Burada Parabirimi ayarları sıfırlanıyor.
                   _selectUnitOfCurrencyAbridgment =
                       _mapUnitOfCurrency["Türkiye"]["abridgment"];
                   _selectUnitOfCurrencySymbol =
                       _mapUnitOfCurrency["Türkiye"]["symbol"];
                   _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
+                  _colorBackgroundCurrencyTRY = context.extensionDisableColor;
+                  _colorBackgroundCurrencyUSD = context.extensionDefaultColor;
+                  _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
                 });
                 // ignore: use_build_context_synchronously
                 context.noticeBarTrue("Satış işlemi gerçekleşti.", 2);
@@ -849,6 +856,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 190;
   }
 
+  /*----------------------PDF BÖLÜMÜ ----------------------------------*/
   createPdfInvoice() async {
     await blocInvoice.getCompanyInformation();
     await blocInvoice.getCustomerInformation(
@@ -856,10 +864,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
     final doc = pw.Document();
     final pngImage = await imageFromAssetBundle('assets/logo.png');
-/*     String svgRaw = await rootBundle.loadString('/logo.svg');
+    /*     String svgRaw = await rootBundle.loadString('/logo.svg');
     final svgImage = pw.SvgImage(svg: svgRaw); */
 
-    var myFont = await PdfGoogleFonts.openSansMedium();
+    var myFont = await PdfGoogleFonts.poppinsMedium();
 
     final pw.TextStyle letterCharacter =
         pw.TextStyle(font: myFont, fontSize: 9);
@@ -978,8 +986,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         listTableRow.add(buildRowCenter([
           element.productCode,
           element.sallingAmount.toString(),
-          "${FormatterConvert().currencyShow(element.currentSallingPriceWithoutTax)} ${_mapUnitOfCurrency["Türkiye"]["abridgment"]}",
-          "${FormatterConvert().currencyShow(element.total)} ${_mapUnitOfCurrency["Türkiye"]["abridgment"]}",
+          FormatterConvert().currencyShow(element.currentSallingPriceWithoutTax,
+              unitOfCurrency: _mapUnitOfCurrency['Türkiye']['symbol']),
+          FormatterConvert().currencyShow(element.total,
+              unitOfCurrency: _mapUnitOfCurrency['Türkiye']['symbol']),
         ]));
       }
       return listTableRow;
@@ -1098,23 +1108,23 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           children: [
                             buildRowRight([
                               'Mal Hizmet Toplam Tutarı',
-                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_without_tax'])} $_selectUnitOfCurrencyAbridgment"
+                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_without_tax'])} $_selectUnitOfCurrencySymbol"
                             ]),
                             buildRowRight([
                               'Hesaplanan KDV(%${blocSale.totalPriceAndKdv['kdv']})',
-                              "${FormatterConvert().currencyShow(blocInvoice.calculatorKdvValue(blocSale.totalPriceAndKdv['kdv']!.toInt(), blocSale.totalPriceAndKdv['total_without_tax']!.toDouble()))} $_selectUnitOfCurrencyAbridgment"
+                              "${FormatterConvert().currencyShow(blocInvoice.calculatorKdvValue(blocSale.totalPriceAndKdv['kdv']!.toInt(), blocSale.totalPriceAndKdv['total_without_tax']!.toDouble()))} $_selectUnitOfCurrencySymbol"
                             ]),
                             buildRowRight([
                               'Vergiler Dahil Toplam Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_with_tax'])} $_selectUnitOfCurrencyAbridgment"
+                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_with_tax'])} $_selectUnitOfCurrencySymbol"
                             ]),
                             buildRowRight([
                               'Ödenen Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.paymentTotalValue())} $_selectUnitOfCurrencyAbridgment"
+                              "${FormatterConvert().currencyShow(blocSale.paymentTotalValue())} $_selectUnitOfCurrencySymbol"
                             ]),
                             buildRowRight([
                               'Kalan Borç Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.getBalanceValue)} $_selectUnitOfCurrencyAbridgment"
+                              "${FormatterConvert().currencyShow(blocSale.getBalanceValue)} $_selectUnitOfCurrencySymbol"
                             ]),
                             buildRowRight([
                               'Ödeme Tarihi ',
@@ -1154,6 +1164,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         ]);
   }
 
+/*------------------------------------------------------------------------- */
   ///Stok Kodu aynı girildiğinde Ekran Hatası için.
   buildPopupDialog(BuildContext context) {
     return showDialog(

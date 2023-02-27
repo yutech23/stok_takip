@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_cari.dart';
-import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
-
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/popup/popup_cari_sale_detail.dart';
@@ -37,8 +35,8 @@ class _ScreenCariState extends State<ScreenCari> {
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   late DateTimeRange? _selectDateTimeRange;
-  DateTime _startDateTime = DateTime.now();
-  DateTime _endDateTime = DateTime.now();
+  final DateTime _startDateTime = DateTime.now();
+  final DateTime _endDateTime = DateTime.now();
   final String _labelStartDate = "Başlangıç Tarihi";
   final String _labelEndDate = "Bitiş Tarihi";
 
@@ -57,7 +55,7 @@ class _ScreenCariState extends State<ScreenCari> {
   late final List<DatatableHeader> _headers;
 
   final List<Map<String, dynamic>> _selected = [];
-  final double _dataTableWidth = 730;
+  final double _dataTableWidth = 745;
   final double _dataTableHeight = 710;
 /*------------------------------------------------------------------------- */
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
@@ -155,37 +153,52 @@ class _ScreenCariState extends State<ScreenCari> {
         sortable: false,
         flex: 2,
         sourceBuilder: (value, row) {
-          return row['invoiceNumber'] != "-"
-              ? Container(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    alignment: Alignment.center,
-                    icon: const Icon(Icons.list),
-                    onPressed: () async {
-                      _blocCari.setterRowCustomerInfo = row;
-                      print("zaman türü: ${row['dateTime'].runtimeType}");
-                      print("row : $row");
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ///Silme Buttonu
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  ///Stok bitmeden silmeyi engelliyor.
+                },
+              ),
+              row['invoiceNumber'] != "-"
+                  ? Container(
+                      child: IconButton(
+                        iconSize: 20,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        alignment: Alignment.center,
+                        icon: const Icon(Icons.list),
+                        onPressed: () async {
+                          ///satır bilgisi aktarılıyor
+                          _blocCari.setterRowCustomerInfo = row;
 
-                      ///Fatura No'suna göre detaylar geliyor.
-                      await _blocCari.getSaleDetail(row['invoiceNumber']);
-                      await _blocCari.getSaleInfo(row['invoiceNumber']);
+                          ///Fatura No'suna göre detaylar geliyor.
+                          await _blocCari.getSaleDetail(row['invoiceNumber']);
+                          await _blocCari.getSaleInfo(row['invoiceNumber']);
 
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return PopupSaleDetail(_blocCari);
-                          });
-                    },
-                  ),
-                )
-              : Container(
-                  alignment: Alignment.topRight,
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
-                    child: Icon(Icons.disabled_by_default),
-                  ),
-                );
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return PopupSaleDetail(_blocCari);
+                              });
+                        },
+                      ),
+                    )
+                  : Container(
+                      child: const Padding(
+                        padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
+                        child: Icon(Icons.disabled_by_default),
+                      ),
+                    ),
+            ],
+          );
         },
         textAlign: TextAlign.center));
 
@@ -242,7 +255,7 @@ class _ScreenCariState extends State<ScreenCari> {
                     Wrap(
                       alignment: WrapAlignment.center,
                       runSpacing: context.extensionWrapSpacing10(),
-                      spacing: context.extensionWrapSpacing10(),
+                      spacing: 25,
                       children: [
                         //Tarih Bölümü Seçme
                         widgetRangeSelectDateTime(),
@@ -251,7 +264,7 @@ class _ScreenCariState extends State<ScreenCari> {
                           direction: Axis.vertical,
                           verticalDirection: VerticalDirection.down,
                           alignment: WrapAlignment.center,
-                          spacing: context.extensionWrapSpacing10(),
+                          spacing: context.extensionWrapSpacing20(),
                           runSpacing: context.extensionWrapSpacing10(),
                           children: [
                             widgetSearchFieldInvoice(),
