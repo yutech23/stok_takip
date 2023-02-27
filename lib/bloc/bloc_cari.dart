@@ -185,6 +185,7 @@ class BlocCari {
         'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
       });
     }
+
     //Cari tablosundan gelen Veriler
     for (var element in resCariList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
@@ -411,7 +412,7 @@ class BlocCari {
         'productTotal': FormatterConvert().currencyShow(tempTotal)
       });
     }
-    print("sale detay : $_saleDetailList");
+
     _expandedSaleDetailList =
         List.generate(_saleDetailList.length, (index) => false);
   }
@@ -429,6 +430,43 @@ class BlocCari {
     } else if (_saleInfo['unit_of_currency'] == "EURO") {
       _saleCurrencySembol = "€";
     }
-    print("satiş bilgi : ${_saleInfo}");
+  }
+
+  ///Faturanın silindiği yer Orjinal Veris
+  deleteInvoiceOrjinalSource(int invoiceNumber) async {
+    await db.deleteInvoice(invoiceNumber);
+
+    _soldListManipulatorByHeader
+        .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
+    calculateRowTotalPaymentBalance(_soldListManipulatorByHeader);
+    _streamControllerSoldList.add(_soldListManipulatorByHeader);
+  }
+
+  ///Faturanın silindiği yer Filtre
+  deleteInvoiceFiltreSource(int invoiceNumber) async {
+    await db.deleteInvoice(invoiceNumber);
+
+    _soldListWithFiltre
+        .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
+    calculateRowTotalPaymentBalance(_soldListWithFiltre);
+    _streamControllerSoldList.add(_soldListWithFiltre);
+  }
+
+  ///Fatura silindikten sonra Row Hesabı yapıyor
+  calculateRowTotalPaymentBalance(List<Map<String, dynamic>> resSoldList) {
+    _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
+    double totalPayment = 0, totalPrice = 0, totalBalance = 0;
+
+    //Sales tablosundan gelen veriler
+    for (var element in resSoldList) {
+      totalPayment += FormatterConvert().commaToPointDouble(element['payment']);
+      totalPrice +=
+          FormatterConvert().commaToPointDouble(element['totalPrice']);
+      totalBalance += FormatterConvert().commaToPointDouble(element['balance']);
+    }
+
+    _calculationRow['totalPrice'] = totalPrice;
+    _calculationRow['totalPayment'] = totalPayment;
+    _calculationRow['balance'] = totalBalance;
   }
 }

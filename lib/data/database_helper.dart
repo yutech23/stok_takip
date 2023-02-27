@@ -952,6 +952,7 @@ class DbHelper {
     List<Map<String, dynamic>> resSold = [];
     List<Map<String, dynamic>> resCustomerSoleInfo = [];
     List<Map<String, dynamic>> resCustomerCompanyInfo = [];
+    List<Map<String, dynamic>> resCari = [];
 
     try {
       resSold = await db.supabase.from('sales').select('*');
@@ -964,6 +965,9 @@ class DbHelper {
           .from('customer_sole_trader')
           .select('type,customer_id,name,last_name,phone');
 
+      resCari = await db.supabase.from('cari').select('*');
+      print(resCari);
+      print("*****************");
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
           if (element['customer_type'] == item['type'] &&
@@ -990,7 +994,7 @@ class DbHelper {
           }
         }
       }
-
+      print(resSold);
       /* print("yeni deger. ${resSold[0]}");
       print("yeni deger. ${resSold[1]}");
       print("yeni deger. ${resSold[2]}");
@@ -1049,6 +1053,7 @@ class DbHelper {
     }
   }
 
+  ///Fatura ile Satış bilgilerini alma
   Future<Map<String, dynamic>> fetchSaleInfoByInvocice(int invoiceId) async {
     Map<String, dynamic> res = {};
     Map<String, dynamic> resCustomerInfo = {};
@@ -1088,6 +1093,45 @@ class DbHelper {
     } on PostgrestException catch (e) {
       print("Satış Detaylar satış Hata :${e.message}");
       return res;
+    }
+  }
+
+  ///Fatura silme işlemi
+  deleteInvoice(int invoiceNumber) async {
+    List<Map<String, dynamic>> res = [];
+    List<dynamic> resSoldList = [];
+    try {
+      resSoldList = await db.supabase
+          .from('sales_detail')
+          .select('product_code,product_amount')
+          .eq('sales_fk', invoiceNumber);
+
+      for (var element in resSoldList) {
+        var currentAmount = await db.supabase
+            .from('product')
+            .select('current_amount_of_stock')
+            .eq('product_code', element['product_code'])
+            .single();
+
+        await db.supabase.from('product').update({
+          'current_amount_of_stock': element['product_amount'] +
+              currentAmount['current_amount_of_stock']
+        }).match({'product_code': element['product_code']});
+      }
+
+      ///detay tablosunda siliyor.
+      res = await db.supabase
+          .from('sales_detail')
+          .delete()
+          .match({'sales_fk': invoiceNumber}).select();
+
+      ///Satış tablosunda siliyor.
+      await db.supabase
+          .from('sales')
+          .delete()
+          .match({'invoice_number': invoiceNumber});
+    } on PostgrestException catch (e) {
+      print("Fatura Silme Hatası : ${e.message}");
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_cari.dart';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -166,6 +167,7 @@ class _ScreenCariState extends State<ScreenCari> {
                 icon: const Icon(Icons.delete),
                 onPressed: () {
                   ///Stok bitmeden silmeyi engelliyor.
+                  widgetDeleteInvoice(row['invoiceNumber']);
                 },
               ),
               row['invoiceNumber'] != "-"
@@ -178,6 +180,7 @@ class _ScreenCariState extends State<ScreenCari> {
                         onPressed: () async {
                           ///satır bilgisi aktarılıyor
                           _blocCari.setterRowCustomerInfo = row;
+                          //  print(row);
 
                           ///Fatura No'suna göre detaylar geliyor.
                           await _blocCari.getSaleDetail(row['invoiceNumber']);
@@ -886,5 +889,73 @@ class _ScreenCariState extends State<ScreenCari> {
             ),
           ),
         ));
+  }
+
+  ///Silme buttonu
+  widgetDeleteInvoice(int invoiceNumber) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            contentPadding: context.extensionPadding20(),
+            actionsAlignment: MainAxisAlignment.center,
+            title: Text(
+                textAlign: TextAlign.center,
+                'Ürünü silmek istediğinizden emin misiniz?',
+                style: context.theme.headline6!
+                    .copyWith(fontWeight: FontWeight.bold)),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 40,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Hayır")),
+                  ),
+                  SizedBox(
+                    width: 100,
+                    height: 40,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          ///Sadece Müşteri seçildiğinde
+                          if (_controllerSearchByName.text.isNotEmpty &&
+                              _controllerStartDate.text == "" &&
+                              _controllerEndDate.text == "") {
+                            await _blocCari
+                                .deleteInvoiceOrjinalSource(invoiceNumber);
+                            //Müşteri ve Tarihler seçildiğinde
+                          } else if (_controllerSearchByName.text.isNotEmpty &&
+                              _controllerStartDate.text.isNotEmpty &&
+                              _controllerEndDate.text.isNotEmpty) {
+                            await _blocCari
+                                .deleteInvoiceFiltreSource(invoiceNumber);
+                            //Sadece Tarih seçildiğinde
+                          } else if (_controllerStartDate.text.isNotEmpty &&
+                              _controllerEndDate.text.isNotEmpty &&
+                              _controllerSearchByName.text == "") {
+                            await _blocCari
+                                .deleteInvoiceFiltreSource(invoiceNumber);
+                            //Tümü Boş iken buda o günkü satışları getirir
+                          } else if (_controllerSearchByName.text == "" &&
+                              _controllerStartDate.text == "" &&
+                              _controllerEndDate.text == "") {
+                            await _blocCari
+                                .deleteInvoiceOrjinalSource(invoiceNumber);
+                          }
+
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Evet")),
+                  )
+                ],
+              ),
+            ],
+          );
+        });
   }
 }
