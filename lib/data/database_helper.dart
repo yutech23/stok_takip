@@ -916,8 +916,7 @@ class DbHelper {
       String customerType, int customerId) async {
     final res = await db.supabase
         .from('cari')
-        .select(
-            'payment_date,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,seller')
+        .select('*')
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
     return res;
@@ -948,15 +947,20 @@ class DbHelper {
   }
 
   /// Seçilen tarih aralığına göre yapılan işlemler geliyor
-  Future<List<dynamic>> fetchCariByOnlyDateTime() async {
+  Future<List<dynamic>> fetchCariByOnlyDateTime(
+      DateTime startTime, DateTime endTime) async {
     List<Map<String, dynamic>> resSold = [];
     List<Map<String, dynamic>> resCustomerSoleInfo = [];
     List<Map<String, dynamic>> resCustomerCompanyInfo = [];
     List<Map<String, dynamic>> resCari = [];
 
     try {
-      resSold = await db.supabase.from('sales').select('*');
-
+      resSold = await db.supabase
+          .from('sales')
+          .select<List<Map<String, dynamic>>>('*')
+          .lt('sale_date', endTime)
+          .gt('sale_date', startTime);
+      print(resSold);
       resCustomerCompanyInfo = await db.supabase
           .from('customer_company')
           .select('type,customer_id,name,phone');
@@ -965,9 +969,12 @@ class DbHelper {
           .from('customer_sole_trader')
           .select('type,customer_id,name,last_name,phone');
 
-      resCari = await db.supabase.from('cari').select('*');
+      resCari = await db.supabase
+          .from('cari')
+          .select<List<Map<String, dynamic>>>('*')
+          .lt('payment_date', endTime)
+          .gt('payment_date', startTime);
       print(resCari);
-      print("*****************");
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
           if (element['customer_type'] == item['type'] &&
@@ -994,7 +1001,40 @@ class DbHelper {
           }
         }
       }
-      print(resSold);
+
+      ///Cari Tabloları
+      for (var element in resCari) {
+        for (var item in resCustomerSoleInfo) {
+          if (element['customer_type'] == item['type'] &&
+              element['customer_fk'] == item['customer_id']) {
+            //verilerde tekrar oluyor o yüzden siliniyor.
+            element.addAll({'sale_date': element['payment_date']});
+            element.remove('payment_date');
+            element.addAll({
+              'name': item['name'] + " " + item['last_name'],
+              'phone': item['phone']
+            });
+            resSold.addAll({element});
+            break;
+          }
+        }
+      }
+
+      for (var element in resCari) {
+        for (var item in resCustomerCompanyInfo) {
+          if (element['customer_type'] == item['type'] &&
+              element['customer_fk'] == item['customer_id']) {
+            //verilerde tekrar oluyor o yüzden siliniyor.
+            element.addAll({'sale_date': element['payment_date']});
+            element.remove('payment_date');
+            element.addAll({'name': item['name'], 'phone': item['phone']});
+            resSold.addAll({element});
+            break;
+          }
+        }
+      }
+
+      // print(resSold);
       /* print("yeni deger. ${resSold[0]}");
       print("yeni deger. ${resSold[1]}");
       print("yeni deger. ${resSold[2]}");
@@ -1097,7 +1137,7 @@ class DbHelper {
   }
 
   ///Fatura silme işlemi
-  deleteInvoice(int invoiceNumber) async {
+  deleteInvoiceSales(int invoiceNumber) async {
     List<Map<String, dynamic>> res = [];
     List<dynamic> resSoldList = [];
     try {
@@ -1130,6 +1170,21 @@ class DbHelper {
           .from('sales')
           .delete()
           .match({'invoice_number': invoiceNumber});
+    } on PostgrestException catch (e) {
+      print("Fatura Silme Hatası : ${e.message}");
+    }
+  }
+
+  ///Cari silme işlemi
+  deleteInvoiceCari(int cariId) async {
+    List<Map<String, dynamic>> res = [];
+    List<dynamic> resSoldList = [];
+    try {
+      ///cari tablosunda siliyor.
+      res = await db.supabase
+          .from('cari')
+          .delete()
+          .match({'cari_id': cariId}).select();
     } on PostgrestException catch (e) {
       print("Fatura Silme Hatası : ${e.message}");
     }

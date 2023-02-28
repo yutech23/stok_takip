@@ -148,7 +148,7 @@ class _ScreenCariState extends State<ScreenCari> {
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Detay",
+        text: "Sil ve Detay",
         value: "detail",
         show: true,
         sortable: false,
@@ -167,10 +167,10 @@ class _ScreenCariState extends State<ScreenCari> {
                 icon: const Icon(Icons.delete),
                 onPressed: () {
                   ///Stok bitmeden silmeyi engelliyor.
-                  widgetDeleteInvoice(row['invoiceNumber']);
+                  widgetDeleteInvoice(row['invoiceNumber'], row['totalPrice']);
                 },
               ),
-              row['invoiceNumber'] != "-"
+              row['totalPrice'] != "-"
                   ? Container(
                       child: IconButton(
                         iconSize: 20,
@@ -459,7 +459,7 @@ class _ScreenCariState extends State<ScreenCari> {
                 _controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty) {
               await _blocCari.getSoldListOfSelectedCustomer();
-              _blocCari.filtreSoldListByDateTime();
+              await _blocCari.filtreSoldListByDateTime();
               //Sadece Tarih seçildiğinde
             } else if (_controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty &&
@@ -892,7 +892,7 @@ class _ScreenCariState extends State<ScreenCari> {
   }
 
   ///Silme buttonu
-  widgetDeleteInvoice(int invoiceNumber) {
+  widgetDeleteInvoice(int invoiceNumber, String totalPrice) {
     showDialog(
         context: context,
         builder: (context) {
@@ -926,26 +926,26 @@ class _ScreenCariState extends State<ScreenCari> {
                           if (_controllerSearchByName.text.isNotEmpty &&
                               _controllerStartDate.text == "" &&
                               _controllerEndDate.text == "") {
-                            await _blocCari
-                                .deleteInvoiceOrjinalSource(invoiceNumber);
+                            await _blocCari.deleteInvoiceOrjinalSource(
+                                invoiceNumber, totalPrice);
                             //Müşteri ve Tarihler seçildiğinde
                           } else if (_controllerSearchByName.text.isNotEmpty &&
                               _controllerStartDate.text.isNotEmpty &&
                               _controllerEndDate.text.isNotEmpty) {
-                            await _blocCari
-                                .deleteInvoiceFiltreSource(invoiceNumber);
+                            await _blocCari.deleteInvoiceFiltreSource(
+                                invoiceNumber, totalPrice);
                             //Sadece Tarih seçildiğinde
                           } else if (_controllerStartDate.text.isNotEmpty &&
                               _controllerEndDate.text.isNotEmpty &&
                               _controllerSearchByName.text == "") {
-                            await _blocCari
-                                .deleteInvoiceFiltreSource(invoiceNumber);
+                            await _blocCari.deleteInvoiceFiltreSource(
+                                invoiceNumber, totalPrice);
                             //Tümü Boş iken buda o günkü satışları getirir
                           } else if (_controllerSearchByName.text == "" &&
                               _controllerStartDate.text == "" &&
                               _controllerEndDate.text == "") {
-                            await _blocCari
-                                .deleteInvoiceOrjinalSource(invoiceNumber);
+                            await _blocCari.deleteInvoiceOrjinalSource(
+                                invoiceNumber, totalPrice);
                           }
 
                           Navigator.pop(context);

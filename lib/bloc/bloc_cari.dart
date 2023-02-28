@@ -141,7 +141,7 @@ class BlocCari {
     _streamControllerAllCustomer.sink.add(_allCustomerAndSuppliers);
   }
 
-  ///Yapılan satışların listesi
+  ///Seçilen Müşterinin carisi getiriliyor
   Future getSoldListOfSelectedCustomer() async {
     _expanded.clear();
     _soldListManipulatorByHeader.clear();
@@ -153,6 +153,7 @@ class BlocCari {
     final resSoldList = await db.fetchSoldListOfSelectedCustomerById(
         _selectedCustomer['type']!, _customerId);
 
+    ///cari tablodan seçilen müşterinin verileri geliyor.Alınan ödemeler
     final resCariList = await db.fetchCariPayListOfSelectedCustomerById(
         _selectedCustomer['type']!, _customerId);
 
@@ -188,6 +189,7 @@ class BlocCari {
 
     //Cari tablosundan gelen Veriler
     for (var element in resCariList) {
+      print(element);
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['payment_date']).toLocal());
 
@@ -204,7 +206,7 @@ class BlocCari {
       _soldListManipulatorByHeader.add({
         'dateTime': dateTime,
         'type': _selectedCustomer['type'],
-        'invoiceNumber': '-',
+        'invoiceNumber': element['cari_id'],
         'customerName': _selectedCustomer['name'],
         'totalPrice': '-',
         'payment': FormatterConvert().currencyShow(totalPayment),
@@ -248,11 +250,7 @@ class BlocCari {
     return await db.insertCariBySelectedCustomer(cariGetPay);
   }
 
-/*----------------------TARİHİ ALMA------------------------------- */
-
-/*---------------------------------------------------------------- */
-
-  ///Zamana Göre Filtre
+  ///Müşteri belli olduktan sonra Zamana Göre Filtre
   filtreSoldListByDateTime() {
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
     _soldListWithFiltre.clear();
@@ -297,17 +295,15 @@ class BlocCari {
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
-    final resSoldList = await db.fetchCariByOnlyDateTime();
+    final resSoldList = await db.fetchCariByOnlyDateTime(_startTime, _endTime);
 
     for (var element in resSoldList) {
       DateTime convertTemp = DateTime.parse(element['sale_date']).toLocal();
 
-      if (convertTemp.compareTo(_startTime) >= 0 &&
-          convertTemp.compareTo(_endTime) <= 0) {
-        ///Ekrana basmak için dateTime tipini String ve uygun formata çeviriyoruz.
-        String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-            .format(DateTime.parse(element['sale_date']).toLocal());
+      String dateTime = DateFormat("dd/MM/yyyy HH:mm")
+          .format(DateTime.parse(element['sale_date']).toLocal());
 
+      if (element['kdv_rate'] != null) {
         double totalPayment = element['cash_payment'] +
             element['bankcard_payment'] +
             element['eft_havale_payment'];
@@ -322,6 +318,11 @@ class BlocCari {
         _calculationRow['totalPayment'] =
             _calculationRow['totalPayment']! + totalPayment;
 
+        ///kalan Tutar Burada Hesaplanıyor.Çünkü sadece sales tablosunda balance
+        ///olduğundan.
+        _calculationRow['balance'] =
+            _calculationRow['balance']! + (totalPrice - totalPayment);
+
         _soldListManipulatorByHeader.add({
           'dateTime': dateTime,
           'type': element['customer_type'],
@@ -331,6 +332,26 @@ class BlocCari {
           'payment': FormatterConvert().currencyShow(totalPayment),
           'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
         });
+      } else {
+        double totalPayment = element['cash_payment'] +
+            element['bankcard_payment'] +
+            element['eft_havale_payment'];
+
+        ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+        ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+        ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
+        _calculationRow['totalPayment'] =
+            _calculationRow['totalPayment']! + totalPayment;
+
+        _soldListManipulatorByHeader.add({
+          'dateTime': dateTime,
+          'type': element['customer_type'],
+          'invoiceNumber': element['cari_id'],
+          'customerName': element['name'],
+          'totalPrice': '-',
+          'payment': FormatterConvert().currencyShow(totalPayment),
+          'balance': "-"
+        });
       }
     }
 
@@ -339,10 +360,6 @@ class BlocCari {
     _soldListManipulatorByHeader.sort((m1, m2) => DateFormat('dd/MM/yyyy HH:mm')
         .parse(m2['dateTime'])
         .compareTo(DateFormat('dd/MM/yyyy HH:mm').parse(m1['dateTime'])));
-
-    ///kalan Tutar Burada Hesaplanıyor.
-    _calculationRow['balance'] =
-        _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
 
     _expanded =
         List.generate(_soldListManipulatorByHeader.length, (index) => false);
@@ -432,9 +449,13 @@ class BlocCari {
     }
   }
 
-  ///Faturanın silindiği yer Orjinal Veris
-  deleteInvoiceOrjinalSource(int invoiceNumber) async {
-    await db.deleteInvoice(invoiceNumber);
+  ///Faturanın silindiği yer Orjinal Veri
+  deleteInvoiceOrjinalSource(int invoiceNumber, String totalPrice) async {
+    if (totalPrice != "-") {
+      await db.deleteInvoiceSales(invoiceNumber);
+    } else {
+      await db.deleteInvoiceCari(invoiceNumber);
+    }
 
     _soldListManipulatorByHeader
         .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
@@ -443,8 +464,12 @@ class BlocCari {
   }
 
   ///Faturanın silindiği yer Filtre
-  deleteInvoiceFiltreSource(int invoiceNumber) async {
-    await db.deleteInvoice(invoiceNumber);
+  deleteInvoiceFiltreSource(int invoiceNumber, String totalPrice) async {
+    if (totalPrice != "-") {
+      await db.deleteInvoiceSales(invoiceNumber);
+    } else {
+      await db.deleteInvoiceCari(invoiceNumber);
+    }
 
     _soldListWithFiltre
         .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
@@ -459,14 +484,21 @@ class BlocCari {
 
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
-      totalPayment += FormatterConvert().commaToPointDouble(element['payment']);
-      totalPrice +=
-          FormatterConvert().commaToPointDouble(element['totalPrice']);
-      totalBalance += FormatterConvert().commaToPointDouble(element['balance']);
+      if (element['totalPrice'] != "-") {
+        totalPayment +=
+            FormatterConvert().commaToPointDouble(element['payment']);
+        totalPrice +=
+            FormatterConvert().commaToPointDouble(element['totalPrice']);
+        totalBalance +=
+            FormatterConvert().commaToPointDouble(element['balance']);
+      } else {
+        totalPayment +=
+            FormatterConvert().commaToPointDouble(element['payment']);
+      }
     }
 
     _calculationRow['totalPrice'] = totalPrice;
     _calculationRow['totalPayment'] = totalPayment;
-    _calculationRow['balance'] = totalBalance;
+    _calculationRow['balance'] = totalPrice - totalPayment;
   }
 }
