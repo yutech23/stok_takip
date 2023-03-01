@@ -31,13 +31,13 @@ class _MyDrawerState extends State<MyDrawer> {
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
     'RouteSale',
-    'RouteCustomerRegister',
-    'RouteSignUp',
-    'RouteCategoryEdit',
-    'RouteProductAdd',
-    'RouteStockEdit',
     'RouteCari',
-    'Test',
+    'RouteStockEdit',
+    'RouteProductAdd',
+    'RouteCustomerRegister',
+    'RouteCategoryEdit',
+    'RouteSignUp',
+    // 'Test',
   ];
 
   late List<Widget> listWidgetMenuByRole = [];

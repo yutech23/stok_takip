@@ -14,9 +14,9 @@ class AuthController {
   bool isAuth = false;
   String role = '';
 
-  /*  bool isAuth = true;
-  String role = '1'; */
-
+/*   bool isAuth = true;
+  String role = '1';
+ */
   setAuthTrue() {
     isAuth = true;
   }

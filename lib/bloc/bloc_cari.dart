@@ -298,6 +298,7 @@ class BlocCari {
   }
 
   ///Sadece Tarih Seçildiğinde
+
   getOnlyUseDateTimeForSoldList() async {
     _expanded.clear();
     _soldListManipulatorByHeader.clear();

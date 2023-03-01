@@ -15,6 +15,8 @@ class ResponsiveDatatable extends StatefulWidget {
   final Widget? title;
   final List<Widget>? actions;
   final List<Widget>? footers;
+  final Decoration? footerDecoration;
+  final double? footerHeight;
   final List<ExportAction>? exports;
   final Function(bool? value)? onSelectAll;
   final Function(bool? value, Map<String, dynamic> data)? onSelect;
@@ -67,44 +69,46 @@ class ResponsiveDatatable extends StatefulWidget {
 
   double rowHeight;
 
-  ResponsiveDatatable({
-    Key? key,
-    this.showSelect = false,
-    this.onSelectAll,
-    this.onSelect,
-    this.onTabRow,
-    this.onSort,
-    this.headers = const [],
-    this.source,
-    this.exports,
-    this.selecteds,
-    this.title,
-    this.actions,
-    this.footers,
-    this.sortColumn,
-    this.sortAscending,
-    this.isLoading = false,
-    this.autoHeight = true,
-    this.hideUnderline = true,
-    this.commonMobileView = false,
-    this.isExpandRows = true,
-    this.expanded,
-    this.dropContainer,
-    this.onChangedRow,
-    this.onSubmittedRow,
-    this.reponseScreenSizes = const [
-      ScreenSize.xs,
-      ScreenSize.sm,
-      ScreenSize.md
-    ],
-    this.headerDecoration,
-    this.rowDecoration,
-    this.selectedDecoration,
-    this.headerTextStyle,
-    this.rowTextStyle,
-    this.selectedTextStyle,
-    this.rowHeight = 40,
-  }) : super(key: key);
+  ResponsiveDatatable(
+      {Key? key,
+      this.showSelect = false,
+      this.onSelectAll,
+      this.onSelect,
+      this.onTabRow,
+      this.onSort,
+      this.headers = const [],
+      this.source,
+      this.exports,
+      this.selecteds,
+      this.title,
+      this.actions,
+      this.footers,
+      this.sortColumn,
+      this.sortAscending,
+      this.isLoading = false,
+      this.autoHeight = true,
+      this.hideUnderline = true,
+      this.commonMobileView = false,
+      this.isExpandRows = true,
+      this.expanded,
+      this.dropContainer,
+      this.onChangedRow,
+      this.onSubmittedRow,
+      this.reponseScreenSizes = const [
+        ScreenSize.xs,
+        ScreenSize.sm,
+        ScreenSize.md
+      ],
+      this.headerDecoration,
+      this.rowDecoration,
+      this.selectedDecoration,
+      this.headerTextStyle,
+      this.rowTextStyle,
+      this.selectedTextStyle,
+      this.rowHeight = 40,
+      this.footerDecoration,
+      this.footerHeight})
+      : super(key: key);
 
   @override
   _ResponsiveDatatableState createState() => _ResponsiveDatatableState();
@@ -461,11 +465,12 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             widget.reponseScreenSizes.contains(context.screenSize)
         ?
 
+        ///Print ekrana çıkabilmesi için Action veya Title birinin dolu olması gerek.
         /// for small screen
         Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              /// title and actions
+              /// title and actions (Tablo üstünde bulunan yer)
               if (widget.title != null || widget.actions != null)
                 Container(
                   padding: const EdgeInsets.all(5),
@@ -487,7 +492,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                                 icon: const Icon(Icons.print)),
                         ],
                       ),
-                      if (widget.actions != null) ...widget.actions!
+
+                      if (widget.actions != null) ...widget.actions!,
                     ],
                   ),
                 ),
@@ -509,18 +515,26 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                       if (widget.showSelect && widget.selecteds != null)
                         mobileHeader(),
                       if (widget.isLoading) const LinearProgressIndicator(),
-
-                      /// mobileList
-                      ...mobileList(),
+                      if (widget.source != null && widget.source!.isNotEmpty)
+                        ...mobileList(),
+                      if (widget.source == null || widget.source!.isEmpty)
+                        Center(
+                          child: Text(""),
+                        )
                     ],
                   ),
                 ),
 
               /// footer
               if (widget.footers != null)
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [...widget.footers!],
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(5),
+                  decoration: widget.footerDecoration,
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [...widget.footers!],
+                  ),
                 )
             ],
           )
@@ -565,6 +579,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
 
               if (!widget.autoHeight)
                 // desktopList
+
                 if (widget.source != null && widget.source!.isNotEmpty)
                   Expanded(child: ListView(children: desktopList())),
               if (widget.source == null || widget.source!.isEmpty)
@@ -575,9 +590,19 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
 
               //footer
               if (widget.footers != null)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [...widget.footers!],
+                Container(
+                  width: double.infinity,
+                  height: widget.footerHeight,
+                  padding: const EdgeInsets.all(5),
+                  decoration: widget.footerDecoration,
+                  alignment: Alignment.centerRight,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [...widget.footers!],
+                    ),
+                  ),
                 )
             ],
           );

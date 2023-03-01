@@ -25,6 +25,7 @@ class ScreenCari extends StatefulWidget {
 
 class _ScreenCariState extends State<ScreenCari> {
   final _formKeyCari = GlobalKey<FormState>();
+  late double _screenWidth;
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
@@ -55,8 +56,7 @@ class _ScreenCariState extends State<ScreenCari> {
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-
-  final List<Map<String, dynamic>> _selected = [];
+  List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 745;
   final double _dataTableHeight = 710;
 /*------------------------------------------------------------------------- */
@@ -93,7 +93,7 @@ class _ScreenCariState extends State<ScreenCari> {
   @override
   void initState() {
     _blocCari = BlocCari();
-    _blocCari.getOnlyUseDateTimeForSoldList();
+    //  _blocCari.getOnlyUseDateTimeForSoldList();
     _selectDateTimeRange =
         DateTimeRange(start: _startDateTime, end: _endDateTime);
     /*-------------------DATATABLE--------------------------------------- */
@@ -222,7 +222,9 @@ class _ScreenCariState extends State<ScreenCari> {
 
   @override
   Widget build(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
 
@@ -279,6 +281,7 @@ class _ScreenCariState extends State<ScreenCari> {
                     ),
                     context.extensionHighSizedBox10(),
                     widgetGetCariByName(),
+                    context.extensionHighSizedBox10(),
                     widgetDateTable(),
                   ]),
                   widgetPaymentInformationSection()
@@ -380,8 +383,12 @@ class _ScreenCariState extends State<ScreenCari> {
   widgetGetCariByName() {
     return SizedBox(
         width: _dataTableWidth,
-        height: _shareHeightInputTextField,
-        child: Row(
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 10,
+          runSpacing: 10,
+          direction: Axis.horizontal,
+          runAlignment: WrapAlignment.center,
           children: [
             StreamBuilder<List<Map<String, String>>>(
                 stream: _blocCari.getStreamAllCustomer,
@@ -399,11 +406,14 @@ class _ScreenCariState extends State<ScreenCari> {
                           item: element['type']));
                     }
                   }
-                  return Expanded(
+                  return Container(
+                    constraints:
+                        const BoxConstraints(minWidth: 360, maxWidth: 555),
                     child: SearchField(
                       searchHeight: _shareHeightInputTextField,
                       itemHeight: _searchByNameItemHeight,
                       searchInputDecoration: InputDecoration(
+                          isDense: true,
                           errorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(),
                           ),
@@ -439,7 +449,6 @@ class _ScreenCariState extends State<ScreenCari> {
                     ),
                   );
                 }),
-            context.extensionWidhSizedBox10(),
             widgetButtonCariGetir(),
           ],
         ));
@@ -447,11 +456,12 @@ class _ScreenCariState extends State<ScreenCari> {
 
   ///Button Cari Getir
   widgetButtonCariGetir() {
-    return SizedBox(
-      width: 180,
+    return Container(
+      width: (_screenWidth >= 450) ? 180 : 360,
       child: ElevatedButton.icon(
           icon: const Icon(Icons.format_list_bulleted_sharp),
-          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+          style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.zero, maximumSize: Size(360, 50)),
           onPressed: () async {
             ///Sadece Müşteri seçildiğinde
             if (_controllerSearchByName.text.isNotEmpty &&
@@ -494,17 +504,6 @@ class _ScreenCariState extends State<ScreenCari> {
         child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: _blocCari.getStreamSoldList.stream,
             builder: (context, snapshot) {
-              /*   List<Map<String, dynamic>> bos = [
-                {
-                  'dateTime': '',
-                  'type': '',
-                  'customerName': '',
-                  'invoiceNumber': '',
-                  'totalPrice': '',
-                  'payment': '',
-                  'balance': ''
-                }
-              ]; */
               if (snapshot.hasData && !snapshot.hasError) {}
 
               return ResponsiveDatatable(
@@ -512,60 +511,52 @@ class _ScreenCariState extends State<ScreenCari> {
                 reponseScreenSizes: const [ScreenSize.xs],
                 headers: _headers,
                 source: snapshot.data,
-                selecteds: _selected,
+                selecteds: _selecteds,
                 expanded: _blocCari.getterExpandad,
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
                 actions: [],
+                footerDecoration:
+                    BoxDecoration(color: context.extensionDefaultColor),
                 footers: [
-                  Expanded(
-                    child: Container(
-                      decoration:
-                          BoxDecoration(color: context.extensionDefaultColor),
-                      height:
-                          40, //Fotter kısmın yüksekliği bozulmasın diye belirtim
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: RichText(
-                        text: TextSpan(
-                            text: "Toplam Tutar : ",
-                            style: context.theme.titleMedium!.copyWith(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                                color: Colors.white),
-                            children: [
-                              TextSpan(
-                                text: FormatterConvert().currencyShow(_blocCari
-                                    .getterCalculationRow['totalPrice']),
-                                style: context.theme.titleMedium!
-                                    .copyWith(color: Colors.white),
-                              ),
-                              TextSpan(
-                                  text: "   Ödenen Tutar : ",
-                                  style: const TextStyle(
-                                      color: Colors.white, letterSpacing: 1),
-                                  children: [
-                                    TextSpan(
-                                        text: FormatterConvert().currencyShow(
-                                            _blocCari.getterCalculationRow[
-                                                'totalPayment']),
-                                        style: context.theme.titleMedium!
-                                            .copyWith(color: Colors.white))
-                                  ]),
-                              TextSpan(text: "   Kalan Tutar : ", children: [
+                  RichText(
+                    overflow: TextOverflow.visible,
+                    text: TextSpan(
+                        text: "Toplam Tutar : ",
+                        style: context.theme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                            color: Colors.white),
+                        children: [
+                          TextSpan(
+                            text: FormatterConvert().currencyShow(
+                                _blocCari.getterCalculationRow['totalPrice']),
+                            style: context.theme.titleMedium!
+                                .copyWith(color: Colors.white),
+                          ),
+                          TextSpan(
+                              text: "   Ödenen Tutar : ",
+                              style: const TextStyle(
+                                  color: Colors.white, letterSpacing: 1),
+                              children: [
                                 TextSpan(
                                     text: FormatterConvert().currencyShow(
-                                        _blocCari
-                                            .getterCalculationRow['balance']),
-                                    style: context.theme.titleMedium!.copyWith(
-                                        letterSpacing: 1,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white))
+                                        _blocCari.getterCalculationRow[
+                                            'totalPayment']),
+                                    style: context.theme.titleMedium!
+                                        .copyWith(color: Colors.white))
                               ]),
-                            ]),
-                      ),
-                    ),
+                          TextSpan(text: "   Kalan Tutar : ", children: [
+                            TextSpan(
+                                text: FormatterConvert().currencyShow(
+                                    _blocCari.getterCalculationRow['balance']),
+                                style: context.theme.titleMedium!.copyWith(
+                                    letterSpacing: 1,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white))
+                          ]),
+                        ]),
                   ),
                 ],
                 headerDecoration: BoxDecoration(
