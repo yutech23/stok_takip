@@ -14,7 +14,17 @@ class BlocCari {
   List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
   final List<Map<String, String>> _allCustomerAndSuppliers = [];
   Map<String, String> _selectedCustomer = {};
-  final List<Map<String, dynamic>> _soldListManipulatorByHeader = [];
+  final List<Map<String, dynamic>> _soldListManipulatorByHeader = [
+    {
+      'dateTime': '',
+      'type': '',
+      'customerName': '',
+      'invoiceNumber': '',
+      'totalPrice': '',
+      'payment': '',
+      'balance': ''
+    }
+  ];
   final List<Map<String, dynamic>> _soldListWithFiltre = [];
   List<bool> _expanded = [false];
   int _customerId = -1; //-1 hiç bir id yok

@@ -1,3 +1,8 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../data/database_helper.dart';
+import '../data/user_security_storage.dart';
+
 class AuthController {
   AuthController.init();
 
@@ -6,18 +11,18 @@ class AuthController {
   factory AuthController() {
     return _singlatonAuthController;
   }
-  /*  bool isAuth = false;
-  String role = ''; */
+  bool isAuth = false;
+  String role = '';
 
-  bool isAuth = true;
-  String role = '1';
+  /*  bool isAuth = true;
+  String role = '1'; */
 
   setAuthTrue() {
     isAuth = true;
   }
 
   controllerAuth() async {
-    /*    // final user = await db.supabase.auth.currentUser;
+    // final user = await db.supabase.auth.currentUser;
     final Session? userSession = await db.supabase.auth.currentSession;
 
     if (userSession?.accessToken != null) {
@@ -28,7 +33,7 @@ class AuthController {
       //Browser Bulunan Local Storage veriler temizleniyor.
       SecurityStorageUser.deleteStorege();
     }
- */
+
     // Login Sayfasına yönlendiriliyor
   }
 }

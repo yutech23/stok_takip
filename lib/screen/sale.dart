@@ -179,8 +179,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             decoration: context.extensionThemaWhiteContainer(),
             child: Wrap(
                 alignment: WrapAlignment.center,
-                runSpacing: context.extensionWrapSpacing10(),
-                spacing: context.extensionWrapSpacing20(),
+                spacing: context.extensionWrapSpacing10(),
+                runSpacing: context.extensionWrapSpacing20(),
                 children: [
                   Column(
                       mainAxisSize: MainAxisSize.min,

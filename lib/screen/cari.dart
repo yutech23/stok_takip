@@ -50,6 +50,7 @@ class _ScreenCariState extends State<ScreenCari> {
   final String _labelGetCari = "Cari Getir";
   final String _labelSearchCustomerName = "Müşteri Adı";
   final double _searchByNameItemHeight = 30;
+  final _focusSearchCustomer = FocusNode();
 
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
@@ -92,6 +93,7 @@ class _ScreenCariState extends State<ScreenCari> {
   @override
   void initState() {
     _blocCari = BlocCari();
+    _blocCari.getOnlyUseDateTimeForSoldList();
     _selectDateTimeRange =
         DateTimeRange(start: _startDateTime, end: _endDateTime);
     /*-------------------DATATABLE--------------------------------------- */
@@ -224,7 +226,7 @@ class _ScreenCariState extends State<ScreenCari> {
       appBar: AppBar(
         title: Text(_labelHeading),
 
-        actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
+        iconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         // ignore: prefer_const_literals_to_create_immutables
         actions: [
           const ShareWidgetAppbarSetting(),
@@ -249,7 +251,7 @@ class _ScreenCariState extends State<ScreenCari> {
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Wrap(
-                alignment: WrapAlignment.start,
+                alignment: WrapAlignment.center,
                 runSpacing: context.extensionWrapSpacing10(),
                 spacing: context.extensionWrapSpacing20(),
                 direction: Axis.horizontal,
@@ -413,6 +415,7 @@ class _ScreenCariState extends State<ScreenCari> {
                           )),
                       controller: _controllerSearchByName,
                       suggestions: listSearch,
+                      focusNode: _focusSearchCustomer,
                       onSuggestionTap: (p0) {
                         ///Her şeçimde müşteri bilgileri atanıyor.
                         List<String> convertMap = p0.searchKey.split(' - ');
@@ -430,6 +433,7 @@ class _ScreenCariState extends State<ScreenCari> {
                             'phone': convertMap[2]
                           };
                         }
+                        _focusSearchCustomer.unfocus();
                       },
                       maxSuggestionsInViewPort: 6,
                     ),
@@ -490,7 +494,19 @@ class _ScreenCariState extends State<ScreenCari> {
         child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: _blocCari.getStreamSoldList.stream,
             builder: (context, snapshot) {
+              /*   List<Map<String, dynamic>> bos = [
+                {
+                  'dateTime': '',
+                  'type': '',
+                  'customerName': '',
+                  'invoiceNumber': '',
+                  'totalPrice': '',
+                  'payment': '',
+                  'balance': ''
+                }
+              ]; */
               if (snapshot.hasData && !snapshot.hasError) {}
+
               return ResponsiveDatatable(
                 exports: [ExportAction.print],
                 reponseScreenSizes: const [ScreenSize.xs],
