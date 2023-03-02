@@ -19,7 +19,8 @@ class ConstRoute {
   static const String userSetting = '/userSetting';
   static const String test = '/test';
   static const String sale = '/sale';
-  static const String cari = '/cari';
+  static const String cariCustomer = '/cariCustomer';
+  static const String cariSupplier = '/cariSupplier';
 }
 
 Sabitler sabitler = Sabitler();

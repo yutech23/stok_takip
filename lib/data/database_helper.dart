@@ -1182,10 +1182,10 @@ class DbHelper {
 
 /*---------------------------------------------------------------------- */
 /*----------------------------CARİ TEDARİKÇİ------------------------------ */
-  Future<List<dynamic>> fetchSuppliers() async {
+  Future<List<dynamic>> fetchCariSuppliers() async {
     List<dynamic> res = [];
     try {
-      res = await db.supabase.from('suppliers').select('name,type');
+      res = await db.supabase.from('suppliers').select('name,phone');
       return res;
     } on PostgrestException catch (e) {
       print("Hata Cari Tedarikci: ${e.message}");

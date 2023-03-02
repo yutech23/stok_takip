@@ -99,7 +99,7 @@ class MyApp extends StatelessWidget {
       routerDelegate:
           //   AutoRouterDelegate(_appRouter, initialRoutes: [const RouteLogin()]),
           AutoRouterDelegate(_appRouter,
-              initialRoutes: [const RouteCariCustomer()]),
+              initialRoutes: [const RouteCariSupplier()]),
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }

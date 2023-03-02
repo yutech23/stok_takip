@@ -1,5 +1,6 @@
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:stok_takip/screen/cari_supplier.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/product_add.dart';
 import 'package:stok_takip/screen/sale.dart';
@@ -69,7 +70,13 @@ import 'auth_guard.dart';
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
       page: ScreenCariCustomer,
-      path: ConstRoute.cari,
+      path: ConstRoute.cariCustomer,
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
+  CustomRoute(
+      page: ScreenCariSupplier,
+      path: ConstRoute.cariSupplier,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
