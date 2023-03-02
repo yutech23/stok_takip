@@ -253,7 +253,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   "Cari İşlemler",
                   ["Müşteri", "Tedarikçi"],
                   Icons.person_search,
-                  [const RouteCari(), const RouteCari()]));
+                  [const RouteCariCustomer()]));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(

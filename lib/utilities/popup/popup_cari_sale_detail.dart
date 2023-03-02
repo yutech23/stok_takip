@@ -1,7 +1,7 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:stok_takip/bloc/bloc_cari.dart';
+import 'package:stok_takip/bloc/bloc_cari_customer.dart';
 import 'package:stok_takip/modified_lib/responsive_datatable.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_func.dart';
@@ -16,7 +16,7 @@ import 'package:turkish/turkish.dart';
 
 // ignore: must_be_immutable
 class PopupSaleDetail extends StatefulWidget {
-  BlocCari blocCari;
+  BlocCariCustomer blocCari;
   PopupSaleDetail(this.blocCari, {super.key});
 
   @override
@@ -95,9 +95,9 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   buildSaleDetail() {
     return AlertDialog(
       scrollable: true,
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKeySupplier,
+      content: Form(
+        key: _formKeySupplier,
+        child: SingleChildScrollView(
           child: Container(
             padding: context.extensionPadding20(),
             alignment: Alignment.center,
@@ -244,59 +244,47 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             expanded: widget.blocCari.getterExpandedSaleDetail,
             autoHeight: false,
             footers: [
-              Expanded(
-                child: Container(
-                  decoration:
-                      BoxDecoration(color: context.extensionDefaultColor),
-                  height:
-                      30, //Fotter kısmın yüksekliği bozulmasın diye belirtim
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: RichText(
-                    text: TextSpan(
-                        text: "Toplam Tutar : ",
-                        style: context.theme.titleSmall!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                            color: Colors.white),
-                        children: [
-                          TextSpan(
-                            // ignore: prefer_interpolation_to_compose_strings
-                            text: FormatterConvert().currencyShow(
-                                    widget.blocCari.getterSaleInfo[
-                                        'total_payment_without_tax']) +
-                                " ${widget.blocCari.getterSaleCurrencySembol}",
-                            style: context.theme.titleSmall!
-                                .copyWith(color: Colors.white),
-                          ),
-                          TextSpan(
-                              text: "   KDV : ",
-                              style: const TextStyle(
-                                  color: Colors.white, letterSpacing: 1),
-                              children: [
-                                TextSpan(
-                                    text: widget
-                                        .blocCari.getterSaleInfo['kdv_rate']
-                                        .toString(),
-                                    style: context.theme.titleSmall!
-                                        .copyWith(color: Colors.white))
-                              ]),
-                          TextSpan(text: "   Toplam Tutar(KDV) : ", children: [
+              RichText(
+                text: TextSpan(
+                    text: "Toplam Tutar : ",
+                    style: context.theme.titleSmall!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                        color: Colors.white),
+                    children: [
+                      TextSpan(
+                        // ignore: prefer_interpolation_to_compose_strings
+                        text: FormatterConvert().currencyShow(widget.blocCari
+                                .getterSaleInfo['total_payment_without_tax']) +
+                            " ${widget.blocCari.getterSaleCurrencySembol}",
+                        style: context.theme.titleSmall!
+                            .copyWith(color: Colors.white),
+                      ),
+                      TextSpan(
+                          text: "   KDV : ",
+                          style: const TextStyle(
+                              color: Colors.white, letterSpacing: 1),
+                          children: [
                             TextSpan(
-                                // ignore: prefer_interpolation_to_compose_strings
-                                text: FormatterConvert().currencyShow(
-                                        shareFunc.calculateWithKDV(
-                                            widget.blocCari.getterSaleInfo[
-                                                'total_payment_without_tax'],
-                                            widget.blocCari
-                                                .getterSaleInfo['kdv_rate'])) +
-                                    " ${widget.blocCari.getterSaleCurrencySembol}",
+                                text: widget.blocCari.getterSaleInfo['kdv_rate']
+                                    .toString(),
                                 style: context.theme.titleSmall!
                                     .copyWith(color: Colors.white))
                           ]),
-                        ]),
-                  ),
-                ),
+                      TextSpan(text: "   Toplam Tutar(KDV) : ", children: [
+                        TextSpan(
+                            // ignore: prefer_interpolation_to_compose_strings
+                            text: FormatterConvert().currencyShow(
+                                    shareFunc.calculateWithKDV(
+                                        widget.blocCari.getterSaleInfo[
+                                            'total_payment_without_tax'],
+                                        widget.blocCari
+                                            .getterSaleInfo['kdv_rate'])) +
+                                " ${widget.blocCari.getterSaleCurrencySembol}",
+                            style: context.theme.titleSmall!
+                                .copyWith(color: Colors.white))
+                      ]),
+                    ]),
               ),
             ],
             headerDecoration: BoxDecoration(

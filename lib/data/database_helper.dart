@@ -841,7 +841,7 @@ class DbHelper {
   }
 
   /*---------------------------------------------------------------- */
-  /*-----------------------------CARİ EKRANIN İŞLEMLERİ-------------------- */
+  /*-----------------------------CARİ MÜŞTERİLER EKRANIN İŞLEMLERİ-------------------- */
 
   Future<List<dynamic>> fetchCustomerSolo() async {
     List<dynamic> res = [];
@@ -865,17 +865,6 @@ class DbHelper {
       return res;
     } on PostgrestException catch (e) {
       print("Hata Cari Firma: ${e.message}");
-      return res;
-    }
-  }
-
-  Future<List<dynamic>> fetchSuppliers() async {
-    List<dynamic> res = [];
-    try {
-      res = await db.supabase.from('suppliers').select('name,type');
-      return res;
-    } on PostgrestException catch (e) {
-      print("Hata Cari Tedarikci: ${e.message}");
       return res;
     }
   }
@@ -953,14 +942,15 @@ class DbHelper {
     List<Map<String, dynamic>> resCustomerSoleInfo = [];
     List<Map<String, dynamic>> resCustomerCompanyInfo = [];
     List<Map<String, dynamic>> resCari = [];
-
+    print(startTime);
+    print(endTime);
     try {
       resSold = await db.supabase
           .from('sales')
           .select<List<Map<String, dynamic>>>('*')
           .lt('sale_date', endTime)
           .gt('sale_date', startTime);
-      print(resSold);
+
       resCustomerCompanyInfo = await db.supabase
           .from('customer_company')
           .select('type,customer_id,name,phone');
@@ -1187,6 +1177,19 @@ class DbHelper {
           .match({'cari_id': cariId}).select();
     } on PostgrestException catch (e) {
       print("Fatura Silme Hatası : ${e.message}");
+    }
+  }
+
+/*---------------------------------------------------------------------- */
+/*----------------------------CARİ TEDARİKÇİ------------------------------ */
+  Future<List<dynamic>> fetchSuppliers() async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase.from('suppliers').select('name,type');
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Tedarikci: ${e.message}");
+      return res;
     }
   }
 }

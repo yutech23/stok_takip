@@ -14,7 +14,7 @@
 import 'package:auto_route/auto_route.dart' as _i12;
 import 'package:flutter/material.dart' as _i13;
 
-import '../../screen/cari.dart' as _i11;
+import '../../screen/cari_customer.dart' as _i11;
 import '../../screen/category_edit.dart' as _i6;
 import '../../screen/customer_register.dart' as _i7;
 import '../../screen/login.dart' as _i2;
@@ -132,10 +132,10 @@ class AppRouter extends _i12.RootStackRouter {
         barrierDismissible: false,
       );
     },
-    RouteCari.name: (routeData) {
+    RouteCariCustomer.name: (routeData) {
       return _i12.CustomPage<dynamic>(
         routeData: routeData,
-        child: const _i11.ScreenCari(),
+        child: const _i11.ScreenCariCustomer(),
         customRouteBuilder:
             _i15.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
@@ -195,7 +195,7 @@ class AppRouter extends _i12.RootStackRouter {
           guards: [authGuard],
         ),
         _i12.RouteConfig(
-          RouteCari.name,
+          RouteCariCustomer.name,
           path: '/cari',
           guards: [authGuard],
         ),
@@ -335,13 +335,13 @@ class RouteSale extends _i12.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i11.ScreenCari]
-class RouteCari extends _i12.PageRouteInfo<void> {
-  const RouteCari()
+/// [_i11.ScreenCariCustomer]
+class RouteCariCustomer extends _i12.PageRouteInfo<void> {
+  const RouteCariCustomer()
       : super(
-          RouteCari.name,
+          RouteCariCustomer.name,
           path: '/cari',
         );
 
-  static const String name = 'RouteCari';
+  static const String name = 'RouteCariCustomer';
 }

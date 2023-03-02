@@ -10,7 +10,7 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../data/database_mango.dart';
 import '../modified_lib/searchfield.dart';
 
-class BlocCari {
+class BlocCariCustomer {
   List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
   final List<Map<String, String>> _allCustomerAndSuppliers = [];
   Map<String, String> _selectedCustomer = {};
@@ -56,7 +56,7 @@ class BlocCari {
   String _saleCurrencySembol = "";
   Map<String?, dynamic> _rowCustomerInfo = {};
 
-  BlocCari() {
+  BlocCariCustomer() {
     getAllCustomerAndSuppliers();
   }
 
@@ -170,7 +170,7 @@ class BlocCari {
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']).toLocal());
+          .format(DateTime.parse(element['sale_date']));
 
       double totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
@@ -199,7 +199,6 @@ class BlocCari {
 
     //Cari tablosundan gelen Veriler
     for (var element in resCariList) {
-      print(element);
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['payment_date']).toLocal());
 
@@ -309,10 +308,10 @@ class BlocCari {
     final resSoldList = await db.fetchCariByOnlyDateTime(_startTime, _endTime);
 
     for (var element in resSoldList) {
-      DateTime convertTemp = DateTime.parse(element['sale_date']).toLocal();
+      DateTime convertTemp = DateTime.parse(element['sale_date']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']).toLocal());
+          .format(DateTime.parse(element['sale_date']));
 
       if (element['kdv_rate'] != null) {
         double totalPayment = element['cash_payment'] +
@@ -460,7 +459,7 @@ class BlocCari {
     }
   }
 
-  ///Faturanın silindiği yer Orjinal Veri
+  ///veri tabanında  Faturanın silindiği yer Orjinal Veri
   deleteInvoiceOrjinalSource(int invoiceNumber, String totalPrice) async {
     if (totalPrice != "-") {
       await db.deleteInvoiceSales(invoiceNumber);
@@ -474,7 +473,7 @@ class BlocCari {
     _streamControllerSoldList.add(_soldListManipulatorByHeader);
   }
 
-  ///Faturanın silindiği yer Filtre
+  ///veri tabanında Faturanın silindiği yer Filtre
   deleteInvoiceFiltreSource(int invoiceNumber, String totalPrice) async {
     if (totalPrice != "-") {
       await db.deleteInvoiceSales(invoiceNumber);
@@ -488,7 +487,8 @@ class BlocCari {
     _streamControllerSoldList.add(_soldListWithFiltre);
   }
 
-  ///Fatura silindikten sonra Row Hesabı yapıyor
+  ///Fatura silindikten sonra Row Hesabı yapıyor (Ödemeler olduğunda burayapılıyor)
+
   calculateRowTotalPaymentBalance(List<Map<String, dynamic>> resSoldList) {
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
     double totalPayment = 0, totalPrice = 0, totalBalance = 0;

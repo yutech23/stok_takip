@@ -2,7 +2,7 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:stok_takip/bloc/bloc_cari.dart';
+import 'package:stok_takip/bloc/bloc_cari_customer.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
@@ -16,14 +16,14 @@ import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
 
-class ScreenCari extends StatefulWidget {
-  const ScreenCari({super.key});
+class ScreenCariCustomer extends StatefulWidget {
+  const ScreenCariCustomer({super.key});
 
   @override
-  State<ScreenCari> createState() => _ScreenCariState();
+  State<ScreenCariCustomer> createState() => _ScreenCariCustomerState();
 }
 
-class _ScreenCariState extends State<ScreenCari> {
+class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   final _formKeyCari = GlobalKey<FormState>();
   late double _screenWidth;
   final double _shareMinWidth = 360;
@@ -32,7 +32,7 @@ class _ScreenCariState extends State<ScreenCari> {
   final String _labelHeading = "Cari Hesaplar";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Fatura No ile";
-  late final BlocCari _blocCari;
+  late final BlocCariCustomer _blocCari;
   late CariGetPay cariGetpay;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
@@ -92,7 +92,7 @@ class _ScreenCariState extends State<ScreenCari> {
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
   @override
   void initState() {
-    _blocCari = BlocCari();
+    _blocCari = BlocCariCustomer();
     //  _blocCari.getOnlyUseDateTimeForSoldList();
     _selectDateTimeRange =
         DateTimeRange(start: _startDateTime, end: _endDateTime);
@@ -406,9 +406,8 @@ class _ScreenCariState extends State<ScreenCari> {
                           item: element['type']));
                     }
                   }
-                  return Container(
-                    constraints:
-                        const BoxConstraints(minWidth: 360, maxWidth: 555),
+                  return SizedBox(
+                    width: _screenWidth <= 450 ? 360 : 555,
                     child: SearchField(
                       searchHeight: _shareHeightInputTextField,
                       itemHeight: _searchByNameItemHeight,
@@ -426,6 +425,10 @@ class _ScreenCariState extends State<ScreenCari> {
                       controller: _controllerSearchByName,
                       suggestions: listSearch,
                       focusNode: _focusSearchCustomer,
+                      searchStyle: const TextStyle(
+                        fontSize: 14,
+                        overflow: TextOverflow.fade,
+                      ),
                       onSuggestionTap: (p0) {
                         ///Her şeçimde müşteri bilgileri atanıyor.
                         List<String> convertMap = p0.searchKey.split(' - ');
@@ -456,12 +459,12 @@ class _ScreenCariState extends State<ScreenCari> {
 
   ///Button Cari Getir
   widgetButtonCariGetir() {
-    return Container(
+    return SizedBox(
       width: (_screenWidth >= 450) ? 180 : 360,
+      height: _shareHeightInputTextField,
       child: ElevatedButton.icon(
           icon: const Icon(Icons.format_list_bulleted_sharp),
-          style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.zero, maximumSize: Size(360, 50)),
+          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
           onPressed: () async {
             ///Sadece Müşteri seçildiğinde
             if (_controllerSearchByName.text.isNotEmpty &&
@@ -708,7 +711,36 @@ class _ScreenCariState extends State<ScreenCari> {
                     _controllerBankValue.clear();
                     _controllerCashValue.clear();
                     _controllerEftHavaleValue.clear();
+                    _controllerStartDate.clear();
+                    _controllerEndDate.clear();
+
                     _blocCari.getSoldListOfSelectedCustomer();
+
+                    ///Bura aktif olur ise ödeme alındığında kendi alanında kalır.
+                    /*  ///Sadece Müşteri seçildiğinde
+                    if (_controllerSearchByName.text.isNotEmpty &&
+                        _controllerStartDate.text == "" &&
+                        _controllerEndDate.text == "") {
+                      _blocCari.getSoldListOfSelectedCustomer();
+                      //Müşteri ve Tarihler seçildiğinde
+                    } else if (_controllerSearchByName.text.isNotEmpty &&
+                        _controllerStartDate.text.isNotEmpty &&
+                        _controllerEndDate.text.isNotEmpty) {
+                      await _blocCari.getSoldListOfSelectedCustomer();
+                      await _blocCari.filtreSoldListByDateTime();
+                      //Sadece Tarih seçildiğinde
+                    } else if (_controllerStartDate.text.isNotEmpty &&
+                        _controllerEndDate.text.isNotEmpty &&
+                        _controllerSearchByName.text == "") {
+                      await _blocCari.getOnlyUseDateTimeForSoldList();
+                      //Tümü Boş iken buda o günkü satışları getirir
+                    } else if (_controllerSearchByName.text == "" &&
+                        _controllerStartDate.text == "" &&
+                        _controllerEndDate.text == "") {
+                      _blocCari.setToday();
+                      await _blocCari.getOnlyUseDateTimeForSoldList();
+                    } */
+
                     // ignore: use_build_context_synchronously
                     context.noticeBarTrue("Ödeme başarılı.", 2);
                   } else {
@@ -927,6 +959,8 @@ class _ScreenCariState extends State<ScreenCari> {
                   SizedBox(
                     width: 100,
                     height: 40,
+
+                    ///Fatura silme buttonu
                     child: ElevatedButton(
                         onPressed: () async {
                           ///Sadece Müşteri seçildiğinde
@@ -945,7 +979,7 @@ class _ScreenCariState extends State<ScreenCari> {
                           } else if (_controllerStartDate.text.isNotEmpty &&
                               _controllerEndDate.text.isNotEmpty &&
                               _controllerSearchByName.text == "") {
-                            await _blocCari.deleteInvoiceFiltreSource(
+                            await _blocCari.deleteInvoiceOrjinalSource(
                                 invoiceNumber, totalPrice);
                             //Tümü Boş iken buda o günkü satışları getirir
                           } else if (_controllerSearchByName.text == "" &&

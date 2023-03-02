@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
-import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
+
+import 'navigation_manager.gr.dart';
 
 class AuthGuard extends AutoRouteGuard {
   @override

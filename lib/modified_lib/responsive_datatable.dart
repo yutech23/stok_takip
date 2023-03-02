@@ -67,6 +67,8 @@ class ResponsiveDatatable extends StatefulWidget {
   /// allow to styling the selected data row
   final TextStyle? selectedTextStyle;
 
+  int rowLenght = 0;
+
   double rowHeight;
 
   ResponsiveDatatable(
@@ -128,10 +130,6 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
           },
         ),
         PopupMenuButton(
-            child: Container(
-              padding: const EdgeInsets.all(15),
-              child: const Text("SORT BY"),
-            ),
             tooltip: "SORT BY",
             initialValue: widget.sortColumn,
             itemBuilder: (_) => widget.headers
@@ -139,6 +137,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                     (header) => header.show == true && header.sortable == true)
                 .toList()
                 .map((header) => PopupMenuItem(
+                      value: header.value,
                       child: Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
@@ -153,29 +152,32 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                                 : const Icon(Icons.arrow_upward, size: 15)
                         ],
                       ),
-                      value: header.value,
                     ))
                 .toList(),
             onSelected: (dynamic value) {
               if (widget.onSort != null) widget.onSort!(value);
-            })
+            },
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              child: const Text("SORT BY"),
+            ))
       ],
     );
   }
 
   List<Widget> mobileList() {
-    final _decoration = BoxDecoration(
+    final decoration = BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
-    final _rowDecoration = widget.rowDecoration ?? _decoration;
-    final _selectedDecoration = widget.selectedDecoration ?? _decoration;
+    final rowDecoration = widget.rowDecoration ?? decoration;
+    final selectedDecoration = widget.selectedDecoration ?? decoration;
     return widget.source!.map((data) {
       return InkWell(
         onTap: () => widget.onTabRow?.call(data),
         child: Container(
           /// TODO:
           decoration: widget.selecteds!.contains(data)
-              ? _selectedDecoration
-              : _rowDecoration,
+              ? selectedDecoration
+              : rowDecoration,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -200,44 +202,50 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                     .where((header) => header.show == true)
                     .toList()
                     .map(
-                      (header) => Container(
-                        padding: const EdgeInsets.all(11),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            header.headerBuilder != null
-                                ? header.headerBuilder!(header.value)
-                                : Text(
-                                    header.text,
-                                    overflow: TextOverflow.clip,
-                                    style: widget.selecteds!.contains(data)
-                                        ? widget.selectedTextStyle
-                                        : widget.rowTextStyle,
-                                  ),
-                            const Spacer(),
-                            header.sourceBuilder != null
-                                ? header.sourceBuilder!(
-                                    data[header.value], data)
-                                : header.editable
-                                    ? TextEditableWidget(
-                                        data: data,
-                                        header: header,
-                                        textAlign: TextAlign.end,
-                                        onChanged: widget.onChangedRow,
-                                        onSubmitted: widget.onSubmittedRow,
-                                        hideUnderline: widget.hideUnderline,
-                                      )
-                                    : Text(
-                                        "${data[header.value]}",
-                                        style: widget.selecteds!.contains(data)
-                                            ? widget.selectedTextStyle
-                                            : widget.rowTextStyle,
-                                      )
-                          ],
-                        ),
+                  (header) {
+                    ///2 satırda 1 renk ataması yapılıyor.
+                    widget.rowLenght += 1;
+
+                    return Container(
+                      color: (widget.rowLenght % 2 == 0)
+                          ? Colors.grey.shade100
+                          : null,
+                      padding: const EdgeInsets.all(11),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          header.headerBuilder != null
+                              ? header.headerBuilder!(header.value)
+                              : Text(
+                                  header.text,
+                                  overflow: TextOverflow.clip,
+                                  style: widget.selecteds!.contains(data)
+                                      ? widget.selectedTextStyle
+                                      : widget.rowTextStyle,
+                                ),
+                          const Spacer(),
+                          header.sourceBuilder != null
+                              ? header.sourceBuilder!(data[header.value], data)
+                              : header.editable
+                                  ? TextEditableWidget(
+                                      data: data,
+                                      header: header,
+                                      textAlign: TextAlign.end,
+                                      onChanged: widget.onChangedRow,
+                                      onSubmitted: widget.onSubmittedRow,
+                                      hideUnderline: widget.hideUnderline,
+                                    )
+                                  : Text(
+                                      "${data[header.value]}",
+                                      style: widget.selecteds!.contains(data)
+                                          ? widget.selectedTextStyle
+                                          : widget.rowTextStyle,
+                                    )
+                        ],
                       ),
-                    )
-                    .toList()
+                    );
+                  },
+                ).toList()
             ],
           ),
         ),
@@ -259,12 +267,12 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
   }
 
   Widget desktopHeader() {
-    final _headerDecoration = widget.headerDecoration ??
+    final headerDecoration = widget.headerDecoration ??
         BoxDecoration(
             border:
                 Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
     return Container(
-      decoration: _headerDecoration,
+      decoration: headerDecoration,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -319,10 +327,10 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
   }
 
   List<Widget> desktopList() {
-    final _decoration = BoxDecoration(
+    final decoration = BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)));
-    final _rowDecoration = widget.rowDecoration ?? _decoration;
-    final _selectedDecoration = widget.selectedDecoration ?? _decoration;
+    final rowDecoration = widget.rowDecoration ?? decoration;
+    final selectedDecoration = widget.selectedDecoration ?? decoration;
     List<Widget> widgets = [];
 
     for (var index = 0; index < widget.source!.length; index++) {
@@ -341,8 +349,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
               height: widget.rowHeight,
               padding: EdgeInsets.all(widget.showSelect ? 0 : 11),
               decoration: widget.selecteds!.contains(data)
-                  ? _selectedDecoration
-                  : _rowDecoration,
+                  ? selectedDecoration
+                  : rowDecoration,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -464,7 +472,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
     return widget.reponseScreenSizes.isNotEmpty &&
             widget.reponseScreenSizes.contains(context.screenSize)
         ?
-
+        /**-------------------TELEFON-------------------- */
         ///Print ekrana çıkabilmesi için Action veya Title birinin dolu olması gerek.
         /// for small screen
         Column(

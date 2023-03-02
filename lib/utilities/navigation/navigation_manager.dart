@@ -6,14 +6,15 @@ import 'package:stok_takip/screen/sale.dart';
 import 'package:stok_takip/screen/splash.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/constants.dart';
-import 'package:stok_takip/utilities/navigation/auth_guard.dart';
+
 import 'package:stok_takip/utilities/navigation/custom_router_builder.dart';
-import '../../screen/cari.dart';
+import '../../screen/cari_customer.dart';
 import '../../screen/category_edit.dart';
 import '../../screen/customer_register.dart';
 import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
+import 'auth_guard.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
   AutoRoute(
@@ -67,7 +68,7 @@ import '../../screen/user_setting.dart';
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
   CustomRoute(
-      page: ScreenCari,
+      page: ScreenCariCustomer,
       path: ConstRoute.cari,
       guards: [AuthGuard],
       customRouteBuilder:
