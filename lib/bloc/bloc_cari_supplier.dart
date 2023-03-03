@@ -35,7 +35,7 @@ class BlocCariSuppleirs {
   DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
       DateTime.now().day, 23, 59, 59);
 
-  CariGetPay cariGetPay = CariGetPay();
+  CariSupplierPay cariSupplierPay = CariSupplierPay();
 
   Map<String, num> _calculationRow = {
     'totalPrice': 0,
@@ -124,11 +124,6 @@ class BlocCariSuppleirs {
   }
   /*---------------------------------------------------------------- */
 
-  ///Seçilen Müşterinin Id getirir.
-  getCustomerId() async {
-    _customerId = await db.fetchSelectedCustomerIdForCari(_selectedSupplier);
-  }
-
   ///Müşterileri arama için getirilen veriler(tip,isim,numara)
   Future getSuppliers() async {
     final resCustomerSolo = await db.fetchCariSuppliers();
@@ -142,75 +137,57 @@ class BlocCariSuppleirs {
   }
 
   ///Seçilen Müşterinin carisi getiriliyor
-  Future getSoldListOfSelectedCustomer() async {
+  Future getPaymentListOfSelectedSupplier() async {
     _expanded.clear();
     _boughtListOrjinal.clear();
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
-    await getCustomerId();
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
-    final resSoldList = await db.fetchSoldListOfSelectedCustomerById(
-        _selectedSupplier['type']!, _customerId);
 
-    ///cari tablodan seçilen müşterinin verileri geliyor.Alınan ödemeler
-    final resCariList = await db.fetchCariPayListOfSelectedCustomerById(
-        _selectedSupplier['type']!, _customerId);
+    List<dynamic> resSoldList =
+        await db.fetchPaymentList(_selectedSupplier['name']!);
 
     //Sales tablosundan gelen veriler
-    for (var element in resSoldList) {
+    for (Map element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']));
+          .format(DateTime.parse(element['record_date']));
 
-      double totalPayment = element['cash_payment'] +
-          element['bankcard_payment'] +
-          element['eft_havale_payment'];
-      double totalPrice = shareFunc.calculateWithKDV(
-          element['total_payment_without_tax'], element['kdv_rate']);
+      double totalPayment =
+          element['cash'] + element['bankcard'] + element['eft_havale'];
+      double totalPrice;
 
-      ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
-      ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
-      ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
-      _calculationRow['totalPrice'] =
-          _calculationRow['totalPrice']! + totalPrice;
-      _calculationRow['totalPayment'] =
-          _calculationRow['totalPayment']! + totalPayment;
+      ///Buraya 2 ayrı tablodan veri geliyor. bir birinin arkasına eklenmiş bir
+      ///list yapı olarak. aralarındaki fark olmayan kolonlardan biri olan "total"
+      ///üzerinden 2si ayrıştırlıyor.
+      if (element.containsKey('total')) {
+        totalPrice = element['total'];
 
-      _boughtListOrjinal.add({
-        'dateTime': dateTime,
-        'type': _selectedSupplier['type'],
-        'customerName': _selectedSupplier['name'],
-        'invoiceNumber': element['invoice_number'],
-        'totalPrice': FormatterConvert().currencyShow(totalPrice),
-        'payment': FormatterConvert().currencyShow(totalPayment),
-        'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
-      });
-    }
-
-    //Cari tablosundan gelen Veriler
-    for (var element in resCariList) {
-      String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['payment_date']).toLocal());
-
-      double totalPayment = element['cash_payment'] +
-          element['bankcard_payment'] +
-          element['eft_havale_payment'];
-
-      ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
-      ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
-      ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
-      _calculationRow['totalPayment'] =
-          _calculationRow['totalPayment']! + totalPayment;
-
-      _boughtListOrjinal.add({
-        'dateTime': dateTime,
-        'type': _selectedSupplier['type'],
-        'invoiceNumber': element['cari_id'],
-        'customerName': _selectedSupplier['name'],
-        'totalPrice': '-',
-        'payment': FormatterConvert().currencyShow(totalPayment),
-        'balance': "-"
-      });
+        ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
+        ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
+        ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
+        _calculationRow['totalPrice'] =
+            _calculationRow['totalPrice']! + totalPrice;
+        _calculationRow['totalPayment'] =
+            _calculationRow['totalPayment']! + totalPayment;
+        _boughtListOrjinal.add({
+          'dateTime': dateTime,
+          'supplierName': _selectedSupplier['name'],
+          'totalPrice': FormatterConvert().currencyShow(totalPrice),
+          'payment': FormatterConvert().currencyShow(totalPayment),
+          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+        });
+      } else {
+        _calculationRow['totalPayment'] =
+            _calculationRow['totalPayment']! + totalPayment;
+        _boughtListOrjinal.add({
+          'dateTime': dateTime,
+          'supplierName': _selectedSupplier['name'],
+          'totalPrice': "-",
+          'payment': FormatterConvert().currencyShow(totalPayment),
+          'balance': "-"
+        });
+      }
     }
 
     ///kalan Tutar Burada Hesaplanıyor.
@@ -229,14 +206,13 @@ class BlocCariSuppleirs {
 
   //Elden Alınan ödemeler Kaydediliyor
   Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
-    await getCustomerId();
-    cariGetPay.customerType = _selectedSupplier['type']!;
-    cariGetPay.customerFk = _customerId;
-    cariGetPay.cashPayment = double.parse(_paymentSystem['cash']!);
-    cariGetPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
-    cariGetPay.eftHavalePayment = double.parse(_paymentSystem['eftHavale']!);
-    cariGetPay.unitOfCurrency = unitOfCurrency;
-    cariGetPay.sellerId = dbHive.getValues('uuid');
+    cariSupplierPay.customerFk = _selectedSupplier['name']!;
+    cariSupplierPay.cashPayment = double.parse(_paymentSystem['cash']!);
+    cariSupplierPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
+    cariSupplierPay.eftHavalePayment =
+        double.parse(_paymentSystem['eftHavale']!);
+    cariSupplierPay.unitOfCurrency = unitOfCurrency;
+    cariSupplierPay.sellerId = dbHive.getValues('uuid');
 
     /*   print(cariGetPay.customerType);
     print(cariGetPay.customerFk);
@@ -245,7 +221,7 @@ class BlocCariSuppleirs {
     print(cariGetPay.eftHavalePayment);
     print(cariGetPay.sellerId); */
 
-    return await db.insertCariBySelectedCustomer(cariGetPay);
+    return await db.insertCariSupplierBySelectedCustomer(cariSupplierPay);
   }
 
   ///Müşteri belli olduktan sonra Zamana Göre Filtre
@@ -259,7 +235,7 @@ class BlocCariSuppleirs {
 
     for (var element in _boughtListOrjinal) {
       DateTime convertTemp =
-          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']).toLocal();
+          DateFormat('dd/MM/yyyy HH:mm').parse(element['dateTime']);
 
       if (convertTemp.compareTo(tempAddTime.start) >= 0 &&
           convertTemp.compareTo(tempAddTime.end) <= 0) {
@@ -287,27 +263,26 @@ class BlocCariSuppleirs {
 
   ///Sadece Tarih Seçildiğinde
 
-  getOnlyUseDateTimeForSoldList() async {
+  getOnlyUseDateTimeForPaymentList() async {
     _expanded.clear();
     _boughtListOrjinal.clear();
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
-    final resSoldList = await db.fetchCariByOnlyDateTime(_startTime, _endTime);
+    final resPaymentList = await db.fetchCariSupplierPaymentListByRangeDateTime(
+        _startTime, _endTime);
 
-    for (var element in resSoldList) {
-      DateTime convertTemp = DateTime.parse(element['sale_date']);
+    for (var element in resPaymentList) {
+      DateTime convertTemp = DateTime.parse(element['record_date']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']));
+          .format(DateTime.parse(element['record_date']));
 
-      if (element['kdv_rate'] != null) {
-        double totalPayment = element['cash_payment'] +
-            element['bankcard_payment'] +
-            element['eft_havale_payment'];
-        double totalPrice = shareFunc.calculateWithKDV(
-            element['total_payment_without_tax'], element['kdv_rate']);
+      if (element['product_fk'] != null) {
+        double totalPayment =
+            element['cash'] + element['bankcard'] + element['eft_havale'];
+        double totalPrice = element['total'];
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
         ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
@@ -324,9 +299,7 @@ class BlocCariSuppleirs {
 
         _boughtListOrjinal.add({
           'dateTime': dateTime,
-          'type': element['customer_type'],
-          'customerName': element['name'],
-          'invoiceNumber': element['invoice_number'],
+          'supplierName': element['supplier_fk'],
           'totalPrice': FormatterConvert().currencyShow(totalPrice),
           'payment': FormatterConvert().currencyShow(totalPayment),
           'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
@@ -344,9 +317,7 @@ class BlocCariSuppleirs {
 
         _boughtListOrjinal.add({
           'dateTime': dateTime,
-          'type': element['customer_type'],
-          'invoiceNumber': element['cari_id'],
-          'customerName': element['name'],
+          'suppleirName': element['supplier_fk'],
           'totalPrice': '-',
           'payment': FormatterConvert().currencyShow(totalPayment),
           'balance': "-"

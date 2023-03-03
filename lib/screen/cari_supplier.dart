@@ -52,7 +52,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   final String _labelGetCari = "Cari Getir";
   final String _labelSearchCustomerName = "Müşteri Adı";
   final double _searchByNameItemHeight = 30;
-  final _focusSearchCustomer = FocusNode();
+  final _focusSearchSupplier = FocusNode();
 
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
@@ -108,27 +108,21 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         sortable: true,
         flex: 3,
         textAlign: TextAlign.center));
+
     _headers.add(DatatableHeader(
-        text: "Tür",
-        value: "type",
-        show: true,
-        flex: 2,
-        sortable: true,
-        textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Müşteri İsmi",
-        value: "customerName",
+        text: "Tedarikçi",
+        value: "supplierName",
         show: true,
         flex: 3,
         sortable: true,
         textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Fatura No",
-        value: "invoiceNumber",
+    /*  _headers.add(DatatableHeader(
+        text: "Ödeme No",
+        value: "paymentNumber",
         show: true,
         sortable: true,
         flex: 2,
-        textAlign: TextAlign.center));
+        textAlign: TextAlign.center)); */
     _headers.add(DatatableHeader(
         text: "Toplam Tutar",
         value: "totalPrice",
@@ -137,14 +131,14 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Ödenen Tutar",
+        text: "Yapılan Ödeme",
         value: "payment",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Kalan Tutar",
+        text: "Kalan Ödeme",
         value: "balance",
         show: true,
         sortable: false,
@@ -336,8 +330,9 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
           shareWidgetDateTimeTextFormField(_controllerEndDate, _labelEndDate,
               (value) {
             if (value.length == 10) {
-              _blocCariSupplier.setterEndDate =
-                  DateFormat('dd/MM/yyyy').parse(value);
+              _blocCariSupplier.setterEndDate = DateFormat('dd/MM/yyyy')
+                  .parse(value)
+                  .add(const Duration(hours: 23, minutes: 59, seconds: 59));
             }
           }),
         ],
@@ -429,7 +424,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                           )),
                       controller: _controllerSearchByName,
                       suggestions: listSearch,
-                      focusNode: _focusSearchCustomer,
+                      focusNode: _focusSearchSupplier,
                       searchStyle: const TextStyle(
                         fontSize: 14,
                         overflow: TextOverflow.fade,
@@ -443,7 +438,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                           'phone': convertMap[1]
                         };
 
-                        _focusSearchCustomer.unfocus();
+                        _focusSearchSupplier.unfocus();
                       },
                       maxSuggestionsInViewPort: 6,
                     ),
@@ -467,24 +462,24 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
             if (_controllerSearchByName.text.isNotEmpty &&
                 _controllerStartDate.text == "" &&
                 _controllerEndDate.text == "") {
-              _blocCariSupplier.getSoldListOfSelectedCustomer();
+              _blocCariSupplier.getPaymentListOfSelectedSupplier();
               //Müşteri ve Tarihler seçildiğinde
             } else if (_controllerSearchByName.text.isNotEmpty &&
                 _controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty) {
-              await _blocCariSupplier.getSoldListOfSelectedCustomer();
+              await _blocCariSupplier.getPaymentListOfSelectedSupplier();
               await _blocCariSupplier.filtreSoldListByDateTime();
               //Sadece Tarih seçildiğinde
             } else if (_controllerStartDate.text.isNotEmpty &&
                 _controllerEndDate.text.isNotEmpty &&
                 _controllerSearchByName.text == "") {
-              await _blocCariSupplier.getOnlyUseDateTimeForSoldList();
+              await _blocCariSupplier.getOnlyUseDateTimeForPaymentList();
               //Tümü Boş iken buda o günkü satışları getirir
             } else if (_controllerSearchByName.text == "" &&
                 _controllerStartDate.text == "" &&
                 _controllerEndDate.text == "") {
               _blocCariSupplier.setToday();
-              await _blocCariSupplier.getOnlyUseDateTimeForSoldList();
+              await _blocCariSupplier.getOnlyUseDateTimeForPaymentList();
             }
           },
           label: Text(_labelGetCari)),
@@ -713,7 +708,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                     _controllerStartDate.clear();
                     _controllerEndDate.clear();
 
-                    _blocCariSupplier.getSoldListOfSelectedCustomer();
+                    _blocCariSupplier.getPaymentListOfSelectedSupplier();
 
                     ///Bura aktif olur ise ödeme alındığında kendi alanında kalır.
                     /*  ///Sadece Müşteri seçildiğinde

@@ -1158,13 +1158,15 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             unitOfCurrency: _selectUnitOfCurrencyAbridgment,
                             total: double.parse(_controllerPaymentTotal.text
                                 .replaceAll(".", "")),
-                            cash: double.tryParse(
-                                _controllerCashValue.text.replaceAll(".", "")),
-                            bankcard: double.tryParse(
-                                _controllerBankValue.text.replaceAll(".", "")),
-                            eftHavale: double.tryParse(_controllerEftHavaleValue
-                                .text
-                                .replaceAll(".", "")),
+                            cash: double.tryParse(_controllerCashValue.text
+                                    .replaceAll(".", "")) ??
+                                0,
+                            bankcard: double.tryParse(_controllerBankValue.text
+                                    .replaceAll(".", "")) ??
+                                0,
+                            eftHavale: double.tryParse(_controllerEftHavaleValue.text
+                                    .replaceAll(".", "")) ??
+                                0,
                             buyingPriceWithoutTax: newBuyingPriceWithoutTax,
                             sallingPriceWithoutTax: newSallingPriceWithoutTax,
                             amountOfStock: newStockValue,

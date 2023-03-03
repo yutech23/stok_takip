@@ -475,6 +475,7 @@ class _SearchFieldState<T> extends State<SearchField<T>> {
                   height: widget.itemHeight,
                   width: double.infinity,
                   alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: 4),
                   decoration: widget.suggestionItemDecoration?.copyWith(
                         border: widget.suggestionItemDecoration?.border ??
                             Border(

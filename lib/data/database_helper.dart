@@ -407,11 +407,11 @@ class DbHelper {
               product.currentBuyingPriceWithoutTax,
           'current_salling_price_without_tax':
               product.currentSallingPriceWithoutTax,
-          'fk_category1_id': product.category!.category1!.keys.first,
-          'fk_category2_id': product.category!.category2!.keys.first,
-          'fk_category3_id': product.category!.category3!.keys.first,
-          'fk_category4_id': product.category!.category4!.keys.first,
-          'fk_category5_id': product.category!.category5!.keys.first,
+          'fk_category1_id': product.category?.category1?.keys.first,
+          'fk_category2_id': product.category?.category2?.keys.first,
+          'fk_category3_id': product.category?.category3?.keys.first,
+          'fk_category4_id': product.category?.category4?.keys.first,
+          'fk_category5_id': product.category?.category5?.keys.first,
           'current_amount_of_stock': product.currentAmountOfStock
         }
       ]);
@@ -942,8 +942,7 @@ class DbHelper {
     List<Map<String, dynamic>> resCustomerSoleInfo = [];
     List<Map<String, dynamic>> resCustomerCompanyInfo = [];
     List<Map<String, dynamic>> resCari = [];
-    print(startTime);
-    print(endTime);
+
     try {
       resSold = await db.supabase
           .from('sales')
@@ -1182,6 +1181,7 @@ class DbHelper {
 
 /*---------------------------------------------------------------------- */
 /*----------------------------CARİ TEDARİKÇİ------------------------------ */
+  ///Tüm Tedarikçileri getiriyor
   Future<List<dynamic>> fetchCariSuppliers() async {
     List<dynamic> res = [];
     try {
@@ -1190,6 +1190,71 @@ class DbHelper {
     } on PostgrestException catch (e) {
       print("Hata Cari Tedarikci: ${e.message}");
       return res;
+    }
+  }
+
+  ///Tüm Ödeme Sistemlerini getiriyor.
+  Future<List<dynamic>> fetchPaymentList(String name) async {
+    List<dynamic> resPayment = [];
+    List<dynamic> resCariSupplier = [];
+    try {
+      resPayment =
+          await db.supabase.from('payment').select('*').eq('supplier_fk', name);
+
+      resCariSupplier = await db.supabase
+          .from('cari_supplier')
+          .select(
+              'supplier_fk,record_date,cash,bankcard,eft_havale,unit_of_currency,seller')
+          .eq('supplier_fk', name);
+
+      resPayment.addAll(resCariSupplier);
+
+      return resPayment;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Tedarikci: ${e.message}");
+      return resPayment;
+    }
+  }
+
+  ///zaman aralığına göre tüm yapılan ödemeleri getiriyor
+  Future<List<Map<String, dynamic>>>
+      fetchCariSupplierPaymentListByRangeDateTime(
+          DateTime startTime, DateTime endTime) async {
+    List<Map<String, dynamic>> resPayment = [];
+
+    try {
+      resPayment = await db.supabase
+          .from('payment')
+          .select<List<Map<String, dynamic>>>('*')
+          .lt('record_date', endTime)
+          .gt('record_date', startTime);
+      return resPayment;
+    } on PostgrestException catch (e) {
+      print("Hata Cari Tedarikci Sadece Tarih Girildiğinde: ${e.message}");
+      return resPayment;
+    }
+  }
+
+  /// Seçilen müşteri alınan veya yapılan ödemeler getirir. Cari tablo
+  insertCariSupplierBySelectedCustomer(CariSupplierPay pay) async {
+    Map<String, dynamic> resData = {'hata': null};
+    try {
+      resData['hata'] = await supabase.from('cari_supplier').insert([
+        {
+          'supplier_fk': pay.customerFk,
+          'cash': pay.cashPayment,
+          'bankcard': pay.bankcardPayment,
+          'eft_havale': pay.eftHavalePayment,
+          'unit_of_currency': pay.unitOfCurrency,
+          'seller': pay.sellerId
+        }
+      ]);
+
+      return resData;
+    } on PostgrestException catch (e) {
+      print("Hata Ödeme Alma : ${e.message}");
+      resData['hata'] = e.message;
+      return resData;
     }
   }
 }

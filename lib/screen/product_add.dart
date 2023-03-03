@@ -47,7 +47,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   // late Product? _product;
 
   late Category _category;
-  final List<String> _categoryList = [];
+  final List<String?> _categoryList = [];
   bool _visibleQrCode = false;
   final _productTaxList = <String>['% 8', '% 18'];
   String? _selectedTax;
@@ -629,7 +629,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       if (i != _categoryList.length - 1) {
         categoryList += "${_categoryList[i]}> ";
       } else {
-        categoryList += _categoryList[i];
+        categoryList += _categoryList[i]!;
       }
     }
   }
@@ -1127,11 +1127,14 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 total: double.parse(
                     _controllerPaymentTotal.text.replaceAll(".", "")),
                 cash: double.tryParse(
-                    _controllerCashValue.text.replaceAll(".", "")),
+                        _controllerCashValue.text.replaceAll(".", "")) ??
+                    0,
                 bankcard: double.tryParse(
-                    _controllerBankValue.text.replaceAll(".", "")),
+                        _controllerBankValue.text.replaceAll(".", "")) ??
+                    0,
                 eftHavale: double.tryParse(
-                    _controllerEftHavaleValue.text.replaceAll(".", "")),
+                        _controllerEftHavaleValue.text.replaceAll(".", "")) ??
+                    0,
                 buyingPriceWithoutTax: _valueNotifierProductBuyWithoutTax.value,
                 sallingPriceWithoutTax:
                     double.parse(_controllerSallingPriceWithoutTax.text),
@@ -1163,8 +1166,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
                   setState(() {
                     _controllerProductCode.clear();
-                    _visibleQrCode = false;
-                    _categoryList.clear();
+
+                    _category.category1 = null;
                   });
                   context.noticeBarTrue("Ürün kaydedildi.", 1);
                 }
