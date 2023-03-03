@@ -8,6 +8,7 @@ import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import '../data/database_category_product_filtre.dart';
 import '../data/database_helper.dart';
+import '../data/database_mango.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
@@ -1150,6 +1151,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         print(newBuyingPriceWithoutTax);
                         print(newSallingPriceWithoutTax); */
 
+                        String? userId = dbHive.getValues('uuid');
+
                         //Ödeme Nesnesi
                         var newPayment = Payment(
                             invoiceCode: _controllerInvoiceCode.text,
@@ -1170,7 +1173,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             buyingPriceWithoutTax: newBuyingPriceWithoutTax,
                             sallingPriceWithoutTax: newSallingPriceWithoutTax,
                             amountOfStock: newStockValue,
-                            repaymentDateTime: _selectDateTime);
+                            repaymentDateTime: _selectDateTime,
+                            userId: userId!);
 
                         //Product Nesmesi
                         productDetailToBeupdateMap.addAll({

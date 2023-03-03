@@ -2,16 +2,16 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:stok_takip/bloc/bloc_cari_customer.dart';
 import 'package:stok_takip/bloc/bloc_cari_supplier.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/popup/popup_cari_supplier_payment.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-import '../utilities/popup/popup_cari_sale_detail.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
@@ -71,7 +71,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   final String _eftHavale = "EFT/HAVALE İle Ödenen Tutar";
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
-  final String _labelGetPay = "Ödeme Al";
   final String _labelPay = "Ödeme Yap";
 
 /*--------------------------------------------------------------------------- */
@@ -106,9 +105,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         value: "dateTime",
         show: true,
         sortable: true,
-        flex: 3,
+        flex: 2,
         textAlign: TextAlign.center));
-
     _headers.add(DatatableHeader(
         text: "Tedarikçi",
         value: "supplierName",
@@ -116,13 +114,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         flex: 3,
         sortable: true,
         textAlign: TextAlign.center));
-    /*  _headers.add(DatatableHeader(
-        text: "Ödeme No",
-        value: "paymentNumber",
-        show: true,
-        sortable: true,
-        flex: 2,
-        textAlign: TextAlign.center)); */
     _headers.add(DatatableHeader(
         text: "Toplam Tutar",
         value: "totalPrice",
@@ -151,55 +142,53 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         sortable: false,
         flex: 2,
         sourceBuilder: (value, row) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ///Silme Buttonu
-              IconButton(
-                iconSize: 20,
-                padding: const EdgeInsets.only(bottom: 20),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  ///Stok bitmeden silmeyi engelliyor.
-                  widgetDeleteInvoice(row['invoiceNumber'], row['totalPrice']);
-                },
-              ),
-              row['totalPrice'] != "-"
-                  ? Container(
-                      child: IconButton(
+          return Container(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ///Silme Buttonu
+                IconButton(
+                  iconSize: 20,
+                  padding: const EdgeInsets.only(bottom: 20),
+                  alignment: Alignment.center,
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    ///Stok bitmeden silmeyi engelliyor.
+                    widgetDeleteSupplierPayment(row);
+                  },
+                ),
+                row['totalPrice'] != "-"
+                    ? IconButton(
                         iconSize: 20,
                         padding: const EdgeInsets.only(bottom: 20),
                         alignment: Alignment.center,
                         icon: const Icon(Icons.list),
                         onPressed: () async {
-                          ///satır bilgisi aktarılıyor
-                          _blocCariSupplier.setterRowCustomerInfo = row;
-                          //  print(row);
+                          Map<String, dynamic> paymentInfo = await db
+                              .fetchPaymentInfoByPaymentId(row['paymentId']);
+                          Map<String, dynamic> supplierInfo =
+                              await db.fetchSupplierInfo(row['supplierName']);
 
-                          ///Fatura No'suna göre detaylar geliyor.
-                          await _blocCariSupplier
-                              .getSaleDetail(row['invoiceNumber']);
-                          await _blocCariSupplier
-                              .getSaleInfo(row['invoiceNumber']);
+                          paymentInfo['seller'] = await _blocCariSupplier
+                              .getSaleInfo(dbHive.getValues('uuid'));
 
-                          /* showDialog(
+                          showDialog(
                               context: context,
                               builder: (context) {
-                                return PopupSaleDetail(_blocCariSupplier);
-                              }); */
+                                return PopupCariSupplierPayment(
+                                    paymentInfo, supplierInfo);
+                              });
                         },
-                      ),
-                    )
-                  : Container(
-                      child: const Padding(
+                      )
+                    : const Padding(
                         padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
                         child: Icon(Icons.disabled_by_default),
                       ),
-                    ),
-            ],
+              ],
+            ),
           );
         },
         textAlign: TextAlign.center));
@@ -502,7 +491,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
               if (snapshot.hasData && !snapshot.hasError) {}
 
               return ResponsiveDatatable(
-                exports: [ExportAction.print],
+                exports: [ExportAction.print, ExportAction.excel],
                 reponseScreenSizes: const [ScreenSize.xs],
                 headers: _headers,
                 source: snapshot.data,
@@ -512,6 +501,25 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                 sortColumn: 'dataTime',
                 sortAscending: true,
                 actions: [],
+                dropContainer: (value) {
+                  if (value.containsKey('productName')) {
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: RichText(
+                        text: TextSpan(
+                            style: context.theme.titleSmall!
+                                .copyWith(fontWeight: FontWeight.bold),
+                            text: "ÜRÜN KODU: ",
+                            children: [
+                              TextSpan(
+                                  text: " ${value['productName']}",
+                                  style: context.theme.titleSmall!)
+                            ]),
+                      ),
+                    );
+                  }
+                  return Text("");
+                },
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),
                 footers: [
@@ -686,7 +694,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                 ///uyarı veriyor.
                 if (_blocCariSupplier.getterSelectedSupplier['name'] == null ||
                     _controllerSearchByName.text == "") {
-                  context.noticeBarError("Lütfen müşteri seçiniz.", 3);
+                  context.noticeBarError("Lütfen tedarikçi seçiniz.", 3);
 
                   ///Ödeme için bir veri girilmediyse kayıt olmaması için.
                 } else if (_controllerEftHavaleValue.text == "" &&
@@ -743,7 +751,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                   }
                 }
               },
-              label: _labelGetPay),
+              label: _labelPay),
         ],
       ),
     );
@@ -925,7 +933,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   }
 
   ///Silme buttonu
-  widgetDeleteInvoice(int invoiceNumber, String totalPrice) {
+  widgetDeleteSupplierPayment(Map<String?, dynamic> selectRowInfo) {
     showDialog(
         context: context,
         builder: (context) {
@@ -961,26 +969,30 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                           if (_controllerSearchByName.text.isNotEmpty &&
                               _controllerStartDate.text == "" &&
                               _controllerEndDate.text == "") {
-                            await _blocCariSupplier.deleteInvoiceOrjinalSource(
-                                invoiceNumber, totalPrice);
+                            await _blocCariSupplier
+                                .deletePaymentAndCariSupplierOrjinalSource(
+                                    selectRowInfo);
                             //Müşteri ve Tarihler seçildiğinde
                           } else if (_controllerSearchByName.text.isNotEmpty &&
                               _controllerStartDate.text.isNotEmpty &&
                               _controllerEndDate.text.isNotEmpty) {
-                            await _blocCariSupplier.deleteInvoiceFiltreSource(
-                                invoiceNumber, totalPrice);
+                            await _blocCariSupplier
+                                .deletePaymentAndCariSupplierFilterSource(
+                                    selectRowInfo);
                             //Sadece Tarih seçildiğinde
                           } else if (_controllerStartDate.text.isNotEmpty &&
                               _controllerEndDate.text.isNotEmpty &&
                               _controllerSearchByName.text == "") {
-                            await _blocCariSupplier.deleteInvoiceOrjinalSource(
-                                invoiceNumber, totalPrice);
+                            await _blocCariSupplier
+                                .deletePaymentAndCariSupplierOrjinalSource(
+                                    selectRowInfo);
                             //Tümü Boş iken buda o günkü satışları getirir
                           } else if (_controllerSearchByName.text == "" &&
                               _controllerStartDate.text == "" &&
                               _controllerEndDate.text == "") {
-                            await _blocCariSupplier.deleteInvoiceOrjinalSource(
-                                invoiceNumber, totalPrice);
+                            await _blocCariSupplier
+                                .deletePaymentAndCariSupplierOrjinalSource(
+                                    selectRowInfo);
                           }
 
                           Navigator.pop(context);

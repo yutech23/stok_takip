@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
@@ -27,7 +26,6 @@ class BlocCariSuppleirs {
   ];
   final List<Map<String, dynamic>> _boughtListFilter = [];
   List<bool> _expanded = [false];
-  int _customerId = -1; //-1 hiç bir id yok
 
   DateTime _startTime =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -50,9 +48,9 @@ class BlocCariSuppleirs {
     "eftHavale": "0"
   };
 
-  final List<Map<String, dynamic>> _saleDetailList = [];
+  final List<Map<String, dynamic>> _paymentInfo = [];
   List<bool> _expandedSaleDetailList = [false];
-  Map<String, dynamic> _saleInfo = {};
+
   String _saleCurrencySembol = "";
   Map<String?, dynamic> _rowCustomerInfo = {};
 
@@ -85,9 +83,9 @@ class BlocCariSuppleirs {
   set setterStartDate(DateTime dateTime) => _startTime = dateTime;
   set setterEndDate(DateTime dateTime) => _endTime = dateTime;
 
-  get getterSaleDetailList => _saleDetailList;
+  get getterPaymentInfo => _paymentInfo;
   get getterExpandedSaleDetail => _expandedSaleDetailList;
-  get getterSaleInfo => _saleInfo;
+
   get getterSaleCurrencySembol => _saleCurrencySembol;
   get getterRowCustomerInfo => _rowCustomerInfo;
 
@@ -160,7 +158,7 @@ class BlocCariSuppleirs {
       ///Buraya 2 ayrı tablodan veri geliyor. bir birinin arkasına eklenmiş bir
       ///list yapı olarak. aralarındaki fark olmayan kolonlardan biri olan "total"
       ///üzerinden 2si ayrıştırlıyor.
-      if (element.containsKey('total')) {
+      if (element.containsKey('payment_id')) {
         totalPrice = element['total'];
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
@@ -171,6 +169,8 @@ class BlocCariSuppleirs {
         _calculationRow['totalPayment'] =
             _calculationRow['totalPayment']! + totalPayment;
         _boughtListOrjinal.add({
+          'paymentId': element['payment_id'],
+          'productName': element['product_fk'],
           'dateTime': dateTime,
           'supplierName': _selectedSupplier['name'],
           'totalPrice': FormatterConvert().currencyShow(totalPrice),
@@ -181,6 +181,7 @@ class BlocCariSuppleirs {
         _calculationRow['totalPayment'] =
             _calculationRow['totalPayment']! + totalPayment;
         _boughtListOrjinal.add({
+          'cariId': element['cari_supplier_id'],
           'dateTime': dateTime,
           'supplierName': _selectedSupplier['name'],
           'totalPrice': "-",
@@ -204,27 +205,8 @@ class BlocCariSuppleirs {
     _streamControllerSoldList.sink.add(_boughtListOrjinal);
   }
 
-  //Elden Alınan ödemeler Kaydediliyor
-  Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
-    cariSupplierPay.customerFk = _selectedSupplier['name']!;
-    cariSupplierPay.cashPayment = double.parse(_paymentSystem['cash']!);
-    cariSupplierPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
-    cariSupplierPay.eftHavalePayment =
-        double.parse(_paymentSystem['eftHavale']!);
-    cariSupplierPay.unitOfCurrency = unitOfCurrency;
-    cariSupplierPay.sellerId = dbHive.getValues('uuid');
-
-    /*   print(cariGetPay.customerType);
-    print(cariGetPay.customerFk);
-    print(cariGetPay.cashPayment);
-    print(cariGetPay.bankcardPayment);
-    print(cariGetPay.eftHavalePayment);
-    print(cariGetPay.sellerId); */
-
-    return await db.insertCariSupplierBySelectedCustomer(cariSupplierPay);
-  }
-
-  ///Müşteri belli olduktan sonra Zamana Göre Filtre
+  ///Müşteri belli olduktan sonra Zamana Göre Filtre BU kod Orjinal Liste Üzerinden
+  ///tarihe göre veri çekiyor.
   filtreSoldListByDateTime() {
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
     _boughtListFilter.clear();
@@ -262,7 +244,6 @@ class BlocCariSuppleirs {
   }
 
   ///Sadece Tarih Seçildiğinde
-
   getOnlyUseDateTimeForPaymentList() async {
     _expanded.clear();
     _boughtListOrjinal.clear();
@@ -273,13 +254,14 @@ class BlocCariSuppleirs {
     final resPaymentList = await db.fetchCariSupplierPaymentListByRangeDateTime(
         _startTime, _endTime);
 
-    for (var element in resPaymentList) {
+    for (Map element in resPaymentList) {
       DateTime convertTemp = DateTime.parse(element['record_date']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['record_date']));
 
-      if (element['product_fk'] != null) {
+      ///
+      if (element.containsKey('product_fk')) {
         double totalPayment =
             element['cash'] + element['bankcard'] + element['eft_havale'];
         double totalPrice = element['total'];
@@ -298,6 +280,8 @@ class BlocCariSuppleirs {
             _calculationRow['balance']! + (totalPrice - totalPayment);
 
         _boughtListOrjinal.add({
+          'paymentId': element['payment_id'],
+          'productName': element['product_fk'],
           'dateTime': dateTime,
           'supplierName': element['supplier_fk'],
           'totalPrice': FormatterConvert().currencyShow(totalPrice),
@@ -305,9 +289,8 @@ class BlocCariSuppleirs {
           'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
         });
       } else {
-        double totalPayment = element['cash_payment'] +
-            element['bankcard_payment'] +
-            element['eft_havale_payment'];
+        double totalPayment =
+            element['cash'] + element['bankcard'] + element['eft_havale'];
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
         ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
@@ -316,8 +299,9 @@ class BlocCariSuppleirs {
             _calculationRow['totalPayment']! + totalPayment;
 
         _boughtListOrjinal.add({
+          'cariId': element['cari_supplier_id'],
           'dateTime': dateTime,
-          'suppleirName': element['supplier_fk'],
+          'supplierName': element['supplier_fk'],
           'totalPrice': '-',
           'payment': FormatterConvert().currencyShow(totalPayment),
           'balance': "-"
@@ -341,28 +325,46 @@ class BlocCariSuppleirs {
     _boughtListOrjinal.clear();
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
 
-    Map<String, dynamic> resCari = await db.fetchCariByInvoiceNo(invoiceNo);
+    Map<String, dynamic> resCari = await db.fetchPaymentByInvoice(invoiceNo);
 
     String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-        .format(DateTime.parse(resCari['sale_date']));
+        .format(DateTime.parse(resCari['record_date']));
 
-    double totalPayment = resCari['cash_payment'] +
-        resCari['bankcard_payment'] +
-        resCari['eft_havale_payment'];
-    double totalPrice = shareFunc.calculateWithKDV(
-        resCari['total_payment_without_tax'], resCari['kdv_rate']);
+    double totalPayment =
+        resCari['cash'] + resCari['bankcard'] + resCari['eft_havale'];
+    double totalPrice = resCari['total'];
 
     _boughtListOrjinal.add({
+      'paymentId': resCari['payment_id'],
+      'productName': resCari['product_fk'],
       'dateTime': dateTime,
-      'type': resCari['customer_type'],
-      'customerName': resCari['name'],
-      'invoiceNumber': resCari['invoice_number'],
+      'supplierName': resCari['supplier_fk'],
       'totalPrice': FormatterConvert().currencyShow(totalPrice),
       'payment': FormatterConvert().currencyShow(totalPayment),
       'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
     });
     _expanded = List.generate(_boughtListOrjinal.length, (index) => false);
     _streamControllerSoldList.add(_boughtListOrjinal);
+  }
+
+  //Elden Alınan ödemeler Kaydediliyor
+  Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
+    cariSupplierPay.customerFk = _selectedSupplier['name']!;
+    cariSupplierPay.cashPayment = double.parse(_paymentSystem['cash']!);
+    cariSupplierPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
+    cariSupplierPay.eftHavalePayment =
+        double.parse(_paymentSystem['eftHavale']!);
+    cariSupplierPay.unitOfCurrency = unitOfCurrency;
+    cariSupplierPay.sellerId = dbHive.getValues('uuid');
+
+    /*   print(cariGetPay.customerType);
+    print(cariGetPay.customerFk);
+    print(cariGetPay.cashPayment);
+    print(cariGetPay.bankcardPayment);
+    print(cariGetPay.eftHavalePayment);
+    print(cariGetPay.sellerId); */
+
+    return await db.insertCariSupplierBySelectedCustomer(cariSupplierPay);
   }
 
   setToday() {
@@ -380,67 +382,44 @@ class BlocCariSuppleirs {
   }
 
   /*---------------------------------DETAY POP-UP--------------------- */
-  //Ürün listesini Getiriyor
-  getSaleDetail(int invoiceId) async {
-    _expandedSaleDetailList.clear();
-    _saleDetailList.clear();
-    final saleDetailListTemp = await db.fetchsaleDetailByInvoice(invoiceId);
-    for (var element in saleDetailListTemp) {
-      double tempTotal =
-          element['product_amount'] * element['product_price_without_tax'];
 
-      _saleDetailList.add({
-        'productCode': element['product_code'],
-        'productAmount': element['product_amount'],
-        'productPriceWithoutTax': FormatterConvert()
-            .currencyShow(element['product_price_without_tax']),
-        'productTotal': FormatterConvert().currencyShow(tempTotal)
-      });
-    }
-
-    _expandedSaleDetailList =
-        List.generate(_saleDetailList.length, (index) => false);
-  }
-
-  //Faturaya ait diğer bilgiler geliyor. (ödeme tipleri, düzenlem zamanı, kdv)
-  getSaleInfo(int invoiceId) async {
-    _saleInfo.clear();
-    _saleInfo = await db.fetchSaleInfoByInvocice(invoiceId);
-
-    ///Satış parabirimi simge olarak değiştiriliyor
-    if (_saleInfo['unit_of_currency'] == "TL") {
-      _saleCurrencySembol = "₺";
-    } else if (_saleInfo['unit_of_currency'] == "USD") {
-      _saleCurrencySembol = "\$";
-    } else if (_saleInfo['unit_of_currency'] == "EURO") {
-      _saleCurrencySembol = "€";
-    }
+  Future<String> getSaleInfo(String userId) async {
+    String sellerName = await db.fetchSellerNameByUuid(userId);
+    return sellerName;
   }
 
   ///veri tabanında  Faturanın silindiği yer Orjinal Veri
-  deleteInvoiceOrjinalSource(int invoiceNumber, String totalPrice) async {
-    if (totalPrice != "-") {
-      await db.deleteInvoiceSales(invoiceNumber);
+  deletePaymentAndCariSupplierOrjinalSource(
+      Map<String?, dynamic> rowSelect) async {
+    if (rowSelect.containsKey('paymentId')) {
+      await db.deletePaymentCariSupplier(rowSelect);
+
+      _boughtListOrjinal.removeWhere(
+          (element) => element['paymentId'] == rowSelect['paymentId']);
     } else {
-      await db.deleteInvoiceCari(invoiceNumber);
+      await db.deletePaymentCariSupplier(rowSelect);
+      _boughtListOrjinal
+          .removeWhere((element) => element['cariId'] == rowSelect['cariId']);
     }
 
-    _boughtListOrjinal
-        .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
     calculateRowTotalPaymentBalance(_boughtListOrjinal);
     _streamControllerSoldList.add(_boughtListOrjinal);
   }
 
   ///veri tabanında Faturanın silindiği yer Filtre
-  deleteInvoiceFiltreSource(int invoiceNumber, String totalPrice) async {
-    if (totalPrice != "-") {
-      await db.deleteInvoiceSales(invoiceNumber);
+  deletePaymentAndCariSupplierFilterSource(
+      Map<String?, dynamic> rowSelect) async {
+    if (rowSelect.containsKey('paymentId')) {
+      await db.deletePaymentCariSupplier(rowSelect);
+
+      _boughtListFilter.removeWhere(
+          (element) => element['paymentId'] == rowSelect['paymentId']);
     } else {
-      await db.deleteInvoiceCari(invoiceNumber);
+      await db.deletePaymentCariSupplier(rowSelect);
+      _boughtListFilter
+          .removeWhere((element) => element['cariId'] == rowSelect['cariId']);
     }
 
-    _boughtListFilter
-        .removeWhere((element) => element['invoiceNumber'] == invoiceNumber);
     calculateRowTotalPaymentBalance(_boughtListFilter);
     _streamControllerSoldList.add(_boughtListFilter);
   }

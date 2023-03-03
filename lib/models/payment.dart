@@ -14,21 +14,22 @@ class Payment {
   DateTime? recordDateTime;
   int amountOfStock;
   String? repaymentDateTime;
+  String userId;
 
-  Payment({
-    required this.suppliersFk,
-    required this.productFk,
-    this.invoiceCode,
-    required this.unitOfCurrency,
-    required this.total,
-    this.cash,
-    this.bankcard,
-    this.eftHavale,
-    required this.buyingPriceWithoutTax,
-    required this.sallingPriceWithoutTax,
-    required this.amountOfStock,
-    this.repaymentDateTime,
-  });
+  Payment(
+      {required this.suppliersFk,
+      required this.productFk,
+      this.invoiceCode,
+      required this.unitOfCurrency,
+      required this.total,
+      this.cash,
+      this.bankcard,
+      this.eftHavale,
+      required this.buyingPriceWithoutTax,
+      required this.sallingPriceWithoutTax,
+      required this.amountOfStock,
+      this.repaymentDateTime,
+      required this.userId});
 
   Payment.withId({
     required this.paymentId,
@@ -39,6 +40,7 @@ class Payment {
     required this.total,
     required this.buyingPriceWithoutTax,
     required this.sallingPriceWithoutTax,
+    required this.userId,
     this.invoiceCode,
     this.bankcard,
     this.cash,

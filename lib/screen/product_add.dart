@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/payment.dart';
@@ -1104,6 +1105,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             ///Depo seçimi koyulmadığından bu bölüm şimdilik sabit veriliyor.
             const storehouse = "Ana Depo";
 
+            String userId = dbHive.getValues('uuid');
+
             ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
             var product = Product(
               productCode: _controllerProductCode.text,
@@ -1138,7 +1141,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 buyingPriceWithoutTax: _valueNotifierProductBuyWithoutTax.value,
                 sallingPriceWithoutTax:
                     double.parse(_controllerSallingPriceWithoutTax.text),
-                repaymentDateTime: _selectDateTime);
+                repaymentDateTime: _selectDateTime,
+                userId: userId);
 
             ///KAYITIN GERÇEKLEŞTİĞİ YER.
             if (_valueNotifierBalance.value >= 0) {

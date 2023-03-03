@@ -75,7 +75,6 @@ class DbHelper {
             role: resData[0]['role'].toString());
         return selectedKullanici;
       } on PostgrestException catch (e) {
-        print("Hata FetchNameAndSurnameRole : ${e.message}");
         selectedKullanici = Kullanici.nameSurnameRole(
             name: 'Null', lastName: 'Null', role: 'Null');
 
@@ -156,6 +155,7 @@ class DbHelper {
     print(roleIdString);
     print(resAuth.data!.user!.id);
     print("***********"); */
+
       //Kulanıcı Bilgileri Kayıt
       await db.supabase.from('users').insert([
         {
@@ -430,7 +430,8 @@ class DbHelper {
           'cash': payment.cash,
           'bankcard': payment.bankcard,
           'eft_havale': payment.eftHavale,
-          'repayment_date': payment.repaymentDateTime
+          'repayment_date': payment.repaymentDateTime,
+          'seller': payment.userId
         }
       ]);
       return "";
@@ -632,7 +633,8 @@ class DbHelper {
           'buying_price_without_tax': payment.buyingPriceWithoutTax,
           'salling_price_without_tax': payment.sallingPriceWithoutTax,
           'amount_of_stock': payment.amountOfStock,
-          'repayment_date': payment.repaymentDateTime
+          'repayment_date': payment.repaymentDateTime,
+          'seller': payment.userId
         }
       ]);
       return "";
@@ -839,6 +841,26 @@ class DbHelper {
       return res;
     }
   }
+
+  /*---------------------------SATIÇI BİLGİSİ--------------------------- */
+  ///Satıcının adını getirir.
+  Future<String> fetchSellerNameByUuid(String uuid) async {
+    String resSellerName;
+    try {
+      final resData = await db.supabase
+          .from('users')
+          .select('name,last_name')
+          .eq('user_uuid', uuid)
+          .single();
+
+      resSellerName = resData['name'] + " " + resData['last_name'];
+      return resSellerName;
+    } on PostgrestException catch (e) {
+      print("Satıcı Bilgileri Hata: ${e.message}");
+      return resSellerName = "";
+    }
+  }
+  /*--------------------------------------------------------------------*/
 
   /*---------------------------------------------------------------- */
   /*-----------------------------CARİ MÜŞTERİLER EKRANIN İŞLEMLERİ-------------------- */
@@ -1203,8 +1225,7 @@ class DbHelper {
 
       resCariSupplier = await db.supabase
           .from('cari_supplier')
-          .select(
-              'supplier_fk,record_date,cash,bankcard,eft_havale,unit_of_currency,seller')
+          .select('*')
           .eq('supplier_fk', name);
 
       resPayment.addAll(resCariSupplier);
@@ -1221,6 +1242,7 @@ class DbHelper {
       fetchCariSupplierPaymentListByRangeDateTime(
           DateTime startTime, DateTime endTime) async {
     List<Map<String, dynamic>> resPayment = [];
+    List<Map<String, dynamic>> resCariSupplier = [];
 
     try {
       resPayment = await db.supabase
@@ -1228,6 +1250,15 @@ class DbHelper {
           .select<List<Map<String, dynamic>>>('*')
           .lt('record_date', endTime)
           .gt('record_date', startTime);
+
+      resCariSupplier = await db.supabase
+          .from('cari_supplier')
+          .select<List<Map<String, dynamic>>>('*')
+          .lt('record_date', endTime)
+          .gt('record_date', startTime);
+
+      resPayment.addAll(resCariSupplier);
+
       return resPayment;
     } on PostgrestException catch (e) {
       print("Hata Cari Tedarikci Sadece Tarih Girildiğinde: ${e.message}");
@@ -1255,6 +1286,113 @@ class DbHelper {
       print("Hata Ödeme Alma : ${e.message}");
       resData['hata'] = e.message;
       return resData;
+    }
+  }
+
+  ///Ödeme silme işlemi
+  deletePaymentCariSupplier(Map<String?, dynamic> rowSelect) async {
+    Map<String, dynamic> resProduct = {};
+    Map<String, dynamic> resDeletePaymentOrCariSupplier = {};
+
+    print(rowSelect);
+
+    try {
+      if (rowSelect.containsKey('paymentId')) {
+        resProduct = await db.supabase
+            .from('product')
+            .select('current_buying_price_without_tax,current_amount_of_stock')
+            .eq('product_code', rowSelect['productName'])
+            .single();
+
+        ///payment tablosunda siliniyor.
+        resDeletePaymentOrCariSupplier = await db.supabase
+            .from('payment')
+            .delete()
+            .match({'payment_id': rowSelect['paymentId']})
+            .select()
+            .single();
+
+        var totalPayment = resProduct['current_amount_of_stock'] *
+            resProduct['current_buying_price_without_tax'];
+        var deletePaymentTotal =
+            resDeletePaymentOrCariSupplier['amount_of_stock'] *
+                resDeletePaymentOrCariSupplier['buying_price_without_tax'];
+        var newTotalPayment = totalPayment - deletePaymentTotal;
+        var newAmount = resProduct['current_amount_of_stock'] -
+            resDeletePaymentOrCariSupplier['amount_of_stock'];
+        var newBuyingPrice = newTotalPayment / newAmount;
+
+        /*  print(totalPayment);
+        print(deletePaymentTotal);
+        print(newTotalPayment);
+        print(newAmount);
+        print(newBuyingPrice); */
+
+        await db.supabase.from('product').update({
+          'current_amount_of_stock': newAmount,
+          'current_buying_price_without_tax': newBuyingPrice
+        }).match({'product_code': rowSelect['productName']});
+      } else if (rowSelect.containsKey('cariId')) {
+        ///Cari supplier tablosunda siliyor.
+        await db.supabase
+            .from('cari_supplier')
+            .delete()
+            .match({'cari_supplier_id': rowSelect['cariId']});
+      }
+    } on PostgrestException catch (e) {
+      print("Fatura Silme Hatası : ${e.message}");
+    }
+  }
+
+  /*------------------------CARİ SUPPLİER POPUP-------------------- */
+  Future<Map<String, dynamic>> fetchPaymentInfoByPaymentId(
+      int paymentId) async {
+    Map<String, dynamic> res = {};
+    try {
+      res = await db.supabase
+          .from('payment')
+          .select()
+          .eq('payment_id', paymentId)
+          .single();
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Tedarikçi detay Hata :${e.message}");
+      return res;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchSupplierInfo(String supplierName) async {
+    Map<String, dynamic> res = {};
+    try {
+      res = await db.supabase
+          .from('suppliers')
+          .select<Map<String, dynamic>>()
+          .eq('name', supplierName)
+          .single();
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Tedarikçi Bilgileri Hata :${e.message}");
+      return res;
+    }
+  }
+
+  ///Fatura No ile cari getirme
+  Future<Map<String, dynamic>> fetchPaymentByInvoice(String invoiceNo) async {
+    Map<String, dynamic> res = {};
+
+    try {
+      res = await db.supabase
+          .from('payment')
+          .select<Map<String, dynamic>>('*')
+          .eq('invoice_code', invoiceNo)
+          .single();
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Fatura No ile Cari Getirme Hata :${e.message}");
+      return res;
     }
   }
 }
