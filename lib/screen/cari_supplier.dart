@@ -502,14 +502,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
-                actions: [
-                  IconButton(
-                      onPressed: () async => printPDF(_headers, snapshot.data),
-                      icon: Icon(
-                        Icons.print_rounded,
-                        color: Colors.grey,
-                      ))
-                ],
+                actions: [widgetButtonPrinter(snapshot)],
                 dropContainer: (value) {
                   if (value.containsKey('productName')) {
                     return Padding(
@@ -1015,10 +1008,26 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         });
   }
 
+  widgetButtonPrinter(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+    return IconButton(
+        onPressed: () async {
+          ///tablo boş ise pdf dökme hata veriyor. O yüzden burada verinin dolu kontrol ediliyor.
+          if (snapshot.hasData) {
+            printPDF(_headers, snapshot.data,
+                _blocCariSupplier.getterCalculationRow);
+          }
+        },
+        icon: Icon(
+          Icons.print_rounded,
+          color: Colors.grey,
+        ));
+  }
+
   ///PDF ekleme
-  printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source) {
+  printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source,
+      Map<String, dynamic> footer) {
     ///son kolonda simge var diye buradan kaldırılıyor.
-    headers.removeLast();
+
     Printing.layoutPdf(onLayout: ((format) async {
       var myFont = await PdfGoogleFonts.poppinsMedium();
       final pw.TextStyle letterCharacter =
@@ -1035,7 +1044,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
           build: (pw.Context context) => [
             pw.Center(
                 heightFactor: 2.0,
-                child: pw.Text('Cari Dökümü', style: letterHeader)),
+                child: pw.Text('CARİ DÖKÜMÜ', style: letterHeader)),
             pw.Table(
               defaultColumnWidth: const pw.FixedColumnWidth(120.0),
               border: pw.TableBorder.all(
@@ -1046,11 +1055,11 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                       color: PdfColors.grey,
                     ),
                     children: [
-                      for (var column in headers)
+                      for (int i = 0; i < headers.length - 1; i++)
                         pw.Container(
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
-                            child: pw.Text(column.text,
+                            child: pw.Text(headers[i].text,
                                 textAlign: pw.TextAlign.center,
                                 style: letterCharacterBold))
                     ]),
@@ -1062,17 +1071,51 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                             ? PdfColors.grey200
                             : PdfColors.white),
                     children: [
-                      for (var column in headers)
+                      for (int i = 0; i < headers.length - 1; i++)
                         pw.Container(
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
                             child: pw.Text(
-                                source[index][column.value].toString(),
+                                source[index][headers[i].value].toString(),
                                 style: letterCharacter)),
                     ],
-                  )
+                  ),
               ],
             ),
+            pw.Table(
+                defaultColumnWidth: const pw.FixedColumnWidth(160),
+                border: pw.TableBorder.symmetric(
+                    outside: pw.BorderSide(
+                        color: PdfColor.fromHex('#8E8E8E'), width: 0.5)),
+                children: [
+                  pw.TableRow(
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.grey100,
+                      ),
+                      children: [
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Toplam Tutar: ${FormatterConvert().currencyShow(footer['totalPrice'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalPayment'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Kalan Tutar: ${FormatterConvert().currencyShow(footer['balance'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter))
+                      ]),
+                ])
           ],
         ),
       );

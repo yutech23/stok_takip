@@ -15,6 +15,9 @@ import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class ScreenCariCustomer extends StatefulWidget {
   const ScreenCariCustomer({super.key});
@@ -510,7 +513,6 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
               if (snapshot.hasData && !snapshot.hasError) {}
 
               return ResponsiveDatatable(
-                exports: [ExportAction.print],
                 reponseScreenSizes: const [ScreenSize.xs],
                 headers: _headers,
                 source: snapshot.data,
@@ -519,7 +521,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
-                actions: [],
+                actions: [widgetButtonPrinter(snapshot)],
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),
                 footers: [
@@ -998,5 +1000,118 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
             ],
           );
         });
+  }
+
+  widgetButtonPrinter(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+    return IconButton(
+        onPressed: () async {
+          if (snapshot.hasData) {
+            printPDF(_headers, snapshot.data, _blocCari.getterCalculationRow);
+          }
+        },
+        icon: Icon(
+          Icons.print_rounded,
+          color: Colors.grey,
+        ));
+  }
+
+  ///PDF ekleme
+  printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source,
+      Map<String, dynamic> footer) {
+    ///son kolonda simge var diye buradan kaldırılıyor.
+
+    Printing.layoutPdf(onLayout: ((format) async {
+      var myFont = await PdfGoogleFonts.poppinsMedium();
+      final pw.TextStyle letterCharacter =
+          pw.TextStyle(font: myFont, fontSize: 9);
+      final pw.TextStyle letterCharacterBold = pw.TextStyle(
+          font: myFont, fontSize: 12, fontWeight: pw.FontWeight.bold);
+      final pw.TextStyle letterHeader =
+          pw.TextStyle(font: myFont, fontSize: 16);
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 100,
+          build: (pw.Context context) => [
+            pw.Center(
+                heightFactor: 2.0,
+                child: pw.Text('CARİ DÖKÜMÜ', style: letterHeader)),
+            pw.Table(
+              defaultColumnWidth: const pw.FixedColumnWidth(120.0),
+              border: pw.TableBorder.all(
+                  color: PdfColor.fromHex('#8E8E8E'), width: 0.5),
+              children: [
+                pw.TableRow(
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.grey,
+                    ),
+                    children: [
+                      for (int i = 0; i < headers.length - 1; i++)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(headers[i].text,
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacterBold))
+                    ]),
+                for (int index = 0; index < source!.length; index++)
+                  pw.TableRow(
+                    verticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    decoration: pw.BoxDecoration(
+                        color: index % 2 == 1
+                            ? PdfColors.grey200
+                            : PdfColors.white),
+                    children: [
+                      for (int i = 0; i < headers.length - 1; i++)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                source[index][headers[i].value].toString(),
+                                style: letterCharacter)),
+                    ],
+                  ),
+              ],
+            ),
+            pw.Table(
+                defaultColumnWidth: const pw.FixedColumnWidth(160),
+                border: pw.TableBorder.symmetric(
+                    outside: pw.BorderSide(
+                        color: PdfColor.fromHex('#8E8E8E'), width: 0.5)),
+                children: [
+                  pw.TableRow(
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.grey100,
+                      ),
+                      children: [
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Toplam Tutar: ${FormatterConvert().currencyShow(footer['totalPrice'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalPayment'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Kalan Tutar: ${FormatterConvert().currencyShow(footer['balance'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter))
+                      ]),
+                ])
+          ],
+        ),
+      );
+      return pdf.save();
+    }));
   }
 }
