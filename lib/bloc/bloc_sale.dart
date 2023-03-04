@@ -8,7 +8,12 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 class BlocSale {
   List<Product> listProduct = <Product>[];
   List<double> listUSD = <double>[];
+  List<String> _listProductCode = <String>[];
   int? _invoiceNumber;
+
+  BlocSale() {
+    getProductCodeList();
+  }
 
   double _balance = 0;
   Map<String, num> totalPriceAndKdv = <String, num>{
@@ -39,6 +44,8 @@ class BlocSale {
     _streamControllerPaymentSystem.add(0);
     _streamControllerTotalPriceSection.add(totalPriceAndKdv);
   }
+
+  List<String> get getterProductCodeList => _listProductCode;
 
   double get getBalanceValue => _balance;
   int? get getInvoiceNumber => _invoiceNumber;
@@ -136,6 +143,11 @@ class BlocSale {
     balance();
 
     _streamControllerTotalPriceSection.sink.add(totalPriceAndKdv);
+  }
+
+/*---------------------------ÜRÜN LİSTESİ------------------------------ */
+  getProductCodeList() async {
+    _listProductCode = await db.getProductCode();
   }
 
 /*------------------Total Fiyatların Hesaplandığı yer ------------------ */

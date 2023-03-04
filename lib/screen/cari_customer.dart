@@ -32,7 +32,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
-  final String _labelHeading = "Cari Hesaplar";
+  final String _labelHeading = "Müşteri Cari Sayfa";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Fatura No ile";
   late final BlocCariCustomer _blocCari;
@@ -1005,6 +1005,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   widgetButtonPrinter(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
     return IconButton(
         onPressed: () async {
+          ///tablo boş ise pdf dökme hata veriyor. O yüzden burada verinin dolu kontrol ediliyor.
+
           if (snapshot.hasData) {
             printPDF(_headers, snapshot.data, _blocCari.getterCalculationRow);
           }

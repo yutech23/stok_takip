@@ -403,6 +403,18 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               onSuggestionTap: (selectedValue) {
                 _focusSearchProductCode.unfocus();
               },
+              onSubmit: (p0) async {
+                if (p0.isNotEmpty) {
+                  //seçilen ürün kodunun özellikleri alınıyor.
+                  if (snapshot.data!.contains(p0)) {
+                    _selectProduct = await db.fetchProductDetailForSale(
+                        _controllerSearchProductCode.text);
+                    blocSale.addProduct(_selectProduct!);
+                    blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
+                    blocSale.balance();
+                  }
+                }
+              },
               maxSuggestionsInViewPort: 6,
             );
           }
@@ -424,13 +436,17 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         onPressed: () async {
           if (_controllerSearchProductCode.text.isNotEmpty) {
             //seçilen ürün kodunun özellikleri alınıyor.
-            _selectProduct = await db
-                .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
-            blocSale.addProduct(_selectProduct!);
+            if (blocSale.getterProductCodeList
+                .contains(_controllerSearchProductCode.text)) {
+              _selectProduct = await db
+                  .fetchProductDetailForSale(_controllerSearchProductCode.text);
 
-            blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
-            blocSale.balance();
+              blocSale.addProduct(_selectProduct!);
+
+              blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
+              blocSale.balance();
+            }
             /* //nesne kıyaslaması yapılıyor. equatable kullanarak
             if (!_listAddProduct.contains(_selectProduct)) {
               SaleTableRow.valueNotifier.value.add(_selectProduct!);

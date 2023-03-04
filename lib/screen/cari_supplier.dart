@@ -33,7 +33,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
-  final String _labelHeading = "Cari Hesaplar";
+  final String _labelHeading = "Tedarikçi Cari Sayfa";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Fatura No ile";
   late final BlocCariSuppleirs _blocCariSupplier;

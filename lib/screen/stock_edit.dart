@@ -1110,6 +1110,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               ),
               actions: [
                 //GÜNCELLEME BUTTON
+                //TODO: negatif stok güncelleme hatası giderilcek.
                 ElevatedButton(
                     onPressed: () async {
                       if (keyPopupForm.currentState!.validate()) {
