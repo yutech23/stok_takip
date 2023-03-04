@@ -1005,7 +1005,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   widgetUpdateProductPriceAndStock(Product selectedProduct) {
     final GlobalKey<FormState> keyPopupForm = GlobalKey<FormState>();
     final Map<String, dynamic> productDetailToBeupdateMap = {};
-    final valueNotifierProductBuyWithTax = ValueNotifier<double>(0);
+    final valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
     final valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
     final controllerProductAmountOfStockNewValue = TextEditingController();
     final controllerSallingPriceWithoutTax = TextEditingController();
@@ -1089,7 +1089,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         widgetDividerHeader(_paymentSections),
                         widgetPaymentOptions(
                             controllerProductAmountOfStockNewValue,
-                            valueNotifierProductBuyWithTax,
+                            valueNotifierProductBuyWithoutTax,
                             setState),
                         Divider(
                             color: context.extensionLineColor,
@@ -1101,7 +1101,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         widgetProductUnitSection(
                             controllerProductAmountOfStockNewValue,
                             controllerSallingPriceWithoutTax,
-                            valueNotifierProductBuyWithTax,
+                            valueNotifierProductBuyWithoutTax,
                             valueNotifierProductSaleWithTax)
                       ],
                     ),
@@ -1113,21 +1113,27 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 //TODO: negatif stok güncelleme hatası giderilcek.
                 ElevatedButton(
                     onPressed: () async {
+                      print(oldStockValue);
                       if (keyPopupForm.currentState!.validate()) {
                         ///Yeni verilerin aktarıldığı değişkenler.
                         newStockValue = int.parse(
                             controllerProductAmountOfStockNewValue.text);
 
                         double newBuyingPriceWithoutTax =
-                            valueNotifierProductBuyWithTax.value;
+                            valueNotifierProductBuyWithoutTax.value;
                         double newSallingPriceWithoutTax =
                             double.parse(controllerSallingPriceWithoutTax.text);
 
+                        if (oldStockValue! < 0) {
+                          newStockValue = newStockValue + oldStockValue!;
+                          oldStockValue = 0;
+                        }
+
                         ///fiyat ortalama hesabı ve yeni fiyatın belirlenmesi
                         double newAverageBuyingPriceWithoutTax =
-                            (oldStockValue * oldBuyingPriceWithoutTax +
+                            (oldStockValue! * oldBuyingPriceWithoutTax +
                                     newStockValue * newBuyingPriceWithoutTax) /
-                                (oldStockValue + newStockValue);
+                                (oldStockValue! + newStockValue);
                         double profit = newSallingPriceWithoutTax -
                             newBuyingPriceWithoutTax;
 
@@ -1180,7 +1186,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         //Product Nesmesi
                         productDetailToBeupdateMap.addAll({
                           'current_amount_of_stock':
-                              (oldStockValue + newStockValue),
+                              (oldStockValue! + newStockValue),
                           'tax_rate': selectedTaxToInt,
                           'current_buying_price_without_tax':
                               newAverageBuyingPriceWithoutTax
@@ -1195,7 +1201,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             productDetailToBeupdateMap,
                             newPayment);
 
-                        if (resDatabase.isEmpty) {
+                        if (resDatabase == "") {
                           _controllerPaymentTotal.clear();
                           _controllerBankValue.clear();
                           _controllerCashValue.clear();
@@ -1207,6 +1213,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                           _selectDateTime = "";
                           controllerProductAmountOfStockNewValue.clear();
                           controllerSallingPriceWithoutTax.clear();
+                          _cashValue = 0;
+                          _bankValue = 0;
+                          _bankValue = 0;
 
                           context.noticeBarTrue("Kayıt Başarılı", 1);
                         } else {
