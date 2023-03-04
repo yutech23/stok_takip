@@ -16,6 +16,9 @@ import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class ScreenCariSupplier extends StatefulWidget {
   const ScreenCariSupplier({super.key});
@@ -491,7 +494,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
               if (snapshot.hasData && !snapshot.hasError) {}
 
               return ResponsiveDatatable(
-                exports: [ExportAction.print, ExportAction.excel],
                 reponseScreenSizes: const [ScreenSize.xs],
                 headers: _headers,
                 source: snapshot.data,
@@ -500,7 +502,14 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
-                actions: [],
+                actions: [
+                  IconButton(
+                      onPressed: () async => printPDF(_headers, snapshot.data),
+                      icon: Icon(
+                        Icons.print_rounded,
+                        color: Colors.grey,
+                      ))
+                ],
                 dropContainer: (value) {
                   if (value.containsKey('productName')) {
                     return Padding(
@@ -1004,5 +1013,70 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
             ],
           );
         });
+  }
+
+  ///PDF ekleme
+  printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source) {
+    ///son kolonda simge var diye buradan kaldırılıyor.
+    headers.removeLast();
+    Printing.layoutPdf(onLayout: ((format) async {
+      var myFont = await PdfGoogleFonts.poppinsMedium();
+      final pw.TextStyle letterCharacter =
+          pw.TextStyle(font: myFont, fontSize: 9);
+      final pw.TextStyle letterCharacterBold = pw.TextStyle(
+          font: myFont, fontSize: 12, fontWeight: pw.FontWeight.bold);
+      final pw.TextStyle letterHeader =
+          pw.TextStyle(font: myFont, fontSize: 16);
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 100,
+          build: (pw.Context context) => [
+            pw.Center(
+                heightFactor: 2.0,
+                child: pw.Text('Cari Dökümü', style: letterHeader)),
+            pw.Table(
+              defaultColumnWidth: const pw.FixedColumnWidth(120.0),
+              border: pw.TableBorder.all(
+                  color: PdfColor.fromHex('#8E8E8E'), width: 0.5),
+              children: [
+                pw.TableRow(
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.grey,
+                    ),
+                    children: [
+                      for (var column in headers)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(column.text,
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacterBold))
+                    ]),
+                for (int index = 0; index < source!.length; index++)
+                  pw.TableRow(
+                    verticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    decoration: pw.BoxDecoration(
+                        color: index % 2 == 1
+                            ? PdfColors.grey200
+                            : PdfColors.white),
+                    children: [
+                      for (var column in headers)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                source[index][column.value].toString(),
+                                style: letterCharacter)),
+                    ],
+                  )
+              ],
+            ),
+          ],
+        ),
+      );
+      return pdf.save();
+    }));
   }
 }

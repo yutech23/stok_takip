@@ -494,10 +494,15 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                           if (widget.title != null) widget.title!,
                           if (widget.exports != null &&
                               widget.exports!.contains(ExportAction.print))
-                            IconButton(
-                                onPressed: () => printPDF(),
-                                color: Theme.of(context).primaryColor,
-                                icon: const Icon(Icons.print)),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.centerRight,
+                                child: IconButton(
+                                    onPressed: () => printPDF(),
+                                    color: Theme.of(context).primaryColor,
+                                    icon: const Icon(Icons.print)),
+                              ),
+                            ),
                         ],
                       ),
 
