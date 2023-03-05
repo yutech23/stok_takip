@@ -1,6 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:stok_takip/screen/cari_supplier.dart';
+import 'package:stok_takip/screen/case_snapshot.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/product_add.dart';
 import 'package:stok_takip/screen/sale.dart';
@@ -80,5 +81,10 @@ import 'auth_guard.dart';
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
+  CustomRoute(
+      page: ScreenCaseSnapshot,
+      path: ConstRoute.caseSnapshot,
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
 ])
 class $AppRouter {}
