@@ -165,6 +165,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     print("deneme: ${MediaQuery.of(context).size.width}");
     getWidthScreenSize(context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text("Yeni Ürün Ekleme"),
         // ignore: prefer_const_literals_to_create_immutables

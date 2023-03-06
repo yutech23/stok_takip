@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
@@ -17,6 +20,28 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelHeading = "Güncel Durum";
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
+
+  late BlocCaseSnapshot _blocCaseSnapshot;
+
+  /*------------------------TAHSİLAT BÖLÜMÜ------------------------------- */
+  final String _labelCollectionHeader = "TAHSİLAT";
+  final String _labelCollected = "TAHSİL EDİLEN";
+  final String _labelCollectionWill = "TAHSİL EDİLECEKLER";
+  final String _labeltotalCollected = "TOPLAM";
+  /*---------------------------------------------------------------------- */
+  /*------------------------ÖDEME BÖLÜMÜ------------------------------- */
+  final String _labelPaymentHeader = "ÖDEMELER";
+  final String _labelPaid = "YAPILAN";
+  final String _labelPayable = "YAPILACAK";
+  final String _labelTotal = "TOPLAM";
+  /*---------------------------------------------------------------------- */
+
+  @override
+  void initState() {
+    _blocCaseSnapshot = BlocCaseSnapshot();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +61,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
     );
   }
 
-  final dataMap = <String, double>{
-    "Flutter": 5,
-  };
+  final dataMap = <String, double>{"Nakit": 903249500, "Banka": 103249500};
+  final dataMap2 = <String, double>{"Nakit": 903249500};
+  final dataMap1 = <String, String>{"Nakit": '903249500', "Banka": '103249500'};
 
   buildCaseSnapshot() {
     return Form(
@@ -53,30 +78,133 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                 minWidth: _shareMinWidth, maxWidth: _shareMaxWidth),
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
-            child: Wrap(
-                alignment: WrapAlignment.center,
-                runSpacing: context.extensionWrapSpacing10(),
-                spacing: context.extensionWrapSpacing20(),
-                direction: Axis.horizontal,
-                children: [
-                  Container(
-                    color: Colors.grey,
-                    width: 300,
-                    height: 300,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: PieChart(
-                      dataMap: dataMap,
-                      chartType: ChartType.ring,
-                      baseChartColor: Colors.grey[50]!.withOpacity(0.15),
-                      colorList: [Colors.greenAccent],
-                      chartValuesOptions: ChartValuesOptions(
-                        showChartValuesInPercentage: true,
+            child: Column(
+              children: [
+                Card(
+                  elevation: 10,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _labelCollectionHeader,
+                          style: context.theme.headline6,
+                        ),
                       ),
-                      totalValue: 20,
-                    ),
-                  )
-                ]),
+                      Divider(
+                          color: context.extensionDisableColor, thickness: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Wrap(
+                            alignment: WrapAlignment.center,
+                            runSpacing: context.extensionWrapSpacing20(),
+                            spacing: 50,
+                            direction: Axis.horizontal,
+                            children: [
+                              widgetShareChart(
+                                  blocCaseSnapshot.getterCollectionData,
+                                  [
+                                    Colors.amberAccent,
+                                    Colors.grey.shade400,
+                                  ],
+                                  _labelCollected,
+                                  true,
+                                  labelRow: true),
+                              widgetShareChart(dataMap2, [Colors.amberAccent],
+                                  _labelCollectionWill, false),
+                              widgetShareChart(dataMap2, [Colors.grey],
+                                  _labeltotalCollected, false)
+                            ]),
+                      ),
+                    ],
+                  ),
+                ),
+                Card(
+                  elevation: 10,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _labelPaymentHeader,
+                          style: context.theme.headline6,
+                        ),
+                      ),
+                      Divider(
+                          color: context.extensionDisableColor, thickness: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Wrap(
+                            alignment: WrapAlignment.center,
+                            runSpacing: context.extensionWrapSpacing20(),
+                            spacing: 50,
+                            direction: Axis.horizontal,
+                            children: [
+                              widgetShareChart(
+                                  dataMap,
+                                  [
+                                    Colors.amberAccent,
+                                    Colors.grey.shade400,
+                                  ],
+                                  _labelPaid,
+                                  true,
+                                  labelRow: true),
+                              widgetShareChart(dataMap2, [Colors.amberAccent],
+                                  _labelPayable, false),
+                              widgetShareChart(
+                                  dataMap2, [Colors.grey], _labelTotal, false)
+                            ]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           )),
         ));
+  }
+
+  SizedBox widgetShareChart(Map<String, double> dataMap, List<Color> colorList,
+      String labelHeader, bool showlabel,
+      {bool labelRow = false}) {
+    return SizedBox(
+      width: 150,
+      height: 235,
+      child: Column(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                labelHeader,
+                style: context.theme.titleSmall!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          PieChart(
+            animationDuration: const Duration(seconds: 1, milliseconds: 200),
+            chartLegendSpacing: 12,
+            legendOptions: LegendOptions(
+              legendPosition: LegendPosition.bottom,
+              showLegendsInRow: labelRow,
+              showLegends: showlabel,
+            ),
+            formatChartValues: (value) {
+              return FormatterConvert()
+                  .currencyShow(value, unitOfCurrency: "₺");
+            },
+            dataMap: dataMap,
+            chartType: ChartType.ring,
+            baseChartColor: Colors.grey[50]!.withOpacity(0.15),
+            colorList: colorList,
+            chartValuesOptions: const ChartValuesOptions(
+                chartValueBackgroundColor: Colors.white),
+          ),
+        ],
+      ),
+    );
   }
 }

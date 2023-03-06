@@ -68,6 +68,7 @@ class _ScreenSignUpState extends State with Validation {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         centerTitle: true,
         title: const Text(

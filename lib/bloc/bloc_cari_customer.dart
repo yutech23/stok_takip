@@ -172,10 +172,11 @@ class BlocCariCustomer {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['sale_date']));
 
-      double totalPayment = element['cash_payment'] +
+      num totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
           element['eft_havale_payment'];
-      double totalPrice = shareFunc.calculateWithKDV(
+      print(totalPayment);
+      num totalPrice = shareFunc.calculateWithKDV(
           element['total_payment_without_tax'], element['kdv_rate']);
 
       ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
@@ -202,7 +203,7 @@ class BlocCariCustomer {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['payment_date']).toLocal());
 
-      double totalPayment = element['cash_payment'] +
+      num totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
           element['eft_havale_payment'];
 

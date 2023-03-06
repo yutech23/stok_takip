@@ -150,6 +150,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   Widget build(BuildContext context) {
     getWidthScreenSize(context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(_labelHeading),
 

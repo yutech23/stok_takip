@@ -43,7 +43,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
   bool _obscureValue = true;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(resizeToAvoidBottomInset: false, body: buildLogin(context));
+    return Scaffold(resizeToAvoidBottomInset: true, body: buildLogin(context));
   }
 
   buildLogin(BuildContext context) {
@@ -207,7 +207,12 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                 SecurityStorageUser.setUserLastName(
                     userNameSurnameRole.lastName!);
                 SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
-                context.router.pushNamed(ConstRoute.stockEdit);
+
+                if (authController.role == '1') {
+                  context.router.pushNamed(ConstRoute.caseSnapshot);
+                } else if (authController.role == '2') {
+                  context.router.pushNamed(ConstRoute.sale);
+                }
               } else {
                 // ignore: use_build_context_synchronously
                 context.noticeBarError("Giriş başarısız.", 1);

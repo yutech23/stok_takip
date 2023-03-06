@@ -1395,6 +1395,25 @@ class DbHelper {
       return res;
     }
   }
+
+  /*---------------------------TAHSİLAT HESABI BÖLÜMÜ--------------------- */
+  Future<List<dynamic>> fetchCalculateCollection() async {
+    List<dynamic> resSales = [];
+    try {
+      resSales = await db.supabase.from('sales').select(
+            'cash_payment,bankcard_payment,eft_havale_payment',
+          );
+      final resCari = await db.supabase.from('cari').select(
+            'cash_payment,bankcard_payment,eft_havale_payment',
+          );
+      resSales.addAll(resCari);
+
+      return resSales;
+    } on PostgrestException catch (e) {
+      return resSales;
+    }
+  }
+  /*-----------------------------------------------------------------------*/
 }
 
 final db = DbHelper();

@@ -151,9 +151,9 @@ class BlocCariSuppleirs {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['record_date']));
 
-      double totalPayment =
+      num totalPayment =
           element['cash'] + element['bankcard'] + element['eft_havale'];
-      double totalPrice;
+      num totalPrice;
 
       ///Buraya 2 ayrı tablodan veri geliyor. bir birinin arkasına eklenmiş bir
       ///list yapı olarak. aralarındaki fark olmayan kolonlardan biri olan "total"
@@ -262,9 +262,9 @@ class BlocCariSuppleirs {
 
       ///
       if (element.containsKey('product_fk')) {
-        double totalPayment =
+        num totalPayment =
             element['cash'] + element['bankcard'] + element['eft_havale'];
-        double totalPrice = element['total'];
+        num totalPrice = element['total'];
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
         ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
@@ -289,7 +289,7 @@ class BlocCariSuppleirs {
           'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
         });
       } else {
-        double totalPayment =
+        num totalPayment =
             element['cash'] + element['bankcard'] + element['eft_havale'];
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
@@ -330,9 +330,9 @@ class BlocCariSuppleirs {
     String dateTime = DateFormat("dd/MM/yyyy HH:mm")
         .format(DateTime.parse(resCari['record_date']));
 
-    double totalPayment =
+    num totalPayment =
         resCari['cash'] + resCari['bankcard'] + resCari['eft_havale'];
-    double totalPrice = resCari['total'];
+    num totalPrice = resCari['total'];
 
     _boughtListOrjinal.add({
       'paymentId': resCari['payment_id'],
