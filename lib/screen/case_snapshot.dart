@@ -20,6 +20,8 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelHeading = "Güncel Durum";
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
+  final double _shareWidthChartContainer = 150;
+  final double _shareHeightChartContainer = 235;
 
   late BlocCaseSnapshot _blocCaseSnapshot;
 
@@ -77,7 +79,6 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             constraints: BoxConstraints(
                 minWidth: _shareMinWidth, maxWidth: _shareMaxWidth),
             padding: context.extensionPadding20(),
-            decoration: context.extensionThemaWhiteContainer(),
             child: Column(
               children: [
                 Card(
@@ -95,28 +96,46 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                       Divider(
                           color: context.extensionDisableColor, thickness: 1),
                       Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Wrap(
-                            alignment: WrapAlignment.center,
-                            runSpacing: context.extensionWrapSpacing20(),
-                            spacing: 50,
-                            direction: Axis.horizontal,
-                            children: [
-                              widgetShareChart(
-                                  blocCaseSnapshot.getterCollectionData,
-                                  [
-                                    Colors.amberAccent,
-                                    Colors.grey.shade400,
-                                  ],
-                                  _labelCollected,
-                                  true,
-                                  labelRow: true),
-                              widgetShareChart(dataMap2, [Colors.amberAccent],
-                                  _labelCollectionWill, false),
-                              widgetShareChart(dataMap2, [Colors.grey],
-                                  _labeltotalCollected, false)
-                            ]),
-                      ),
+                          padding: const EdgeInsets.all(12.0),
+                          child: FutureBuilder<Map<String, double>>(
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && !snapshot.hasError) {
+                                return Wrap(
+                                    alignment: WrapAlignment.center,
+                                    runSpacing:
+                                        context.extensionWrapSpacing20(),
+                                    spacing: 50,
+                                    direction: Axis.horizontal,
+                                    children: [
+                                      ///Tahsil Edilen
+                                      widgetShareChart({
+                                        'Kasa': snapshot.data!['Kasa']!,
+                                        'Banka': snapshot.data!['Banka']!
+                                      }, [
+                                        Colors.amberAccent,
+                                        Colors.grey.shade400,
+                                      ], _labelCollected, true, labelRow: true),
+
+                                      widgetShareChart({
+                                        'Kalan': snapshot.data!['Kalan']!,
+                                      }, [
+                                        Colors.redAccent,
+                                      ], _labeltotalCollected, true,
+                                          labelRow: false),
+
+                                      widgetShareChart({
+                                        'Toplam': snapshot.data!['Toplam']!,
+                                      }, [
+                                        Colors.amberAccent,
+                                      ], _labeltotalCollected, true,
+                                          labelRow: false),
+                                    ]);
+                              } else {
+                                return widgetShareCircularProgress(context);
+                              }
+                            },
+                            future: _blocCaseSnapshot.getCollection(),
+                          )),
                     ],
                   ),
                 ),
@@ -166,12 +185,27 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
         ));
   }
 
+  Container widgetShareCircularProgress(BuildContext context) {
+    return Container(
+      width: _shareWidthChartContainer,
+      height: _shareHeightChartContainer,
+      alignment: Alignment.center,
+      child: SizedBox(
+          width: 50,
+          height: 50,
+          child: CircularProgressIndicator(
+            backgroundColor: Colors.amberAccent,
+            color: context.extensionDisableColor,
+          )),
+    );
+  }
+
   SizedBox widgetShareChart(Map<String, double> dataMap, List<Color> colorList,
       String labelHeader, bool showlabel,
       {bool labelRow = false}) {
     return SizedBox(
-      width: 150,
-      height: 235,
+      width: _shareWidthChartContainer,
+      height: _shareHeightChartContainer,
       child: Column(
         children: [
           Center(

@@ -1401,8 +1401,9 @@ class DbHelper {
     List<dynamic> resSales = [];
     try {
       resSales = await db.supabase.from('sales').select(
-            'cash_payment,bankcard_payment,eft_havale_payment',
+            'cash_payment,bankcard_payment,eft_havale_payment,total_payment_without_tax,kdv_rate',
           );
+
       final resCari = await db.supabase.from('cari').select(
             'cash_payment,bankcard_payment,eft_havale_payment',
           );
