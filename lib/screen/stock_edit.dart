@@ -202,7 +202,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   Stream<List<Map<String, dynamic>>>? _stream;
   String? _selectedSearchValue;
 
-  final productTaxList = <String>['% 8', '% 18'];
+  final productTaxList = <String>['% 0', '% 8', '% 18'];
   String? selectedTax;
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.

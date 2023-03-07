@@ -29,7 +29,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   late BlocCaseSnapshot _blocCaseSnapshot;
 
   /*------------------------TAHSİLAT BÖLÜMÜ------------------------------- */
-  final String _labelCollectionHeader = "TAHSİLAT";
+  final String _labelCollectionHeader = "TAHSİLATLAR";
   final String _labelCollected = "TAHSİL EDİLEN";
   final String _labelCollectionWill = "TAHSİL EDİLECEKLER";
 
@@ -40,31 +40,30 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelPayable = "YAPILACAK ÖDEMELER";
   final String _labelTotal = "TOPLAM";
   /*---------------------------------------------------------------------- */
-  List<TableRow> listTableRow = [];
+  final String _labelGeneralSnapshoot = "GENEL DURUM";
+  final String _labelReceivePaymant = "Alınan Ödemeler";
+  final String _labelCash = "Nakit";
+  final String _labelBank = "Banka";
+  final String _labelDailySnapshoot = "GÜNLÜK DURUM";
+  final String _labelTotalPayment = "Toplam Satış";
+  final String _labelStock = "Sermaye";
+  final String _labelCumulative = "Anlık Kasa";
 
   @override
   void initState() {
     _blocCaseSnapshot = BlocCaseSnapshot();
 
     super.initState();
-    /*   WidgetsBinding.instance.addPostFrameCallback((_) {
+    /*     WidgetsBinding.instance.addPostFrameCallback((_) {
       _asyncMethod();
     }); */
-    _blocCaseSnapshot.getCollection()!.then((value) {
+    /*   _blocCaseSnapshot.getCollection()!.then((value) {
       print(value);
       setState(() {
         deger = value['Kasa']!;
       });
-    });
+    }); */
   }
-
-  /*  _asyncMethod() async {
-    _blocCaseSnapshot.getCollection().then((value) {
-      setState(() {
-        _blocvalue
-      });
-    });
-  } */
 
   @override
   Widget build(BuildContext context) {
@@ -98,216 +97,291 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             padding: context.extensionPadding20(),
             child: Column(
               children: [
-                Card(
-                  elevation: 10,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          _labelCollectionHeader,
-                          style: context.theme.headline6!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      widgetDivider(),
-                      Padding(
-                          padding: const EdgeInsets.all(12.0),
-
-                          ///TAHSİLAT BÖLÜMÜ
-                          child: FutureBuilder<Map<String, double>>(
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData && !snapshot.hasError) {
-                                return Wrap(
-                                    alignment: WrapAlignment.center,
-                                    runSpacing:
-                                        context.extensionWrapSpacing20(),
-                                    spacing: 50,
-                                    direction: Axis.horizontal,
-                                    children: [
-                                      ///Tahsil Edilen
-                                      widgetShareChart({
-                                        'Kasa': snapshot.data!['Kasa']!,
-                                        'Banka': snapshot.data!['Banka']!
-                                      }, [
-                                        Colors.amberAccent,
-                                        Colors.grey.shade400,
-                                      ], _labelCollected, true, labelRow: true),
-
-                                      widgetShareChart({
-                                        'Kalan': snapshot.data!['Kalan']!,
-                                      }, [
-                                        Colors.redAccent,
-                                      ], _labelCollectionWill, false,
-                                          labelRow: false),
-
-                                      widgetShareChart({
-                                        'Toplam': snapshot.data!['Toplam']!,
-                                      }, [
-                                        Colors.amberAccent,
-                                      ], _labelTotal, false, labelRow: false),
-                                    ]);
-                              } else {
-                                return widgetShareCircularProgress(context);
-                              }
-                            },
-                            future: _blocCaseSnapshot.getCollection(),
-                          )),
-                    ],
-                  ),
-                ),
-                Card(
-                  elevation: 10,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          _labelPaymentHeader,
-                          style: context.theme.headline6!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      widgetDivider(),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-
-                        ///ÖDEME BÖLÜMÜ
-                        child: FutureBuilder(
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && !snapshot.hasError) {
-                              return Wrap(
-                                  alignment: WrapAlignment.center,
-                                  runSpacing: context.extensionWrapSpacing20(),
-                                  spacing: 50,
-                                  direction: Axis.horizontal,
-                                  children: [
-                                    ///YAPILAN Ödemeler
-                                    widgetShareChart({
-                                      'Kasa': snapshot.data!['Kasa']!,
-                                      'Banka': snapshot.data!['Banka']!
-                                    }, [
-                                      Colors.amberAccent,
-                                      Colors.grey.shade400,
-                                    ], _labelPaid, true, labelRow: true),
-
-                                    ///Yapılacak Ödemeler
-                                    widgetShareChart({
-                                      'Kalan': snapshot.data!['Kalan']!,
-                                    }, [
-                                      Colors.redAccent,
-                                    ], _labelPayable, false, labelRow: false),
-
-                                    ///Toplam Ödemeler
-                                    widgetShareChart({
-                                      'Toplam': snapshot.data!['Toplam']!,
-                                    }, [
-                                      Colors.amberAccent,
-                                    ], _labelTotal, false, labelRow: false),
-                                  ]);
-                            } else {
-                              return widgetShareCircularProgress(context);
-                            }
-                          },
-                          future: _blocCaseSnapshot.getPayment(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Card(
-                  elevation: 10,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          _labelPaymentHeader,
-                          style: context.theme.headline6!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      widgetDivider(),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-
-                        ///ÖDEME BÖLÜMÜ
-
-                        child: widgetDataTableSnapshootDaily(),
-                        /* return Wrap(
-                                  alignment: WrapAlignment.center,
-                                  runSpacing: context.extensionWrapSpacing20(),
-                                  spacing: 50,
-                                  direction: Axis.horizontal,
-                                  children: [
-                                    ///YAPILAN Ödemeler
-                                    widgetShareChart({
-                                      'Anlık Kasa':
-                                          snapshot.data!['Anlık Kasa']!,
-                                    }, [
-                                      Colors.amberAccent,
-                                      Colors.grey.shade400,
-                                    ], _labelPaid, true, labelRow: true),
-
-                                    ///Yapılacak Ödemeler
-                                    widgetShareChart({
-                                      'Anlık Banka':
-                                          snapshot.data!['Anlık Banka']!
-                                    }, [
-                                      Colors.redAccent,
-                                    ], _labelPayable, false, labelRow: false),
-
-                                    ///Toplam Ödemeler
-                                    widgetShareChart({
-                                      'Kar': snapshot.data!['Kar']!,
-                                    }, [
-                                      Colors.amberAccent,
-                                    ], _labelTotal, false, labelRow: false),
-                                  ]); */
-                      ),
-                    ],
-                  ),
-                ),
+                widgetCollectionSection(),
+                widgetPaymentSection(),
+                widgetDailyAndSnapshoot(),
               ],
             ),
           )),
         ));
   }
 
-  widgetDataTableSnapshootDaily() {
-    listTableRow.add(buildRowRight(
-        "${FormatterConvert().currencyShow(deger)} ₺",
-        "${FormatterConvert().currencyShow(_blocCaseSnapshot.calculateCase['Anlık Banka'])} ₺"));
-    return Container(
-      height: 100,
-      width: 275,
-      alignment: Alignment.centerRight,
+  Card widgetDailyAndSnapshoot() {
+    return Card(
+      elevation: 10,
       child: Column(
         children: [
           Container(
-            width: double.infinity,
-            color: context.extensionDisableColor,
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
+            alignment: Alignment.centerLeft,
             child: Text(
-              "GÜNLÜK DURUM",
-              style: context.theme.headline6!.copyWith(color: Colors.white),
+              _labelGeneralSnapshoot,
+              style: context.theme.headline6!
+                  .copyWith(fontWeight: FontWeight.bold),
             ),
           ),
-          Table(
-            columnWidths: const {
-              0: FixedColumnWidth(140),
-              1: FixedColumnWidth(135),
-            },
-            border: TableBorder.symmetric(
-                inside: const BorderSide(color: Colors.white)),
-            children: [
-              buildRowHeader("Kasa", "Banka"),
-              for (int i = 0; i < listTableRow.length; i++) listTableRow[i],
-            ],
+          widgetDivider(),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+
+            ///GÜÜNLÜK BÖLÜMÜ
+            child: StreamBuilder<Map<String, double>>(
+                stream: _blocCaseSnapshot.getStreamCalculateDaily,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && !snapshot.hasError) {
+                    print(snapshot.data);
+                    return Wrap(
+                      alignment: WrapAlignment.center,
+                      runSpacing: context.extensionWrapSpacing20(),
+                      spacing: 50,
+                      direction: Axis.horizontal,
+                      children: [
+                        Container(
+                          width: 275,
+                          alignment: Alignment.centerRight,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                color: Colors.grey.shade600,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(4),
+                                child: Text(
+                                  _labelDailySnapshoot,
+                                  style: context.theme.headline6!
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                color: context.extensionDisableColor,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(4),
+                                child: Text(
+                                  _labelCollectionHeader,
+                                  style: context.theme.titleMedium!
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ),
+                              Table(
+                                columnWidths: const {
+                                  0: FixedColumnWidth(140),
+                                  1: FixedColumnWidth(135),
+                                },
+                                border: TableBorder.all(color: Colors.grey),
+                                children: [
+                                  buildRowRight(
+                                    _labelTotalPayment,
+                                    "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                  ),
+                                  buildRowRight(
+                                    _labelCash,
+                                    "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                  ),
+                                  buildRowRight(
+                                    _labelBank,
+                                    "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
+                                  ),
+                                  buildRowRight(
+                                    _labelReceivePaymant,
+                                    "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                width: double.infinity,
+                                color: context.extensionDisableColor,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(4),
+                                child: Text(
+                                  _labelPaymentHeader,
+                                  style: context.theme.titleMedium!
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ),
+                              Table(
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(140),
+                                    1: FixedColumnWidth(135),
+                                  },
+                                  border: TableBorder.all(color: Colors.grey),
+                                  children: [
+                                    buildRowRight(
+                                      "Nakit",
+                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                    ),
+                                    buildRowRight(
+                                      "Banka",
+                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
+                                    ),
+                                  ]),
+                            ],
+                          ),
+                        ),
+                        widgetShareChart({'Kar': snapshot.data!['Kar']!},
+                            [Colors.green], _labelCumulative, false),
+                        widgetShareChart({'Kar': snapshot.data!['Kar']!},
+                            [Colors.green], _labelStock, false),
+                      ],
+                    );
+                  } else {
+                    return widgetShareCircularProgress(context);
+                  }
+                }),
+            /* return Wrap(
+                                alignment: WrapAlignment.center,
+                                runSpacing: context.extensionWrapSpacing20(),
+                                spacing: 50,
+                                direction: Axis.horizontal,
+                                children: [
+                                  ///YAPILAN Ödemeler
+                                  widgetShareChart({
+                                    'Anlık Kasa':
+                                        snapshot.data!['Anlık Kasa']!,
+                                  }, [
+                                    Colors.amberAccent,
+                                    Colors.grey.shade400,
+                                  ], _labelPaid, true, labelRow: true),
+
+                                  ///Yapılacak Ödemeler
+                                  widgetShareChart({
+                                    'Anlık Banka':
+                                        snapshot.data!['Anlık Banka']!
+                                  }, [
+                                    Colors.redAccent,
+                                  ], _labelPayable, false, labelRow: false),
+
+                                  ///Toplam Ödemeler
+                                  widgetShareChart({
+                                    'Kar': snapshot.data!['Kar']!,
+                                  }, [
+                                    Colors.amberAccent,
+                                  ], _labelTotal, false, labelRow: false),
+                                ]); */
+          ),
+        ],
+      ),
+    );
+  }
+
+  ///Tahsilat bölümü
+  Card widgetCollectionSection() {
+    return Card(
+      elevation: 10,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _labelCollectionHeader,
+              style: context.theme.headline6!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          widgetDivider(),
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+
+              ///TAHSİLAT BÖLÜMÜ
+              child: StreamBuilder<Map<String, double>>(
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && !snapshot.hasError) {
+                    return Wrap(
+                        alignment: WrapAlignment.center,
+                        runSpacing: context.extensionWrapSpacing20(),
+                        spacing: 50,
+                        direction: Axis.horizontal,
+                        children: [
+                          ///Tahsil Edilen
+                          widgetShareChart({
+                            'Kasa': snapshot.data!['Kasa']!,
+                            'Banka': snapshot.data!['Banka']!
+                          }, [
+                            Colors.amberAccent,
+                            Colors.grey.shade400,
+                          ], _labelCollected, true, labelRow: true),
+
+                          widgetShareChart({
+                            'Kalan': snapshot.data!['Kalan']!,
+                          }, [
+                            Colors.redAccent,
+                          ], _labelCollectionWill, false, labelRow: false),
+
+                          widgetShareChart({
+                            'Toplam': snapshot.data!['Toplam']!,
+                          }, [
+                            Colors.amberAccent,
+                          ], _labelTotal, false, labelRow: false),
+                        ]);
+                  } else {
+                    return widgetShareCircularProgress(context);
+                  }
+                },
+                stream: _blocCaseSnapshot.getStreamCollection,
+              )),
+        ],
+      ),
+    );
+  }
+
+  ///Ödeme Bölümü
+  Card widgetPaymentSection() {
+    return Card(
+      elevation: 10,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _labelPaymentHeader,
+              style: context.theme.headline6!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          widgetDivider(),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+
+            ///ÖDEME BÖLÜMÜ
+            child: StreamBuilder<Map<String, double>>(
+                stream: _blocCaseSnapshot.getStreamPayment,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && !snapshot.hasError) {
+                    return Wrap(
+                        alignment: WrapAlignment.center,
+                        runSpacing: context.extensionWrapSpacing20(),
+                        spacing: 50,
+                        direction: Axis.horizontal,
+                        children: [
+                          ///YAPILAN Ödemeler
+                          widgetShareChart({
+                            'Kasa': snapshot.data!['Kasa']!,
+                            'Banka': snapshot.data!['Banka']!
+                          }, [
+                            Colors.amberAccent,
+                            Colors.grey.shade400,
+                          ], _labelPaid, true, labelRow: true),
+
+                          ///Yapılacak Ödemeler
+                          widgetShareChart({
+                            'Kalan': snapshot.data!['Kalan']!,
+                          }, [
+                            Colors.redAccent,
+                          ], _labelPayable, false, labelRow: false),
+
+                          ///Toplam Ödemeler
+                          widgetShareChart({
+                            'Toplam': snapshot.data!['Toplam']!,
+                          }, [
+                            Colors.amberAccent,
+                          ], _labelTotal, false, labelRow: false),
+                        ]);
+                  } else {
+                    return widgetShareCircularProgress(context);
+                  }
+                }),
           ),
         ],
       ),
@@ -391,6 +465,15 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   SizedBox widgetShareChart(Map<String, double> dataMap, List<Color> colorList,
       String labelHeader, bool showlabel,
       {bool labelRow = false}) {
+    dataMap.forEach(
+      (key, value) {
+        if (value < 0) {
+          value = value * (-1);
+        }
+        print("deger: $value");
+      },
+    );
+    print(dataMap);
     return SizedBox(
       width: _shareWidthChartContainer,
       height: _shareHeightChartContainer,
@@ -415,6 +498,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
               showLegends: showlabel,
             ),
             formatChartValues: (value) {
+              print("gelendeger: $value");
               return FormatterConvert()
                   .currencyShow(value, unitOfCurrency: "₺");
             },

@@ -35,7 +35,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     with Validation, SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
-  final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
+  final _valueNotifierProductSaleWithTax = ValueNotifier<double>(-1);
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -50,7 +50,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   late Category _category;
   final List<String?> _categoryList = [];
   bool _visibleQrCode = false;
-  final _productTaxList = <String>['% 8', '% 18'];
+  final _productTaxList = <String>['% 0', '% 8', '% 18'];
   String? _selectedTax;
   bool _isThereProductCode = true;
   final FocusNode _searchFocus = FocusNode();
@@ -112,9 +112,11 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   void _getProductTax(String value) {
     setState(() {
       _selectedTax = value;
+      print(_selectedTax);
     });
     _selectedTaxToInt =
         int.parse(_selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
+    print(" int : ${_selectedTax}");
   }
 
   roleCheck() async {
@@ -1075,7 +1077,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         letterSpacing: 1),
                     children: [
                       TextSpan(
-                          text: _selectedTaxToInt == 0
+                          text: _selectedTaxToInt == -1
                               ? 'KDV Seçilmedi'
                               : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
                           style: context.theme.labelLarge!.copyWith(
