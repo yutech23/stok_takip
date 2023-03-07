@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
@@ -117,6 +118,9 @@ class _MyDrawerState extends State<MyDrawer> {
     Color backGround = Colors.transparent;
     return InkWell(
       onTap: () {
+        /*   if (listItemName == _labelCaseSnapshot) {
+          blocCaseSnapshot.start();
+        } */
         context.router.push(route);
       },
       onHover: (value) {

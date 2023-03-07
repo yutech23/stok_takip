@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
@@ -22,6 +24,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final double _shareMaxWidth = 1200;
   final double _shareWidthChartContainer = 150;
   final double _shareHeightChartContainer = 235;
+  double deger = -1;
 
   late BlocCaseSnapshot _blocCaseSnapshot;
 
@@ -29,21 +32,39 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelCollectionHeader = "TAHSİLAT";
   final String _labelCollected = "TAHSİL EDİLEN";
   final String _labelCollectionWill = "TAHSİL EDİLECEKLER";
-  final String _labeltotalCollected = "TOPLAM";
+
   /*---------------------------------------------------------------------- */
   /*------------------------ÖDEME BÖLÜMÜ------------------------------- */
   final String _labelPaymentHeader = "ÖDEMELER";
-  final String _labelPaid = "YAPILAN";
-  final String _labelPayable = "YAPILACAK";
+  final String _labelPaid = "YAPILAN ÖDEMELER";
+  final String _labelPayable = "YAPILACAK ÖDEMELER";
   final String _labelTotal = "TOPLAM";
   /*---------------------------------------------------------------------- */
+  List<TableRow> listTableRow = [];
 
   @override
   void initState() {
     _blocCaseSnapshot = BlocCaseSnapshot();
 
     super.initState();
+    /*   WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncMethod();
+    }); */
+    _blocCaseSnapshot.getCollection()!.then((value) {
+      print(value);
+      setState(() {
+        deger = value['Kasa']!;
+      });
+    });
   }
+
+  /*  _asyncMethod() async {
+    _blocCaseSnapshot.getCollection().then((value) {
+      setState(() {
+        _blocvalue
+      });
+    });
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +83,6 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
       drawer: const MyDrawer(),
     );
   }
-
-  final dataMap = <String, double>{"Nakit": 903249500, "Banka": 103249500};
-  final dataMap2 = <String, double>{"Nakit": 903249500};
-  final dataMap1 = <String, String>{"Nakit": '903249500', "Banka": '103249500'};
 
   buildCaseSnapshot() {
     return Form(
@@ -90,13 +107,15 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           _labelCollectionHeader,
-                          style: context.theme.headline6,
+                          style: context.theme.headline6!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Divider(
-                          color: context.extensionDisableColor, thickness: 1),
+                      widgetDivider(),
                       Padding(
                           padding: const EdgeInsets.all(12.0),
+
+                          ///TAHSİLAT BÖLÜMÜ
                           child: FutureBuilder<Map<String, double>>(
                             builder: (context, snapshot) {
                               if (snapshot.hasData && !snapshot.hasError) {
@@ -120,15 +139,14 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                         'Kalan': snapshot.data!['Kalan']!,
                                       }, [
                                         Colors.redAccent,
-                                      ], _labeltotalCollected, true,
+                                      ], _labelCollectionWill, false,
                                           labelRow: false),
 
                                       widgetShareChart({
                                         'Toplam': snapshot.data!['Toplam']!,
                                       }, [
                                         Colors.amberAccent,
-                                      ], _labeltotalCollected, true,
-                                          labelRow: false),
+                                      ], _labelTotal, false, labelRow: false),
                                     ]);
                               } else {
                                 return widgetShareCircularProgress(context);
@@ -148,33 +166,107 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           _labelPaymentHeader,
-                          style: context.theme.headline6,
+                          style: context.theme.headline6!
+                              .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Divider(
-                          color: context.extensionDisableColor, thickness: 1),
+                      widgetDivider(),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
-                        child: Wrap(
-                            alignment: WrapAlignment.center,
-                            runSpacing: context.extensionWrapSpacing20(),
-                            spacing: 50,
-                            direction: Axis.horizontal,
-                            children: [
-                              widgetShareChart(
-                                  dataMap,
-                                  [
-                                    Colors.amberAccent,
-                                    Colors.grey.shade400,
-                                  ],
-                                  _labelPaid,
-                                  true,
-                                  labelRow: true),
-                              widgetShareChart(dataMap2, [Colors.amberAccent],
-                                  _labelPayable, false),
-                              widgetShareChart(
-                                  dataMap2, [Colors.grey], _labelTotal, false)
-                            ]),
+
+                        ///ÖDEME BÖLÜMÜ
+                        child: FutureBuilder(
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData && !snapshot.hasError) {
+                              return Wrap(
+                                  alignment: WrapAlignment.center,
+                                  runSpacing: context.extensionWrapSpacing20(),
+                                  spacing: 50,
+                                  direction: Axis.horizontal,
+                                  children: [
+                                    ///YAPILAN Ödemeler
+                                    widgetShareChart({
+                                      'Kasa': snapshot.data!['Kasa']!,
+                                      'Banka': snapshot.data!['Banka']!
+                                    }, [
+                                      Colors.amberAccent,
+                                      Colors.grey.shade400,
+                                    ], _labelPaid, true, labelRow: true),
+
+                                    ///Yapılacak Ödemeler
+                                    widgetShareChart({
+                                      'Kalan': snapshot.data!['Kalan']!,
+                                    }, [
+                                      Colors.redAccent,
+                                    ], _labelPayable, false, labelRow: false),
+
+                                    ///Toplam Ödemeler
+                                    widgetShareChart({
+                                      'Toplam': snapshot.data!['Toplam']!,
+                                    }, [
+                                      Colors.amberAccent,
+                                    ], _labelTotal, false, labelRow: false),
+                                  ]);
+                            } else {
+                              return widgetShareCircularProgress(context);
+                            }
+                          },
+                          future: _blocCaseSnapshot.getPayment(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Card(
+                  elevation: 10,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _labelPaymentHeader,
+                          style: context.theme.headline6!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      widgetDivider(),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+
+                        ///ÖDEME BÖLÜMÜ
+
+                        child: widgetDataTableSnapshootDaily(),
+                        /* return Wrap(
+                                  alignment: WrapAlignment.center,
+                                  runSpacing: context.extensionWrapSpacing20(),
+                                  spacing: 50,
+                                  direction: Axis.horizontal,
+                                  children: [
+                                    ///YAPILAN Ödemeler
+                                    widgetShareChart({
+                                      'Anlık Kasa':
+                                          snapshot.data!['Anlık Kasa']!,
+                                    }, [
+                                      Colors.amberAccent,
+                                      Colors.grey.shade400,
+                                    ], _labelPaid, true, labelRow: true),
+
+                                    ///Yapılacak Ödemeler
+                                    widgetShareChart({
+                                      'Anlık Banka':
+                                          snapshot.data!['Anlık Banka']!
+                                    }, [
+                                      Colors.redAccent,
+                                    ], _labelPayable, false, labelRow: false),
+
+                                    ///Toplam Ödemeler
+                                    widgetShareChart({
+                                      'Kar': snapshot.data!['Kar']!,
+                                    }, [
+                                      Colors.amberAccent,
+                                    ], _labelTotal, false, labelRow: false),
+                                  ]); */
                       ),
                     ],
                   ),
@@ -183,6 +275,102 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             ),
           )),
         ));
+  }
+
+  widgetDataTableSnapshootDaily() {
+    listTableRow.add(buildRowRight(
+        "${FormatterConvert().currencyShow(deger)} ₺",
+        "${FormatterConvert().currencyShow(_blocCaseSnapshot.calculateCase['Anlık Banka'])} ₺"));
+    return Container(
+      height: 100,
+      width: 275,
+      alignment: Alignment.centerRight,
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: context.extensionDisableColor,
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(4),
+            child: Text(
+              "GÜNLÜK DURUM",
+              style: context.theme.headline6!.copyWith(color: Colors.white),
+            ),
+          ),
+          Table(
+            columnWidths: const {
+              0: FixedColumnWidth(140),
+              1: FixedColumnWidth(135),
+            },
+            border: TableBorder.symmetric(
+                inside: const BorderSide(color: Colors.white)),
+            children: [
+              buildRowHeader("Kasa", "Banka"),
+              for (int i = 0; i < listTableRow.length; i++) listTableRow[i],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  TableRow buildRowRight(String header, String value) => TableRow(
+          decoration: BoxDecoration(
+              // color: context.extensionDisableColor,
+              ),
+          children: [
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      header,
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.black),
+                    ))),
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.black),
+                    ))),
+          ]);
+
+  TableRow buildRowHeader(String header, String value) => TableRow(
+          decoration: BoxDecoration(
+            color: context.extensionDisableColor,
+          ),
+          children: [
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.center,
+                    child: Text(
+                      header,
+                      style: context.theme.titleMedium!
+                          .copyWith(color: Colors.white),
+                    ))),
+            TableCell(
+                child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(4),
+                    alignment: Alignment.center,
+                    child: Text(
+                      value,
+                      style: context.theme.titleMedium!
+                          .copyWith(color: Colors.white),
+                    ))),
+          ]);
+
+  Divider widgetDivider() {
+    return Divider(
+        height: 1, color: context.extensionDisableColor, thickness: 1);
   }
 
   Container widgetShareCircularProgress(BuildContext context) {

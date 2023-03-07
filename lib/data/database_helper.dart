@@ -1414,7 +1414,26 @@ class DbHelper {
       return resSales;
     }
   }
+
   /*-----------------------------------------------------------------------*/
+  /*---------------------------ÖDEME BÖLÜMÜ--------------------- */
+  Future<List<dynamic>> fetchCalculatePayment() async {
+    List<dynamic> resPayment = [];
+    try {
+      resPayment = await db.supabase.from('payment').select(
+            'cash,bankcard,eft_havale,total',
+          );
+
+      final resSupplierCari = await db.supabase.from('cari_supplier').select(
+            'cash,bankcard,eft_havale',
+          );
+      resPayment.addAll(resSupplierCari);
+
+      return resPayment;
+    } on PostgrestException catch (e) {
+      return resPayment;
+    }
+  }
 }
 
 final db = DbHelper();
