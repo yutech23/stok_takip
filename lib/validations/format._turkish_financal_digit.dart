@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-class FormatterDecimalThreeByThree extends TextInputFormatter {
+class FormatterTurkishDecimal extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
@@ -12,29 +11,10 @@ class FormatterDecimalThreeByThree extends TextInputFormatter {
     String replaceNewValue = "";
     // print("newValue : ${newValue.text}");
     //Gelen Dğerin içindeki '.' temizleniyor
-    String? partDecimal;
-    int? indexComma;
 
-    if (newValue.text.contains(',')) {
-      indexComma = newValue.text.indexOf(',');
+    replaceNewValue = newValue.text.replaceAll(RegExp(r'\D'), "");
 
-      partDecimal = newValue.text.substring(indexComma);
-
-      if (partDecimal.length >= 2) {
-        partDecimal =
-            ',${partDecimal.substring(1).replaceAll(RegExp(r'[\D]'), "")}';
-      }
-
-      if (partDecimal.length >= 3) {
-        partDecimal = partDecimal.substring(0, 3);
-      }
-    } else {
-      replaceNewValue = newValue.text.replaceAll(RegExp(r'[a-zA-Z.]'), "");
-    }
-
-    replaceNewValue = newValue.text
-        .substring(0, indexComma)
-        .replaceAll(RegExp(r'[a-zA-Z.]'), "");
+    print(replaceNewValue);
 
     ///Gelen String 3'er 3'er bölümlere ayırıp bu listenin elemanları haline geliyor
     ///Sondan başlıyarak listeye ekleniyor. Yane İlk önce son 3 basamak listeye ekleniyor
@@ -69,10 +49,6 @@ class FormatterDecimalThreeByThree extends TextInputFormatter {
           replaceNewValue = listGroupString[j] + pointPlusList;
         }
       }
-    }
-
-    if (partDecimal != null) {
-      replaceNewValue += partDecimal;
     }
 
     ///imleçi Sayını Sonuna atıyor

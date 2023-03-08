@@ -778,7 +778,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         inputFormatters: [
           FormatterDecimalThreeByThree(),
           //FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
-          FormatterDecimalLimit(decimalRange: 2)
+          // FormatterDecimalLimit(decimalRange: 2)
         ],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),

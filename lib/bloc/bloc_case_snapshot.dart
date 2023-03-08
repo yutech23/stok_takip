@@ -121,9 +121,9 @@ class BlocCaseSnapshot {
         _collectionData['Kasa']! - _paymentData['Kasa']!;
     calculateCase['Anlık Banka'] =
         _collectionData['Banka']! - _paymentData['Banka']!;
-    print(calculateCase['Kar']);
+    /*    print(calculateCase['Kar']);
     print(calculateCase['Anlık Kasa']);
-    print(calculateCase['Anlık Banka']);
+    print(calculateCase['Anlık Banka']); */
 
     _streamControllerCalculateDaily.sink.add(calculateCase);
   }

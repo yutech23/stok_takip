@@ -129,7 +129,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                 stream: _blocCaseSnapshot.getStreamCalculateDaily,
                 builder: (context, snapshot) {
                   if (snapshot.hasData && !snapshot.hasError) {
-                    print(snapshot.data);
+                    //   print(snapshot.data);
                     return Wrap(
                       alignment: WrapAlignment.center,
                       runSpacing: context.extensionWrapSpacing20(),
@@ -473,7 +473,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
         print("deger: $value");
       },
     );
-    print(dataMap);
+    //   print(dataMap);
     return SizedBox(
       width: _shareWidthChartContainer,
       height: _shareHeightChartContainer,
@@ -498,7 +498,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
               showLegends: showlabel,
             ),
             formatChartValues: (value) {
-              print("gelendeger: $value");
+              //     print("gelendeger: $value");
               return FormatterConvert()
                   .currencyShow(value, unitOfCurrency: "₺");
             },
