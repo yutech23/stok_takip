@@ -417,23 +417,25 @@ class DbHelper {
       ]);
 
       ///İlk kez yeni bir ürün eklendiğinde payment yeni ürün fiyatını ekliyoruz.
-      await supabase.from('payment').insert([
-        {
-          'supplier_fk': payment.suppliersFk,
-          'product_fk': payment.productFk,
-          'amount_of_stock': product.currentAmountOfStock,
-          'buying_price_without_tax': product.currentBuyingPriceWithoutTax,
-          'salling_price_without_tax': product.currentSallingPriceWithoutTax,
-          'invoice_code': payment.invoiceCode,
-          'unit_of_currency': payment.unitOfCurrency,
-          'total': payment.total,
-          'cash': payment.cash,
-          'bankcard': payment.bankcard,
-          'eft_havale': payment.eftHavale,
-          'repayment_date': payment.repaymentDateTime,
-          'seller': payment.userId
-        }
-      ]);
+      if (payment.suppliersFk.isNotEmpty) {
+        await supabase.from('payment').insert([
+          {
+            'supplier_fk': payment.suppliersFk,
+            'product_fk': payment.productFk,
+            'amount_of_stock': product.currentAmountOfStock,
+            'buying_price_without_tax': product.currentBuyingPriceWithoutTax,
+            'salling_price_without_tax': product.currentSallingPriceWithoutTax,
+            'invoice_code': payment.invoiceCode,
+            'unit_of_currency': payment.unitOfCurrency,
+            'total': payment.total,
+            'cash': payment.cash,
+            'bankcard': payment.bankcard,
+            'eft_havale': payment.eftHavale,
+            'repayment_date': payment.repaymentDateTime,
+            'seller': payment.userId
+          }
+        ]);
+      }
       return "";
     } on PostgrestException catch (e) {
       print("Hata New Product Add : ${e.message}");

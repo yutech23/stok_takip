@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/share_func.dart';
 import '../data/database_category_product_filtre.dart';
 import '../data/database_helper.dart';
 import '../data/database_mango.dart';
@@ -202,17 +203,23 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   Stream<List<Map<String, dynamic>>>? _stream;
   String? _selectedSearchValue;
 
-  final productTaxList = <String>['% 0', '% 8', '% 18'];
-  String? selectedTax;
+  final _productTaxList = <String>['% 0', '% 8', '% 18'];
+
+  String? _selectedTaxValueString;
+  int? _selectedTaxValueInt;
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
-  int selectedTaxToInt = 0;
-  void getProductTax(String value) {
+  bool _selectedTax = true;
+
+  void _getProductTax(String value) {
     setState(() {
-      selectedTax = value;
+      ///TODO: KDV DEĞİŞTİRDİĞİNDE VERGİLER DAHİL SATIŞ DEĞİŞMİYOR BURADA
+      ///VALUENOTİFİER DEĞİERİNİ ALIP KDV'SİZ YAPIP YENİ KDV EKLEYEREK ATAM YAPILMALI
+
+      _selectedTaxValueInt = int.parse(value.replaceAll(RegExp(r'[^0-9]'), ''));
     });
-    selectedTaxToInt =
-        int.parse(selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
+
+    _selectedTax = true;
   }
 
   @override
@@ -1030,10 +1037,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
     ///gelen değer integer o yüzden tekrar String dönüştürüyorum. Listedeki Tipe
     ///Dropdown seçilen değer
-    selectedTax = "% ${selectedProduct.taxRate.toString()}";
+    _selectedTaxValueString = "% ${selectedProduct.taxRate.toString()}";
     //Verfiler Dahil Satış bölümündeki kdv seçinizi yazısı kalkması için.
-    selectedTaxToInt = selectedProduct.taxRate;
-
+    _selectedTaxValueInt = selectedProduct.taxRate;
     showDialog(
         context: context,
         builder: (context) {
@@ -1111,7 +1117,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               ),
               actions: [
                 //GÜNCELLEME BUTTON
-                //TODO: negatif stok güncelleme hatası giderilcek.
+
                 ElevatedButton(
                     onPressed: () async {
                       print(oldStockValue);
@@ -1188,7 +1194,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         productDetailToBeupdateMap.addAll({
                           'current_amount_of_stock':
                               (oldStockValue! + newStockValue),
-                          'tax_rate': selectedTaxToInt,
+                          'tax_rate': _selectedTaxValueString,
                           'current_buying_price_without_tax':
                               newAverageBuyingPriceWithoutTax
                                   .toStringAsFixed(2),
@@ -1815,9 +1821,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             child: ShareDropdown(
               validator: validateNotEmpty,
               hint: _labelKDV,
-              itemList: productTaxList,
-              selectValue: selectedTax,
-              getShareDropdownCallbackFunc: getProductTax,
+              itemList: _productTaxList,
+              selectValue: _selectedTaxValueString,
+              getShareDropdownCallbackFunc: _getProductTax,
             )),
       ],
     );
@@ -1909,7 +1915,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
                 ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
                 ///hesabı yapılıyor.
-                value.isEmpty
+                print(value);
+                value == ""
                     ? valueNotifierProductSaleWithTax.value = 0
                     : valueNotifierProductSaleWithTax.value =
                         double.parse(value);
@@ -1925,25 +1932,28 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 borderRadius: context.extensionRadiusDefault10),
             child: ValueListenableBuilder<double>(
               valueListenable: valueNotifierProductSaleWithTax,
-              builder: (context, value, child) => RichText(
-                text: TextSpan(
-                    text: 'Vergiler Dahil Satış : ',
-                    style: context.theme.labelLarge!.copyWith(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1),
-                    children: [
-                      TextSpan(
-                          text: selectedTaxToInt == 0
-                              ? 'KDV Seçilmedi'
-                              : "${(value * (1 + (selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
-                          style: context.theme.labelLarge!.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1))
-                    ]),
-                textAlign: TextAlign.center,
-              ),
+              builder: (context, value, child) {
+                print("deger : $_selectedTaxValueInt");
+                return RichText(
+                  text: TextSpan(
+                      text: 'Vergiler Dahil Satış : ',
+                      style: context.theme.labelLarge!.copyWith(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1),
+                      children: [
+                        TextSpan(
+                            text: _selectedTax == false
+                                ? 'KDV Seçilmedi'
+                                : "${(value * (1 + (_selectedTaxValueInt! / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
+                            style: context.theme.labelLarge!.copyWith(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1))
+                      ]),
+                  textAlign: TextAlign.center,
+                );
+              },
             ),
           ),
         ],

@@ -16,7 +16,7 @@ class ShareDropdown extends StatelessWidget {
       {required this.hint,
       required this.itemList,
       this.validator,
-      required this.selectValue,
+      this.selectValue,
       this.getShareDropdownCallbackFunc,
       skipTravel});
 

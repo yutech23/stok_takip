@@ -1,12 +1,10 @@
-import 'dart:ui';
+// ignore_for_file: prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
-import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/product.dart';
@@ -35,7 +33,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     with Validation, SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _valueNotifierProductBuyWithoutTax = ValueNotifier<double>(0);
-  final _valueNotifierProductSaleWithTax = ValueNotifier<double>(-1);
+  final _valueNotifierProductSaleWithTax = ValueNotifier<double>(0);
   final _controllerProductCode = TextEditingController();
   final _controllerSupplier = TextEditingController();
   final _controllerProductAmountOfStock = TextEditingController();
@@ -49,14 +47,14 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
   late Category _category;
   final List<String?> _categoryList = [];
-  bool _visibleQrCode = false;
-  final _productTaxList = <String>['% 0', '% 8', '% 18'];
-  String? _selectedTax;
+
+  // ignore: unused_field
   bool _isThereProductCode = true;
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _searchFocusSupplier = FocusNode();
   late List<String>? _productCodeList;
   final String _paymentSections = "Ödeme Bölümü";
+  // ignore: unused_field
   String _newSuppleirAdd = "";
 
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
@@ -104,24 +102,22 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   final String _categorySections = "Kategori";
   String categoryList = "";
 
-/**-------------------------------------------------------- */
+/*-------------------------------------------------------- */
+
+/*----------------------KDV BÖLÜMÜ------------------------ */
+  final _productTaxList = <String>['% 0', '% 8', '% 18'];
+  int? _selectedTaxValueInt;
 
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
-  int _selectedTaxToInt = 0;
+  bool _selectedTax = false;
 
   void _getProductTax(String value) {
     setState(() {
-      _selectedTax = value;
-      print(_selectedTax);
+      _selectedTaxValueInt = int.parse(value.replaceAll(RegExp(r'[^0-9]'), ''));
     });
-    _selectedTaxToInt =
-        int.parse(_selectedTax!.replaceAll(RegExp(r'[^0-9]'), ''));
-    print(" int : ${_selectedTax}");
+    _selectedTax = true;
   }
-
-  roleCheck() async {
-    String? role = await SecurityStorageUser.getUserRole();
-  }
+  /*------------------------------------------------------ */
 
   @override
   void initState() {
@@ -134,18 +130,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     _colorBackgroundCurrencyTRY = context.extensionDisableColor;
     _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
     /*------------ SON - PARABİRİMİ SEÇİMİ------------------- */
-    //   roleCheck();
     _productCodeList = [];
-
-    /* _product = Product(
-        productCode: "",
-        currentAmountOfStock: 0,
-        currentBuyingPriceWithoutTax: 0,
-        category: null,
-        currentSallingPriceWithoutTax: 0,
-        taxRate: 0); */
     _category = Category();
-
     super.initState();
   }
 
@@ -153,7 +139,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   void dispose() {
     _formKey.currentState!.dispose();
     _controllerProductCode.dispose();
-
     _controllerProductAmountOfStock.dispose();
     _controllerSallingPriceWithoutTax.dispose();
     _categoryList.clear();
@@ -161,10 +146,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     super.dispose();
   }
 
-  double sideLength = 50;
   @override
   Widget build(BuildContext context) {
-    print("deneme: ${MediaQuery.of(context).size.width}");
     getWidthScreenSize(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -343,7 +326,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   snapshot.data!.isNotEmpty) {
                 return SearchField(
                   searchHeight: 70,
-                  validator: validateNotEmpty,
+                  //  validator: validateNotEmpty,
                   inputFormatters: [FormatterUpperCaseTextFormatter()],
                   controller: _controllerSupplier,
                   searchInputDecoration: InputDecoration(
@@ -372,66 +355,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
       ],
     );
   }
-
-/*   ///Qr-Code Blok kodu
-  widgetQrCodeSection() {
-    return Container(
-      width: 220,
-      height: 300,
-      padding: const EdgeInsets.only(top: 10),
-      child: Column(children: [
-        widgetButtonQrcode(),
-        context.extensionHighSizedBox20(),
-        Container(
-          alignment: Alignment.center,
-          height: 220,
-          decoration: BoxDecoration(border: Border.all()),
-          child: _visibleQrCode
-              ? PrettyQr(
-                  typeNumber: 2,
-                  size: 200,
-                  data: _controllerProductCode.text,
-                  errorCorrectLevel: QrErrorCorrectLevel.L,
-                )
-              : Text(
-                  "QR-Kod Oluşturmadınız",
-                  style: context.theme.headline6!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
-        ),
-      ]),
-    );
-  }
-
-  ///Qr-Code Oluşturma Buttonu
-  widgetButtonQrcode() {
-    return ElevatedButton(
-        style: ElevatedButton.styleFrom(minimumSize: const Size(220, 50)),
-        onPressed: () {
-          bool isThereProductCodeByProductList =
-              _productCodeList!.contains(_controllerProductCode.text);
-
-          if (isThereProductCodeByProductList == false &&
-              _controllerProductCode.text.isNotEmpty) {
-            _searchFocus.unfocus();
-            setState(() {
-              _isThereProductCode = true;
-              _visibleQrCode = true;
-            });
-          } else if (_controllerProductCode.text.isEmpty ||
-              isThereProductCodeByProductList == true) {
-            setState(() {
-              _visibleQrCode = false;
-            });
-          } else if (isThereProductCodeByProductList) {
-            context.extensionShowErrorSnackBar(
-                message: 'Kayıtlı bir ürün kodu girdiniz.');
-          }
-        },
-        child: const Text(
-          "QR-Kod Oluştur",
-        ));
-  } */
 
   widgetCategorySelectSectionTable() {
     return SizedBox(
@@ -627,7 +550,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
-  void fillSelectedCategory() {
+  fillSelectedCategory() {
     categoryList = "Seçilen Kategori> ";
     for (var i = 0; i < _categoryList.length; i++) {
       if (i != _categoryList.length - 1) {
@@ -717,7 +640,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               validator: validateNotEmpty,
               hint: _labelKDV,
               itemList: _productTaxList,
-              selectValue: _selectedTax,
               getShareDropdownCallbackFunc: _getProductTax,
             )),
       ],
@@ -1077,9 +999,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                         letterSpacing: 1),
                     children: [
                       TextSpan(
-                          text: _selectedTaxToInt == -1
+                          text: _selectedTax == false
                               ? 'KDV Seçilmedi'
-                              : "${(value * (1 + (_selectedTaxToInt / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
+                              : "${(value * (1 + (_selectedTaxValueInt! / 100))).toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1099,7 +1021,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate() &&
-            _category.category1 != null &&
             _controllerProductCode.text.isNotEmpty) {
           bool isThereProductCodeByProductList =
               _productCodeList!.contains(_controllerProductCode.text);
@@ -1115,7 +1036,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               productCode: _controllerProductCode.text,
               currentAmountOfStock:
                   int.parse(_controllerProductAmountOfStock.text),
-              taxRate: _selectedTaxToInt,
+              taxRate: _selectedTaxValueInt!,
               currentBuyingPriceWithoutTax:
                   _valueNotifierProductBuyWithoutTax.value,
               currentSallingPriceWithoutTax:
@@ -1148,40 +1069,40 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 userId: userId);
 
             ///KAYITIN GERÇEKLEŞTİĞİ YER.
-            if (_valueNotifierBalance.value >= 0) {
-              db.saveNewProduct(product, payment).then((value) {
-                /// kayıt başarılı olunca degerleri sıfırlıyor.
-                if (value.isEmpty) {
-                  _controllerInvoiceCode.clear();
-                  _controllerPaymentTotal.clear();
-                  _controllerEftHavaleValue.clear();
-                  _controllerBankValue.clear();
-                  _controllerSupplier.clear();
-                  _controllerCashValue.clear();
-                  _valueNotifierBalance.value = 0;
-                  _valueNotifierPaid.value = 0;
-                  _controllerSallingPriceWithoutTax.clear();
-                  _controllerProductAmountOfStock.clear();
-                  _valueNotifierProductSaleWithTax.value = 0;
-                  _valueNotifierProductBuyWithoutTax.value = 0;
+            //  if (_valueNotifierBalance.value >= 0) {
+            db.saveNewProduct(product, payment).then((value) {
+              /// kayıt başarılı olunca degerleri sıfırlıyor.
+              if (value.isEmpty) {
+                _controllerInvoiceCode.clear();
+                _controllerPaymentTotal.clear();
+                _controllerEftHavaleValue.clear();
+                _controllerBankValue.clear();
+                _controllerSupplier.clear();
+                _controllerCashValue.clear();
+                _valueNotifierBalance.value = 0;
+                _valueNotifierPaid.value = 0;
+                _controllerSallingPriceWithoutTax.clear();
+                _controllerProductAmountOfStock.clear();
+                _valueNotifierProductSaleWithTax.value = 0;
+                _valueNotifierProductBuyWithoutTax.value = 0;
 
-                  ///global olarak tanımladığı için peş peşe 2 ürün kaydetmek olduğunda değerler global değişken olduğu için veriler bir sonrakiye girişi etkiliyor. O yüzden sıfırlamak lazım.
-                  _cashValue = 0;
-                  _bankValue = 0;
-                  _eftHavaleValue = 0;
-                  _totalPaymentValue = 0;
+                ///global olarak tanımladığı için peş peşe 2 ürün kaydetmek olduğunda değerler global değişken olduğu için veriler bir sonrakiye girişi etkiliyor. O yüzden sıfırlamak lazım.
+                _cashValue = 0;
+                _bankValue = 0;
+                _eftHavaleValue = 0;
+                _totalPaymentValue = 0;
 
-                  setState(() {
-                    _controllerProductCode.clear();
+                setState(() {
+                  _controllerProductCode.clear();
 
-                    _category.category1 = null;
-                  });
-                  context.noticeBarTrue("Ürün kaydedildi.", 1);
-                }
-              });
-            } else {
+                  _category.category1 = null;
+                });
+                context.noticeBarTrue("Ürün kaydedildi.", 1);
+              }
+            });
+            /*   } else {
               context.noticeBarError("Kalan Tutar 0'dan küçük olamaz.", 2);
-            }
+            } */
           } else {
             context.extensionShowErrorSnackBar(
                 message: "Kayıtlı bir ürün kodu girdiniz.");

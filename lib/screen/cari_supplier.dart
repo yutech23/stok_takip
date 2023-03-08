@@ -14,6 +14,7 @@ import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
+import '../validations/format_decimal_3by3.dart';
 import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
 import 'package:pdf/pdf.dart';
@@ -775,7 +776,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
+          FormatterDecimalThreeByThree(),
+          //FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
           FormatterDecimalLimit(decimalRange: 2)
         ],
         keyboardType: TextInputType.number,
