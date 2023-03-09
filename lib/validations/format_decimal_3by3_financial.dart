@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-class FormatterDecimalThreeByThree extends TextInputFormatter {
+class FormatterDecimalThreeByThreeFinancial extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,

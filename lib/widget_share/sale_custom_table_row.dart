@@ -32,6 +32,8 @@ class _SaleTableRowState extends State<SaleTableRow> {
 
   @override
   void initState() {
+    _controllerAmount.clear();
+    _controllerPrice.clear();
     _controllerAmount.text = widget.addProduct.sallingAmount.toString();
     _controllerPrice.text = FormatterConvert().pointToCommaAndDecimalTwo(
         widget.addProduct.currentSallingPriceWithoutTax!, 2);
@@ -61,6 +63,8 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
+                    _controllerPrice.clear();
+                    _controllerAmount.clear();
                     blocSale
                         .removeFromListProduct(widget.addProduct.productCode);
                     blocSale.getTotalPriceSection(

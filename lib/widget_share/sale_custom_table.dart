@@ -61,6 +61,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                     stream: blocSale.getStreamListProduct,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        for (var element in snapshot.data!) {
+                          print(element.productCode);
+                        }
                         return ListView.builder(
                             itemBuilder: (context, index) {
                               return SaleTableRow(
@@ -288,7 +291,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   getWidthScreenSize(BuildContext context) {
     TextStyle styleHeader;
-    print(MediaQuery.of(context).size.width);
+
     if (MediaQuery.of(context).size.width < 500) {
       styleHeader = context.theme.titleMedium!.copyWith(color: Colors.white);
     } else {

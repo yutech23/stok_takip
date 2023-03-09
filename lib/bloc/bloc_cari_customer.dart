@@ -244,9 +244,12 @@ class BlocCariCustomer {
     await getCustomerId();
     cariGetPay.customerType = _selectedCustomer['type']!;
     cariGetPay.customerFk = _customerId;
-    cariGetPay.cashPayment = double.parse(_paymentSystem['cash']!);
-    cariGetPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
-    cariGetPay.eftHavalePayment = double.parse(_paymentSystem['eftHavale']!);
+    cariGetPay.cashPayment =
+        FormatterConvert().commaToPointDouble(_paymentSystem['cash']!);
+    cariGetPay.bankcardPayment =
+        FormatterConvert().commaToPointDouble(_paymentSystem['bankCard']!);
+    cariGetPay.eftHavalePayment =
+        FormatterConvert().commaToPointDouble(_paymentSystem['eftHavale']!);
     cariGetPay.unitOfCurrency = unitOfCurrency;
     cariGetPay.sellerId = dbHive.getValues('uuid');
 

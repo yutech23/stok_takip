@@ -1,20 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/bloc/bloc_invoice.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
-import 'package:stok_takip/data/user_security_storage.dart';
-import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/service/exchange_rate.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/popup/popup_add_customer.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
-import 'package:stok_takip/validations/format_decimal_limit.dart';
+import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import 'package:turkish/turkish.dart';
 import '../modified_lib/searchfield.dart';
@@ -845,10 +842,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         onChanged: onChanged,
         controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
-          FormatterDecimalLimit(decimalRange: 2)
-        ],
+        inputFormatters: [FormatterDecimalThreeByThreeFinancial()],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(

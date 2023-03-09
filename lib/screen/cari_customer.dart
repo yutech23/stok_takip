@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_cari_customer.dart';
-import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
+import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/popup/popup_cari_sale_detail.dart';
@@ -15,8 +15,10 @@ import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
+// ignore: depend_on_referenced_packages
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+// ignore: depend_on_referenced_packages
 import 'package:pdf/widgets.dart' as pw;
 
 class ScreenCariCustomer extends StatefulWidget {
@@ -772,10 +774,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
         onChanged: onChanged,
         controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
-          FormatterDecimalLimit(decimalRange: 2)
-        ],
+        inputFormatters: [FormatterDecimalThreeByThreeFinancial()],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_func.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../data/database_category_product_filtre.dart';
 import '../data/database_helper.dart';
 import '../data/database_mango.dart';
@@ -20,7 +21,7 @@ import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/format_decimal_3by3.dart';
+import '../validations/format_decimal_3by3_financial.dart';
 import '../validations/format_decimal_limit.dart';
 import '../validations/format_upper_case_text_format.dart';
 import '../validations/validation.dart';
@@ -1120,7 +1121,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                 ElevatedButton(
                     onPressed: () async {
-                      print(oldStockValue);
                       if (keyPopupForm.currentState!.validate()) {
                         ///Yeni verilerin aktarıldığı değişkenler.
                         newStockValue = int.parse(
@@ -1128,8 +1128,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                         double newBuyingPriceWithoutTax =
                             valueNotifierProductBuyWithoutTax.value;
-                        double newSallingPriceWithoutTax =
-                            double.parse(controllerSallingPriceWithoutTax.text);
+                        double newSallingPriceWithoutTax = FormatterConvert()
+                            .commaToPointDouble(
+                                controllerSallingPriceWithoutTax.text);
 
                         if (oldStockValue! < 0) {
                           newStockValue = newStockValue + oldStockValue!;
@@ -1173,17 +1174,14 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             suppliersFk: _controllerSupplier.text,
                             productFk: selectedProduct.productCode,
                             unitOfCurrency: _selectUnitOfCurrencyAbridgment,
-                            total: double.parse(_controllerPaymentTotal.text
-                                .replaceAll(".", "")),
-                            cash: double.tryParse(_controllerCashValue.text
-                                    .replaceAll(".", "")) ??
-                                0,
-                            bankcard: double.tryParse(_controllerBankValue.text
-                                    .replaceAll(".", "")) ??
-                                0,
-                            eftHavale: double.tryParse(_controllerEftHavaleValue.text
-                                    .replaceAll(".", "")) ??
-                                0,
+                            total: FormatterConvert().commaToPointDouble(
+                                _controllerPaymentTotal.text),
+                            cash: FormatterConvert()
+                                .commaToPointDouble(_controllerCashValue.text),
+                            bankcard: FormatterConvert()
+                                .commaToPointDouble(_controllerBankValue.text),
+                            eftHavale: FormatterConvert().commaToPointDouble(
+                                _controllerEftHavaleValue.text),
                             buyingPriceWithoutTax: newBuyingPriceWithoutTax,
                             sallingPriceWithoutTax: newSallingPriceWithoutTax,
                             amountOfStock: newStockValue,
@@ -1194,7 +1192,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         productDetailToBeupdateMap.addAll({
                           'current_amount_of_stock':
                               (oldStockValue! + newStockValue),
-                          'tax_rate': _selectedTaxValueString,
+                          'tax_rate': _selectedTaxValueInt,
                           'current_buying_price_without_tax':
                               newAverageBuyingPriceWithoutTax
                                   .toStringAsFixed(2),
@@ -1585,7 +1583,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     value.isEmpty
                         ? _totalPaymentValue = 0
                         : _totalPaymentValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
 
                     ///Stok adeti önce girildiyse toplam tutar sonra girilmesi
                     ///durumunda birim başı maliyet hesaplamak içindir bu bölüm.
@@ -1593,7 +1591,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     if (controllerProductAmountOfStock.text.isNotEmpty) {
                       valueNotifierProductBuyWithoutTax.value =
                           _totalPaymentValue /
-                              double.parse(controllerProductAmountOfStock.text);
+                              FormatterConvert().commaToPointDouble(
+                                  controllerProductAmountOfStock.text);
                     }
                   },
                 ),
@@ -1625,7 +1624,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     value.isEmpty
                         ? _cashValue = 0
                         : _cashValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
                 //Bankakartı Ödeme Widget
@@ -1637,7 +1636,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     value.isEmpty
                         ? _bankValue = 0
                         : _bankValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
                 //EFTveHavale Ödeme Widget
@@ -1649,7 +1648,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     value.isEmpty
                         ? _eftHavaleValue = 0
                         : _eftHavaleValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
               ],
@@ -1862,7 +1861,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 if (_controllerPaymentTotal.text.isNotEmpty) {
                   if (p0.isNotEmpty) {
                     valueNotifierProductBuyWithoutTax.value =
-                        _totalPaymentValue / double.parse(p0);
+                        _totalPaymentValue /
+                            FormatterConvert().commaToPointDouble(p0);
                   } else {
                     valueNotifierProductBuyWithoutTax.value = 0;
                   }
@@ -1889,7 +1889,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     children: [
                       TextSpan(
                           text:
-                              "${value.toStringAsFixed(2)} $_selectUnitOfCurrencySymbol",
+                              "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -1915,11 +1915,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 ///dönüyor. Buradaki notifier double olduğu için isEmpty dönmesi sorun bunu
                 ///eğer isEmpty is 0 atanıyor. '0' olması sebebi giden değer ile KDV
                 ///hesabı yapılıyor.
-                print(value);
+
                 value == ""
                     ? valueNotifierProductSaleWithTax.value = 0
                     : valueNotifierProductSaleWithTax.value =
-                        double.parse(value);
+                        FormatterConvert().commaToPointDouble(value);
               },
             ),
           ),
@@ -1933,7 +1933,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             child: ValueListenableBuilder<double>(
               valueListenable: valueNotifierProductSaleWithTax,
               builder: (context, value, child) {
-                print("deger : $_selectedTaxValueInt");
                 return RichText(
                   text: TextSpan(
                       text: 'Vergiler Dahil Satış : ',
@@ -2083,7 +2082,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [
-          FormatterDecimalThreeByThree(),
+          FormatterDecimalThreeByThreeFinancial(),
         ],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
@@ -2123,7 +2122,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               ),
               TextSpan(
                   text:
-                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrencySymbol",
+                      "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
                   style: context.theme.titleMedium!.copyWith(
                       color: Colors.red.shade900,
                       fontWeight: FontWeight.bold,

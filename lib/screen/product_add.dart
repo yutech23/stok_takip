@@ -19,7 +19,8 @@ import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/format_decimal_3by3.dart';
+import '../validations/format_convert_point_comma.dart';
+import '../validations/format_decimal_3by3_financial.dart';
 import '../validations/format_upper_case_text_format.dart';
 
 class ScreenProductAdd extends StatefulWidget {
@@ -770,7 +771,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     value.isEmpty
                         ? _totalPaymentValue = 0
                         : _totalPaymentValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
 
                     ///Stok adeti önce girildiyse toplam tutar sonra girilmesi
                     ///durumunda birim başı maliyet hesaplamak içindir bu bölüm.
@@ -811,7 +812,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     value.isEmpty
                         ? _cashValue = 0
                         : _cashValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
                 //Bankakartı Ödeme Widget
@@ -823,7 +824,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     value.isEmpty
                         ? _bankValue = 0
                         : _bankValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
                 //EFTveHavale Ödeme Widget
@@ -835,7 +836,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                     value.isEmpty
                         ? _eftHavaleValue = 0
                         : _eftHavaleValue =
-                            double.parse(value.replaceAll(RegExp(r'\D'), ""));
+                            FormatterConvert().commaToPointDouble(value);
                   },
                 ),
               ],
@@ -964,9 +965,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
             height: 70,
             child: shareWidget.widgetTextFieldInput(
               etiket: 'Vergiler Hariç Satış (Birim Fiyat)',
-              inputFormat: [
-                FormatterDecimalLimit(decimalRange: 2),
-              ],
+              inputFormat: [FormatterDecimalThreeByThreeFinancial()],
               controller: _controllerSallingPriceWithoutTax,
               validationFunc: validateNotEmpty,
               onChanged: (value) {
@@ -977,7 +976,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 value.isEmpty
                     ? _valueNotifierProductSaleWithTax.value = 0
                     : _valueNotifierProductSaleWithTax.value =
-                        double.parse(value);
+                        FormatterConvert().commaToPointDouble(value);
               },
             ),
           ),
@@ -1028,7 +1027,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           if (isThereProductCodeByProductList == false) {
             ///Depo seçimi koyulmadığından bu bölüm şimdilik sabit veriliyor.
             const storehouse = "Ana Depo";
-
             String userId = dbHive.getValues('uuid');
 
             ///ÜRÜN ÖZELLİKLERİN EKLENMESİ.
@@ -1039,8 +1037,8 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               taxRate: _selectedTaxValueInt!,
               currentBuyingPriceWithoutTax:
                   _valueNotifierProductBuyWithoutTax.value,
-              currentSallingPriceWithoutTax:
-                  double.parse(_controllerSallingPriceWithoutTax.text),
+              currentSallingPriceWithoutTax: FormatterConvert()
+                  .commaToPointDouble(_controllerSallingPriceWithoutTax.text),
               category: _category,
             );
 
@@ -1051,20 +1049,17 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                 amountOfStock: int.parse(_controllerProductAmountOfStock.text),
                 invoiceCode: _controllerInvoiceCode.text,
                 unitOfCurrency: _selectUnitOfCurrencyAbridgment,
-                total: double.parse(
-                    _controllerPaymentTotal.text.replaceAll(".", "")),
-                cash: double.tryParse(
-                        _controllerCashValue.text.replaceAll(".", "")) ??
-                    0,
-                bankcard: double.tryParse(
-                        _controllerBankValue.text.replaceAll(".", "")) ??
-                    0,
-                eftHavale: double.tryParse(
-                        _controllerEftHavaleValue.text.replaceAll(".", "")) ??
-                    0,
+                total: FormatterConvert()
+                    .commaToPointDouble(_controllerPaymentTotal.text),
+                cash: FormatterConvert()
+                    .commaToPointDouble(_controllerCashValue.text),
+                bankcard: FormatterConvert()
+                    .commaToPointDouble(_controllerBankValue.text),
+                eftHavale: FormatterConvert()
+                    .commaToPointDouble(_controllerEftHavaleValue.text),
                 buyingPriceWithoutTax: _valueNotifierProductBuyWithoutTax.value,
-                sallingPriceWithoutTax:
-                    double.parse(_controllerSallingPriceWithoutTax.text),
+                sallingPriceWithoutTax: FormatterConvert()
+                    .commaToPointDouble(_controllerSallingPriceWithoutTax.text),
                 repaymentDateTime: _selectDateTime,
                 userId: userId);
 
@@ -1132,7 +1127,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         controller: controller,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [
-          FormatterDecimalThreeByThree(),
+          FormatterDecimalThreeByThreeFinancial(),
         ],
         keyboardType: TextInputType.number,
         style: context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
@@ -1172,7 +1167,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               ),
               TextSpan(
                   text:
-                      "${convertStringToCurrencyDigitThreeByThree.convertStringToDigit3By3(value.toString())} $_selectUnitOfCurrencySymbol",
+                      "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
                   style: context.theme.titleMedium!.copyWith(
                       color: Colors.red.shade900,
                       fontWeight: FontWeight.bold,

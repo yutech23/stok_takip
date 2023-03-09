@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
-import 'package:stok_takip/utilities/share_func.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../data/database_mango.dart';
 import '../modified_lib/searchfield.dart';
@@ -350,10 +349,12 @@ class BlocCariSuppleirs {
   //Elden Alınan ödemeler Kaydediliyor
   Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
     cariSupplierPay.customerFk = _selectedSupplier['name']!;
-    cariSupplierPay.cashPayment = double.parse(_paymentSystem['cash']!);
-    cariSupplierPay.bankcardPayment = double.parse(_paymentSystem['bankCard']!);
+    cariSupplierPay.cashPayment =
+        FormatterConvert().commaToPointDouble(_paymentSystem['cash']!);
+    cariSupplierPay.bankcardPayment =
+        FormatterConvert().commaToPointDouble(_paymentSystem['bankCard']!);
     cariSupplierPay.eftHavalePayment =
-        double.parse(_paymentSystem['eftHavale']!);
+        FormatterConvert().commaToPointDouble(_paymentSystem['eftHavale']!);
     cariSupplierPay.unitOfCurrency = unitOfCurrency;
     cariSupplierPay.sellerId = dbHive.getValues('uuid');
 
