@@ -79,11 +79,6 @@ class BlocSale {
   //Listeden ürün siliyor
   void removeFromListProduct(String productCode) {
     listProduct.removeWhere((element) => element.productCode == productCode);
-
-    for (var element in listProduct) {
-      print(element.currentSallingPriceWithoutTax);
-    }
-
     _streamControllerIndex.add(listProduct);
   }
 

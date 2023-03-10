@@ -12,9 +12,6 @@ class SaleTableRow extends StatefulWidget {
   Product addProduct;
   String selectUnitOfCurrencySymbol;
 
-  static StreamController<String> streamControllerIndex =
-      StreamController<String>.broadcast();
-
   String? ad;
   SaleTableRow(
       {Key? key,
@@ -41,6 +38,13 @@ class _SaleTableRowState extends State<SaleTableRow> {
   }
 
   @override
+  void dispose() {
+    _controllerAmount.dispose();
+    _controllerPrice.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return widgetListRowTable();
   }
@@ -63,8 +67,6 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    _controllerPrice.clear();
-                    _controllerAmount.clear();
                     blocSale
                         .removeFromListProduct(widget.addProduct.productCode);
                     blocSale.getTotalPriceSection(

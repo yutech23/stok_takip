@@ -60,10 +60,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                 child: StreamBuilder<List<Product>>(
                     stream: blocSale.getStreamListProduct,
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        for (var element in snapshot.data!) {
-                          print(element.productCode);
-                        }
+                      if (snapshot.hasData && !snapshot.hasError) {
                         return ListView.builder(
                             itemBuilder: (context, index) {
                               return SaleTableRow(
