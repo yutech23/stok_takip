@@ -30,6 +30,7 @@ class _ScreenSignUpState extends State with Validation {
   late final TextEditingController _controllerEmail;
   late final TextEditingController _controllerPassword;
   late final TextEditingController _controllerRePassword;
+  bool _switchPartnerValue = false;
 
   //Role Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
   String? _role;
@@ -75,6 +76,7 @@ class _ScreenSignUpState extends State with Validation {
           "Kullanıcı Oluşturma Ekranı",
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
+        // ignore: prefer_const_literals_to_create_immutables
         actions: [
           const ShareWidgetAppbarSetting(),
         ],
@@ -97,6 +99,7 @@ class _ScreenSignUpState extends State with Validation {
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
+                // ignore: prefer_const_literals_to_create_immutables
                 boxShadow: [
                   const BoxShadow(
                       color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
@@ -137,6 +140,7 @@ class _ScreenSignUpState extends State with Validation {
                   confirmObscureValue,
                   validateConfirmPassword),
               const SizedBox(height: 20),
+              // widgetSwitchButtonPartner(),
               WidgetDropdownRoles(_getRole),
               const SizedBox(height: 40),
               buttonSave(context),
@@ -245,6 +249,28 @@ class _ScreenSignUpState extends State with Validation {
           style: const TextStyle(fontSize: 20),
           "KAYIT",
         ),
+      ),
+    );
+  }
+
+  widgetSwitchButtonPartner() {
+    return Container(
+      width: 360,
+      height: 20,
+      child: Row(
+        children: [
+          Expanded(child: Text("Ortak mı: ")),
+          Switch(
+            value: _switchPartnerValue,
+            onChanged: (value) {
+              setState(() {
+                _switchPartnerValue = value;
+              });
+            },
+            activeTrackColor: Colors.amberAccent,
+            activeColor: context.extensionDefaultColor,
+          ),
+        ],
       ),
     );
   }

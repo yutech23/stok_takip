@@ -1,5 +1,6 @@
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:stok_takip/screen/capital.dart';
 import 'package:stok_takip/screen/cari_supplier.dart';
 import 'package:stok_takip/screen/case_snapshot.dart';
 import 'package:stok_takip/screen/login.dart';
@@ -84,6 +85,11 @@ import 'auth_guard.dart';
   CustomRoute(
       page: ScreenCaseSnapshot,
       path: ConstRoute.caseSnapshot,
+      guards: [AuthGuard],
+      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+  CustomRoute(
+      page: ScreenCapital,
+      path: ConstRoute.capital,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
 ])
