@@ -134,7 +134,7 @@ class DbHelper {
   Future<String> signUpMy(Kullanici kullanici) async {
     //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
     try {
-      final resAuth = await db.supabase.auth.signInWithPassword(
+      final resAuth = await db.supabase.auth.signUpWithoutLogin(
           email: kullanici.email!, password: kullanici.password!);
 
       //Kullanıcı Role Kaydı
@@ -147,14 +147,15 @@ class DbHelper {
           .toString()
           .replaceAll(RegExp(r"[)(]"), '');
 
-      /*  print("**********");
-    print(kullanici.name);
-    print(kullanici.lastName);
-    print(kullanici.email);
-    print(kullanici.password);
-    print(roleIdString);
-    print(resAuth.data!.user!.id);
-    print("***********"); */
+      /*   print("**********");
+      print(kullanici.name);
+      print(kullanici.lastName);
+      print(kullanici.email);
+      print(kullanici.password);
+      print(roleIdString);
+      print(kullanici.activeUser);
+      print(kullanici.isPartner);
+      print("***********"); */
 
       //Kulanıcı Bilgileri Kayıt
       await db.supabase.from('users').insert([
@@ -164,13 +165,32 @@ class DbHelper {
           'email': kullanici.email,
           'password': kullanici.password,
           'user_uuid': resAuth.user!.id,
-          'role': roleIdString
+          'role': roleIdString,
+          'partner': kullanici.isPartner,
+          'active_user': kullanici.activeUser
         }
       ]);
       return "";
     } on PostgrestException catch (e) {
       print("Hata SignUp : ${e.message}");
       return e.message;
+    }
+  }
+
+  Future<String> controllerUserEmail(String newEmail) async {
+    String res;
+    try {
+      final resList = await db.supabase
+          .from('users')
+          .select('email')
+          .eq('email', newEmail)
+          .single();
+      res = resList['email'];
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Hata Kullanıcı Email adresi : ${e.message}");
+      return "";
     }
   }
 

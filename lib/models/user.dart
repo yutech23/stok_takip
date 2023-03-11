@@ -1,12 +1,14 @@
 class Kullanici {
   late String id;
-  late String? email;
-  late String? password;
-  late String? name;
-  late String? lastName;
-  late String? role;
-  late String? token;
-  late String? refreshToken;
+  String? email;
+  String? password;
+  String? name;
+  String? lastName;
+  String? role;
+  String? token;
+  String? refreshToken;
+  bool? isPartner;
+  String? activeUser;
 
   Kullanici();
 

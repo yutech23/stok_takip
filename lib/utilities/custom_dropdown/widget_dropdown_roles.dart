@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../../data/database_helper.dart';
 
@@ -13,44 +14,47 @@ class WidgetDropdownRoles extends StatelessWidget with Validation {
     return FutureBuilder(
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
-            return DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                filled: true,
-              ),
-              // ignore: prefer_const_constructors
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1),
+            return Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: context.extensionDefaultColor,
+                  borderRadius: BorderRadius.circular(15)),
+              width: 360,
+              height: 40,
+              child: DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                    focusedBorder:
+                        OutlineInputBorder(borderSide: BorderSide.none),
+                    border: OutlineInputBorder(borderSide: BorderSide.none),
+                    isCollapsed: true,
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 5, 0)),
+                // ignore: prefer_const_constructors
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1),
 
-              hint: const Center(
-                child: Text(
-                  "Yetki Tipini Seçiniz.",
-                  style: TextStyle(color: Colors.white),
+                hint: const Center(
+                  child: Text(
+                    "Yetki Tipini Seçiniz.",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
+                iconSize: 30,
+                icon: const Icon(
+                  Icons.arrow_drop_down_circle_sharp,
+                  color: Colors.white,
+                ),
+                isExpanded: true,
+                dropdownColor: Colors.blueGrey.shade200,
+                items: roleList(snapshot.data!),
+                value: _role,
+                onChanged: (String? value) {
+                  _role = value;
+                  _getRoleCallbackFunc!(_role!);
+                },
+                // validator: validateRoleSelectFunc,
               ),
-              iconSize: 36,
-              icon: const Icon(
-                Icons.arrow_drop_down_circle_sharp,
-                color: Colors.white,
-              ),
-              isExpanded: true,
-              dropdownColor: Colors.blueGrey.shade200,
-              items: roleList(snapshot.data!),
-              value: _role,
-              onChanged: (String? value) {
-                _role = value;
-                _getRoleCallbackFunc!(_role!);
-              },
-              validator: validateRoleSelectFunc,
             );
           } else {
             return const Text("");

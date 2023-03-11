@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/models/user.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_dropdown_roles.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -107,7 +108,7 @@ class _ScreenSignUpState extends State with Validation {
                 ]),
             padding: const EdgeInsets.all(20),
             margin: const EdgeInsets.only(top: 20, bottom: 20),
-            height: 650,
+            height: 700,
             width: 400,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -143,7 +144,7 @@ class _ScreenSignUpState extends State with Validation {
               const SizedBox(height: 20),
               widgetSwitchButtonPartner(),
               const SizedBox(height: 20),
-              SizedBox(height: 50, child: WidgetDropdownRoles(_getRole)),
+              WidgetDropdownRoles(_getRole),
               const SizedBox(height: 20),
               buttonSave(context),
             ]),
@@ -210,36 +211,43 @@ class _ScreenSignUpState extends State with Validation {
   buttonSave(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        setState(() {
-          kullanici.name = _controllerName.text;
-          kullanici.lastName = _controllerLastName.text;
-          kullanici.email = _controllerEmail.text;
-          kullanici.password = _controllerPassword.text;
-          kullanici.role = _role;
-        });
         /*   print(kullanici.name);
         print(kullanici.lastName);
         print(kullanici.email);
         print(kullanici.password);
         print(kullanici.role); */
 
-        if (formKey.currentState!.validate()) {
-          db.signUpMy(kullanici).then((value) {
-            if (value.isEmpty) {
-              setState(() {
-                _controllerEmail.clear();
-                _controllerName.clear();
-                _controllerLastName.clear();
-                _controllerPassword.clear();
-                _controllerRePassword.clear();
-              });
-              context.noticeBarTrue("Kayıt Başarılı", 1);
-            } else {
-              context.noticeBarError("Hata gerçekleşti : $value", 2);
-            }
-          });
+        String checkEmail = await db.controllerUserEmail(_controllerEmail.text);
+        if (checkEmail == "") {
+          if (formKey.currentState!.validate()) {
+            //oturm açık olan kullanıcı id alıyor.
+            kullanici.activeUser = dbHive.getValues('uuid');
+
+            kullanici.name = _controllerName.text;
+            kullanici.lastName = _controllerLastName.text;
+            kullanici.email = _controllerEmail.text;
+            kullanici.password = _controllerPassword.text;
+            kullanici.role = _role;
+            kullanici.isPartner = _switchPartnerValue;
+            db.signUpMy(kullanici).then((value) {
+              if (value.isEmpty) {
+                setState(() {
+                  _controllerEmail.clear();
+                  _controllerName.clear();
+                  _controllerLastName.clear();
+                  _controllerPassword.clear();
+                  _controllerRePassword.clear();
+                });
+                context.noticeBarTrue("Kayıt Başarılı", 1);
+              } else {
+                context.noticeBarError("Hata gerçekleşti : $value", 2);
+              }
+            });
+          } else {
+            context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+          }
         } else {
-          context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+          context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
         }
       },
       child: Container(
