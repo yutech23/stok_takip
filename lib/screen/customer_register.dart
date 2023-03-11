@@ -114,7 +114,7 @@ class _ScreenCustomerSave extends State with Validation {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text("Yeni Müşteri Kayıt Formu"),
         // ignore: prefer_const_literals_to_create_immutables

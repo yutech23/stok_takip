@@ -31,6 +31,7 @@ class _ScreenSignUpState extends State with Validation {
   late final TextEditingController _controllerPassword;
   late final TextEditingController _controllerRePassword;
   bool _switchPartnerValue = false;
+  final String _labelPartner = "Ortak";
 
   //Role Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
   String? _role;
@@ -106,7 +107,7 @@ class _ScreenSignUpState extends State with Validation {
                 ]),
             padding: const EdgeInsets.all(20),
             margin: const EdgeInsets.only(top: 20, bottom: 20),
-            height: 700,
+            height: 650,
             width: 400,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -140,9 +141,10 @@ class _ScreenSignUpState extends State with Validation {
                   confirmObscureValue,
                   validateConfirmPassword),
               const SizedBox(height: 20),
-              // widgetSwitchButtonPartner(),
-              WidgetDropdownRoles(_getRole),
-              const SizedBox(height: 40),
+              widgetSwitchButtonPartner(),
+              const SizedBox(height: 20),
+              SizedBox(height: 50, child: WidgetDropdownRoles(_getRole)),
+              const SizedBox(height: 20),
               buttonSave(context),
             ]),
           ),
@@ -256,10 +258,18 @@ class _ScreenSignUpState extends State with Validation {
   widgetSwitchButtonPartner() {
     return Container(
       width: 360,
-      height: 20,
+      height: 40,
+      padding: EdgeInsets.only(left: 10),
+      decoration: BoxDecoration(
+          border: Border.symmetric(
+              horizontal: BorderSide(color: context.extensionDisableColor))),
       child: Row(
         children: [
-          Expanded(child: Text("Ortak mı: ")),
+          Expanded(
+              child: Text(_labelPartner,
+                  style: context.theme.titleMedium!.copyWith(
+                    color: context.extensionDisableColor,
+                  ))),
           Switch(
             value: _switchPartnerValue,
             onChanged: (value) {

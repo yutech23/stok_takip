@@ -68,7 +68,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(_labelHeading),
 
