@@ -5,8 +5,9 @@ class FormatterConvert {
     return valueDigit.toStringAsFixed(decimalLenght).replaceAll(".", ",");
   }
 
-  double commaToPointDouble(String valueString) {
-    if (valueString.isEmpty) {
+  double commaToPointDouble(String? valueString) {
+    // valueString = valueString!.replaceAll(r'[₺€$]', '');
+    if (valueString == "" || valueString == null) {
       valueString = "0";
     }
     valueString = valueString.replaceAll('.', '');
@@ -15,7 +16,7 @@ class FormatterConvert {
   }
 
   //Basamak basamak ayırır.
-  String currencyShow(dynamic value, {String? unitOfCurrency = null}) {
+  String currencyShow(dynamic value, {String? unitOfCurrency = '₺'}) {
     String turkishCurrencyString;
     var turkishCurrencyFormat =
         NumberFormat.currency(locale: 'tr_TR', decimalDigits: 2, symbol: '');

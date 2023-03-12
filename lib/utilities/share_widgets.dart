@@ -10,24 +10,27 @@ class ShareWidget with Validation {
   final String _labelIBANName = "IBAN Numarası";
 
   //Widget - inputlar
-  TextFormField widgetTextFieldInput({
-    TextEditingController? controller,
-    required String etiket,
-    bool? karakterGostermeDurumu = false,
-    bool? focusValue = false,
-    int? maxCharacter,
-    String? Function(String?)? validationFunc,
-    List<TextInputFormatter>? inputFormat,
-    TextInputType? keyboardInputType,
-    void Function(String)? onChanged,
-    // Color borderSideColor,
-  }) {
+  TextFormField widgetTextFieldInput(
+      {TextEditingController? controller,
+      required String etiket,
+      bool? karakterGostermeDurumu = false,
+      bool? focusValue = false,
+      int? maxCharacter,
+      String? Function(String?)? validationFunc,
+      List<TextInputFormatter>? inputFormat,
+      TextInputType? keyboardInputType,
+      void Function(String)? onChanged,
+      TextStyle? style
+      // Color borderSideColor,
+      }) {
     return TextFormField(
       onChanged: onChanged,
       maxLength: maxCharacter,
       obscureText: karakterGostermeDurumu!,
       controller: controller,
       validator: validationFunc,
+      style: style,
+
       // autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
           counterText: "",

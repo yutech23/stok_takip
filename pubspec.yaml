@@ -51,6 +51,7 @@ dependencies:
   multiple_stream_builder: ^3.0.2
   printing: ^5.9.3
   pie_chart: ^5.3.2
+  flutter_speed_dial: ^6.2.0
   
   synchronized: ^3.0.1
  

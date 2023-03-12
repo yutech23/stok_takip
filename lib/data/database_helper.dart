@@ -1456,6 +1456,40 @@ class DbHelper {
       return resPayment;
     }
   }
+
+  /*----------------------------KASA BÖLÜMÜ----------------------------- */
+  Future<Map<String, dynamic>> fetchCashBox() async {
+    Map<String, dynamic> resCashBox = {};
+
+    try {
+      resCashBox = await db.supabase
+          .from('cash_box')
+          .select<Map<String, dynamic>>(
+            'cash,bank',
+          )
+          .single();
+
+      return resCashBox;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  ///Kasa Veri Kaydetme
+  upsertCashBox(num cashValue, num bankValue) async {
+    try {
+      await supabase.from('cash_box').upsert({
+        'id': 1,
+        'cash': cashValue,
+        'bank': bankValue,
+      });
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
+  /*-------------------------------------------------------------------- */
 }
 
 final db = DbHelper();

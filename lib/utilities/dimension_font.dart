@@ -9,6 +9,9 @@ extension DimensionFont on BuildContext {
   double get extendFixedHeighContainer => 800;
   double get extensionButtonHeight => 50;
 
+  double get extensionTextFieldWidth => 175;
+  double get extensionTextFieldHeight => 40;
+
   Color get extensionDefaultColor => Colors.blueGrey.shade900;
   Color get extensionLineColor => Colors.blueGrey.shade600;
   Color get extensionDisableColor => Colors.grey;
