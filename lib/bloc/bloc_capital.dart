@@ -14,8 +14,8 @@ class BlocCapital {
 
   Map<String, dynamic> _cashBox = {};
 
-  String? _selectCashBalance;
-  String? _selectBankBalance;
+  String? _selectCashBalance = "+";
+  String? _selectBankBalance = "+";
 
   get getterSelectCashBalance => _selectCashBalance;
 
@@ -50,12 +50,14 @@ class BlocCapital {
     _streamControllerCashBox.sink.add(_cashBox);
   }
 
-  saveCashBox(String? cashValue, String bankValue) async {
+  Future<String> saveCashBox(String? cashValue, String bankValue) async {
     num tempCash = FormatterConvert().commaToPointDouble(cashValue) *
         (getterSelectCashBalance == '-' ? -1 : 1);
     num tempBank = FormatterConvert().commaToPointDouble(bankValue) *
         (getterSelectBankBalance == '-' ? -1 : 1);
-    await db.upsertCashBox(tempCash, tempBank);
+    String res = await db.upsertCashBox(tempCash, tempBank);
+    print(res);
     getCashBox();
+    return res;
   }
 }

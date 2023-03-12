@@ -4,6 +4,7 @@ import 'package:stok_takip/bloc/bloc_capital.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
+import '../modified_lib/datatable_header.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_upper_case_text_format.dart';
@@ -44,10 +45,126 @@ class _ScreenCapitalState extends State<ScreenCapital> {
 
   final String _labelSave = "Kaydet";
   /*--------------------------------------------------------- */
+  /*------------------DATATABLE ----------------------------------------*/
+  late final List<DatatableHeader> _headers;
+  List<Map<String, dynamic>> _selecteds = [];
+  final double _dataTableWidth = 745;
+  final double _dataTableHeight = 710;
+/*------------------------------------------------------------------------- */
 
   @override
   void initState() {
     _blocCapital = BlocCapital();
+    /*-------------------DATATABLE--------------------------------------- */
+
+    _headers = [];
+
+    _headers.add(DatatableHeader(
+        text: "Tarih - Saat",
+        value: "dateTime",
+        show: true,
+        sortable: true,
+        flex: 3,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Tür",
+        value: "type",
+        show: true,
+        flex: 2,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Müşteri İsmi",
+        value: "customerName",
+        show: true,
+        flex: 3,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Fatura No",
+        value: "invoiceNumber",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Toplam Tutar",
+        value: "totalPrice",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Ödenen Tutar",
+        value: "payment",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Kalan Tutar",
+        value: "balance",
+        show: true,
+        sortable: false,
+        flex: 2,
+        textAlign: TextAlign.center));
+    /*   _headers.add(DatatableHeader(     text: "Sil ve Detay",
+        value: "detail",
+        show: true,
+        sortable: false,
+        flex: 2,
+        sourceBuilder: (value, row) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ///Silme Buttonu
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  ///Stok bitmeden silmeyi engelliyor.
+                  widgetDeleteInvoice(row['invoiceNumber'], row['totalPrice']);
+                },
+              ),
+              row['totalPrice'] != "-"
+                  ? Container(
+                      child: IconButton(
+                        iconSize: 20,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        alignment: Alignment.center,
+                        icon: const Icon(Icons.list),
+                        onPressed: () async {
+                          ///satır bilgisi aktarılıyor
+                          _blocCari.setterRowCustomerInfo = row;
+                          //  print(row);
+
+                          ///Fatura No'suna göre detaylar geliyor.
+                          await _blocCari.getSaleDetail(row['invoiceNumber']);
+                          await _blocCari.getSaleInfo(row['invoiceNumber']);
+
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return PopupSaleDetail(_blocCari);
+                              });
+                        },
+                      ),
+                    )
+                  : Container(
+                      child: const Padding(
+                        padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
+                        child: Icon(Icons.disabled_by_default),
+                      ),
+                    ),
+            ],
+          );
+        },
+        textAlign: TextAlign.center));
+ */
     super.initState();
   }
 
@@ -95,9 +212,11 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             margin: const EdgeInsets.only(top: 20, bottom: 20),
             height: 800,
             width: 1200,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [widgetTableCashBox()]),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              widgetTableCashBox(),
+              // widgetDateTable()
+            ]),
           ),
         ),
       ),
@@ -107,7 +226,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   ///Kasa Tablosu
   widgetTableCashBox() {
     return Container(
-      width: 360,
+      width: 330,
       alignment: Alignment.centerRight,
       child: Column(
         children: [
@@ -128,9 +247,9 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 if (snapshot.hasData && !snapshot.hasError) {
                   return Table(
                     columnWidths: const {
-                      0: FixedColumnWidth(120),
-                      1: FixedColumnWidth(120),
-                      2: FixedColumnWidth(120),
+                      0: FixedColumnWidth(110),
+                      1: FixedColumnWidth(110),
+                      2: FixedColumnWidth(110),
                     },
                     border: TableBorder.symmetric(
                         inside: const BorderSide(color: Colors.white)),
@@ -189,10 +308,96 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                       alignment: Alignment.center,
                       child: Text(
                         header,
-                        style: context.theme.titleMedium!
+                        style: context.theme.titleSmall!
                             .copyWith(color: Colors.white),
                       ))),
           ]);
+
+/*   ///cari Liste tablosu
+  widgetDateTable() {
+    return SizedBox(
+      width: _dataTableWidth,
+      height: _dataTableHeight,
+      child: Card(
+        margin: const EdgeInsets.only(top: 5),
+        elevation: 5,
+        shadowColor: Colors.black,
+        clipBehavior: Clip.none,
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _blocCari.getStreamSoldList.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && !snapshot.hasError) {}
+
+              return ResponsiveDatatable(
+                reponseScreenSizes: const [ScreenSize.xs],
+                headers: _headers,
+                source: snapshot.data,
+                selecteds: _selecteds,
+                expanded: _blocCari.getterExpandad,
+                autoHeight: false,
+                sortColumn: 'dataTime',
+                sortAscending: true,
+                actions: [widgetButtonPrinter(snapshot)],
+                footerDecoration:
+                    BoxDecoration(color: context.extensionDefaultColor),
+                footers: [
+                  RichText(
+                    overflow: TextOverflow.visible,
+                    text: TextSpan(
+                        text: "Toplam Tutar : ",
+                        style: context.theme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                            color: Colors.white),
+                        children: [
+                          TextSpan(
+                            text: FormatterConvert().currencyShow(
+                                _blocCari.getterCalculationRow['totalPrice']),
+                            style: context.theme.titleMedium!
+                                .copyWith(color: Colors.white),
+                          ),
+                          TextSpan(
+                              text: "   Ödenen Tutar : ",
+                              style: const TextStyle(
+                                  color: Colors.white, letterSpacing: 1),
+                              children: [
+                                TextSpan(
+                                    text: FormatterConvert().currencyShow(
+                                        _blocCari.getterCalculationRow[
+                                            'totalPayment']),
+                                    style: context.theme.titleMedium!
+                                        .copyWith(color: Colors.white))
+                              ]),
+                          TextSpan(text: "   Kalan Tutar : ", children: [
+                            TextSpan(
+                                text: FormatterConvert().currencyShow(
+                                    _blocCari.getterCalculationRow['balance']),
+                                style: context.theme.titleMedium!.copyWith(
+                                    letterSpacing: 1,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white))
+                          ]),
+                        ]),
+                  ),
+                ],
+                headerDecoration: BoxDecoration(
+                    color: Colors.blueGrey.shade900,
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.red, width: 1))),
+                selectedDecoration: const BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                  color: Colors.green,
+                ),
+                headerTextStyle:
+                    context.theme.titleMedium!.copyWith(color: Colors.white),
+                rowTextStyle: context.theme.titleSmall,
+                selectedTextStyle: const TextStyle(color: Colors.grey),
+              );
+            }),
+      ),
+    );
+  } */
 
 /*------------------------------------------------------------------------- */
   ///Menu Buttonu
@@ -238,6 +443,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            insetPadding: EdgeInsets.zero,
             title: Text(
               textAlign: TextAlign.center,
               _labelAddbalance,
@@ -249,9 +455,9 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 key: _formKeySupplier,
                 // autovalidateMode: _autovalidateMode,
                 child: Container(
-                  padding: context.extensionPadding20(),
+                  padding: EdgeInsets.zero,
                   alignment: Alignment.center,
-                  width: 600,
+                  width: 500,
                   child: Column(children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -264,6 +470,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                         )
                       ],
                     ),
+                    context.extensionHighSizedBox10(),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -283,6 +490,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         });
   }
 
+  ///Kasa Nakit Bölümü
   SizedBox widgetDropdownButtonCashBalance(BuildContext context) {
     return SizedBox(
       width: context.extensionTextFieldWidth,
@@ -315,13 +523,6 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             _blocCapital.selectCashBalance = value!;
           });
         },
-        hint: Container(
-          alignment: Alignment.center,
-          child: Text(
-            "Bakiye Durumu",
-            style: context.theme.titleMedium,
-          ),
-        ),
         decoration: const InputDecoration(
             isCollapsed: true,
             contentPadding: EdgeInsets.symmetric(vertical: 10)),
@@ -329,6 +530,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     );
   }
 
+  ///Kasa Banka bölümü
   SizedBox widgetDropdownButtonBankBalance(BuildContext context) {
     return SizedBox(
       width: context.extensionTextFieldWidth,
@@ -361,40 +563,11 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             _blocCapital.selectBankBalance = value!;
           });
         },
-        hint: Container(
-          alignment: Alignment.center,
-          child: Text(
-            "Bakiye Durumu",
-            style: context.theme.titleMedium,
-          ),
-        ),
         decoration: const InputDecoration(
             isCollapsed: true,
             contentPadding: EdgeInsets.symmetric(vertical: 10)),
       ),
     );
-  }
-
-  widgetTextFieldOpenBalanceCash() {
-    return shareWidget.widgetTextFieldInput(
-        inputFormat: [FormatterDecimalThreeByThreeFinancial()],
-        controller: _controllerOpenCashBox,
-        etiket: _labelOpenBalanceCash,
-        focusValue: false,
-        karakterGostermeDurumu: false,
-        keyboardInputType: TextInputType.number,
-        style: context.theme.titleMedium);
-  }
-
-  widgetTextFieldOpenBalanceBank() {
-    return shareWidget.widgetTextFieldInput(
-        inputFormat: [FormatterDecimalThreeByThreeFinancial()],
-        controller: _controllerOpenBankBox,
-        etiket: _labelOpenBalanceBank,
-        focusValue: false,
-        karakterGostermeDurumu: false,
-        keyboardInputType: TextInputType.number,
-        style: context.theme.titleMedium);
   }
 
   widgetShareTextFieldFinancial(
@@ -411,7 +584,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         // autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
             isCollapsed: true,
-            contentPadding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+            contentPadding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
             counterText: "",
             labelText: etiket,
             /*   focusedBorder: OutlineInputBorder(
@@ -426,13 +599,29 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     );
   }
 
+  ///Kasa Bakiye Kaydediliyor.
   widgetSaveButton() {
     return SizedBox(
       width: context.extensionTextFieldWidth,
+      height: context.extensionTextFieldHeight,
       child: shareWidget.widgetElevatedButton(
-          onPressedDoSomething: () {
-            _blocCapital.saveCashBox(
-                _controllerOpenCashBox.text, _controllerOpenBankBox.text);
+          onPressedDoSomething: () async {
+            if (_controllerOpenBankBox.text == "" &&
+                _controllerOpenCashBox.text == "") {
+              context.noticeBarError("Bir veri girişi yapmadınız.", 3);
+            } else {
+              String res = await _blocCapital.saveCashBox(
+                  _controllerOpenCashBox.text, _controllerOpenBankBox.text);
+              if (res == "") {
+                // ignore: use_build_context_synchronously
+                Navigator.of(context).pop();
+                _controllerOpenBankBox.clear();
+                _controllerOpenCashBox.clear();
+              } else {
+                // ignore: use_build_context_synchronously
+                context.noticeBarError(res, 3);
+              }
+            }
           },
           label: _labelSave),
     );

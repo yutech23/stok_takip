@@ -1477,7 +1477,7 @@ class DbHelper {
   }
 
   ///Kasa Veri Kaydetme
-  upsertCashBox(num cashValue, num bankValue) async {
+  Future<String> upsertCashBox(num cashValue, num bankValue) async {
     try {
       await supabase.from('cash_box').upsert({
         'id': 1,
