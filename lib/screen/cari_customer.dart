@@ -2,9 +2,9 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_cari_customer.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
-import 'package:stok_takip/modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
@@ -414,7 +414,6 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                   return SizedBox(
                     width: _screenWidth <= 450 ? 360 : 555,
                     child: SearchField(
-                      searchHeight: _shareHeightInputTextField,
                       itemHeight: _searchByNameItemHeight,
                       searchInputDecoration: InputDecoration(
                           isDense: true,

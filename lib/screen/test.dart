@@ -5,6 +5,7 @@ import 'package:qr/qr.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
+import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Test extends StatefulWidget {
@@ -62,6 +63,12 @@ class _TestState extends State<Test> {
     super.initState();
   }
 
+  static const List<String> _kOptions = <String>[
+    'aardvark',
+    'bobcat',
+    'chameleon',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +111,56 @@ class _TestState extends State<Test> {
                 print(await db.supabase.auth.currentSession!.user.id);
               },
               child: Text("session Getir")),
-        )
+        ),
+        Container(
+          width: 300,
+          child: Column(
+            children: [
+              Autocomplete<String>(
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Container(
+                    width: 300,
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
+                        return SizedBox(
+                          height: 30,
+                          child: Center(
+                              child: Text(
+                            option.toString(),
+                            style: context.theme.titleSmall,
+                          )),
+                        );
+                      },
+                      itemCount: options.length,
+                    ),
+                  );
+                },
+                fieldViewBuilder: (context, textEditingController, focusNode,
+                    onFieldSubmitted) {
+                  return TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    onEditingComplete: onFieldSubmitted,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(borderSide: BorderSide())),
+                  );
+                },
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text == '') {
+                    return _kOptions;
+                  }
+                  return _kOptions.where((String option) {
+                    return option.contains(textEditingValue.text.toLowerCase());
+                  });
+                },
+                onSelected: (String selection) {
+                  debugPrint('You just selected $selection');
+                },
+              ),
+            ],
+          ),
+        ),
       ],
     ));
   }

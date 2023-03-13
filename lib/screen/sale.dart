@@ -301,7 +301,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   item: element['type']));
             }
             return SearchField(
-              searchHeight: _shareheight,
               validator: validateNotEmpty,
               controller: _controllerSearchCustomer,
               searchInputDecoration: InputDecoration(
@@ -382,7 +381,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
             return SearchField(
-              searchHeight: _shareheight,
               validator: validateNotEmpty,
               controller: _controllerSearchProductCode,
               searchInputDecoration: InputDecoration(

@@ -9,13 +9,11 @@ import 'package:stok_takip/models/category.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/screen/drawer.dart';
-import 'package:stok_takip/utilities/convert_string_currency_digits.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/popup/popup_supplier_add.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
-import 'package:stok_takip/validations/format_decimal_limit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../modified_lib/searchfield.dart';
 import '../utilities/widget_appbar_setting.dart';
@@ -236,7 +234,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         if (!snapshot.hasError && snapshot.hasData) {
           _productCodeList = snapshot.data;
           return SearchField(
-            searchHeight: 70,
             validator: validateNotEmpty,
             controller: _controllerProductCode,
             searchInputDecoration: const InputDecoration(
@@ -326,7 +323,6 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   snapshot.hasData &&
                   snapshot.data!.isNotEmpty) {
                 return SearchField(
-                  searchHeight: 70,
                   //  validator: validateNotEmpty,
                   inputFormatters: [FormatterUpperCaseTextFormatter()],
                   controller: _controllerSupplier,

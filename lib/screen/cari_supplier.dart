@@ -6,7 +6,7 @@ import 'package:stok_takip/bloc/bloc_cari_supplier.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
-import 'package:stok_takip/modified_lib/searchfield.dart';
+import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/popup/popup_cari_supplier_payment.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
@@ -402,7 +402,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                   return SizedBox(
                     width: _screenWidth <= 450 ? 360 : 555,
                     child: SearchField(
-                      searchHeight: _shareHeightInputTextField,
                       itemHeight: _searchByNameItemHeight,
                       searchInputDecoration: InputDecoration(
                           isDense: true,

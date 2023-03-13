@@ -1,14 +1,24 @@
+import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_textfield_autocomplete/flutter_textfield_autocomplete.dart';
+import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_capital.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import '../modified_lib/datatable_header.dart';
+import '../modified_lib/responsive_datatable.dart';
+
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_upper_case_text_format.dart';
 import 'drawer.dart';
+// ignore: depend_on_referenced_packages
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+// ignore: depend_on_referenced_packages
+import 'package:pdf/widgets.dart' as pw;
 
 class ScreenCapital extends StatefulWidget {
   const ScreenCapital({super.key});
@@ -20,6 +30,7 @@ class ScreenCapital extends StatefulWidget {
 class _ScreenCapitalState extends State<ScreenCapital> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeySupplier = GlobalKey<FormState>();
+
   late BlocCapital _blocCapital;
 
   final String _labelCapitalHeader = "Satış Ekranı";
@@ -36,8 +47,8 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   final String _labelCapitalOutflow = "Sermaye Çıkışı";
   /*--------------------------------------------------------- */
   /*--------------------------FLOAT BUTTON--------------------------- */
-  final String _labelOpenBalanceCash = "Açılış Bakiyesi Nakit";
-  final String _labelOpenBalanceBank = "Açılış Bakiyesi Banka";
+  final String _labelOpenBalanceCash = "Nakit";
+  final String _labelOpenBalanceBank = "Banka";
   final String _labelPositiveBalance = "(+) Bakiye";
   final String _labelNegativeBalance = "(-) Bakiye";
   final TextEditingController _controllerOpenCashBox = TextEditingController();
@@ -45,11 +56,29 @@ class _ScreenCapitalState extends State<ScreenCapital> {
 
   final String _labelSave = "Kaydet";
   /*--------------------------------------------------------- */
+  /*--------------------------FLOAT BUTTON Sermaye Giriş ve Çıkış--------------------------- */
+  final String _labelLeadingAndCreditCash = "Nakit";
+  final String _labelLeadingAndCreditBank = "Banka";
+  final TextEditingController _controllerLeadingAndCreditCash =
+      TextEditingController();
+  final TextEditingController _controllerLeadingAndCreditBank =
+      TextEditingController();
+  final String _labelLeadingAndCreditHeader = "Serma İşlemleri";
+  final TextEditingController _controllerSelectedPartnerLeadingAndCredit =
+      TextEditingController();
+  final FocusNode _focusNodeLeadingAndCredit = FocusNode();
+
+  /*--------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 745;
-  final double _dataTableHeight = 710;
+  final double _dataTableHeight = 600;
+  final TextEditingController _controllerSelectedPartner =
+      TextEditingController();
+  final double _searchByNameItemHeight = 30;
+  final _focusSearchCustomer = FocusNode();
+  final String _labelSearchCustomerName = "Ortak Adı";
 /*------------------------------------------------------------------------- */
 
   @override
@@ -58,7 +87,6 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     /*-------------------DATATABLE--------------------------------------- */
 
     _headers = [];
-
     _headers.add(DatatableHeader(
         text: "Tarih - Saat",
         value: "dateTime",
@@ -67,48 +95,28 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         flex: 3,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Tür",
-        value: "type",
-        show: true,
-        flex: 2,
-        sortable: true,
-        textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Müşteri İsmi",
-        value: "customerName",
+        text: "Çalışan İsmi",
+        value: "workerName",
         show: true,
         flex: 3,
         sortable: true,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Fatura No",
-        value: "invoiceNumber",
+        text: "Borçu Var",
+        value: "leadingCash",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Toplam Tutar",
-        value: "totalPrice",
+        text: "Alacağı Var",
+        value: "creditCash",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Ödenen Tutar",
-        value: "payment",
-        show: true,
-        sortable: true,
-        flex: 2,
-        textAlign: TextAlign.center));
-    _headers.add(DatatableHeader(
-        text: "Kalan Tutar",
-        value: "balance",
-        show: true,
-        sortable: false,
-        flex: 2,
-        textAlign: TextAlign.center));
-    /*   _headers.add(DatatableHeader(     text: "Sil ve Detay",
+        text: "Sil ve Detay",
         value: "detail",
         show: true,
         sortable: false,
@@ -127,7 +135,6 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 icon: const Icon(Icons.delete),
                 onPressed: () {
                   ///Stok bitmeden silmeyi engelliyor.
-                  widgetDeleteInvoice(row['invoiceNumber'], row['totalPrice']);
                 },
               ),
               row['totalPrice'] != "-"
@@ -138,19 +145,11 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                         alignment: Alignment.center,
                         icon: const Icon(Icons.list),
                         onPressed: () async {
-                          ///satır bilgisi aktarılıyor
-                          _blocCari.setterRowCustomerInfo = row;
-                          //  print(row);
-
-                          ///Fatura No'suna göre detaylar geliyor.
-                          await _blocCari.getSaleDetail(row['invoiceNumber']);
-                          await _blocCari.getSaleInfo(row['invoiceNumber']);
-
-                          showDialog(
+                          /*   showDialog(
                               context: context,
                               builder: (context) {
                                 return PopupSaleDetail(_blocCari);
-                              });
+                              }); */
                         },
                       ),
                     )
@@ -164,7 +163,6 @@ class _ScreenCapitalState extends State<ScreenCapital> {
           );
         },
         textAlign: TextAlign.center));
- */
     super.initState();
   }
 
@@ -215,7 +213,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               widgetTableCashBox(),
-              // widgetDateTable()
+              widgetDateTable(),
             ]),
           ),
         ),
@@ -313,7 +311,51 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                       ))),
           ]);
 
-/*   ///cari Liste tablosu
+  ///isim ile cari getirme
+  widgetSearchPartner() {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _blocCapital.getStreamAllPartner,
+        builder: (context, snapshot) {
+          List<SearchFieldListItem<String>> listSearch =
+              <SearchFieldListItem<String>>[];
+          listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+
+          if (snapshot.hasData && !snapshot.hasError) {
+            listSearch.clear();
+            for (var element in snapshot.data!) {
+              listSearch.add(SearchFieldListItem("${element['name']}",
+                  item: element['uuid']));
+            }
+          }
+          return SearchField(
+            itemHeight: _searchByNameItemHeight,
+            searchInputDecoration: InputDecoration(
+                isDense: true,
+                errorBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(),
+                ),
+                label: Text(_labelSearchCustomerName),
+                prefixIcon: const Icon(Icons.search, color: Colors.black),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(),
+                )),
+            controller: _controllerSelectedPartner,
+            suggestions: listSearch,
+            focusNode: _focusSearchCustomer,
+            searchStyle: const TextStyle(
+              fontSize: 14,
+              overflow: TextOverflow.fade,
+            ),
+            onSuggestionTap: (p0) {
+              _blocCapital.setterSelectedPartnerId = p0.item;
+              _focusSearchCustomer.unfocus();
+            },
+            maxSuggestionsInViewPort: 6,
+          );
+        });
+  }
+
+  ///cari Liste tablosu
   widgetDateTable() {
     return SizedBox(
       width: _dataTableWidth,
@@ -324,7 +366,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         shadowColor: Colors.black,
         clipBehavior: Clip.none,
         child: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _blocCari.getStreamSoldList.stream,
+            stream: _blocCapital.getStreamCariPartner,
             builder: (context, snapshot) {
               if (snapshot.hasData && !snapshot.hasError) {}
 
@@ -333,14 +375,17 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 headers: _headers,
                 source: snapshot.data,
                 selecteds: _selecteds,
-                expanded: _blocCari.getterExpandad,
+                expanded: [false],
                 autoHeight: false,
                 sortColumn: 'dataTime',
                 sortAscending: true,
-                actions: [widgetButtonPrinter(snapshot)],
+                actions: [
+                  Expanded(child: widgetSearchPartner())
+                  //  widgetButtonPrinter(snapshot)
+                ],
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),
-                footers: [
+                /*   footers: [
                   RichText(
                     overflow: TextOverflow.visible,
                     text: TextSpan(
@@ -379,7 +424,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                           ]),
                         ]),
                   ),
-                ],
+                ], */
                 headerDecoration: BoxDecoration(
                     color: Colors.blueGrey.shade900,
                     border: const Border(
@@ -397,7 +442,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             }),
       ),
     );
-  } */
+  }
 
 /*------------------------------------------------------------------------- */
   ///Menu Buttonu
@@ -420,9 +465,13 @@ class _ScreenCapitalState extends State<ScreenCapital> {
 
         ///Sermaye Girişi
         SpeedDialChild(
-            backgroundColor: context.extensionDefaultColor,
-            child: const Icon(Icons.add, color: Colors.white),
-            label: _labelCapitalInflow),
+          backgroundColor: context.extensionDefaultColor,
+          child: const Icon(Icons.add, color: Colors.white),
+          label: _labelCapitalInflow,
+          onTap: () {
+            widgetPopupLeadingAndCredit(context);
+          },
+        ),
 
         ///Sermaye Çıkışı
         SpeedDialChild(
@@ -570,6 +619,104 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     );
   }
 
+  ///popup İçin Arama
+  widgetSearchPartnerLeadingAndCredit(BlocCapital blocCapital) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+        stream: blocCapital.getStreamAllPartner,
+        builder: (context, snapshot) {
+          List<SearchFieldListItem<String>> listSearch =
+              <SearchFieldListItem<String>>[];
+          listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+
+          if (snapshot.hasData && !snapshot.hasError) {
+            listSearch.clear();
+            for (var element in snapshot.data!) {
+              listSearch.add(SearchFieldListItem("${element['name']}",
+                  item: element['uuid']));
+            }
+          }
+          return SearchField(
+            itemHeight: _searchByNameItemHeight,
+            searchInputDecoration: InputDecoration(
+                isDense: true,
+                errorBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(),
+                ),
+                label: Text(_labelLeadingAndCreditHeader),
+                prefixIcon: const Icon(Icons.search, color: Colors.black),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(),
+                )),
+            controller: _controllerSelectedPartnerLeadingAndCredit,
+            suggestions: listSearch,
+            focusNode: _focusNodeLeadingAndCredit,
+            searchStyle: const TextStyle(
+              fontSize: 14,
+              overflow: TextOverflow.fade,
+            ),
+            onSuggestionTap: (p0) {
+              _blocCapital.setterSelectedPartnerIdPopup = p0.item;
+              _focusNodeLeadingAndCredit.unfocus();
+            },
+            maxSuggestionsInViewPort: 6,
+          );
+        });
+  }
+
+  ///Sermaya girişi veye çıkışı
+  widgetPopupLeadingAndCredit(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          BlocCapital blocCapital = BlocCapital();
+          return AlertDialog(
+            insetPadding: EdgeInsets.zero,
+            title: Text(
+              textAlign: TextAlign.center,
+              _labelLeadingAndCreditHeader,
+              style: context.theme.headline5!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+            content: SingleChildScrollView(
+              child: Form(
+                key: _formKeySupplier,
+                // autovalidateMode: _autovalidateMode,
+                child: Container(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.center,
+                  width: 500,
+                  child: Column(children: [
+                    widgetSearchPartnerLeadingAndCredit(blocCapital),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        widgetShareTextFieldFinancial(
+                            _controllerLeadingAndCreditCash,
+                            _labelLeadingAndCreditCash),
+                        context.extensionWidhSizedBox10(),
+                        widgetShareTextFieldFinancial(
+                            _controllerLeadingAndCreditBank,
+                            _labelLeadingAndCreditBank),
+                      ],
+                    ),
+                    context.extensionHighSizedBox10(),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        context.extensionWidhSizedBox10(),
+                        widgetPopupLeadingAndCredit(context),
+                      ],
+                    ),
+                    context.extensionHighSizedBox10(),
+                    widgetSaveButton()
+                  ]),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
   widgetShareTextFieldFinancial(
     TextEditingController controller,
     String etiket,
@@ -625,5 +772,120 @@ class _ScreenCapitalState extends State<ScreenCapital> {
           },
           label: _labelSave),
     );
+  }
+
+  widgetButtonPrinter(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+    return IconButton(
+        onPressed: () async {
+          ///tablo boş ise pdf dökme hata veriyor. O yüzden burada verinin dolu kontrol ediliyor.
+
+          /*   if (snapshot.hasData) {
+            printPDF(_headers, snapshot.data, _blocCari.getterCalculationRow);
+          } */
+        },
+        icon: const Icon(
+          Icons.print_rounded,
+          color: Colors.grey,
+        ));
+  }
+
+  ///PDF ekleme
+  printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source,
+      Map<String, dynamic> footer) {
+    ///son kolonda simge var diye buradan kaldırılıyor.
+
+    Printing.layoutPdf(onLayout: ((format) async {
+      var myFont = await PdfGoogleFonts.poppinsMedium();
+      final pw.TextStyle letterCharacter =
+          pw.TextStyle(font: myFont, fontSize: 9);
+      final pw.TextStyle letterCharacterBold = pw.TextStyle(
+          font: myFont, fontSize: 12, fontWeight: pw.FontWeight.bold);
+      final pw.TextStyle letterHeader =
+          pw.TextStyle(font: myFont, fontSize: 16);
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 100,
+          build: (pw.Context context) => [
+            pw.Center(
+                heightFactor: 2.0,
+                child: pw.Text('CARİ DÖKÜMÜ', style: letterHeader)),
+            pw.Table(
+              defaultColumnWidth: const pw.FixedColumnWidth(120.0),
+              border: pw.TableBorder.all(
+                  color: PdfColor.fromHex('#8E8E8E'), width: 0.5),
+              children: [
+                pw.TableRow(
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.grey,
+                    ),
+                    children: [
+                      for (int i = 0; i < headers.length - 1; i++)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(headers[i].text,
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacterBold))
+                    ]),
+                for (int index = 0; index < source!.length; index++)
+                  pw.TableRow(
+                    verticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    decoration: pw.BoxDecoration(
+                        color: index % 2 == 1
+                            ? PdfColors.grey200
+                            : PdfColors.white),
+                    children: [
+                      for (int i = 0; i < headers.length - 1; i++)
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                source[index][headers[i].value].toString(),
+                                style: letterCharacter)),
+                    ],
+                  ),
+              ],
+            ),
+            pw.Table(
+                defaultColumnWidth: const pw.FixedColumnWidth(160),
+                border: pw.TableBorder.symmetric(
+                    outside: pw.BorderSide(
+                        color: PdfColor.fromHex('#8E8E8E'), width: 0.5)),
+                children: [
+                  pw.TableRow(
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.grey100,
+                      ),
+                      children: [
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Toplam Tutar: ${FormatterConvert().currencyShow(footer['totalPrice'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalPayment'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter)),
+                        pw.Container(
+                            margin: const pw.EdgeInsets.all(2.0),
+                            padding: const pw.EdgeInsets.all(2.0),
+                            child: pw.Text(
+                                "Kalan Tutar: ${FormatterConvert().currencyShow(footer['balance'])}",
+                                textAlign: pw.TextAlign.center,
+                                style: letterCharacter))
+                      ]),
+                ])
+          ],
+        ),
+      );
+      return pdf.save();
+    }));
   }
 }

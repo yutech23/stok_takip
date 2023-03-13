@@ -163,7 +163,6 @@ class DbHelper {
           'name': kullanici.name,
           'last_name': kullanici.lastName,
           'email': kullanici.email,
-          'password': kullanici.password,
           'user_uuid': resAuth.user!.id,
           'role': roleIdString,
           'partner': kullanici.isPartner,
@@ -185,11 +184,12 @@ class DbHelper {
           .select('email')
           .eq('email', newEmail)
           .single();
-      res = resList['email'];
 
+      res = resList['email'];
+      print(res);
       return res;
     } on PostgrestException catch (e) {
-      print("Hata Kullanıcı Email adresi : ${e.message}");
+      print("Kullanıcı Email adresi arama Hata: ${e.message}");
       return "";
     }
   }
@@ -1487,6 +1487,38 @@ class DbHelper {
       return "";
     } on PostgrestException catch (e) {
       return e.message;
+    }
+  }
+
+  /// Sadece ortaklık değeri 'true' olanları getiriliyor.
+  Future<List<Map<String, dynamic>>> fetchAllPartner() async {
+    List<Map<String, dynamic>> resAllPartner = [];
+    try {
+      resAllPartner = await db.supabase
+          .from('users')
+          .select<List<Map<String, dynamic>>>('user_uuid,name,last_name')
+          .eq('partner', true);
+      return resAllPartner;
+    } on PostgrestException catch (e) {
+      print("Cari Ortak hata: ${e.message}");
+      resAllPartner.add({'hata': e.message});
+      return resAllPartner;
+    }
+  }
+
+  ///Cari getir
+  Future<List<Map<String, dynamic>>> fetchSelectCariPartner(String uuid) async {
+    List<Map<String, dynamic>> res = [];
+    try {
+      res = await db.supabase
+          .from('cari_capital')
+          .select<List<Map<String, dynamic>>>()
+          .eq('uuid_fk', uuid);
+
+      return res;
+    } on PostgrestException catch (e) {
+      print("Cari Ortak hata: ${e.message}");
+      return [];
     }
   }
   /*-------------------------------------------------------------------- */

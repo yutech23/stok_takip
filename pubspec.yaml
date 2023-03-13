@@ -18,14 +18,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   currency_text_input_formatter: ^2.1.8
   dio: ^4.0.6
-  dropdown_search: ^5.0.2
+  dropdown_search: ^5.0.3
   email_validator: ^2.0.1
   envied: ^0.2.4
   equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_barcode_scanner: ^2.0.0
-  flutter_bloc: ^8.1.1 
   flutter_localizations:
     sdk: flutter
   flutter_profile_picture: ^2.0.0
@@ -52,6 +51,7 @@ dependencies:
   printing: ^5.9.3
   pie_chart: ^5.3.2
   flutter_speed_dial: ^6.2.0
+  flutter_textfield_autocomplete: ^1.0.2  
   
   synchronized: ^3.0.1
  
