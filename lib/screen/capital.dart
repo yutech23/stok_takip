@@ -1,7 +1,7 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter_textfield_autocomplete/flutter_textfield_autocomplete.dart';
+import 'package:stok_takip/models/cari_partner.dart';
 import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_capital.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -9,10 +9,8 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
-import '../validations/format_upper_case_text_format.dart';
 import 'drawer.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pdf/pdf.dart';
@@ -30,7 +28,7 @@ class ScreenCapital extends StatefulWidget {
 class _ScreenCapitalState extends State<ScreenCapital> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeySupplier = GlobalKey<FormState>();
-
+  bool isLoading = false;
   late BlocCapital _blocCapital;
 
   final String _labelCapitalHeader = "Satış Ekranı";
@@ -43,10 +41,9 @@ class _ScreenCapitalState extends State<ScreenCapital> {
 
 /*--------------------------FLOAT BUTTON--------------------------- */
   final String _labelAddbalance = "Sermaye Kasa";
-  final String _labelCapitalInflow = "Sermaye Girişi";
-  final String _labelCapitalOutflow = "Sermaye Çıkışı";
+  final String _labelCapitalInflow = "Sermaye İşlemleri";
   /*--------------------------------------------------------- */
-  /*--------------------------FLOAT BUTTON--------------------------- */
+  /*--------------------------POPUP KASA--------------------------- */
   final String _labelOpenBalanceCash = "Nakit";
   final String _labelOpenBalanceBank = "Banka";
   final String _labelPositiveBalance = "(+) Bakiye";
@@ -55,111 +52,107 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   final TextEditingController _controllerOpenBankBox = TextEditingController();
 
   final String _labelSave = "Kaydet";
-  /*--------------------------------------------------------- */
-  /*--------------------------FLOAT BUTTON Sermaye Giriş ve Çıkış--------------------------- */
+  /*-------------------------------------------------------------- */
+  /*---------------------POPUP Sermaye Giriş Çıkış---------------- */
+  final String _labelLeadingAndCreditHeader = "Serma İşlemleri";
   final String _labelLeadingAndCreditCash = "Nakit";
   final String _labelLeadingAndCreditBank = "Banka";
+  final String _labelLeading = "Borç aldı";
+  final String _labelCredit = "Borç verdi";
   final TextEditingController _controllerLeadingAndCreditCash =
       TextEditingController();
   final TextEditingController _controllerLeadingAndCreditBank =
       TextEditingController();
-  final String _labelLeadingAndCreditHeader = "Serma İşlemleri";
   final TextEditingController _controllerSelectedPartnerLeadingAndCredit =
       TextEditingController();
   final FocusNode _focusNodeLeadingAndCredit = FocusNode();
-
+  late CariPartner _cariPartner;
   /*--------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
-  final double _dataTableWidth = 745;
-  final double _dataTableHeight = 600;
+  final double _dataTableWidth = 600;
+  final double _dataTableHeight = 500;
   final TextEditingController _controllerSelectedPartner =
       TextEditingController();
   final double _searchByNameItemHeight = 30;
   final _focusSearchCustomer = FocusNode();
-  final String _labelSearchCustomerName = "Ortak Adı";
+  final String _labelSearchPartnerName = "Ortak İsmi";
 /*------------------------------------------------------------------------- */
 
   @override
   void initState() {
     _blocCapital = BlocCapital();
+    _cariPartner = CariPartner();
     /*-------------------DATATABLE--------------------------------------- */
 
     _headers = [];
     _headers.add(DatatableHeader(
         text: "Tarih - Saat",
-        value: "dateTime",
+        value: "saveTime",
         show: true,
         sortable: true,
         flex: 3,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
         text: "Çalışan İsmi",
-        value: "workerName",
+        value: "partnerName",
         show: true,
         flex: 3,
         sortable: true,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
         text: "Borçu Var",
-        value: "leadingCash",
+        value: "totalLending",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
         text: "Alacağı Var",
-        value: "creditCash",
+        value: "totalCredit",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Sil ve Detay",
+        text: "Sil",
         value: "detail",
+        headerBuilder: (value) {
+          return Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 10),
+            child: Text(
+              "Sil",
+              style: context.theme.titleSmall!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                  color: Colors.white),
+            ),
+          );
+        },
         show: true,
         sortable: false,
-        flex: 2,
+        flex: 1,
         sourceBuilder: (value, row) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ///Silme Buttonu
-              IconButton(
-                iconSize: 20,
-                padding: const EdgeInsets.only(bottom: 20),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  ///Stok bitmeden silmeyi engelliyor.
-                },
-              ),
-              row['totalPrice'] != "-"
-                  ? Container(
-                      child: IconButton(
-                        iconSize: 20,
-                        padding: const EdgeInsets.only(bottom: 20),
-                        alignment: Alignment.center,
-                        icon: const Icon(Icons.list),
-                        onPressed: () async {
-                          /*   showDialog(
-                              context: context,
-                              builder: (context) {
-                                return PopupSaleDetail(_blocCari);
-                              }); */
-                        },
-                      ),
-                    )
-                  : Container(
-                      child: const Padding(
-                        padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
-                        child: Icon(Icons.disabled_by_default),
-                      ),
-                    ),
-            ],
+          return IconButton(
+            padding: const EdgeInsets.only(bottom: 14),
+            iconSize: 20,
+            alignment: Alignment.center,
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              _blocCapital.deleteSelectedRow(row['id']).then((value) {
+                if (value == "") {
+                  /* setState(() {
+                    isLoading = !isLoading;
+                  }); */
+                  _blocCapital.getSelectCariParter();
+                  return context.noticeBarTrue("İşlem Başarılı.", 2);
+                } else {
+                  return context.noticeBarTrue("Hata \n $value", 2);
+                }
+              });
+            },
           );
         },
         textAlign: TextAlign.center));
@@ -327,30 +320,30 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   item: element['uuid']));
             }
           }
-          return SearchField(
-            itemHeight: _searchByNameItemHeight,
-            searchInputDecoration: InputDecoration(
-                isDense: true,
-                errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-                label: Text(_labelSearchCustomerName),
-                prefixIcon: const Icon(Icons.search, color: Colors.black),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                )),
-            controller: _controllerSelectedPartner,
-            suggestions: listSearch,
-            focusNode: _focusSearchCustomer,
-            searchStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.fade,
+          return Container(
+            width: _dataTableWidth - 50,
+            child: SearchField(
+              itemHeight: _searchByNameItemHeight,
+              searchInputDecoration: InputDecoration(
+                  isDense: true,
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  label: Text(_labelSearchPartnerName),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              controller: _controllerSelectedPartner,
+              suggestions: listSearch,
+              focusNode: _focusSearchCustomer,
+              onSuggestionTap: (p0) {
+                _blocCapital.setterSelectedPartnerId = p0.item;
+                _blocCapital.getSelectCariParter();
+                _focusSearchCustomer.unfocus();
+              },
+              maxSuggestionsInViewPort: 6,
             ),
-            onSuggestionTap: (p0) {
-              _blocCapital.setterSelectedPartnerId = p0.item;
-              _focusSearchCustomer.unfocus();
-            },
-            maxSuggestionsInViewPort: 6,
           );
         });
   }
@@ -371,60 +364,66 @@ class _ScreenCapitalState extends State<ScreenCapital> {
               if (snapshot.hasData && !snapshot.hasError) {}
 
               return ResponsiveDatatable(
+                rowHeight: 40,
                 reponseScreenSizes: const [ScreenSize.xs],
                 headers: _headers,
                 source: snapshot.data,
                 selecteds: _selecteds,
-                expanded: [false],
+                expanded: _blocCapital.getterExpanded,
                 autoHeight: false,
-                sortColumn: 'dataTime',
-                sortAscending: true,
                 actions: [
-                  Expanded(child: widgetSearchPartner())
-                  //  widgetButtonPrinter(snapshot)
+                  Row(
+                    children: [
+                      widgetSearchPartner(),
+                      widgetButtonPrinter(snapshot)
+                    ],
+                  )
                 ],
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),
-                /*   footers: [
+                footers: [
                   RichText(
                     overflow: TextOverflow.visible,
                     text: TextSpan(
-                        text: "Toplam Tutar : ",
-                        style: context.theme.titleMedium!.copyWith(
+                        text: "Toplam Borç : ",
+                        style: context.theme.titleSmall!.copyWith(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                             color: Colors.white),
                         children: [
                           TextSpan(
                             text: FormatterConvert().currencyShow(
-                                _blocCari.getterCalculationRow['totalPrice']),
-                            style: context.theme.titleMedium!
+                                _blocCapital.getterCalculationRow['totalLend']),
+                            style: context.theme.titleSmall!
                                 .copyWith(color: Colors.white),
                           ),
                           TextSpan(
-                              text: "   Ödenen Tutar : ",
-                              style: const TextStyle(
-                                  color: Colors.white, letterSpacing: 1),
+                              text: "   Toplam Alacağı : ",
+                              style: context.theme.titleSmall!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                  color: Colors.white),
                               children: [
                                 TextSpan(
                                     text: FormatterConvert().currencyShow(
-                                        _blocCari.getterCalculationRow[
-                                            'totalPayment']),
-                                    style: context.theme.titleMedium!
+                                        _blocCapital.getterCalculationRow[
+                                            'totalCredit']),
+                                    style: context.theme.titleSmall!
                                         .copyWith(color: Colors.white))
                               ]),
-                          TextSpan(text: "   Kalan Tutar : ", children: [
+                          TextSpan(text: "   Bakiye : ", children: [
                             TextSpan(
                                 text: FormatterConvert().currencyShow(
-                                    _blocCari.getterCalculationRow['balance']),
-                                style: context.theme.titleMedium!.copyWith(
+                                    _blocCapital
+                                        .getterCalculationRow['balance']),
+                                style: context.theme.titleSmall!.copyWith(
                                     letterSpacing: 1,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white))
                           ]),
                         ]),
                   ),
-                ], */
+                ],
                 headerDecoration: BoxDecoration(
                     color: Colors.blueGrey.shade900,
                     border: const Border(
@@ -473,7 +472,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
           },
         ),
 
-        ///Sermaye Çıkışı
+        /*  ///Sermaye Çıkışı
         SpeedDialChild(
           backgroundColor: context.extensionDefaultColor,
           child: const Icon(
@@ -481,7 +480,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             color: Colors.white,
           ),
           label: _labelCapitalOutflow,
-        )
+        ) */
       ],
     );
   }
@@ -619,56 +618,11 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     );
   }
 
-  ///popup İçin Arama
-  widgetSearchPartnerLeadingAndCredit(BlocCapital blocCapital) {
-    return StreamBuilder<List<Map<String, dynamic>>>(
-        stream: blocCapital.getStreamAllPartner,
-        builder: (context, snapshot) {
-          List<SearchFieldListItem<String>> listSearch =
-              <SearchFieldListItem<String>>[];
-          listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
-
-          if (snapshot.hasData && !snapshot.hasError) {
-            listSearch.clear();
-            for (var element in snapshot.data!) {
-              listSearch.add(SearchFieldListItem("${element['name']}",
-                  item: element['uuid']));
-            }
-          }
-          return SearchField(
-            itemHeight: _searchByNameItemHeight,
-            searchInputDecoration: InputDecoration(
-                isDense: true,
-                errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-                label: Text(_labelLeadingAndCreditHeader),
-                prefixIcon: const Icon(Icons.search, color: Colors.black),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(),
-                )),
-            controller: _controllerSelectedPartnerLeadingAndCredit,
-            suggestions: listSearch,
-            focusNode: _focusNodeLeadingAndCredit,
-            searchStyle: const TextStyle(
-              fontSize: 14,
-              overflow: TextOverflow.fade,
-            ),
-            onSuggestionTap: (p0) {
-              _blocCapital.setterSelectedPartnerIdPopup = p0.item;
-              _focusNodeLeadingAndCredit.unfocus();
-            },
-            maxSuggestionsInViewPort: 6,
-          );
-        });
-  }
-
   ///Sermaya girişi veye çıkışı
   widgetPopupLeadingAndCredit(BuildContext context) {
     return showDialog(
         context: context,
         builder: (context) {
-          BlocCapital blocCapital = BlocCapital();
           return AlertDialog(
             insetPadding: EdgeInsets.zero,
             title: Text(
@@ -686,7 +640,8 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   alignment: Alignment.center,
                   width: 500,
                   child: Column(children: [
-                    widgetSearchPartnerLeadingAndCredit(blocCapital),
+                    widgetSearchPartnerLeadingAndCredit(
+                        _blocCapital.getterAllParter),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -704,17 +659,100 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         context.extensionWidhSizedBox10(),
-                        widgetPopupLeadingAndCredit(context),
                       ],
                     ),
+                    widgetDropdownButtonLeadingAndCredit(context),
                     context.extensionHighSizedBox10(),
-                    widgetSaveButton()
+                    widgetSaveButtonLeadingAndCredit()
                   ]),
                 ),
               ),
             ),
           );
         });
+  }
+
+  ///Ortak Arama TextField Sermaye girişi veya çıkışı bölümü
+  widgetSearchPartnerLeadingAndCredit(List<Map<String, dynamic>> allPartner) {
+    List<SearchFieldListItem<String>> listSearch =
+        <SearchFieldListItem<String>>[];
+
+    listSearch.clear();
+    for (var element in allPartner) {
+      listSearch.add(
+          SearchFieldListItem("${element['name']}", item: element['uuid']));
+    }
+    return SizedBox(
+      width: context.extensionTextFieldWidth * 2 + 10,
+      child: SearchField(
+        itemHeight: _searchByNameItemHeight,
+        searchInputDecoration: InputDecoration(
+            isDense: true,
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: context.extensionDisableColor),
+            ),
+            label: Text(_labelSearchPartnerName),
+            prefixIcon: const Icon(Icons.search, color: Colors.black),
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(),
+            )),
+        controller: _controllerSelectedPartnerLeadingAndCredit,
+        suggestions: listSearch,
+        autoCorrect: true,
+        focusNode: _focusNodeLeadingAndCredit,
+        searchStyle: const TextStyle(
+          fontSize: 14,
+          overflow: TextOverflow.fade,
+        ),
+        onSuggestionTap: (p0) {
+          _blocCapital.setterSelectedPartnerIdPopup = p0.item;
+          _focusNodeLeadingAndCredit.unfocus();
+        },
+        maxSuggestionsInViewPort: 6,
+      ),
+    );
+  }
+
+  ///Borç verme ve Alma bölümü
+  SizedBox widgetDropdownButtonLeadingAndCredit(BuildContext context) {
+    return SizedBox(
+      width: context.extensionTextFieldWidth * 2 + 10,
+      height: context.extensionTextFieldHeight,
+      child: DropdownButtonFormField<String>(
+        isExpanded: true,
+        value: _blocCapital.getterSelectBankBalance,
+        items: [
+          DropdownMenuItem(
+            value: "+",
+            child: Container(
+              height: 30,
+              padding: EdgeInsets.zero,
+              alignment: Alignment.center,
+              width: context.extensionTextFieldWidth,
+              child: Text(_labelLeading),
+            ),
+          ),
+          DropdownMenuItem(
+            value: "-",
+            child: Container(
+              height: 30,
+              padding: EdgeInsets.zero,
+              alignment: Alignment.center,
+              width: context.extensionTextFieldWidth,
+              child: Text(_labelCredit),
+            ),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _blocCapital.setterSelectedLeadingAndCredit = value!;
+          });
+        },
+        decoration: const InputDecoration(
+            isCollapsed: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 10)),
+      ),
+    );
   }
 
   widgetShareTextFieldFinancial(
@@ -774,14 +812,53 @@ class _ScreenCapitalState extends State<ScreenCapital> {
     );
   }
 
+  ///Kasa Bakiye Kaydediliyor.
+  widgetSaveButtonLeadingAndCredit() {
+    return SizedBox(
+      width: context.extensionTextFieldWidth,
+      height: context.extensionTextFieldHeight,
+      child: shareWidget.widgetElevatedButton(
+          onPressedDoSomething: () async {
+            if (_controllerSelectedPartnerLeadingAndCredit.text != "") {
+              if (_controllerLeadingAndCreditCash.text == "" &&
+                  _controllerLeadingAndCreditBank.text == "") {
+                context.noticeBarError(
+                    "Nakit veya bank alanından en az birini giriniz.", 3);
+              } else {
+                String res = await _blocCapital.saveLeadingAndCreditPartner(
+                    _blocCapital.getterSelectedPartnerIdPopup!,
+                    _controllerLeadingAndCreditCash.text,
+                    _controllerLeadingAndCreditBank.text);
+                if (res == "") {
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop();
+                  _controllerLeadingAndCreditCash.clear();
+                  _controllerLeadingAndCreditBank.clear();
+                  _controllerSelectedPartnerLeadingAndCredit.clear();
+                  _blocCapital.setterSelectedPartnerIdPopup = "";
+                  context.noticeBarTrue("İşlem Başarılı", 2);
+                } else {
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarError(res, 3);
+                }
+              }
+            } else {
+              context.noticeBarError("Lütfen ortak seçiniz.", 3);
+            }
+          },
+          label: _labelSave),
+    );
+  }
+
   widgetButtonPrinter(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
     return IconButton(
         onPressed: () async {
           ///tablo boş ise pdf dökme hata veriyor. O yüzden burada verinin dolu kontrol ediliyor.
 
-          /*   if (snapshot.hasData) {
-            printPDF(_headers, snapshot.data, _blocCari.getterCalculationRow);
-          } */
+          if (snapshot.hasData) {
+            printPDF(
+                _headers, snapshot.data, _blocCapital.getterCalculationRow);
+          }
         },
         icon: const Icon(
           Icons.print_rounded,
@@ -839,6 +916,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                     children: [
                       for (int i = 0; i < headers.length - 1; i++)
                         pw.Container(
+                            alignment: pw.Alignment.center,
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
                             child: pw.Text(
@@ -863,14 +941,14 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
                             child: pw.Text(
-                                "Toplam Tutar: ${FormatterConvert().currencyShow(footer['totalPrice'])}",
+                                "Toplam Tutar: ${FormatterConvert().currencyShow(footer['totalLend'])}",
                                 textAlign: pw.TextAlign.center,
                                 style: letterCharacter)),
                         pw.Container(
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
                             child: pw.Text(
-                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalPayment'])}",
+                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalCredit'])}",
                                 textAlign: pw.TextAlign.center,
                                 style: letterCharacter)),
                         pw.Container(

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/models/cari_partner.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../utilities/share_func.dart';
-import '../validations/format_upper_case_capital_text_format.dart';
 import 'package:turkish/turkish.dart';
 
 class BlocCapital {
@@ -34,6 +34,8 @@ class BlocCapital {
 
   List<Map<String, dynamic>> _allPartner = [];
 
+  List<Map<String, dynamic>> get getterAllParter => _allPartner;
+
   final StreamController<List<Map<String, dynamic>>>
       _streamControllerAllPartner =
       StreamController<List<Map<String, dynamic>>>.broadcast();
@@ -46,35 +48,35 @@ class BlocCapital {
   String? get getterSelectedPartnerId => _selectedPartnerId;
   set setterSelectedPartnerId(String? value) => _selectedPartnerId = value;
 
+  String? _selectedLeadingAndCredit = "+";
   String? _selectedPartnerIdPopup;
 
-  String? get getterSelectedPartnerIdPopup => _selectedPartnerId;
+  String? get getterSelectedPartnerIdPopup => _selectedPartnerIdPopup;
   set setterSelectedPartnerIdPopup(String? value) =>
       _selectedPartnerIdPopup = value;
 
-  final List<Map<String, dynamic>> _cariPartner = [
-    {
-      'saveTime': '',
-      'totalLending': 0,
-      'totalCredit': 0,
-      'partnerName': '',
-      'current_user_uuid': '',
-    }
-  ];
+  set setterSelectedLeadingAndCredit(String? value) =>
+      _selectedLeadingAndCredit = value;
+
+  final List<Map<String, String>> _cariPartner = [];
 
   List<bool> _expanded = [false];
 
+  List<bool> get getterExpanded => _expanded;
+
   Map<String, num> _calculationRow = {
-    'totalPrice': 0,
-    'totalPayment': 0,
+    'totalLend': 0,
+    'totalCredit': 0,
     'balance': 0
   };
 
-  final StreamController<List<Map<String, String>>>
+  get getterCalculationRow => _calculationRow;
+
+  final StreamController<List<Map<String, dynamic>>>
       _streamControllerCariPartner =
       StreamController<List<Map<String, String>>>.broadcast();
 
-  Stream<List<Map<String, String>>> get getStreamCariPartner =>
+  Stream<List<Map<String, dynamic>>> get getStreamCariPartner =>
       _streamControllerCariPartner.stream;
 
   ///KASA verilerini getiriyor.
@@ -120,15 +122,14 @@ class BlocCapital {
     }
 
     _streamControllerAllPartner.sink.add(_allPartner);
+    return _allPartner;
   }
-
-  getSelectedPartnerName() async {}
 
   ///Seçilen Ortağın verileri getiriliyor.
   Future getSelectCariParter() async {
     _expanded.clear();
     _cariPartner.clear();
-    _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
+    _calculationRow = {'totalLend': 0, 'totalCredit': 0, 'balance': 0};
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
@@ -140,40 +141,75 @@ class BlocCapital {
           .format(DateTime.parse(element['save_time']));
 
       num totalLending = element['lending_cash'] + element['lending_bank'];
-      print(totalLending);
-
       num totalCredit = element['credit_cash'] + element['credit_bank'];
 
       _cariPartner.add({
+        'id': element['id'].toString(),
         'saveTime': dateTime,
-        'partnerName': '',
-        'totalLending': totalLending,
-        'totalCredit': totalCredit,
+        'partnerName': element['name'],
+        'totalLending': totalLending != 0
+            ? FormatterConvert().currencyShow(totalLending)
+            : '-',
+        'totalCredit': totalCredit != 0
+            ? FormatterConvert().currencyShow(totalCredit)
+            : '-',
       });
 
       ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
       ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
       ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
-      /*  _calculationRow['totalPrice'] =
-          _calculationRow['totalPrice']! + totalPrice;
-      _calculationRow['totalPayment'] =
-          _calculationRow['totalPayment']! + totalPayment; */
+      _calculationRow['totalLend'] =
+          _calculationRow['totalLend']! + totalLending;
+      _calculationRow['totalCredit'] =
+          _calculationRow['totalCredit']! + totalCredit;
     }
 
     ///kalan Tutar Burada Hesaplanıyor.
     _calculationRow['balance'] =
-        _calculationRow['totalPrice']! - _calculationRow['totalPayment']!;
+        _calculationRow['totalLend']! - _calculationRow['totalCredit']!;
 
     ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
     ///descending olarak)
     _cariPartner.sort((m1, m2) => DateFormat('dd/MM/yyyy HH:mm')
-        .parse(m2['dateTime'])
-        .compareTo(DateFormat('dd/MM/yyyy HH:mm').parse(m1['dateTime'])));
+        .parse(m2['saveTime']!)
+        .compareTo(DateFormat('dd/MM/yyyy HH:mm').parse(m1['saveTime']!)));
 
     _expanded = List.generate(_cariPartner.length, (index) => false);
-    //_streamControllerCariPartner.sink.add(_cariPartner);
+    _streamControllerCariPartner.sink.add(_cariPartner);
   }
 
   ///Cari getir tabloya
+  Future<String> saveLeadingAndCreditPartner(
+      String uuid, String? cashValue, String bankValue) async {
+    CariPartner cariPartner = CariPartner();
+    cariPartner.parterId = uuid;
+    cariPartner.currentUserId = shareFunc.getCurrentUserId();
+    if (_selectedLeadingAndCredit == '+') {
+      cariPartner.lendCash = FormatterConvert().commaToPointDouble(cashValue);
+      cariPartner.lendBank = FormatterConvert().commaToPointDouble(bankValue);
+    } else {
+      cariPartner.creditCash = FormatterConvert().commaToPointDouble(cashValue);
+      cariPartner.creditBank = FormatterConvert().commaToPointDouble(bankValue);
+    }
+    /*  print(cariPartner.parterId);
+    print(cariPartner.currentUserId);
+    print(cariPartner.lendCash);
+    print(cariPartner.lendBank);
+    print(cariPartner.creditCash);
+    print(cariPartner.creditBank); */
+    String res = await db.saveLeadingAndCredit(cariPartner);
+    return res;
+  }
 
+  ///Seçilen Satırı siliyor
+  Future<String> deleteSelectedRow(String cariCapitalId) async {
+    for (var i = 0; i < _cariPartner.length; i++) {
+      if (_cariPartner[i]['id'] == cariCapitalId) {
+        _cariPartner.removeAt(i);
+        break;
+      }
+    }
+    for (var element in _cariPartner) {}
+    return await db.deleteCariCapitalRow(cariCapitalId);
+  }
 }

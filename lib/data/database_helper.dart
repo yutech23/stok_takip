@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
+import 'package:stok_takip/models/cari_partner.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/sale.dart';
@@ -1515,10 +1516,48 @@ class DbHelper {
           .select<List<Map<String, dynamic>>>()
           .eq('uuid_fk', uuid);
 
+      final tempName = await db.fetchNameSurnameRole(uuid);
+      for (Map<String, dynamic> element in res) {
+        element.addAll({
+          'name':
+              "${tempName.name!.toUpperCaseTr()} ${tempName.lastName!.toUpperCaseTr()}"
+        });
+      }
+
       return res;
     } on PostgrestException catch (e) {
       print("Cari Ortak hata: ${e.message}");
       return [];
+    }
+  }
+
+  saveLeadingAndCredit(CariPartner cariPartner) async {
+    try {
+      await supabase.from('cari_capital').insert([
+        {
+          'lending_cash': cariPartner.lendCash,
+          'lending_bank': cariPartner.lendBank,
+          'credit_cash': cariPartner.creditCash,
+          'credit_bank': cariPartner.creditBank,
+          'uuid_fk': cariPartner.parterId,
+          'current_user_uuid': cariPartner.currentUserId,
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<String> deleteCariCapitalRow(String cariCapitalId) async {
+    try {
+      await supabase
+          .from('cari_capital')
+          .delete()
+          .eq('id', int.parse(cariCapitalId));
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
     }
   }
   /*-------------------------------------------------------------------- */

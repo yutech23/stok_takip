@@ -1,3 +1,5 @@
+import 'package:stok_takip/data/database_mango.dart';
+
 class ShareFunc {
   double calculateWithKDV(num value, num kdv) {
     return value + (value * (kdv / 100));
@@ -9,6 +11,10 @@ class ShareFunc {
 
   double calculateOnlyKdvValue(num valueWithoutKDV, num kdv) {
     return (valueWithoutKDV * kdv) / 100;
+  }
+
+  String getCurrentUserId() {
+    return dbHive.getValues('uuid');
   }
 }
 
