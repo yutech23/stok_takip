@@ -1,7 +1,6 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:stok_takip/models/cari_partner.dart';
 import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_capital.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -31,16 +30,16 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   bool isLoading = false;
   late BlocCapital _blocCapital;
 
-  final String _labelCapitalHeader = "Satış Ekranı";
+  final String _labelCapitalHeader = "Sermaye İşlemleri Ekranı";
   /*--------------------------KASA--------------------------- */
-  final String _labelCashBoxHeader = "KASA";
+  final String _labelCashBoxHeader = "KASA (AÇILIŞ)";
   final String _labelCash = "Nakit";
   final String _labelBank = "Banka";
   final String _labelCashBoxTotal = "Toplam";
   /*--------------------------------------------------------- */
 
 /*--------------------------FLOAT BUTTON--------------------------- */
-  final String _labelAddbalance = "Sermaye Kasa";
+  final String _labelAddbalance = "Kasa İşlemi";
   final String _labelCapitalInflow = "Sermaye İşlemleri";
   /*--------------------------------------------------------- */
   /*--------------------------POPUP KASA--------------------------- */
@@ -66,11 +65,11 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   final TextEditingController _controllerSelectedPartnerLeadingAndCredit =
       TextEditingController();
   final FocusNode _focusNodeLeadingAndCredit = FocusNode();
-  late CariPartner _cariPartner;
+
   /*--------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 600;
   final double _dataTableHeight = 500;
   final TextEditingController _controllerSelectedPartner =
@@ -83,7 +82,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   @override
   void initState() {
     _blocCapital = BlocCapital();
-    _cariPartner = CariPartner();
+
     /*-------------------DATATABLE--------------------------------------- */
 
     _headers = [];
@@ -201,11 +200,12 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 ]),
             padding: const EdgeInsets.all(20),
             margin: const EdgeInsets.only(top: 20, bottom: 20),
-            height: 800,
-            width: 1200,
+            height: 720,
+            width: 700,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               widgetTableCashBox(),
+              context.extensionHighSizedBox20(),
               widgetDateTable(),
             ]),
           ),
@@ -217,7 +217,9 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   ///Kasa Tablosu
   widgetTableCashBox() {
     return Container(
-      width: 330,
+      decoration: const BoxDecoration(
+          boxShadow: [BoxShadow(color: Colors.black, blurRadius: 4)]),
+      constraints: BoxConstraints(minWidth: 360, maxWidth: _dataTableWidth),
       alignment: Alignment.centerRight,
       child: Column(
         children: [
@@ -238,9 +240,9 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 if (snapshot.hasData && !snapshot.hasError) {
                   return Table(
                     columnWidths: const {
-                      0: FixedColumnWidth(110),
-                      1: FixedColumnWidth(110),
-                      2: FixedColumnWidth(110),
+                      0: FlexColumnWidth(1),
+                      1: FlexColumnWidth(1),
+                      2: FlexColumnWidth(1),
                     },
                     border: TableBorder.symmetric(
                         inside: const BorderSide(color: Colors.white)),
@@ -320,8 +322,8 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   item: element['uuid']));
             }
           }
-          return Container(
-            width: _dataTableWidth - 50,
+          return Flexible(
+            flex: 10,
             child: SearchField(
               itemHeight: _searchByNameItemHeight,
               searchInputDecoration: InputDecoration(
@@ -372,11 +374,13 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                 expanded: _blocCapital.getterExpanded,
                 autoHeight: false,
                 actions: [
-                  Row(
-                    children: [
-                      widgetSearchPartner(),
-                      widgetButtonPrinter(snapshot)
-                    ],
+                  Flexible(
+                    child: Row(
+                      children: [
+                        widgetSearchPartner(),
+                        widgetButtonPrinter(snapshot)
+                      ],
+                    ),
                   )
                 ],
                 footerDecoration:
