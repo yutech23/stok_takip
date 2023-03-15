@@ -55,8 +55,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
-  double _usdValue = 0;
-  double _euroValue = 0;
 
 /*???????????????? SON - (PARABİRİMİ SEÇİMİ) ???????????????? */
 
@@ -224,9 +222,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         stream: exchangeRateService.getStreamExchangeRate,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            _usdValue = snapshot.data!['USD']!;
-            _euroValue = snapshot.data!['EUR']!;
-
             return Container(
               width: _shareWidthPaymentSection,
               height: _exchangeHeight,
@@ -750,8 +745,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           letterSpacing: 1),
                     ),
                     TextSpan(
-                        text:
-                            "${FormatterConvert().currencyShow(snapshot.data)} $_selectUnitOfCurrencySymbol",
+                        text: FormatterConvert().currencyShow(snapshot.data,
+                            unitOfCurrency: _selectUnitOfCurrencySymbol),
                         style: context.theme.titleMedium!.copyWith(
                             color: Colors.red.shade900,
                             fontWeight: FontWeight.bold,
@@ -761,7 +756,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 ),
               );
             }
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }),
     );
   }
@@ -1118,23 +1113,38 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           children: [
                             buildRowRight([
                               'Mal Hizmet Toplam Tutarı',
-                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_without_tax'])} $_selectUnitOfCurrencySymbol"
+                              FormatterConvert().currencyShow(
+                                  blocSale
+                                      .totalPriceAndKdv['total_without_tax'],
+                                  unitOfCurrency: _selectUnitOfCurrencySymbol)
                             ]),
                             buildRowRight([
                               'Hesaplanan KDV(%${blocSale.totalPriceAndKdv['kdv']})',
-                              "${FormatterConvert().currencyShow(blocInvoice.calculatorKdvValue(blocSale.totalPriceAndKdv['kdv']!.toInt(), blocSale.totalPriceAndKdv['total_without_tax']!.toDouble()))} $_selectUnitOfCurrencySymbol"
+                              FormatterConvert().currencyShow(
+                                  blocInvoice.calculatorKdvValue(
+                                      blocSale.totalPriceAndKdv['kdv']!.toInt(),
+                                      blocSale.totalPriceAndKdv[
+                                              'total_without_tax']!
+                                          .toDouble()),
+                                  unitOfCurrency: _selectUnitOfCurrencySymbol)
                             ]),
                             buildRowRight([
                               'Vergiler Dahil Toplam Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.totalPriceAndKdv['total_with_tax'])} $_selectUnitOfCurrencySymbol"
+                              FormatterConvert().currencyShow(
+                                  blocSale.totalPriceAndKdv['total_with_tax'],
+                                  unitOfCurrency: _selectUnitOfCurrencySymbol)
                             ]),
                             buildRowRight([
                               'Ödenen Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.paymentTotalValue())} $_selectUnitOfCurrencySymbol"
+                              FormatterConvert().currencyShow(
+                                  blocSale.paymentTotalValue(),
+                                  unitOfCurrency: _selectUnitOfCurrencySymbol)
                             ]),
                             buildRowRight([
                               'Kalan Borç Tutar',
-                              "${FormatterConvert().currencyShow(blocSale.getBalanceValue)} $_selectUnitOfCurrencySymbol"
+                              FormatterConvert().currencyShow(
+                                  blocSale.getBalanceValue,
+                                  unitOfCurrency: _selectUnitOfCurrencySymbol)
                             ]),
                             buildRowRight([
                               'Ödeme Tarihi ',

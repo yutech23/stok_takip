@@ -170,12 +170,12 @@ class BlocCariCustomer {
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']));
+          .format(DateTime.parse(element['save_time']));
 
       num totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
           element['eft_havale_payment'];
-      print(totalPayment);
+
       num totalPrice = shareFunc.calculateWithKDV(
           element['total_payment_without_tax'], element['kdv_rate']);
 
@@ -312,10 +312,10 @@ class BlocCariCustomer {
     final resSoldList = await db.fetchCariByOnlyDateTime(_startTime, _endTime);
 
     for (var element in resSoldList) {
-      DateTime convertTemp = DateTime.parse(element['sale_date']);
+      DateTime convertTemp = DateTime.parse(element['save_time']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['sale_date']));
+          .format(DateTime.parse(element['save_time']));
 
       if (element['kdv_rate'] != null) {
         double totalPayment = element['cash_payment'] +
@@ -389,7 +389,7 @@ class BlocCariCustomer {
     Map<String, dynamic> resCari = await db.fetchCariByInvoiceNo(invoiceNo);
 
     String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-        .format(DateTime.parse(resCari['sale_date']));
+        .format(DateTime.parse(resCari['save_time']));
 
     double totalPayment = resCari['cash_payment'] +
         resCari['bankcard_payment'] +
@@ -495,7 +495,7 @@ class BlocCariCustomer {
 
   calculateRowTotalPaymentBalance(List<Map<String, dynamic>> resSoldList) {
     _calculationRow = {'totalPrice': 0, 'totalPayment': 0, 'balance': 0};
-    double totalPayment = 0, totalPrice = 0, totalBalance = 0;
+    num totalPayment = 0, totalPrice = 0, totalBalance = 0;
 
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {

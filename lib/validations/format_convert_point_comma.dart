@@ -6,13 +6,11 @@ class FormatterConvert {
   }
 
   double commaToPointDouble(String? valueString) {
-    // valueString = valueString!.replaceAll(r'[₺€$]', '');
     if (valueString == "" || valueString == null) {
       valueString = "0";
     }
-    valueString = valueString.replaceAll('.', '');
-
-    return double.parse(valueString.replaceAll(",", "."));
+    valueString = valueString.replaceAll(RegExp(r'[₺$€.]'), '');
+    return double.parse(valueString.replaceAll(RegExp(r','), "."));
   }
 
   //Basamak basamak ayırır.

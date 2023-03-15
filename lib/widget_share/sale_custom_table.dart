@@ -208,7 +208,8 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
       height: getHighScreenSizeTotalPrice(context),
       alignment: Alignment.center,
       child: Text(
-        "${FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0)}${widget.selectUnitOfCurrencySymbol}",
+        FormatterConvert().currencyShow(totalSalesWithoutTax ?? 0,
+            unitOfCurrency: widget.selectUnitOfCurrencySymbol),
         style: styleBody,
       ),
     );

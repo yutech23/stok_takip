@@ -836,6 +836,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   _controllerLeadingAndCreditBank.clear();
                   _controllerSelectedPartnerLeadingAndBorow.clear();
                   _blocCapital.setterSelectedPartnerIdPopup = "";
+                  // ignore: use_build_context_synchronously
                   context.noticeBarTrue("İşlem Başarılı", 2);
                   _blocCapital.getSelectCariParter();
                 } else {

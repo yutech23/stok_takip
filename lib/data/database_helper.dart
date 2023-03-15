@@ -939,7 +939,7 @@ class DbHelper {
     final res = await db.supabase
         .from('sales')
         .select(
-            'invoice_number,sale_date,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
+            'invoice_number,save_time,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
     return res;
@@ -992,8 +992,8 @@ class DbHelper {
       resSold = await db.supabase
           .from('sales')
           .select<List<Map<String, dynamic>>>('*')
-          .lt('sale_date', endTime)
-          .gt('sale_date', startTime);
+          .lt('save_time', endTime)
+          .gt('save_time', startTime);
 
       resCustomerCompanyInfo = await db.supabase
           .from('customer_company')
@@ -1317,8 +1317,6 @@ class DbHelper {
     Map<String, dynamic> resProduct = {};
     Map<String, dynamic> resDeletePaymentOrCariSupplier = {};
 
-    print(rowSelect);
-
     try {
       if (rowSelect.containsKey('paymentId')) {
         resProduct = await db.supabase
@@ -1419,7 +1417,8 @@ class DbHelper {
     }
   }
 
-  /*---------------------------TAHSİLAT HESABI BÖLÜMÜ--------------------- */
+  /*---------------------------KASA DURUM GÖSTERGESİ---------------------- */
+  ///TAHSİLAT BÖLÜMÜ
   Future<List<dynamic>> fetchCalculateCollection() async {
     List<dynamic> resSales = [];
     try {
@@ -1438,8 +1437,7 @@ class DbHelper {
     }
   }
 
-  /*-----------------------------------------------------------------------*/
-  /*---------------------------ÖDEME BÖLÜMÜ--------------------- */
+  ///Ödeme Bölümü
   Future<List<dynamic>> fetchCalculatePayment() async {
     List<dynamic> resPayment = [];
     try {
@@ -1458,6 +1456,29 @@ class DbHelper {
     }
   }
 
+  calculateDailySnapshoot() async {
+    DateTime startTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
+
+    List<Map<String, dynamic>> res = [];
+    try {
+      res = await db.supabase
+          .from('sales')
+          .select<List<Map<String, dynamic>>>()
+          .lt('save_time', endTime)
+          .gt('save_time', startTime);
+      print(res);
+      return res;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  /*--------------------------------------------------------------------- */
   /*----------------------------KASA BÖLÜMÜ----------------------------- */
   Future<Map<String, dynamic>> fetchCashBox() async {
     Map<String, dynamic> resCashBox = {};
@@ -1561,6 +1582,7 @@ class DbHelper {
     }
   }
   /*-------------------------------------------------------------------- */
+
 }
 
 final db = DbHelper();

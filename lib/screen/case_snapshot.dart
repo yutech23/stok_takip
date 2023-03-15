@@ -23,6 +23,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final double _shareMaxWidth = 1200;
   final double _shareWidthChartContainer = 150;
   final double _shareHeightChartContainer = 235;
+  late double _responsiveWidth;
+  final double _dailySnapshootHeight = 600;
+
   double deger = -1;
 
   late BlocCaseSnapshot _blocCaseSnapshot;
@@ -83,6 +86,8 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   }
 
   buildCaseSnapshot() {
+    ///Mobil ve Web için değişken genişlik alınıyor.
+    _responsiveWidth = getWidth();
     return Form(
         key: _formKeyCaseSnapshot,
         child: Container(
@@ -97,22 +102,24 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             child: Wrap(
               direction: Axis.horizontal,
               children: [
+                widgetDailyAndSnapshoot(),
                 Column(
                   children: [
                     widgetCollectionSection(),
                     widgetPaymentSection(),
                   ],
                 ),
-                widgetDailyAndSnapshoot(),
               ],
             ),
           )),
         ));
   }
 
+  ///Günlük Durum Bölümü
   widgetDailyAndSnapshoot() {
-    return Container(
-      width: 400,
+    return SizedBox(
+      width: _responsiveWidth <= 400 ? 340 : 400,
+      height: 600,
       child: Card(
         elevation: 10,
         child: Column(
@@ -131,11 +138,11 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
               padding: const EdgeInsets.all(12.0),
 
               ///GÜÜNLÜK BÖLÜMÜ
-              child: StreamBuilder<Map<String, double>>(
+              child: StreamBuilder<Map<String, num>>(
                   stream: _blocCaseSnapshot.getStreamCalculateDaily,
                   builder: (context, snapshot) {
                     if (snapshot.hasData && !snapshot.hasError) {
-                      //   print(snapshot.data);
+                      print(snapshot.data);
                       return Wrap(
                         alignment: WrapAlignment.center,
                         runSpacing: context.extensionWrapSpacing20(),
@@ -178,20 +185,24 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                   children: [
                                     buildRowRight(
                                       _labelTotalPayment,
-                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                      FormatterConvert().currencyShow(
+                                          snapshot.data!['totalSale']),
                                     ),
                                     buildRowRight(
                                       _labelCash,
-                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                      FormatterConvert().currencyShow(
+                                          snapshot.data!['cashCollection']),
                                     ),
                                     buildRowRight(
                                       _labelBank,
-                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
+                                      FormatterConvert().currencyShow(
+                                          snapshot.data!['bankCollection']),
                                     ),
-                                    buildRowRight(
+                                    /* buildRowRight(
                                       _labelReceivePaymant,
-                                      "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
-                                    ),
+                                      FormatterConvert().currencyShow(
+                                          snapshot.data!['Anlık Banka']),
+                                    ), */
                                   ],
                                 ),
                                 Container(
@@ -212,14 +223,16 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     },
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [
-                                      buildRowRight(
+                                      /* buildRowRight(
                                         "Nakit",
-                                        "${FormatterConvert().currencyShow(snapshot.data!['Anlık Kasa'])} ₺",
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['Anlık Kasa']),
                                       ),
                                       buildRowRight(
                                         "Banka",
-                                        "${FormatterConvert().currencyShow(snapshot.data!['Anlık Banka'])} ₺",
-                                      ),
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['Anlık Banka']),
+                                      ), */
                                     ]),
                               ],
                             ),
@@ -274,7 +287,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   ///Tahsilat bölümü
   widgetCollectionSection() {
     return SizedBox(
-      width: 600,
+      width: _responsiveWidth,
       child: Card(
         elevation: 10,
         child: Column(
@@ -309,18 +322,19 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                             }, [
                               Colors.amberAccent,
                               Colors.grey.shade400,
-                            ], _labelCollected, true, labelRow: true),
+                            ], _labelCollected, true,
+                                labelRow: true, totalValue: true),
 
                             widgetShareChart({
                               'Kalan': snapshot.data!['Kalan']!,
                             }, [
-                              Colors.redAccent,
+                              Colors.red,
                             ], _labelCollectionWill, false, labelRow: false),
 
                             widgetShareChart({
                               'Toplam': snapshot.data!['Toplam']!,
                             }, [
-                              Colors.amberAccent,
+                              Colors.green,
                             ], _labelTotal, false, labelRow: false),
                           ]);
                     } else {
@@ -338,7 +352,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   ///Ödeme Bölümü
   widgetPaymentSection() {
     return SizedBox(
-      width: 600,
+      width: _responsiveWidth,
       child: Card(
         elevation: 10,
         child: Column(
@@ -370,24 +384,25 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                             ///YAPILAN Ödemeler
                             widgetShareChart({
                               'Kasa': snapshot.data!['Kasa']!,
-                              'Banka': snapshot.data!['Banka']!
+                              'Banka': snapshot.data!['Banka']!,
                             }, [
                               Colors.amberAccent,
                               Colors.grey.shade400,
-                            ], _labelPaid, true, labelRow: true),
+                            ], _labelPaid, true,
+                                labelRow: true, totalValue: true),
 
                             ///Yapılacak Ödemeler
                             widgetShareChart({
                               'Kalan': snapshot.data!['Kalan']!,
                             }, [
-                              Colors.redAccent,
+                              Colors.red,
                             ], _labelPayable, false, labelRow: false),
 
                             ///Toplam Ödemeler
                             widgetShareChart({
                               'Toplam': snapshot.data!['Toplam']!,
                             }, [
-                              Colors.amberAccent,
+                              Colors.green,
                             ], _labelTotal, false, labelRow: false),
                           ]);
                     } else {
@@ -477,16 +492,14 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
 
   SizedBox widgetShareChart(Map<String, double> dataMap, List<Color> colorList,
       String labelHeader, bool showlabel,
-      {bool labelRow = false}) {
-    dataMap.forEach(
-      (key, value) {
-        if (value < 0) {
-          value = value * (-1);
-        }
-        print("deger: $value");
-      },
-    );
-    //   print(dataMap);
+      {bool labelRow = false, bool totalValue = false}) {
+    num totalDouble = 0;
+    if (totalValue) {
+      dataMap.forEach((key, value) {
+        totalDouble += value;
+      });
+    }
+
     return SizedBox(
       width: _shareWidthChartContainer,
       height: _shareHeightChartContainer,
@@ -522,8 +535,21 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             chartValuesOptions: const ChartValuesOptions(
                 chartValueBackgroundColor: Colors.white),
           ),
+          Visibility(
+              visible: totalValue,
+              child: Text(
+                "Toplam: ${FormatterConvert().currencyShow(totalDouble)}",
+                style: context.theme.titleSmall!
+                    .copyWith(fontWeight: FontWeight.bold),
+              )),
         ],
       ),
     );
+  }
+
+  double getWidth() {
+    double width;
+    width = MediaQuery.of(context).size.width <= 400 ? 340 : 600;
+    return width;
   }
 }
