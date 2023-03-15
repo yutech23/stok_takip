@@ -1531,14 +1531,14 @@ class DbHelper {
     }
   }
 
-  saveLeadingAndCredit(CariPartner cariPartner) async {
+  saveLeadingAndBorrow(CariPartner cariPartner) async {
     try {
       await supabase.from('cari_capital').insert([
         {
-          'lending_cash': cariPartner.lendCash,
-          'lending_bank': cariPartner.lendBank,
-          'credit_cash': cariPartner.creditCash,
-          'credit_bank': cariPartner.creditBank,
+          'lend_cash': cariPartner.lendCash,
+          'lend_bank': cariPartner.lendBank,
+          'borrow_cash': cariPartner.borrowCash,
+          'borrow_bank': cariPartner.borrowBank,
           'uuid_fk': cariPartner.parterId,
           'current_user_uuid': cariPartner.currentUserId,
         }

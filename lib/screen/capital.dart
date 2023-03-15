@@ -56,13 +56,13 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   final String _labelLeadingAndCreditHeader = "Serma İşlemleri";
   final String _labelLeadingAndCreditCash = "Nakit";
   final String _labelLeadingAndCreditBank = "Banka";
-  final String _labelLeading = "Borç aldı";
-  final String _labelCredit = "Borç verdi";
+  final String _labelLend = "Borç aldı";
+  final String _labelBorrow = "Borç verdi";
   final TextEditingController _controllerLeadingAndCreditCash =
       TextEditingController();
   final TextEditingController _controllerLeadingAndCreditBank =
       TextEditingController();
-  final TextEditingController _controllerSelectedPartnerLeadingAndCredit =
+  final TextEditingController _controllerSelectedPartnerLeadingAndBorow =
       TextEditingController();
   final FocusNode _focusNodeLeadingAndCredit = FocusNode();
 
@@ -101,15 +101,15 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         sortable: true,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Borçu Var",
-        value: "totalLending",
+        text: "Borç Verdi",
+        value: "totalLend",
         show: true,
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Alacağı Var",
-        value: "totalCredit",
+        text: "Borç Aldı",
+        value: "totalBorrow",
         show: true,
         sortable: true,
         flex: 2,
@@ -411,7 +411,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                                 TextSpan(
                                     text: FormatterConvert().currencyShow(
                                         _blocCapital.getterCalculationRow[
-                                            'totalCredit']),
+                                            'totalBorrow']),
                                     style: context.theme.titleSmall!
                                         .copyWith(color: Colors.white))
                               ]),
@@ -472,7 +472,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
           child: const Icon(Icons.add, color: Colors.white),
           label: _labelCapitalInflow,
           onTap: () {
-            widgetPopupLeadingAndCredit(context);
+            widgetPopupLeadingAndBorrow(context);
           },
         ),
 
@@ -623,7 +623,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   }
 
   ///Sermaya girişi veye çıkışı
-  widgetPopupLeadingAndCredit(BuildContext context) {
+  widgetPopupLeadingAndBorrow(BuildContext context) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -644,7 +644,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   alignment: Alignment.center,
                   width: 500,
                   child: Column(children: [
-                    widgetSearchPartnerLeadingAndCredit(
+                    widgetSearchPartnerLeadingAndBorrow(
                         _blocCapital.getterAllParter),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -665,7 +665,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                         context.extensionWidhSizedBox10(),
                       ],
                     ),
-                    widgetDropdownButtonLeadingAndCredit(context),
+                    widgetDropdownButtonLeadingAndBorrow(context),
                     context.extensionHighSizedBox10(),
                     widgetSaveButtonLeadingAndCredit()
                   ]),
@@ -677,7 +677,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   }
 
   ///Ortak Arama TextField Sermaye girişi veya çıkışı bölümü
-  widgetSearchPartnerLeadingAndCredit(List<Map<String, dynamic>> allPartner) {
+  widgetSearchPartnerLeadingAndBorrow(List<Map<String, dynamic>> allPartner) {
     List<SearchFieldListItem<String>> listSearch =
         <SearchFieldListItem<String>>[];
 
@@ -700,7 +700,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(),
             )),
-        controller: _controllerSelectedPartnerLeadingAndCredit,
+        controller: _controllerSelectedPartnerLeadingAndBorow,
         suggestions: listSearch,
         autoCorrect: true,
         focusNode: _focusNodeLeadingAndCredit,
@@ -718,7 +718,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   }
 
   ///Borç verme ve Alma bölümü
-  SizedBox widgetDropdownButtonLeadingAndCredit(BuildContext context) {
+  SizedBox widgetDropdownButtonLeadingAndBorrow(BuildContext context) {
     return SizedBox(
       width: context.extensionTextFieldWidth * 2 + 10,
       height: context.extensionTextFieldHeight,
@@ -727,29 +727,29 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         value: _blocCapital.getterSelectBankBalance,
         items: [
           DropdownMenuItem(
-            value: "+",
-            child: Container(
-              height: 30,
-              padding: EdgeInsets.zero,
-              alignment: Alignment.center,
-              width: context.extensionTextFieldWidth,
-              child: Text(_labelLeading),
-            ),
-          ),
-          DropdownMenuItem(
             value: "-",
             child: Container(
               height: 30,
               padding: EdgeInsets.zero,
               alignment: Alignment.center,
               width: context.extensionTextFieldWidth,
-              child: Text(_labelCredit),
+              child: Text(_labelLend),
+            ),
+          ),
+          DropdownMenuItem(
+            value: "+",
+            child: Container(
+              height: 30,
+              padding: EdgeInsets.zero,
+              alignment: Alignment.center,
+              width: context.extensionTextFieldWidth,
+              child: Text(_labelBorrow),
             ),
           ),
         ],
         onChanged: (value) {
           setState(() {
-            _blocCapital.setterSelectedLeadingAndCredit = value!;
+            _blocCapital.setterSelectedLeadingAndBorrow = value!;
           });
         },
         decoration: const InputDecoration(
@@ -823,7 +823,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
       height: context.extensionTextFieldHeight,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
-            if (_controllerSelectedPartnerLeadingAndCredit.text != "") {
+            if (_controllerSelectedPartnerLeadingAndBorow.text != "") {
               if (_controllerLeadingAndCreditCash.text == "" &&
                   _controllerLeadingAndCreditBank.text == "") {
                 context.noticeBarError(
@@ -838,7 +838,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   Navigator.of(context).pop();
                   _controllerLeadingAndCreditCash.clear();
                   _controllerLeadingAndCreditBank.clear();
-                  _controllerSelectedPartnerLeadingAndCredit.clear();
+                  _controllerSelectedPartnerLeadingAndBorow.clear();
                   _blocCapital.setterSelectedPartnerIdPopup = "";
                   context.noticeBarTrue("İşlem Başarılı", 2);
                 } else {
@@ -952,7 +952,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                             margin: const pw.EdgeInsets.all(2.0),
                             padding: const pw.EdgeInsets.all(2.0),
                             child: pw.Text(
-                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalCredit'])}",
+                                "Ödenen Tutar: ${FormatterConvert().currencyShow(footer['totalBorrow'])}",
                                 textAlign: pw.TextAlign.center,
                                 style: letterCharacter)),
                         pw.Container(

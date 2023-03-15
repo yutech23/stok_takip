@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
-import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
@@ -52,7 +51,6 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   @override
   void initState() {
     _blocCaseSnapshot = BlocCaseSnapshot();
-
     super.initState();
     /*     WidgetsBinding.instance.addPostFrameCallback((_) {
       _asyncMethod();

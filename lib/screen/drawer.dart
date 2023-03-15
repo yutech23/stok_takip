@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
@@ -28,7 +27,6 @@ class _MyDrawerState extends State<MyDrawer> {
   final String _labelTest = 'Test';
   final String _labelExit = 'Güvenli Çıkış';
   final String _labelSale = "Satış Ekranı";
-  final String _labelCari = "Cari işlemler";
   final String _labelCaseSnapshot = "Kasa Durum";
   final String _labelCapital = "Sermaye İşlemleri";
   //Menü Sırasını belirliyorum.

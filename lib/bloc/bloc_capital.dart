@@ -55,7 +55,7 @@ class BlocCapital {
   set setterSelectedPartnerIdPopup(String? value) =>
       _selectedPartnerIdPopup = value;
 
-  set setterSelectedLeadingAndCredit(String? value) =>
+  set setterSelectedLeadingAndBorrow(String? value) =>
       _selectedLeadingAndCredit = value;
 
   final List<Map<String, String>> _cariPartner = [];
@@ -66,7 +66,7 @@ class BlocCapital {
 
   Map<String, num> _calculationRow = {
     'totalLend': 0,
-    'totalCredit': 0,
+    'totalBorrow': 0,
     'balance': 0
   };
 
@@ -129,7 +129,7 @@ class BlocCapital {
   Future getSelectCariParter() async {
     _expanded.clear();
     _cariPartner.clear();
-    _calculationRow = {'totalLend': 0, 'totalCredit': 0, 'balance': 0};
+    _calculationRow = {'totalLend': 0, 'totalBorrow': 0, 'balance': 0};
 
     ///veritabanı arasında veri geliyor. bu gelen veri datatable header uyumlu değil
     ///bu yüzden aşağıdaki for döngüsü ile header uyumlu haline geliyor.
@@ -140,33 +140,31 @@ class BlocCapital {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['save_time']));
 
-      num totalLending = element['lending_cash'] + element['lending_bank'];
-      num totalCredit = element['credit_cash'] + element['credit_bank'];
+      num totalLend = element['lend_cash'] + element['lend_bank'];
+      num totalBorrow = element['borrow_cash'] + element['borrow_bank'];
 
       _cariPartner.add({
         'id': element['id'].toString(),
         'saveTime': dateTime,
         'partnerName': element['name'],
-        'totalLending': totalLending != 0
-            ? FormatterConvert().currencyShow(totalLending)
-            : '-',
-        'totalCredit': totalCredit != 0
-            ? FormatterConvert().currencyShow(totalCredit)
+        'totalLend':
+            totalLend != 0 ? FormatterConvert().currencyShow(totalLend) : '-',
+        'totalBorrow': totalBorrow != 0
+            ? FormatterConvert().currencyShow(totalBorrow)
             : '-',
       });
 
       ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
       ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
       ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
-      _calculationRow['totalLend'] =
-          _calculationRow['totalLend']! + totalLending;
-      _calculationRow['totalCredit'] =
-          _calculationRow['totalCredit']! + totalCredit;
+      _calculationRow['totalLend'] = _calculationRow['totalLend']! + totalLend;
+      _calculationRow['totalBorrow'] =
+          _calculationRow['totalBorrow']! + totalBorrow;
     }
 
     ///kalan Tutar Burada Hesaplanıyor.
     _calculationRow['balance'] =
-        _calculationRow['totalLend']! - _calculationRow['totalCredit']!;
+        _calculationRow['totalLend']! - _calculationRow['totalBorrow']!;
 
     ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
     ///descending olarak)
@@ -188,8 +186,8 @@ class BlocCapital {
       cariPartner.lendCash = FormatterConvert().commaToPointDouble(cashValue);
       cariPartner.lendBank = FormatterConvert().commaToPointDouble(bankValue);
     } else {
-      cariPartner.creditCash = FormatterConvert().commaToPointDouble(cashValue);
-      cariPartner.creditBank = FormatterConvert().commaToPointDouble(bankValue);
+      cariPartner.borrowCash = FormatterConvert().commaToPointDouble(cashValue);
+      cariPartner.borrowBank = FormatterConvert().commaToPointDouble(bankValue);
     }
     /*  print(cariPartner.parterId);
     print(cariPartner.currentUserId);
@@ -197,7 +195,7 @@ class BlocCapital {
     print(cariPartner.lendBank);
     print(cariPartner.creditCash);
     print(cariPartner.creditBank); */
-    String res = await db.saveLeadingAndCredit(cariPartner);
+    String res = await db.saveLeadingAndBorrow(cariPartner);
     return res;
   }
 
@@ -209,7 +207,6 @@ class BlocCapital {
         break;
       }
     }
-    for (var element in _cariPartner) {}
     return await db.deleteCariCapitalRow(cariCapitalId);
   }
 }
