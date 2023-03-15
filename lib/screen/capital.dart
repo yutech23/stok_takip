@@ -56,8 +56,8 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   final String _labelLeadingAndCreditHeader = "Serma İşlemleri";
   final String _labelLeadingAndCreditCash = "Nakit";
   final String _labelLeadingAndCreditBank = "Banka";
-  final String _labelLend = "Borç aldı";
-  final String _labelBorrow = "Borç verdi";
+  final String _labelLend = "Borç verdi";
+  final String _labelBorrow = "Borç aldı";
   final TextEditingController _controllerLeadingAndCreditCash =
       TextEditingController();
   final TextEditingController _controllerLeadingAndCreditBank =
@@ -364,7 +364,6 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             stream: _blocCapital.getStreamCariPartner,
             builder: (context, snapshot) {
               if (snapshot.hasData && !snapshot.hasError) {}
-
               return ResponsiveDatatable(
                 rowHeight: 40,
                 reponseScreenSizes: const [ScreenSize.xs],
@@ -387,9 +386,8 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                     BoxDecoration(color: context.extensionDefaultColor),
                 footers: [
                   RichText(
-                    overflow: TextOverflow.visible,
                     text: TextSpan(
-                        text: "Toplam Borç : ",
+                        text: "T. Verilen Borç : ",
                         style: context.theme.titleSmall!.copyWith(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -402,7 +400,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                                 .copyWith(color: Colors.white),
                           ),
                           TextSpan(
-                              text: "   Toplam Alacağı : ",
+                              text: "   T. Alınan Borç: ",
                               style: context.theme.titleSmall!.copyWith(
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
@@ -727,7 +725,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
         value: _blocCapital.getterSelectBankBalance,
         items: [
           DropdownMenuItem(
-            value: "-",
+            value: "+",
             child: Container(
               height: 30,
               padding: EdgeInsets.zero,
@@ -737,7 +735,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             ),
           ),
           DropdownMenuItem(
-            value: "+",
+            value: "-",
             child: Container(
               height: 30,
               padding: EdgeInsets.zero,
@@ -748,9 +746,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
           ),
         ],
         onChanged: (value) {
-          setState(() {
-            _blocCapital.setterSelectedLeadingAndBorrow = value!;
-          });
+          _blocCapital.setterSelectedLeadingAndBorrow = value!;
         },
         decoration: const InputDecoration(
             isCollapsed: true,
@@ -841,6 +837,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   _controllerSelectedPartnerLeadingAndBorow.clear();
                   _blocCapital.setterSelectedPartnerIdPopup = "";
                   context.noticeBarTrue("İşlem Başarılı", 2);
+                  _blocCapital.getSelectCariParter();
                 } else {
                   // ignore: use_build_context_synchronously
                   context.noticeBarError(res, 3);
