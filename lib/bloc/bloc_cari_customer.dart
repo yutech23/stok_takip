@@ -312,10 +312,10 @@ class BlocCariCustomer {
     final resSoldList = await db.fetchCariByOnlyDateTime(_startTime, _endTime);
 
     for (var element in resSoldList) {
-      DateTime convertTemp = DateTime.parse(element['save_time']);
+      DateTime convertTemp = DateTime.parse(element['sale_date']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['save_time']));
+          .format(DateTime.parse(element['sale_date']));
 
       if (element['kdv_rate'] != null) {
         double totalPayment = element['cash_payment'] +
@@ -350,13 +350,14 @@ class BlocCariCustomer {
         double totalPayment = element['cash_payment'] +
             element['bankcard_payment'] +
             element['eft_havale_payment'];
+        print(totalPayment);
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
         ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
         ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
         _calculationRow['totalPayment'] =
             _calculationRow['totalPayment']! + totalPayment;
-
+        print(_calculationRow['totalPayment']);
         _soldListManipulatorByHeader.add({
           'dateTime': dateTime,
           'type': element['customer_type'],
@@ -368,6 +369,7 @@ class BlocCariCustomer {
         });
       }
     }
+    print("sold : $resSoldList");
 
     ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
     ///descending olarak)

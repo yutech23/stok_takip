@@ -148,7 +148,7 @@ class BlocCariSuppleirs {
     //Sales tablosundan gelen veriler
     for (Map element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['record_date']));
+          .format(DateTime.parse(element['save_date']));
 
       num totalPayment =
           element['cash'] + element['bankcard'] + element['eft_havale'];
@@ -254,10 +254,10 @@ class BlocCariSuppleirs {
         _startTime, _endTime);
 
     for (Map element in resPaymentList) {
-      DateTime convertTemp = DateTime.parse(element['record_date']);
+      DateTime convertTemp = DateTime.parse(element['save_date']);
 
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['record_date']));
+          .format(DateTime.parse(element['save_date']));
 
       ///
       if (element.containsKey('product_fk')) {
@@ -327,7 +327,7 @@ class BlocCariSuppleirs {
     Map<String, dynamic> resCari = await db.fetchPaymentByInvoice(invoiceNo);
 
     String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-        .format(DateTime.parse(resCari['record_date']));
+        .format(DateTime.parse(resCari['save_date']));
 
     num totalPayment =
         resCari['cash'] + resCari['bankcard'] + resCari['eft_havale'];

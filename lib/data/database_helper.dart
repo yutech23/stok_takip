@@ -939,7 +939,7 @@ class DbHelper {
     final res = await db.supabase
         .from('sales')
         .select(
-            'invoice_number,save_time,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
+            'invoice_number,sale_date,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
     return res;
@@ -949,7 +949,7 @@ class DbHelper {
   Future<List<dynamic>> fetchCariPayListOfSelectedCustomerById(
       String customerType, int customerId) async {
     final res = await db.supabase
-        .from('cari')
+        .from('cari_customer')
         .select('*')
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
@@ -960,7 +960,7 @@ class DbHelper {
   insertCariBySelectedCustomer(CariGetPay pay) async {
     Map<String, dynamic> resData = {'hata': null};
     try {
-      resData['hata'] = await supabase.from('cari').insert([
+      resData['hata'] = await supabase.from('cari_customer').insert([
         {
           'customer_type': pay.customerType,
           'customer_fk': pay.customerFk,
@@ -992,8 +992,8 @@ class DbHelper {
       resSold = await db.supabase
           .from('sales')
           .select<List<Map<String, dynamic>>>('*')
-          .lt('save_time', endTime)
-          .gt('save_time', startTime);
+          .lt('sale_date', endTime)
+          .gt('sale_date', startTime);
 
       resCustomerCompanyInfo = await db.supabase
           .from('customer_company')
@@ -1004,11 +1004,16 @@ class DbHelper {
           .select('type,customer_id,name,last_name,phone');
 
       resCari = await db.supabase
-          .from('cari')
+          .from('cari_customer')
           .select<List<Map<String, dynamic>>>('*')
           .lt('payment_date', endTime)
           .gt('payment_date', startTime);
-      print(resCari);
+
+      print("Satış listesi : ${resSold}");
+      print("Şahıs listesi :${resCustomerSoleInfo}");
+      print("Şirket Listesi: ${resCustomerCompanyInfo}");
+      print("Cari Listesi ${resCari}");
+
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
           if (element['customer_type'] == item['type'] &&
@@ -1059,7 +1064,7 @@ class DbHelper {
           if (element['customer_type'] == item['type'] &&
               element['customer_fk'] == item['customer_id']) {
             //verilerde tekrar oluyor o yüzden siliniyor.
-            element.addAll({'sale_date': element['payment_date']});
+            element.addAll({'save_time': element['payment_date']});
             element.remove('payment_date');
             element.addAll({'name': item['name'], 'phone': item['phone']});
             resSold.addAll({element});
@@ -1068,7 +1073,7 @@ class DbHelper {
         }
       }
 
-      // print(resSold);
+      print("database Sınıfında : $resSold");
       /* print("yeni deger. ${resSold[0]}");
       print("yeni deger. ${resSold[1]}");
       print("yeni deger. ${resSold[2]}");
@@ -1216,7 +1221,7 @@ class DbHelper {
     try {
       ///cari tablosunda siliyor.
       res = await db.supabase
-          .from('cari')
+          .from('cari_customer')
           .delete()
           .match({'cari_id': cariId}).select();
     } on PostgrestException catch (e) {
@@ -1271,14 +1276,14 @@ class DbHelper {
       resPayment = await db.supabase
           .from('payment')
           .select<List<Map<String, dynamic>>>('*')
-          .lt('record_date', endTime)
-          .gt('record_date', startTime);
+          .lt('save_date', endTime)
+          .gt('save_date', startTime);
 
       resCariSupplier = await db.supabase
           .from('cari_supplier')
           .select<List<Map<String, dynamic>>>('*')
-          .lt('record_date', endTime)
-          .gt('record_date', startTime);
+          .lt('save_date', endTime)
+          .gt('save_date', startTime);
 
       resPayment.addAll(resCariSupplier);
 
@@ -1426,7 +1431,7 @@ class DbHelper {
             'cash_payment,bankcard_payment,eft_havale_payment,total_payment_without_tax,kdv_rate',
           );
 
-      final resCari = await db.supabase.from('cari').select(
+      final resCari = await db.supabase.from('cari_customer').select(
             'cash_payment,bankcard_payment,eft_havale_payment',
           );
       resSales.addAll(resCari);
@@ -1456,7 +1461,7 @@ class DbHelper {
     }
   }
 
-  calculateDailySnapshoot() async {
+  calculateCollectionDailySnapshoot() async {
     DateTime startTime =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
@@ -1468,10 +1473,99 @@ class DbHelper {
       res = await db.supabase
           .from('sales')
           .select<List<Map<String, dynamic>>>()
-          .lt('save_time', endTime)
-          .gt('save_time', startTime);
-      print(res);
+          .lt('sale_date', endTime)
+          .gt('sale_date', startTime);
+
       return res;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  fetchCariCustomerDaily() async {
+    DateTime startTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
+
+    List<Map<String, dynamic>> resCariCustomer = [];
+    try {
+      resCariCustomer = await db.supabase
+          .from('cari_customer')
+          .select<List<Map<String, dynamic>>>()
+          .lt('payment_date', endTime)
+          .gt('payment_date', startTime);
+
+      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+
+      return resCariCustomer;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  ///O Günkü Payment tablosundan Alınan ürünlerin fiyatları toplanacak.
+  calculatePaymentDailySnapshoot() async {
+    DateTime startTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
+
+    List<Map<String, dynamic>> resPayment = [];
+    try {
+      resPayment = await db.supabase
+          .from('payment')
+          .select<List<Map<String, dynamic>>>()
+          .lt('save_date', endTime)
+          .gt('save_date', startTime);
+
+      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+
+      return resPayment;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  ///O Günkü Cari Supplier yapılan ödemeleri getirir.
+  fetchCariPaymentDaily() async {
+    DateTime startTime =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
+
+    List<Map<String, dynamic>> resCariSupplier = [];
+    try {
+      resCariSupplier = await db.supabase
+          .from('cari_supplier')
+          .select<List<Map<String, dynamic>>>()
+          .lt('save_date', endTime)
+          .gt('save_date', startTime);
+
+      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+
+      return resCariSupplier;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  ///Sermayeleri Getiriyor.
+  fetchCariCapital() async {
+    List<Map<String, dynamic>> resCashBox = [];
+    try {
+      resCashBox = await db.supabase
+          .from('cari_capital')
+          .select<List<Map<String, dynamic>>>();
+
+      return resCashBox;
     } on PostgrestException catch (e) {
       print("Kasa hata: ${e.message}");
       return {'Hata': e.message};

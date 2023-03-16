@@ -54,7 +54,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   /*-------------------BAŞLANGIÇ MÜŞTERİ ADI İLE ARAMA---------------------*/
   final TextEditingController _controllerSearchByName = TextEditingController();
   final String _labelGetCari = "Cari Getir";
-  final String _labelSearchCustomerName = "Müşteri Adı";
+  final String _labelSearchCustomerName = "Tedarikci Adı";
   final double _searchByNameItemHeight = 30;
   final _focusSearchSupplier = FocusNode();
 

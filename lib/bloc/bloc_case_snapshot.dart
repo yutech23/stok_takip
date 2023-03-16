@@ -4,29 +4,38 @@ import 'package:stok_takip/utilities/share_func.dart';
 
 class BlocCaseSnapshot {
   Map<String, double> _collectionData = {
-    'Kasa': 0,
+    'Nakit': 0,
     'Banka': 0,
     'Toplam': 0,
     'Kalan': 0
   };
 
   Map<String, double> _paymentData = {
-    'Kasa': 0,
+    'Nakit': 0,
     'Banka': 0,
     'Toplam': 0,
     'Kalan': 0
   };
 
-  Map<String, double> calculateCase = {
-    'Kar': 0,
-    'Anlık Kasa': 0,
-    'Anlık Banka': 0
+  Map<String, num> _calculateCashBox = {
+    'snapshootCash': 0,
+    'snapshootBank': 0,
+    'snapshootTotal': 0
+  };
+
+  Map<String, num> _calculatePaymentDaily = {
+    'totalSale': 0,
+    'totalCollectionBySale': 0,
+    'totalCollectionLate': 0,
+    'totalCollection': 0,
+    'totalPayment': 0
   };
 
   Map<String, num> _calculateDailySnapshoot = {
-    'cashCollection': 0,
-    'bankCollection': 0,
-    'totalSale': 0,
+    'totalPay': 0,
+    'totalCollectionBySale': 0,
+    'totalCollectionLate': 0,
+    'totalCollection': 0,
   };
 
   BlocCaseSnapshot() {
@@ -36,8 +45,8 @@ class BlocCaseSnapshot {
   start() async {
     await getCollection();
     await getPayment();
-    await calculateCasefunc();
     await getCalculateDailySnapshoot();
+    await calculateCasefunc();
   }
 
   final StreamController<Map<String, double>> _streamControllerCollection =
@@ -52,15 +61,33 @@ class BlocCaseSnapshot {
   Stream<Map<String, double>> get getStreamPayment =>
       _streamControllerPayment.stream;
   /*-------------------------GÜNLÜK DURUM-------------------------------- */
+  ///Tahsilat
   final StreamController<Map<String, num>> _streamControllerCalculateDaily =
       StreamController<Map<String, num>>.broadcast();
 
   Stream<Map<String, num>> get getStreamCalculateDaily =>
       _streamControllerCalculateDaily.stream;
+
+  ///Ödeme Stream
+  final StreamController<Map<String, num>>
+      _streamControllerCalculatePaymentDaily =
+      StreamController<Map<String, num>>.broadcast();
+
+  Stream<Map<String, num>> get getStreamCalculatePaymentDaily =>
+      _streamControllerCalculatePaymentDaily.stream;
+
+  ///Ödeme Stream
+  final StreamController<Map<String, num>>
+      _streamControllerCalculateCashBoxSnapshoot =
+      StreamController<Map<String, num>>.broadcast();
+
+  Stream<Map<String, num>> get getStreamCalculateCashBoxSnapshoot =>
+      _streamControllerCalculateCashBoxSnapshoot.stream;
 /*-----------------------------------------------------------------------*/
+
   ///TAHSİLAT BÖLÜMÜ
   getCollection() async {
-    _collectionData = {'Kasa': 0, 'Banka': 0, 'Toplam': 0, 'Kalan': 0};
+    _collectionData = {'Nakit': 0, 'Banka': 0, 'Toplam': 0, 'Kalan': 0};
     List<dynamic> res = await db.fetchCalculateCollection();
     // print(res);
     for (Map<String, dynamic> item in res) {
@@ -68,7 +95,8 @@ class BlocCaseSnapshot {
       print("kart :${item['bankcard_payment']}");
       print("eft_havale :${item['eft_havale_payment']}"); */
 
-      _collectionData['Kasa'] = _collectionData['Kasa']! + item['cash_payment'];
+      _collectionData['Nakit'] =
+          _collectionData['Nakit']! + item['cash_payment'];
 
       _collectionData['Banka'] = _collectionData['Banka']! +
           item['bankcard_payment'] +
@@ -86,7 +114,7 @@ class BlocCaseSnapshot {
     }
 
     _collectionData['Kalan'] = _collectionData['Toplam']! -
-        _collectionData['Kasa']! -
+        _collectionData['Nakit']! -
         _collectionData['Banka']!;
 
     _streamControllerCollection.sink.add(_collectionData);
@@ -94,11 +122,11 @@ class BlocCaseSnapshot {
 
   ///ÖDEMELER BÖLÜMÜ
   getPayment() async {
-    _paymentData = {'Kasa': 0, 'Banka': 0, 'Toplam': 0, 'Kalan': 0};
+    _paymentData = {'Nakit': 0, 'Banka': 0, 'Toplam': 0, 'Kalan': 0};
     List<dynamic> res = await db.fetchCalculatePayment();
 
     for (Map<String, dynamic> item in res) {
-      _paymentData['Kasa'] = _paymentData['Kasa']! + item['cash'];
+      _paymentData['Nakit'] = _paymentData['Nakit']! + item['cash'];
 
       _paymentData['Banka'] =
           _paymentData['Banka']! + item['bankcard'] + item['eft_havale'];
@@ -113,7 +141,7 @@ class BlocCaseSnapshot {
     }
 
     _paymentData['Kalan'] = _paymentData['Toplam']! -
-        _paymentData['Kasa']! -
+        _paymentData['Nakit']! -
         _paymentData['Banka']!;
 
     _streamControllerPayment.sink.add(_paymentData);
@@ -122,44 +150,105 @@ class BlocCaseSnapshot {
   ///KASANIN HESAPLANMASI
   calculateCasefunc() async {
     // calculateCase = {'Kar': 0, 'Anlık Kasa': 0, 'Anlık Banka': 0};
+    final resCashBox = await db.fetchCashBox();
+    final resCariCapital = await db.fetchCariCapital();
+    /*  await getCollection();
+    await getPayment(); */
+    _calculateCashBox['snapshootCash'] =
+        _calculateCashBox['snapshootCash']! + resCashBox['cash'];
+    _calculateCashBox['snapshootBank'] =
+        _calculateCashBox['snapshootBank']! + resCashBox['bank'];
+    num cashCapital = 0;
+    num bankCapital = 0;
 
-    calculateCase['Kar'] = _collectionData['Toplam']! - _paymentData['Toplam']!;
-    calculateCase['Anlık Kasa'] =
-        _collectionData['Kasa']! - _paymentData['Kasa']!;
-    calculateCase['Anlık Banka'] =
-        _collectionData['Banka']! - _paymentData['Banka']!;
-    /*    print(calculateCase['Kar']);
-    print(calculateCase['Anlık Kasa']);
-    print(calculateCase['Anlık Banka']); */
+    for (var element in resCariCapital) {
+      cashCapital += element['lend_cash'] - element['borrow_cash'];
+      bankCapital += element['lend_bank'] - element['borrow_bank'];
+    }
 
-    // _streamControllerCalculateDaily.sink.add(calculateCase);
+    _calculateCashBox['snapshootCash'] = _calculateCashBox['snapshootCash']! +
+        cashCapital +
+        _collectionData['Nakit']! -
+        _paymentData['Nakit']!;
+
+    _calculateCashBox['snapshootBank'] = _calculateCashBox['snapshootBank']! +
+        bankCapital +
+        _collectionData['Banka']! -
+        _paymentData['Banka']!;
+
+    _calculateCashBox['snapshootTotal'] = _calculateCashBox['snapshootCash']! +
+        _calculateCashBox['snapshootBank']!;
+/*     print("gelen veri ${_collectionData['Nakit']!}");
+
+    print("kasa nakit : ${_calculateCashBox['snapshootCash']}");
+    print("kasa banka : ${_calculateCashBox['snapshootBank']}"); */
+
+    _streamControllerCalculateCashBoxSnapshoot.sink.add(_calculateCashBox);
   }
 
+  ///Bulunduğu günün Günlük Satış ve Alınan ödemeleri yapıyor.
   getCalculateDailySnapshoot() async {
     /* Map<String, num> _calculateDailySnapshoot = {
       'cashCollection': 0,
       'bankCollection': 0,
       'totalSale': 0,
     }; */
-    final res = await db.calculateDailySnapshoot();
-    print(res);
-    for (Map<String, dynamic> element in res) {
-      _calculateDailySnapshoot['cashCollection'] =
-          _calculateDailySnapshoot['cashCollection']! +
-              element['cash_payment']!;
-      _calculateDailySnapshoot['bankCollection'] =
-          _calculateDailySnapshoot['bankCollection']! +
-              element['bankcard_payment']!;
+    final resSoldDaily = await db.calculateCollectionDailySnapshoot();
+    final resCariCustomerDaily = await db.fetchCariCustomerDaily();
+    await getCalculateDailyPayment();
 
-      _calculateDailySnapshoot['totalSale'] =
-          _calculateDailySnapshoot['totalSale']! +
+    ///Satışlar tablosundaki veriler alınıyor
+    for (Map<String, dynamic> element in resSoldDaily) {
+      _calculatePaymentDaily['totalCollectionBySale'] =
+          _calculatePaymentDaily['totalCollectionBySale']! +
+              element['cash_payment'] +
+              element['bankcard_payment'] +
+              element['eft_havale_payment'];
+
+      _calculatePaymentDaily['totalSale'] =
+          _calculatePaymentDaily['totalSale']! +
               shareFunc.calculateWithKDV(
                   element['total_payment_without_tax']!, element['kdv_rate']);
     }
-    print(_calculateDailySnapshoot['cashCollection']);
-    print(_calculateDailySnapshoot['bankCollection']);
-    print(_calculateDailySnapshoot['totalSale']);
 
-    _streamControllerCalculateDaily.sink.add(_calculateDailySnapshoot);
+    ///Müşteri cari tablosundaki veriler alınıyor. O gün yapılan tahsilatları topluyor.
+    for (Map<String, dynamic> element in resCariCustomerDaily) {
+      _calculatePaymentDaily['totalCollectionLate'] =
+          _calculatePaymentDaily['totalCollectionLate']! +
+              element['cash_payment']! +
+              element['bankcard_payment']! +
+              element['eft_havale_payment']!;
+    }
+    _calculatePaymentDaily['totalCollection'] =
+        _calculatePaymentDaily['totalCollectionBySale']! +
+            _calculatePaymentDaily['totalCollectionLate']!;
+
+    /*  print(_calculateDailySnapshoot['cashCollection']);
+    print(_calculateDailySnapshoot['bankCollection']);
+    print(_calculateDailySnapshoot['totalSale']); */
+
+    _streamControllerCalculateDaily.sink.add(_calculatePaymentDaily);
+  }
+
+  ///O günkü Ödemeleri getiriyor.
+  getCalculateDailyPayment() async {
+    final resPayment = await db.calculatePaymentDailySnapshoot();
+    final resCariPaymentDaily = await db.fetchCariPaymentDaily();
+
+    for (Map<String, dynamic> element in resPayment) {
+      _calculatePaymentDaily['totalPayment'] =
+          _calculatePaymentDaily['totalPayment']! +
+              element['cash'] +
+              element['bankcard'] +
+              element['eft_havale'];
+    }
+
+    for (Map<String, dynamic> element in resCariPaymentDaily) {
+      _calculatePaymentDaily['totalPayment'] =
+          _calculatePaymentDaily['totalPayment']! +
+              element['cash'] +
+              element['bankcard'] +
+              element['eft_havale'];
+    }
   }
 }
