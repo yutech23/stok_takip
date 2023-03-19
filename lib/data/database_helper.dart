@@ -810,7 +810,10 @@ class DbHelper {
           'sales_fk': res[0]['invoice_number'],
           'product_code': elementSold.productCode,
           'product_amount': elementSold.productAmount,
-          'product_price_without_tax': elementSold.productPriceWithoutTax
+          'product_buying_price_without_tax':
+              elementSold.productBuyingPriceWithoutTax,
+          'product_selling_price_without_tax':
+              elementSold.productSellingPriceWithoutTax
         });
       }
       await supabase.from('sales_detail').insert(tempSoldProductsList);
@@ -883,7 +886,6 @@ class DbHelper {
       return resSellerName = "";
     }
   }
-  /*--------------------------------------------------------------------*/
 
   /*---------------------------------------------------------------- */
   /*-----------------------------CARİ MÜŞTERİLER EKRANIN İŞLEMLERİ-------------------- */
@@ -939,7 +941,7 @@ class DbHelper {
     final res = await db.supabase
         .from('sales')
         .select(
-            'invoice_number,sale_date,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
+            'invoice_number,sale_date,unit_of_currency,total_payment_without_tax,kdv_rate,eft_havale_payment,cash_payment,bankcard_payment,unit_of_currency,payment_next_date,seller')
         .match({'customer_type': customerType, 'customer_fk': customerId});
 
     return res;
@@ -1009,10 +1011,10 @@ class DbHelper {
           .lt('payment_date', endTime)
           .gt('payment_date', startTime);
 
-      print("Satış listesi : ${resSold}");
+      /*   print("Satış listesi : ${resSold}");
       print("Şahıs listesi :${resCustomerSoleInfo}");
       print("Şirket Listesi: ${resCustomerCompanyInfo}");
-      print("Cari Listesi ${resCari}");
+      print("Cari Listesi ${resCari}"); */
 
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
@@ -1073,8 +1075,8 @@ class DbHelper {
         }
       }
 
-      print("database Sınıfında : $resSold");
       /* print("yeni deger. ${resSold[0]}");
+       print("database Sınıfında : $resSold");
       print("yeni deger. ${resSold[1]}");
       print("yeni deger. ${resSold[2]}");
       print("yeni deger. ${resSold[3]}"); */
@@ -1461,6 +1463,7 @@ class DbHelper {
     }
   }
 
+  ///GÜnlük Durumu - Satış bölümü
   calculateCollectionDailySnapshoot() async {
     DateTime startTime =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -1483,6 +1486,7 @@ class DbHelper {
     }
   }
 
+  ///GÜnlük Durumu - Cari bölümü
   fetchCariCustomerDaily() async {
     DateTime startTime =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -1569,6 +1573,39 @@ class DbHelper {
     } on PostgrestException catch (e) {
       print("Kasa hata: ${e.message}");
       return {'Hata': e.message};
+    }
+  }
+
+  ///Genel Durum - Kar hesaplama
+  Future<List<Map<String, dynamic>>> calculateProfit() async {
+    List<Map<String, dynamic>> resProfit = [];
+    try {
+      resProfit = await db.supabase.from('sales_detail').select<
+              List<Map<String, dynamic>>>(
+          'product_amount,product_selling_price_without_tax,product_buying_price_without_tax');
+
+      return resProfit;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      resProfit.add({'hata': e.message});
+      return resProfit;
+    }
+  }
+
+  ///Genel Durum - Depodaki Ürünlerin toplam maliyeti
+  calculateStockCapitalPrice() async {
+    List<Map<String, dynamic>> resProduct = [];
+    try {
+      resProduct = await db.supabase
+          .from('product')
+          .select<List<Map<String, dynamic>>>(
+              'current_buying_price_without_tax,current_amount_of_stock');
+
+      return resProduct;
+    } on PostgrestException catch (e) {
+      print("Kasa hata: ${e.message}");
+      resProduct.add({'hata': e.message});
+      return resProduct;
     }
   }
 

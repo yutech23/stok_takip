@@ -170,7 +170,7 @@ class BlocCariCustomer {
     //Sales tablosundan gelen veriler
     for (var element in resSoldList) {
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-          .format(DateTime.parse(element['save_time']));
+          .format(DateTime.parse(element['sale_date']));
 
       num totalPayment = element['cash_payment'] +
           element['bankcard_payment'] +
@@ -192,9 +192,15 @@ class BlocCariCustomer {
         'type': _selectedCustomer['type'],
         'customerName': _selectedCustomer['name'],
         'invoiceNumber': element['invoice_number'],
-        'totalPrice': FormatterConvert().currencyShow(totalPrice),
-        'payment': FormatterConvert().currencyShow(totalPayment),
-        'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+        'totalPrice': FormatterConvert().currencyShow(totalPrice,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(element['unit_of_currency'])),
+        'payment': FormatterConvert().currencyShow(totalPayment,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(element['unit_of_currency'])),
+        'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(element['unit_of_currency']))
       });
     }
 
@@ -219,7 +225,9 @@ class BlocCariCustomer {
         'invoiceNumber': element['cari_id'],
         'customerName': _selectedCustomer['name'],
         'totalPrice': '-',
-        'payment': FormatterConvert().currencyShow(totalPayment),
+        'payment': FormatterConvert().currencyShow(totalPayment,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(element['unit_of_currency'])),
         'balance': "-"
       });
     }
@@ -301,7 +309,6 @@ class BlocCariCustomer {
   }
 
   ///Sadece Tarih Seçildiğinde
-
   getOnlyUseDateTimeForSoldList() async {
     _expanded.clear();
     _soldListManipulatorByHeader.clear();
@@ -313,7 +320,6 @@ class BlocCariCustomer {
 
     for (var element in resSoldList) {
       DateTime convertTemp = DateTime.parse(element['sale_date']);
-
       String dateTime = DateFormat("dd/MM/yyyy HH:mm")
           .format(DateTime.parse(element['sale_date']));
 
@@ -342,34 +348,42 @@ class BlocCariCustomer {
           'type': element['customer_type'],
           'customerName': element['name'],
           'invoiceNumber': element['invoice_number'],
-          'totalPrice': FormatterConvert().currencyShow(totalPrice),
-          'payment': FormatterConvert().currencyShow(totalPayment),
-          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+          'totalPrice': FormatterConvert().currencyShow(totalPrice,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'payment': FormatterConvert().currencyShow(totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency']))
         });
       } else {
         double totalPayment = element['cash_payment'] +
             element['bankcard_payment'] +
             element['eft_havale_payment'];
-        print(totalPayment);
+        //   print(totalPayment);
 
         ///Buradaki sırası önemli çünkü aşağıda yapıldığında sayı olan veriler
         ///string döndürülüyor. TR para birimine göre ". ile ," ters oluyor.
         ///buda double döndürülemiyor özel olarak yazdığım Fonk. kullanılmalı.
         _calculationRow['totalPayment'] =
             _calculationRow['totalPayment']! + totalPayment;
-        print(_calculationRow['totalPayment']);
+        //   print(_calculationRow['totalPayment']);
         _soldListManipulatorByHeader.add({
           'dateTime': dateTime,
           'type': element['customer_type'],
           'invoiceNumber': element['cari_id'],
           'customerName': element['name'],
           'totalPrice': '-',
-          'payment': FormatterConvert().currencyShow(totalPayment),
+          'payment': FormatterConvert().currencyShow(totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
           'balance': "-"
         });
       }
     }
-    print("sold : $resSoldList");
+    //print("sold : $resSoldList");
 
     ///List Map içinde Sort işlemi yapılıyor Tarih Saate göre (m1 ile m2 yeri değiştiğinde
     ///descending olarak)
@@ -390,24 +404,32 @@ class BlocCariCustomer {
 
     Map<String, dynamic> resCari = await db.fetchCariByInvoiceNo(invoiceNo);
 
-    String dateTime = DateFormat("dd/MM/yyyy HH:mm")
-        .format(DateTime.parse(resCari['save_time']));
+    if (resCari.isNotEmpty) {
+      String dateTime = DateFormat("dd/MM/yyyy HH:mm")
+          .format(DateTime.parse(resCari['sale_date']));
 
-    double totalPayment = resCari['cash_payment'] +
-        resCari['bankcard_payment'] +
-        resCari['eft_havale_payment'];
-    double totalPrice = shareFunc.calculateWithKDV(
-        resCari['total_payment_without_tax'], resCari['kdv_rate']);
+      double totalPayment = resCari['cash_payment'] +
+          resCari['bankcard_payment'] +
+          resCari['eft_havale_payment'];
+      double totalPrice = shareFunc.calculateWithKDV(
+          resCari['total_payment_without_tax'], resCari['kdv_rate']);
 
-    _soldListManipulatorByHeader.add({
-      'dateTime': dateTime,
-      'type': resCari['customer_type'],
-      'customerName': resCari['name'],
-      'invoiceNumber': resCari['invoice_number'],
-      'totalPrice': FormatterConvert().currencyShow(totalPrice),
-      'payment': FormatterConvert().currencyShow(totalPayment),
-      'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
-    });
+      _soldListManipulatorByHeader.add({
+        'dateTime': dateTime,
+        'type': resCari['customer_type'],
+        'customerName': resCari['name'],
+        'invoiceNumber': resCari['invoice_number'],
+        'totalPrice': FormatterConvert().currencyShow(totalPrice,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(resCari['unit_of_currency'])),
+        'payment': FormatterConvert().currencyShow(totalPayment,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(resCari['unit_of_currency'])),
+        'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+            unitOfCurrency: shareFunc
+                .convertAbridgmentToSymbol(resCari['unit_of_currency']))
+      });
+    }
     _expanded =
         List.generate(_soldListManipulatorByHeader.length, (index) => false);
     _streamControllerSoldList.add(_soldListManipulatorByHeader);
@@ -434,14 +456,14 @@ class BlocCariCustomer {
     _saleDetailList.clear();
     final saleDetailListTemp = await db.fetchsaleDetailByInvoice(invoiceId);
     for (var element in saleDetailListTemp) {
-      double tempTotal =
-          element['product_amount'] * element['product_price_without_tax'];
+      double tempTotal = element['product_amount'] *
+          element['product_selling_price_without_tax'];
 
       _saleDetailList.add({
         'productCode': element['product_code'],
         'productAmount': element['product_amount'],
         'productPriceWithoutTax': FormatterConvert()
-            .currencyShow(element['product_price_without_tax']),
+            .currencyShow(element['product_selling_price_without_tax']),
         'productTotal': FormatterConvert().currencyShow(tempTotal)
       });
     }

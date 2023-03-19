@@ -10,11 +10,13 @@ import '../validations/format_convert_point_comma.dart';
 class WidgetSaleTable extends StatefulWidget {
   String selectUnitOfCurrencySymbol;
   List<Product> listProduct;
+  BlocSale blocSale;
 
   WidgetSaleTable(
       {super.key,
       required this.selectUnitOfCurrencySymbol,
-      required this.listProduct});
+      required this.listProduct,
+      required this.blocSale});
 
   @override
   State<WidgetSaleTable> createState() => _WidgetSaleTableState();
@@ -23,7 +25,7 @@ class WidgetSaleTable extends StatefulWidget {
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
   final double _tableWidth = 570, _tableHeight = 463;
   final double _shareheight = 40;
-  double? _responceWidth;
+  late double _responceWidth;
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
@@ -39,6 +41,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   @override
   Widget build(BuildContext context) {
+    getResponseWidth(context);
     return buildProdcutSaleList();
   }
 
@@ -58,7 +61,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                 "Ürün Kodu", "Miktar", "Fiyat", "Tutar", "Sil"),
             Expanded(
                 child: StreamBuilder<List<Product>>(
-                    stream: blocSale.getStreamListProduct,
+                    stream: widget.blocSale.getStreamListProduct,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && !snapshot.hasError) {
                         return ListView.builder(
@@ -67,6 +70,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
                                 addProduct: snapshot.data![index],
                                 selectUnitOfCurrencySymbol:
                                     widget.selectUnitOfCurrencySymbol,
+                                blocSale: widget.blocSale,
                               );
                             },
                             itemCount: snapshot.data!.length);
@@ -134,9 +138,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   ///Toplam Tutar, Kdv Ve Genel toplam tutarı Tablosu
   widgetTableTotalPriceSection() {
     return SizedBox(
-      height: 35,
+      height: _responceWidth <= 450 ? 70 : 35,
       child: StreamBuilder<Map<String, num>>(
-          stream: blocSale.getStreamTotalPriceSection,
+          stream: widget.blocSale.getStreamTotalPriceSection,
           initialData: const {
             'total_without_tax': 0,
             'kdv': 8, //Başlangıçtaki değer ataması veri gelmediğinde
@@ -274,14 +278,16 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
             ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
             ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
             if (value.isNotEmpty) {
-              blocSale.setKdv = value;
+              widget.blocSale.setKdv = value;
 
-              blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
-              blocSale.balance();
+              widget.blocSale
+                  .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+              widget.blocSale.balance();
             } else {
-              blocSale.setKdv = "0";
-              blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
-              blocSale.balance();
+              widget.blocSale.setKdv = "0";
+              widget.blocSale
+                  .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+              widget.blocSale.balance();
             }
           },
         ));
@@ -307,5 +313,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   getHighScreenSizeTotalPrice(BuildContext context) {
     double retHeigh = MediaQuery.of(context).size.width < 500 ? 50 : 30;
     return retHeigh;
+  }
+
+  getResponseWidth(BuildContext context) {
+    _responceWidth = MediaQuery.of(context).size.width;
   }
 }

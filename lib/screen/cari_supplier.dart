@@ -214,7 +214,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
 

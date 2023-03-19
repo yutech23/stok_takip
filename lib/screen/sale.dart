@@ -61,18 +61,21 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   /*-----------------------BAŞLANGIÇ - SATIŞ TABLO ------------------ */
 
   final List<Product> _listAddProduct = <Product>[];
+  late BlocSale blocSale;
 
   /*?????????????????????? SON - SATIŞ TABLO ?????????????????????????*/
 
-  final double _saleMinWidth = 360, _saleMaxWidth = 880;
+  final double _saleMinWidth = 360, _saleMaxWidth = 970;
+  final double _tableMaxWidth = 600;
   final double _shareheight = 40;
   int tableRowIndex = 0;
-  final double _widthSearch = 360, _shareheightButton = 300;
+  final double _widthSearch = 340;
   int simpleIntInput = 0;
-  final double _shareWidthPaymentSection = 250;
+  final double _shareWidthPaymentSection = 340;
   final double _exchangeHeight = 70;
   Product? _selectProduct;
   late double _widthMediaQuery;
+  final double _paymentCardHeight = 415;
 
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
 
@@ -101,6 +104,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 /*-------------------------------------------------------------- */
   @override
   void initState() {
+    blocSale = BlocSale();
+
     blocSale.clearValues();
     _selectUnitOfCurrencySymbol = "₺";
     blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
@@ -145,7 +150,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   Widget build(BuildContext context) {
     getWidthScreenSize(context);
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
 
@@ -175,31 +180,37 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             decoration: context.extensionThemaWhiteContainer(),
             child: Wrap(
                 alignment: WrapAlignment.center,
-                spacing: context.extensionWrapSpacing10(),
-                runSpacing: context.extensionWrapSpacing20(),
+                spacing: context.extensionWrapSpacing20(),
+                runSpacing: context.extensionWrapSpacing10(),
                 children: [
-                  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      verticalDirection: VerticalDirection.down,
-                      children: [
-                        Wrap(
-                          verticalDirection: VerticalDirection.down,
-                          alignment: WrapAlignment.center,
-                          spacing: context.extensionWrapSpacing20(),
-                          runSpacing: context.extensionWrapSpacing10(),
-                          children: [
-                            widgetSearchFieldCustomer(),
-                            widgetButtonNewCustomer(),
-                            widgetSearchFieldProductCode(),
-                            widgetButtonAddProduct(),
-                            WidgetSaleTable(
-                              selectUnitOfCurrencySymbol:
-                                  _selectUnitOfCurrencySymbol,
-                              listProduct: _listAddProduct,
-                            ),
-                          ],
-                        ),
-                      ]),
+                  Container(
+                    constraints: BoxConstraints(
+                        minWidth: _shareWidthPaymentSection,
+                        maxWidth: _tableMaxWidth),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        verticalDirection: VerticalDirection.down,
+                        children: [
+                          Wrap(
+                            verticalDirection: VerticalDirection.down,
+                            alignment: WrapAlignment.center,
+                            spacing: context.extensionWrapSpacing10(),
+                            runSpacing: context.extensionWrapSpacing10(),
+                            children: [
+                              widgetSearchFieldCustomer(),
+                              widgetButtonNewCustomer(),
+                              widgetSearchFieldProductCode(),
+                              widgetButtonAddProduct(),
+                              WidgetSaleTable(
+                                selectUnitOfCurrencySymbol:
+                                    _selectUnitOfCurrencySymbol,
+                                listProduct: _listAddProduct,
+                                blocSale: blocSale,
+                              ),
+                            ],
+                          ),
+                        ]),
+                  ),
                   Wrap(
                       direction: Axis.vertical,
                       alignment: WrapAlignment.center,
@@ -425,6 +436,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),
         icon: const Icon(Icons.playlist_add),
         onPressed: () async {
+          print(blocSale.getterProductCodeList);
           if (_controllerSearchProductCode.text.isNotEmpty) {
             //seçilen ürün kodunun özellikleri alınıyor.
 
@@ -597,6 +609,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   widgetPaymentInformationSection() {
     return SizedBox(
       width: _shareWidthPaymentSection,
+      height: _paymentCardHeight,
       child: Card(
         margin: EdgeInsets.zero,
         elevation: 5,
@@ -858,7 +871,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       );
 
   void getWidthScreenSize(BuildContext context) {
-    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 330 : 190;
+    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 340 : 190;
   }
 
   /*----------------------PDF BÖLÜMÜ ----------------------------------*/

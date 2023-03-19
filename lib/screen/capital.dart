@@ -161,7 +161,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: widgetFloatButtonMenu(context),
       appBar: AppBar(

@@ -406,7 +406,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Stok Güncelleme Ekranı"),
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),

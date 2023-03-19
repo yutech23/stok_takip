@@ -11,12 +11,14 @@ import '../utilities/dimension_font.dart';
 class SaleTableRow extends StatefulWidget {
   Product addProduct;
   String selectUnitOfCurrencySymbol;
+  BlocSale blocSale;
 
   String? ad;
   SaleTableRow(
       {Key? key,
       required this.addProduct,
-      required this.selectUnitOfCurrencySymbol})
+      required this.selectUnitOfCurrencySymbol,
+      required this.blocSale})
       : super(key: key);
 
   @override
@@ -67,9 +69,9 @@ class _SaleTableRowState extends State<SaleTableRow> {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    blocSale
+                    widget.blocSale
                         .removeFromListProduct(widget.addProduct.productCode);
-                    blocSale.getTotalPriceSection(
+                    widget.blocSale.getTotalPriceSection(
                         widget.selectUnitOfCurrencySymbol);
                   },
                 ),
@@ -135,13 +137,15 @@ class _SaleTableRowState extends State<SaleTableRow> {
             widget.addProduct.total = double.parse(value) *
                 widget.addProduct.currentSallingPriceWithoutTax!;
           });
-          blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+          widget.blocSale
+              .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
         } else {
           widget.addProduct.sallingAmount = 0;
           setState(() {
             widget.addProduct.total = 0;
           });
-          blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+          widget.blocSale
+              .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
         }
       },
     );
@@ -185,13 +189,15 @@ class _SaleTableRowState extends State<SaleTableRow> {
                 FormatterConvert().commaToPointDouble(value) *
                     widget.addProduct.sallingAmount;
           });
-          blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+          widget.blocSale
+              .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
         } else {
           widget.addProduct.currentSallingPriceWithoutTax = 0;
           setState(() {
             widget.addProduct.total = 0;
           });
-          blocSale.getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+          widget.blocSale
+              .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
         }
       },
     );

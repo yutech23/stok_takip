@@ -38,6 +38,11 @@ class BlocCaseSnapshot {
     'totalCollection': 0,
   };
 
+  Map<String, num> _calculateGeneralSituation = {
+    'totalStockPrice': 0,
+    'totalProfit': 0,
+  };
+
   BlocCaseSnapshot() {
     start();
   }
@@ -47,6 +52,7 @@ class BlocCaseSnapshot {
     await getPayment();
     await getCalculateDailySnapshoot();
     await calculateCasefunc();
+    await calculateStockCapital();
   }
 
   final StreamController<Map<String, double>> _streamControllerCollection =
@@ -68,13 +74,13 @@ class BlocCaseSnapshot {
   Stream<Map<String, num>> get getStreamCalculateDaily =>
       _streamControllerCalculateDaily.stream;
 
-  ///Ödeme Stream
+  ///GENEL DURUM
   final StreamController<Map<String, num>>
-      _streamControllerCalculatePaymentDaily =
+      _streamControllerCalculateGeneralSituation =
       StreamController<Map<String, num>>.broadcast();
 
-  Stream<Map<String, num>> get getStreamCalculatePaymentDaily =>
-      _streamControllerCalculatePaymentDaily.stream;
+  Stream<Map<String, num>> get getStreamCalculateGeneralSituation =>
+      _streamControllerCalculateGeneralSituation.stream;
 
   ///Ödeme Stream
   final StreamController<Map<String, num>>
@@ -250,5 +256,30 @@ class BlocCaseSnapshot {
               element['bankcard'] +
               element['eft_havale'];
     }
+  }
+
+  ///Kar Hesaplanıyor
+  calculateProfit() async {
+    final resPayment = await db.calculateProfit();
+    num total = 0;
+    for (var element in resPayment) {
+      total += element['product_selling_price_without_tax'] -
+          element['product_buying_price_without_tax'];
+    }
+    _calculateGeneralSituation['totalProfit'] = total;
+  }
+
+  /// Depodaki ürünlerin Maliyeti hesaplar
+  calculateStockCapital() async {
+    await calculateProfit();
+    final resPayment = await db.calculateStockCapitalPrice();
+    num total = 0;
+    for (var element in resPayment) {
+      total += element['current_buying_price_without_tax'] *
+          element['current_amount_of_stock'];
+    }
+    _calculateGeneralSituation['totalStockPrice'] = total;
+    _streamControllerCalculateGeneralSituation.sink
+        .add(_calculateGeneralSituation);
   }
 }

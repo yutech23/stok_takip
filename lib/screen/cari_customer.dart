@@ -1,4 +1,5 @@
 import 'package:adaptivex/adaptivex.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -229,7 +230,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
 
@@ -240,6 +241,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
         ],
       ),
       body: buildCari(),
+      drawerScrimColor: Colors.transparent,
       drawer: const MyDrawer(),
     );
   }
@@ -1042,6 +1044,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
               border: pw.TableBorder.all(
                   color: PdfColor.fromHex('#8E8E8E'), width: 0.5),
               children: [
+                ///İlk satır başlıkları Yapıyor.
                 pw.TableRow(
                     decoration: const pw.BoxDecoration(
                       color: PdfColors.grey,
@@ -1055,6 +1058,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                                 textAlign: pw.TextAlign.center,
                                 style: letterCharacterBold))
                     ]),
+
+                ///Satırları yapıldığı yer.
                 for (int index = 0; index < source!.length; index++)
                   pw.TableRow(
                     verticalAlignment: pw.TableCellVerticalAlignment.middle,
@@ -1074,6 +1079,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                   ),
               ],
             ),
+
+            ///En alt satır.Toplam tutarların bölümü
             pw.Table(
                 defaultColumnWidth: const pw.FixedColumnWidth(160),
                 border: pw.TableBorder.symmetric(

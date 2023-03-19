@@ -149,7 +149,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   Widget build(BuildContext context) {
     getWidthScreenSize(context);
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Yeni Ürün Ekleme"),
         // ignore: prefer_const_literals_to_create_immutables

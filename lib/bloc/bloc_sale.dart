@@ -12,7 +12,11 @@ class BlocSale {
   int? _invoiceNumber;
 
   BlocSale() {
-    getProductCodeList();
+    start();
+  }
+
+  start() async {
+    await getProductCodeList();
   }
 
   double _balance = 0;
@@ -227,10 +231,10 @@ class BlocSale {
     ///Satılan Ürünlerin Listesi Ürün kodu, Miktar, Fiyat(KDVsiz)
     for (var element in listProduct) {
       listDetailProducts.add(SaleDetail(
-        productCode: element.productCode,
-        productAmount: element.sallingAmount,
-        productPriceWithoutTax: element.currentSallingPriceWithoutTax!,
-      ));
+          productCode: element.productCode,
+          productAmount: element.sallingAmount,
+          productSellingPriceWithoutTax: element.currentSallingPriceWithoutTax!,
+          productBuyingPriceWithoutTax: element.currentBuyingPriceWithoutTax!));
     }
     soldProducts.soldProductsList = listDetailProducts;
 
@@ -263,5 +267,3 @@ class BlocSale {
     } */
   }
 }
-
-final blocSale = BlocSale();

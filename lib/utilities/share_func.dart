@@ -16,6 +16,18 @@ class ShareFunc {
   String getCurrentUserId() {
     return dbHive.getValues('uuid');
   }
+
+  String convertAbridgmentToSymbol(String ambridgment) {
+    late String symbol;
+    if (ambridgment == "TL") {
+      symbol = "₺";
+    } else if (ambridgment == "USD") {
+      symbol = "\$";
+    } else if (ambridgment == "EURO") {
+      symbol = "€";
+    }
+    return symbol;
+  }
 }
 
 final shareFunc = ShareFunc();

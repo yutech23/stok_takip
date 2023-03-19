@@ -1,11 +1,10 @@
-import 'dart:ui';
+import 'dart:js_util';
 
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
-
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
 
@@ -20,15 +19,12 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final _formKeyCaseSnapshot = GlobalKey<FormState>();
   final String _labelHeading = "Güncel Durum";
   final double _shareMinWidth = 360;
-  final double _shareMaxWidth = 1200;
+  final double _shareHeightCard = 310;
   final double _shareWidthChartContainer = 150;
   final double _shareHeightChartContainer = 235;
   late double _responsiveWidth;
-  final double _dailySnapshootHeight = 600;
   final double _dataTableDailyWidth = 340;
-
   double deger = -1;
-
   late BlocCaseSnapshot _blocCaseSnapshot;
 
   /*------------------------TAHSİLAT BÖLÜMÜ------------------------------- */
@@ -47,33 +43,27 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelTotalTableHeader = "Toplam";
   final String _labelTotalCollectionBySale = "Satıştan Gelen";
   final String _labelReceivePaymant = "Alınan Ödemeler";
-  final String _labelDailySnapshoot = "GÜNLÜK DURUM";
+  final String _labelCurrentStatus = "DURUM";
+  final String _labelDailySnapshoot = "GÜNLÜK";
   final String _labelTotalSold = "Toplam Satış";
   final String _labelTotalPayment = "Toplam Ödemeler";
   final String _labelCashBoxHeader = "ANLIK KASA";
   final String _labelCashSnapshoot = "Nakit";
   final String _labelBankSnapshoot = "Banka";
+  final String _labelGeneralSituation = "GENEL";
+  final String _labelProfit = "Kar";
+  final String _labelCapital = "Depo'daki Sermaye";
 
   @override
   void initState() {
     _blocCaseSnapshot = BlocCaseSnapshot();
     super.initState();
-    /*     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _asyncMethod();
-    }); */
-    /*   _blocCaseSnapshot.getCollection()!.then((value) {
-      print(value);
-      setState(() {
-      
-      er = value['Kasa']!;
-      });
-    }); */
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
 
@@ -103,12 +93,15 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                 BoxConstraints(minWidth: _shareMinWidth, maxWidth: 1200),
             padding: context.extensionPadding20(),
             child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
               direction: Axis.horizontal,
               children: [
                 widgetDailyAndSnapshoot(),
                 Column(
                   children: [
                     widgetCollectionSection(),
+                    context.extensionHighSizedBox10(),
                     widgetPaymentSection(),
                   ],
                 ),
@@ -120,35 +113,151 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
 
   ///Günlük Durum Bölümü
   widgetDailyAndSnapshoot() {
-    return SizedBox(
+    return Container(
       width: _responsiveWidth <= 400 ? 340 : 400,
+      constraints: BoxConstraints(minHeight: _shareHeightCard * 2 + 10),
       height: 600,
       child: Card(
         elevation: 10,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                _labelDailySnapshoot,
-                style: context.theme.headline6!
-                    .copyWith(fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _labelCurrentStatus,
+                  style: context.theme.headline6!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            widgetDivider(),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
+              widgetDivider(),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
 
-              ///GÜNLÜK BÖLÜMÜ
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                runSpacing: context.extensionWrapSpacing20(),
-                spacing: 50,
-                direction: Axis.horizontal,
-                children: [
-                  StreamBuilder<Map<String, num>>(
-                      stream: _blocCaseSnapshot.getStreamCalculateDaily,
+                ///GÜNLÜK BÖLÜMÜ
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  runSpacing: context.extensionWrapSpacing20(),
+                  spacing: 50,
+                  direction: Axis.horizontal,
+                  children: [
+                    StreamBuilder<Map<String, num>>(
+                        stream: _blocCaseSnapshot.getStreamCalculateDaily,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && !snapshot.hasError) {
+                            return Container(
+                              width: _dataTableDailyWidth,
+                              alignment: Alignment.centerRight,
+                              child: Column(
+                                children: [
+                                  ///TOPLAM SATIŞ BÖLÜMÜ
+                                  Container(
+                                    width: double.infinity,
+                                    color: Colors.grey.shade600,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      _labelDailySnapshoot,
+                                      style: context.theme.headline6!
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                  Table(
+                                      columnWidths: {
+                                        0: FixedColumnWidth(
+                                            _dataTableDailyWidth / 2),
+                                        1: FixedColumnWidth(
+                                            _dataTableDailyWidth / 2),
+                                      },
+                                      border:
+                                          TableBorder.all(color: Colors.grey),
+                                      children: [
+                                        buildRowRight(
+                                          _labelTotalSold,
+                                          FormatterConvert().currencyShow(
+                                              snapshot.data!['totalSale']),
+                                        ),
+                                      ]),
+
+                                  ///TAHSİLAT BÖLÜMÜ
+                                  Container(
+                                    width: double.infinity,
+                                    color: context.extensionDisableColor,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      _labelCollectionHeader,
+                                      style: context.theme.titleMedium!
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                  Table(
+                                    columnWidths: {
+                                      0: FixedColumnWidth(
+                                          _dataTableDailyWidth / 2),
+                                      1: FixedColumnWidth(
+                                          _dataTableDailyWidth / 2),
+                                    },
+                                    border: TableBorder.all(color: Colors.grey),
+                                    children: [
+                                      buildRowRight(
+                                        _labelTotalCollectionBySale,
+                                        FormatterConvert().currencyShow(snapshot
+                                            .data!['totalCollectionBySale']),
+                                      ),
+                                      buildRowRight(
+                                        _labelReceivePaymant,
+                                        FormatterConvert().currencyShow(snapshot
+                                            .data!['totalCollectionLate']),
+                                      ),
+                                      buildRowRight(
+                                        _labelTotalTableHeader,
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['totalCollection']),
+                                      ),
+                                    ],
+                                  ),
+
+                                  ///ÖDEMELER BÖLÜMÜ
+                                  Container(
+                                    width: double.infinity,
+                                    color: context.extensionDisableColor,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      _labelPaymentHeader,
+                                      style: context.theme.titleMedium!
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                  Table(
+                                      columnWidths: {
+                                        0: FixedColumnWidth(
+                                            _dataTableDailyWidth / 2),
+                                        1: FixedColumnWidth(
+                                            _dataTableDailyWidth / 2),
+                                      },
+                                      border:
+                                          TableBorder.all(color: Colors.grey),
+                                      children: [
+                                        buildRowRight(
+                                          _labelTotalPayment,
+                                          FormatterConvert().currencyShow(
+                                              snapshot.data!['totalPayment']),
+                                        ),
+                                      ]),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return widgetShareCircularProgress(context);
+                          }
+                        }),
+                    StreamBuilder<Map<String, num>>(
+                      stream:
+                          _blocCaseSnapshot.getStreamCalculateCashBoxSnapshoot,
                       builder: (context, snapshot) {
                         if (snapshot.hasData && !snapshot.hasError) {
                           return Container(
@@ -156,14 +265,14 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                             alignment: Alignment.centerRight,
                             child: Column(
                               children: [
-                                ///TOPLAM SATIŞ BÖLÜMÜ
+                                ///KASA BAŞLIK
                                 Container(
                                   width: double.infinity,
                                   color: Colors.grey.shade600,
                                   alignment: Alignment.center,
                                   padding: const EdgeInsets.all(4),
                                   child: Text(
-                                    _labelDailySnapshoot,
+                                    _labelCashBoxHeader,
                                     style: context.theme.headline6!
                                         .copyWith(color: Colors.white),
                                   ),
@@ -178,60 +287,50 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [
                                       buildRowRight(
-                                        _labelTotalSold,
+                                        _labelCashSnapshoot,
                                         FormatterConvert().currencyShow(
-                                            snapshot.data!['totalSale']),
+                                            snapshot.data!['snapshootCash']),
+                                      ),
+                                      buildRowRight(
+                                        _labelBankSnapshoot,
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['snapshootBank']),
+                                      ),
+                                      buildRowRight(
+                                        _labelTotalTableHeader,
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['snapshootTotal']),
                                       ),
                                     ]),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return widgetShareCircularProgress(context);
+                        }
+                      },
+                    ),
 
-                                ///TAHSİLAT BÖLÜMÜ
+                    ///KAR SERMAYE
+                    StreamBuilder<Map<String, num>>(
+                      stream:
+                          _blocCaseSnapshot.getStreamCalculateGeneralSituation,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && !snapshot.hasError) {
+                          return Container(
+                            width: _dataTableDailyWidth,
+                            alignment: Alignment.centerRight,
+                            child: Column(
+                              children: [
+                                ///KAR SERMAYE
                                 Container(
                                   width: double.infinity,
-                                  color: context.extensionDisableColor,
+                                  color: Colors.grey.shade600,
                                   alignment: Alignment.center,
                                   padding: const EdgeInsets.all(4),
                                   child: Text(
-                                    _labelCollectionHeader,
-                                    style: context.theme.titleMedium!
-                                        .copyWith(color: Colors.white),
-                                  ),
-                                ),
-                                Table(
-                                  columnWidths: {
-                                    0: FixedColumnWidth(
-                                        _dataTableDailyWidth / 2),
-                                    1: FixedColumnWidth(
-                                        _dataTableDailyWidth / 2),
-                                  },
-                                  border: TableBorder.all(color: Colors.grey),
-                                  children: [
-                                    buildRowRight(
-                                      _labelTotalCollectionBySale,
-                                      FormatterConvert().currencyShow(snapshot
-                                          .data!['totalCollectionBySale']),
-                                    ),
-                                    buildRowRight(
-                                      _labelReceivePaymant,
-                                      FormatterConvert().currencyShow(snapshot
-                                          .data!['totalCollectionLate']),
-                                    ),
-                                    buildRowRight(
-                                      _labelTotalTableHeader,
-                                      FormatterConvert().currencyShow(
-                                          snapshot.data!['totalCollection']),
-                                    ),
-                                  ],
-                                ),
-
-                                ///ÖDEMELER BÖLÜMÜ
-                                Container(
-                                  width: double.infinity,
-                                  color: context.extensionDisableColor,
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.all(4),
-                                  child: Text(
-                                    _labelPaymentHeader,
-                                    style: context.theme.titleMedium!
+                                    _labelGeneralSituation,
+                                    style: context.theme.headline6!
                                         .copyWith(color: Colors.white),
                                   ),
                                 ),
@@ -245,9 +344,14 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [
                                       buildRowRight(
-                                        _labelTotalPayment,
+                                        _labelProfit,
                                         FormatterConvert().currencyShow(
-                                            snapshot.data!['totalPayment']),
+                                            snapshot.data!['totalProfit']),
+                                      ),
+                                      buildRowRight(
+                                        _labelCapital,
+                                        FormatterConvert().currencyShow(
+                                            snapshot.data!['totalStockPrice']),
                                       ),
                                     ]),
                               ],
@@ -256,104 +360,13 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                         } else {
                           return widgetShareCircularProgress(context);
                         }
-                      }),
-                  StreamBuilder<Map<String, num>>(
-                    stream:
-                        _blocCaseSnapshot.getStreamCalculateCashBoxSnapshoot,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && !snapshot.hasError) {
-                        print(snapshot.data);
-                        return Container(
-                          width: _dataTableDailyWidth,
-                          alignment: Alignment.centerRight,
-                          child: Column(
-                            children: [
-                              ///KASA BAŞLIK
-                              Container(
-                                width: double.infinity,
-                                color: Colors.grey.shade600,
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(4),
-                                child: Text(
-                                  _labelCashBoxHeader,
-                                  style: context.theme.headline6!
-                                      .copyWith(color: Colors.white),
-                                ),
-                              ),
-                              Table(
-                                  columnWidths: {
-                                    0: FixedColumnWidth(
-                                        _dataTableDailyWidth / 2),
-                                    1: FixedColumnWidth(
-                                        _dataTableDailyWidth / 2),
-                                  },
-                                  border: TableBorder.all(color: Colors.grey),
-                                  children: [
-                                    buildRowRight(
-                                      _labelCashSnapshoot,
-                                      FormatterConvert().currencyShow(
-                                          snapshot.data!['snapshootCash']),
-                                    ),
-                                    buildRowRight(
-                                      _labelBankSnapshoot,
-                                      FormatterConvert().currencyShow(
-                                          snapshot.data!['snapshootBank']),
-                                    ),
-                                    buildRowRight(
-                                      _labelTotalTableHeader,
-                                      FormatterConvert().currencyShow(
-                                          snapshot.data!['snapshootTotal']),
-                                    ),
-                                  ]),
-
-                              ///
-                              Container(
-                                width: double.infinity,
-                                color: context.extensionDisableColor,
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(4),
-                                child: Text(
-                                  _labelCollectionHeader,
-                                  style: context.theme.titleMedium!
-                                      .copyWith(color: Colors.white),
-                                ),
-                              ),
-                              /* Table(
-                                columnWidths: {
-                                  0: FixedColumnWidth(_dataTableDailyWidth / 2),
-                                  1: FixedColumnWidth(_dataTableDailyWidth / 2),
-                                },
-                                border: TableBorder.all(color: Colors.grey),
-                                children: [
-                                  buildRowRight(
-                                    _labelTotalCollectionBySale,
-                                    FormatterConvert().currencyShow(snapshot
-                                        .data!['totalCollectionBySale']),
-                                  ),
-                                  buildRowRight(
-                                    _labelReceivePaymant,
-                                    FormatterConvert().currencyShow(
-                                        snapshot.data!['totalCollectionLate']),
-                                  ),
-                                  buildRowRight(
-                                    _labelTotalTableHeader,
-                                    FormatterConvert().currencyShow(
-                                        snapshot.data!['totalCollection']),
-                                  ),
-                                ],
-                              ), */
-                            ],
-                          ),
-                        );
-                      } else {
-                        return widgetShareCircularProgress(context);
-                      }
-                    },
-                  )
-                ],
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -361,14 +374,15 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
 
   ///Tahsilat bölümü
   widgetCollectionSection() {
-    return SizedBox(
+    return Container(
       width: _responsiveWidth,
+      constraints: BoxConstraints(minHeight: _shareHeightCard),
       child: Card(
         elevation: 10,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
               alignment: Alignment.centerLeft,
               child: Text(
                 _labelCollectionHeader,
@@ -426,14 +440,15 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
 
   ///Ödeme Bölümü
   widgetPaymentSection() {
-    return SizedBox(
+    return Container(
       width: _responsiveWidth,
+      constraints: BoxConstraints(minHeight: _shareHeightCard),
       child: Card(
         elevation: 10,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.fromLTRB(15, 8, 8, 8),
               alignment: Alignment.centerLeft,
               child: Text(
                 _labelPaymentHeader,
@@ -556,8 +571,8 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
       height: _shareHeightChartContainer,
       alignment: Alignment.center,
       child: SizedBox(
-          width: 50,
-          height: 50,
+          width: 30,
+          height: 30,
           child: CircularProgressIndicator(
             backgroundColor: Colors.amberAccent,
             color: context.extensionDisableColor,

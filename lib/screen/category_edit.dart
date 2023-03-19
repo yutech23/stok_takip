@@ -35,7 +35,7 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
           title: const Text("Yeni Kategori Ekleme veya Silme"),
           actions: [

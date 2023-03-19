@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "ERP Sistemi",
+
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         PointerDeviceKind.stylus,
         PointerDeviceKind.unknown
       }),
+
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.blueGrey.shade900),
@@ -98,7 +100,7 @@ class MyApp extends StatelessWidget {
           dividerColor: Colors.transparent),
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
         if (authController.role == '') const RouteLogin(),
-        if (authController.role == '1') const RouteCaseSnapshot(),
+        if (authController.role == '1') const RouteCariCustomer(),
         if (authController.role == '2') const RouteSale()
       ]),
       // AutoRouterDelegate(_appRouter,initialRoutes: [const RouteCariSupplier()]),

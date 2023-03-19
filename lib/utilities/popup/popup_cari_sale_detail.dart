@@ -597,8 +597,8 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
         listTableRow.add(buildRowCenter([
           element['productCode'],
           element['productAmount'].toString(),
-          element['productPriceWithoutTax'] + " ₺",
-          "${element['productTotal']} ₺",
+          element['productPriceWithoutTax'],
+          element['productTotal'],
         ]));
       }
       return listTableRow;
@@ -759,15 +759,15 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                             ]),
                             buildRowRight([
                               'Vergiler Dahil Toplam Tutar',
-                              "${widget.blocCari.getterRowCustomerInfo['totalPrice']} ${widget.blocCari.getterSaleCurrencySembol}"
+                              "${widget.blocCari.getterRowCustomerInfo['totalPrice']}${widget.blocCari.getterSaleCurrencySembol}"
                             ]),
                             buildRowRight([
                               'Ödenen Tutar',
-                              "${widget.blocCari.getterRowCustomerInfo['payment']} ${widget.blocCari.getterSaleCurrencySembol}"
+                              "${widget.blocCari.getterRowCustomerInfo['payment']}${widget.blocCari.getterSaleCurrencySembol}"
                             ]),
                             buildRowRight([
                               'Kalan Borç Tutar',
-                              "${widget.blocCari.getterRowCustomerInfo['balance']} ${widget.blocCari.getterSaleCurrencySembol}"
+                              "${widget.blocCari.getterRowCustomerInfo['balance']}${widget.blocCari.getterSaleCurrencySembol}"
                             ]),
                             buildRowRight([
                               'Ödeme Tarihi ',

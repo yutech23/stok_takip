@@ -17,11 +17,12 @@ class Sale {
 class SaleDetail {
   late String productCode;
   late int productAmount;
-  late num productPriceWithoutTax;
+  late num productSellingPriceWithoutTax;
+  late num productBuyingPriceWithoutTax;
 
-  SaleDetail({
-    required this.productCode,
-    required this.productAmount,
-    required this.productPriceWithoutTax,
-  });
+  SaleDetail(
+      {required this.productCode,
+      required this.productAmount,
+      required this.productBuyingPriceWithoutTax,
+      required this.productSellingPriceWithoutTax});
 }
