@@ -1888,8 +1888,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         letterSpacing: 1),
                     children: [
                       TextSpan(
-                          text:
-                              "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
+                          text: FormatterConvert().currencyShow(value,
+                              unitOfCurrency: _selectUnitOfCurrencySymbol),
                           style: context.theme.labelLarge!.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -2121,8 +2121,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                     letterSpacing: 1),
               ),
               TextSpan(
-                  text:
-                      "${FormatterConvert().currencyShow(value)} $_selectUnitOfCurrencySymbol",
+                  text: FormatterConvert().currencyShow(value,
+                      unitOfCurrency: _selectUnitOfCurrencySymbol),
                   style: context.theme.titleMedium!.copyWith(
                       color: Colors.red.shade900,
                       fontWeight: FontWeight.bold,

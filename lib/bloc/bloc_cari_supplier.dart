@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:stok_takip/utilities/share_func.dart';
 import '../modified_lib/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
@@ -172,9 +173,15 @@ class BlocCariSuppleirs {
           'productName': element['product_fk'],
           'dateTime': dateTime,
           'supplierName': _selectedSupplier['name'],
-          'totalPrice': FormatterConvert().currencyShow(totalPrice),
-          'payment': FormatterConvert().currencyShow(totalPayment),
-          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+          'totalPrice': FormatterConvert().currencyShow(totalPrice,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'payment': FormatterConvert().currencyShow(totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency']))
         });
       } else {
         _calculationRow['totalPayment'] =
@@ -184,7 +191,9 @@ class BlocCariSuppleirs {
           'dateTime': dateTime,
           'supplierName': _selectedSupplier['name'],
           'totalPrice': "-",
-          'payment': FormatterConvert().currencyShow(totalPayment),
+          'payment': FormatterConvert().currencyShow(totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
           'balance': "-"
         });
       }
@@ -283,9 +292,15 @@ class BlocCariSuppleirs {
           'productName': element['product_fk'],
           'dateTime': dateTime,
           'supplierName': element['supplier_fk'],
-          'totalPrice': FormatterConvert().currencyShow(totalPrice),
-          'payment': FormatterConvert().currencyShow(totalPayment),
-          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+          'totalPrice': FormatterConvert().currencyShow(totalPrice,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'payment': FormatterConvert().currencyShow(totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency'])),
+          'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+              unitOfCurrency: shareFunc
+                  .convertAbridgmentToSymbol(element['unit_of_currency']))
         });
       } else {
         num totalPayment =
@@ -338,9 +353,15 @@ class BlocCariSuppleirs {
       'productName': resCari['product_fk'],
       'dateTime': dateTime,
       'supplierName': resCari['supplier_fk'],
-      'totalPrice': FormatterConvert().currencyShow(totalPrice),
-      'payment': FormatterConvert().currencyShow(totalPayment),
-      'balance': FormatterConvert().currencyShow(totalPrice - totalPayment)
+      'totalPrice': FormatterConvert().currencyShow(totalPrice,
+          unitOfCurrency:
+              shareFunc.convertAbridgmentToSymbol(resCari['unit_of_currency'])),
+      'payment': FormatterConvert().currencyShow(totalPayment,
+          unitOfCurrency:
+              shareFunc.convertAbridgmentToSymbol(resCari['unit_of_currency'])),
+      'balance': FormatterConvert().currencyShow(totalPrice - totalPayment,
+          unitOfCurrency:
+              shareFunc.convertAbridgmentToSymbol(resCari['unit_of_currency']))
     });
     _expanded = List.generate(_boughtListOrjinal.length, (index) => false);
     _streamControllerSoldList.add(_boughtListOrjinal);
@@ -349,8 +370,9 @@ class BlocCariSuppleirs {
   //Elden Alınan ödemeler Kaydediliyor
   Future<Map<String, dynamic>> savePayment(String unitOfCurrency) async {
     cariSupplierPay.customerFk = _selectedSupplier['name']!;
-    cariSupplierPay.cashPayment =
-        FormatterConvert().commaToPointDouble(_paymentSystem['cash']!);
+    cariSupplierPay.cashPayment = FormatterConvert().commaToPointDouble(
+      _paymentSystem['cash']!,
+    );
     cariSupplierPay.bankcardPayment =
         FormatterConvert().commaToPointDouble(_paymentSystem['bankCard']!);
     cariSupplierPay.eftHavalePayment =

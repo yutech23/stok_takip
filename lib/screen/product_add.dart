@@ -188,7 +188,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       Wrap(
                         direction: Axis.horizontal,
                         spacing: context.extensionWrapSpacing20(),
-                        runSpacing: context.extensionWrapSpacing20(),
+                        runSpacing: context.extensionWrapSpacing10(),
                         children: [
                           widgetWrapTextFieldMinAndMaxWidth(
                               widgetSearchTextFieldProductCodeUpperCase()),
@@ -295,7 +295,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         ///Tedarikçi Ekleme Buttonu.
         Container(
           height: 70,
-          alignment: Alignment.topCenter,
+          alignment: Alignment.center,
           child: SizedBox(
             height: 50,
             child: FloatingActionButton(
