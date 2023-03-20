@@ -7,7 +7,7 @@ class AuthGuard extends AutoRouteGuard {
   @override
   void onNavigation(NavigationResolver resolver, StackRouter router) {
     if (authController.isAuth) {
-      resolver.next(true);
+      return resolver.next();
     } else {
       router.push(const RouteLogin());
     }

@@ -1,3 +1,4 @@
+import 'package:stok_takip/data/database_mango.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/database_helper.dart';
@@ -14,7 +15,7 @@ class AuthController {
   bool isAuth = false;
   String role = '';
 
-  /* bool isAuth = true;
+  /*  bool isAuth = true;
   String role = '1'; */
 
   setAuthTrue() {
@@ -26,6 +27,10 @@ class AuthController {
     final Session? userSession = await db.supabase.auth.currentSession;
 
     if (userSession?.accessToken != null) {
+      isAuth = true;
+      role = (await SecurityStorageUser.getUserRole())!;
+
+      // print("sesion burada durumu : ${userSession!.user.email}");
       await db.supabase.auth.setSession(userSession!.refreshToken!);
       //  print("session : ${userSession!.accessToken}");
     } else {

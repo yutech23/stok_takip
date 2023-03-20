@@ -15,6 +15,7 @@ Future<void> main() async {
   await DbHelper.dbBaslat();
   await authController.controllerAuth();
   await dbHive.initDbHive(Sabitler.dbHiveBoxName);
+  print("buradayım");
   runApp(const MyApp());
 }
 
