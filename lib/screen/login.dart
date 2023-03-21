@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
@@ -9,7 +8,6 @@ import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
-import 'package:synchronized/extension.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
@@ -64,16 +62,21 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
           scrollDirection: Axis.vertical,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            const Icon(
-              Icons.dashboard,
-              color: Colors.white,
-              size: 100,
-            ),
+            widgetCustomerLogo(),
             context.extensionHighSizedBox20(),
-            widgetTextLogo(),
-            context.extensionHighSizedBox20(),
+            // widgetTextLogo(),
+            //context.extensionHighSizedBox20(),
             widgetSignInContainer(),
           ])),
+    );
+  }
+
+  widgetCustomerLogo() {
+    return Image.asset(
+      fit: BoxFit.fitWidth,
+      'assets/logo_transparent.png',
+      width: 300,
+      height: 100,
     );
   }
 

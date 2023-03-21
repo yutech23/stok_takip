@@ -327,7 +327,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               onSuggestionTap: (selectedValue) {
                 ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
                 var _customerInfoList = selectedValue.searchKey.split(' - ');
-                print(_customerInfoList);
+                //  print(_customerInfoList);
                 _selectCustomerType = _customerInfoList[0];
 
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
@@ -336,7 +336,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
 
                 _customerPhone = _customerInfoList[2];
-                print(_customerPhone);
+                // print(_customerPhone);
                 /* for (var element in listCustomer) {
                   if (element['name'] == selectedValue.searchKey) {
                     _customerPhone = element['phone']!;

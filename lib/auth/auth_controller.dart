@@ -1,6 +1,4 @@
-import 'package:stok_takip/data/database_mango.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../data/database_helper.dart';
 import '../data/user_security_storage.dart';
 
@@ -12,16 +10,11 @@ class AuthController {
   factory AuthController() {
     return _singlatonAuthController;
   }
-  /*  bool isAuth = false;
-  String role = ''; */
+  bool isAuth = false;
+  String role = '';
 
-<<<<<<< Updated upstream
   /*  bool isAuth = true;
   String role = '1'; */
-=======
-  bool isAuth = true;
-  String role = '1';
->>>>>>> Stashed changes
 
   setAuthTrue() {
     isAuth = true;

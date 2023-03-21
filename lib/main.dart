@@ -1,6 +1,8 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/constants.dart';
@@ -15,7 +17,6 @@ Future<void> main() async {
   await DbHelper.dbBaslat();
   await authController.controllerAuth();
   await dbHive.initDbHive(Sabitler.dbHiveBoxName);
-  print("buradayım");
   runApp(const MyApp());
 }
 
