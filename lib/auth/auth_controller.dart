@@ -12,11 +12,16 @@ class AuthController {
   factory AuthController() {
     return _singlatonAuthController;
   }
-  bool isAuth = false;
-  String role = '';
+  /*  bool isAuth = false;
+  String role = ''; */
 
+<<<<<<< Updated upstream
   /*  bool isAuth = true;
   String role = '1'; */
+=======
+  bool isAuth = true;
+  String role = '1';
+>>>>>>> Stashed changes
 
   setAuthTrue() {
     isAuth = true;
