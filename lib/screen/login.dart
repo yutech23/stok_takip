@@ -64,13 +64,12 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             widgetCustomerLogo(),
             context.extensionHighSizedBox20(),
-            // widgetTextLogo(),
-            //context.extensionHighSizedBox20(),
             widgetSignInContainer(),
           ])),
     );
   }
 
+  /*  //Mehmed Abi
   widgetCustomerLogo() {
     return Image.asset(
       fit: BoxFit.fitWidth,
@@ -79,11 +78,13 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
       height: 100,
     );
   }
-
-  widgetTextLogo() {
-    return Text(
-      "FİRMA İSMİ",
-      style: context.theme.headline4!.copyWith(color: Colors.white),
+ */
+  ///Toplu Site için
+  widgetCustomerLogo() {
+    return const Icon(
+      Icons.dashboard,
+      color: Colors.white,
+      size: 120,
     );
   }
 

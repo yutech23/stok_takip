@@ -263,8 +263,9 @@ class BlocCaseSnapshot {
     final resPayment = await db.calculateProfit();
     num total = 0;
     for (var element in resPayment) {
-      total += element['product_selling_price_without_tax'] -
-          element['product_buying_price_without_tax'];
+      total += ((element['product_selling_price_without_tax'] -
+              element['product_buying_price_without_tax']) *
+          element['product_amount']);
     }
     _calculateGeneralSituation['totalProfit'] = total;
   }

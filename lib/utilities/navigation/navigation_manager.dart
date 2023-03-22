@@ -20,8 +20,7 @@ import '../../screen/user_setting.dart';
 import 'auth_guard.dart';
 
 @MaterialAutoRouter(replaceInRouteName: 'Screen,Route', routes: <AutoRoute>[
-  AutoRoute(
-      page: ScreenSplash, path: ConstRoute.init, name: ConstRoute.initName),
+  // AutoRoute(page: ScreenSplash, path: ConstRoute.splash),
   AutoRoute(
     page: ScreenLogin,
     path: ConstRoute.login,

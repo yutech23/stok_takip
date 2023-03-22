@@ -667,6 +667,28 @@ class DbHelper {
     }
   }
 
+  //Stok Ürün sadece Satış Fiyatını Güncelleme
+  Future<String> updateOnlyProductSalePrice(
+      String productCode, Map<String, dynamic> data) async {
+    try {
+      await db.supabase
+          .from('product')
+          .update(data)
+          .match({'product_code': productCode});
+
+      /*  //TEST
+ 
+  print(payment.productFk);
+   print(payment.sallingPriceWithoutTax);
+  */
+
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata Product Update : ${e.message}");
+      return e.message;
+    }
+  }
+
   ///Kullanıcı Şifresini değiştirmek istediğinde Kullanıcının o anki şifresini
   ///istoruz kişi güvenliği için
   Future<String?> getPassword(String? uuid) async {

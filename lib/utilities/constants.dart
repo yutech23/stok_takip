@@ -8,8 +8,7 @@ class Sabitler {
 }
 
 class ConstRoute {
-  static const String initName = 'initName';
-  static const String init = '/splash';
+  static const String splash = '/splash';
   static const String login = '/login';
   static const String stockEdit = '/stockEdit';
   static const String productAdd = '/productAdd';

@@ -225,29 +225,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   @override
   void initState() {
-    /* if (Sabitler.token != null) {
-      print(Sabitler.token);
-      db.supabase.auth.setAuth(Sabitler.token!);
-    } */
-
-    /*  WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (db.supabase.auth.session() == null) {
-        Navigator.of(context).pushNamed('/');
-      }
-    }); */
-
-    /*    print("---------------------------");
-
-    userSession.sessionManager.get("id").then((value) => print(value));
-    userSession.sessionManager.get("name").then((value) => print(value));
-    userSession.sessionManager.get("lastName").then((value) => print(value));
-    userSession.sessionManager.get("token").then((value) => print(value));
-    userSession.sessionManager.get("role").then((value) => print(value));
-    userSession.sessionManager
-        .get("refreshToken")
-        .then((value) => print(value));
-    print("---------------------------"); */
-
     _category1 = [];
     _category2 = [];
     _category3 = [];
@@ -1121,7 +1098,35 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
                 ElevatedButton(
                     onPressed: () async {
-                      if (keyPopupForm.currentState!.validate()) {
+                      if (controllerSallingPriceWithoutTax.text != "" &&
+                          controllerProductAmountOfStockNewValue.text == "" &&
+                          valueNotifierProductBuyWithoutTax.value == 0) {
+                        double newSallingPriceWithoutTax = FormatterConvert()
+                            .commaToPointDouble(
+                                controllerSallingPriceWithoutTax.text);
+
+                        //Product Nesmesi
+                        productDetailToBeupdateMap.addAll({
+                          'current_salling_price_without_tax':
+                              newSallingPriceWithoutTax.toStringAsFixed(2),
+                        });
+
+                        String resDatabase =
+                            await db.updateOnlyProductSalePrice(
+                          selectedProduct.productCode,
+                          productDetailToBeupdateMap,
+                        );
+                        if (resDatabase == "") {
+                          controllerSallingPriceWithoutTax.clear();
+
+                          context.noticeBarTrue(
+                              "Satış fiyatı Günccellendi.", 3);
+                        } else {
+                          context.noticeBarError(
+                              "İşlem Başarısız : \n $resDatabase", 2);
+                        }
+                        print(resDatabase);
+                      } else if (keyPopupForm.currentState!.validate()) {
                         ///Yeni verilerin aktarıldığı değişkenler.
                         newStockValue = int.parse(
                             controllerProductAmountOfStockNewValue.text);
@@ -1145,8 +1150,10 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         double profit = newSallingPriceWithoutTax -
                             newBuyingPriceWithoutTax;
 
-                        newSallingPriceWithoutTax =
-                            newAverageBuyingPriceWithoutTax + profit;
+                        ///burada değiştirdim ilk ne düşündüğüm bilmiyorum
+                        ///satış fiyatı yeni girilen veri oluyor şuan.
+                        /*  newSallingPriceWithoutTax =
+                            newAverageBuyingPriceWithoutTax + profit; */
 
                         ///Test Print
                         /*  print(double.parse(
