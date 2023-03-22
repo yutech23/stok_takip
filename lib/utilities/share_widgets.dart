@@ -14,7 +14,7 @@ class ShareWidget with Validation {
       {TextEditingController? controller,
       required String etiket,
       bool? karakterGostermeDurumu = false,
-      bool? focusValue = false,
+      bool? skipTravelFocusValue = false,
       int? maxCharacter,
       String? Function(String?)? validationFunc,
       List<TextInputFormatter>? inputFormat,
@@ -38,7 +38,7 @@ class ShareWidget with Validation {
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
           )),
-      focusNode: FocusNode(skipTraversal: focusValue!),
+      focusNode: FocusNode(skipTraversal: skipTravelFocusValue!),
       keyboardType: keyboardInputType,
       inputFormatters: inputFormat,
     );

@@ -31,7 +31,7 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerName = TextEditingController();
   final _controllerLastName = TextEditingController();
   final _controllerPhoneNumber = TextEditingController();
-  final _controlleraddress = TextEditingController();
+  final _controllerAddress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
   final _controllerCargoName = TextEditingController();
@@ -47,6 +47,7 @@ class _ScreenCustomerSave extends State with Validation {
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
   final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
   final String _labelTC = "TC Kimlik Numarası giriniz";
+  final String _labelAddress = "Adres";
 
   late List<dynamic> listCustomerRegister;
 
@@ -86,7 +87,7 @@ class _ScreenCustomerSave extends State with Validation {
     _controllerName.dispose();
     _controllerLastName.dispose();
     _controllerPhoneNumber.dispose();
-    _controlleraddress.dispose();
+    _controllerAddress.dispose();
     _controllerTaxNumber.dispose();
     _controllerCargoCode.dispose();
     _controllerCargoName.dispose();
@@ -114,7 +115,7 @@ class _ScreenCustomerSave extends State with Validation {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text("Yeni Müşteri Kayıt Formu"),
         // ignore: prefer_const_literals_to_create_immutables
@@ -131,40 +132,42 @@ class _ScreenCustomerSave extends State with Validation {
   buildCustomerRegister() {
     return Form(
         key: _formKey,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: context.extensionThemaGreyContainer(),
-          alignment: Alignment.center,
-          child: SingleChildScrollView(
-            child: Container(
-              padding: context.extensionPadding20(),
-              alignment: Alignment.center,
-              decoration: context.extensionThemaWhiteContainer(),
-              constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
-              child: Column(children: [
-                const Divider(),
-                ShareDropdown(
-                    hint: "Müşteri Tipini Seçiniz.",
-                    itemList: customerTypeitems,
-                    selectValue: _customerType,
-                    getShareDropdownCallbackFunc: _getCustomerType),
-                widgetListCustomerInformationInput(),
-                //Deprecated yaptım.
-                //  widgetPhoneNumber(),
-                widgetRowCityAndDistrict(),
-                const Divider(),
-                _customerType != "Şahıs"
-                    ? widgetTaxOfficeAndTaxCodeInfo()
-                    : const SizedBox(),
-                _customerType != "Şahıs" ? const Divider() : const SizedBox(),
-                _customerType != "Şahıs"
-                    ? widgetCargoCompanyAndCargoCode()
-                    : const SizedBox(),
-                _customerType != "Şahıs" ? const Divider() : const SizedBox(),
-                widgetCustomerSaveButton(),
-                const Divider(),
-              ]),
+        child: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: context.extensionThemaGreyContainer(),
+            alignment: Alignment.center,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: context.extensionPadding20(),
+                alignment: Alignment.center,
+                decoration: context.extensionThemaWhiteContainer(),
+                constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
+                child: Column(children: [
+                  const Divider(),
+                  ShareDropdown(
+                      hint: "Müşteri Tipini Seçiniz.",
+                      itemList: customerTypeitems,
+                      selectValue: _customerType,
+                      getShareDropdownCallbackFunc: _getCustomerType),
+                  widgetListCustomerInformationInput(),
+                  //Deprecated yaptım.
+                  //  widgetPhoneNumber(),
+                  widgetRowCityAndDistrict(),
+                  const Divider(),
+                  _customerType != "Şahıs"
+                      ? widgetTaxOfficeAndTaxCodeInfo()
+                      : const SizedBox(),
+                  _customerType != "Şahıs" ? const Divider() : const SizedBox(),
+                  _customerType != "Şahıs"
+                      ? widgetCargoCompanyAndCargoCode()
+                      : const SizedBox(),
+                  _customerType != "Şahıs" ? const Divider() : const SizedBox(),
+                  widgetCustomerSaveButton(),
+                  const Divider(),
+                ]),
+              ),
             ),
           ),
         ));
@@ -299,12 +302,18 @@ class _ScreenCustomerSave extends State with Validation {
           ],
         ),
         const Divider(color: Colors.transparent),
-        shareWidget.widgetTextFieldInput(
-            controller: _controlleraddress,
-            etiket: "Adres",
-            focusValue: false,
-            karakterGostermeDurumu: false,
-            validationFunc: validateAddress),
+
+        ///Adres giriş bölümü
+        TextFormField(
+          controller: _controllerAddress,
+          validator: validateAddress,
+          decoration: InputDecoration(
+              counterText: "",
+              labelText: _labelAddress,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              )),
+        ),
       ],
     );
   }
@@ -365,7 +374,7 @@ class _ScreenCustomerSave extends State with Validation {
             child: shareWidget.widgetTextFieldInput(
                 controller: _controllerTaxNumber,
                 etiket: "Vergi Numaranızı Giriniz",
-                focusValue: false,
+                skipTravelFocusValue: false,
                 karakterGostermeDurumu: false,
                 maxCharacter: 11,
                 validationFunc: validateTaxNumber,
@@ -382,7 +391,7 @@ class _ScreenCustomerSave extends State with Validation {
       inputFormat: [FilteringTextInputFormatter.allow(RegExp(r'[\d]'))],
       controller: _controllerTC,
       etiket: _labelTC,
-      focusValue: false,
+      skipTravelFocusValue: false,
       karakterGostermeDurumu: false,
       maxCharacter: 11,
     ));
@@ -390,14 +399,14 @@ class _ScreenCustomerSave extends State with Validation {
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerName,
         etiket: _labelCustomerName,
-        focusValue: false,
+        skipTravelFocusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName));
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerLastName,
         etiket: _labelCustomerLastname,
-        focusValue: false,
+        skipTravelFocusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName));
     listCustomerRegister.add(widgetCountryPhoneNumber());
@@ -447,15 +456,6 @@ class _ScreenCustomerSave extends State with Validation {
     );
   }
 
-  ///Deprecated Sadece Türkçe numara için özel widget yapısı.
-  widgetPhoneNumber() {
-    return Container(
-      child: shareWidget.widgetTextFormFieldPhone(
-          controllerPhoneNumber: _controllerPhoneNumber,
-          validateFunc: validateNotEmpty),
-    );
-  }
-
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
@@ -477,7 +477,7 @@ class _ScreenCustomerSave extends State with Validation {
                   phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
-                  address: _controlleraddress.text,
+                  address: _controllerAddress.text,
                   TCno: _controllerTC.text,
                 );
 
@@ -490,7 +490,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _selectDistrict = "";
                     _selectedCity = "";
                     _selectedTaxOffice = "";
-                    _controlleraddress.clear();
+                    _controllerAddress.clear();
                     _controllerTC.clear();
 
                     context.noticeBarTrue("Kayıt Başarılı", 2);
@@ -504,7 +504,7 @@ class _ScreenCustomerSave extends State with Validation {
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
-                    address: _controlleraddress.text,
+                    address: _controllerAddress.text,
                     taxOffice: _selectedTaxOffice,
                     taxNumber: _controllerTaxNumber.text,
                     cargoName: _controllerCargoName.text,
@@ -516,7 +516,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
                     _controllerPhoneNumber.clear();
-                    _controlleraddress.clear();
+                    _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
@@ -540,7 +540,7 @@ class _ScreenCustomerSave extends State with Validation {
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
-                    address: _controlleraddress.text,
+                    address: _controllerAddress.text,
                     taxOffice: _selectedTaxOffice,
                     taxNumber: _controllerTaxNumber.text,
                     cargoName: _controllerCargoName.text,
@@ -555,7 +555,7 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
                     _controllerPhoneNumber.clear();
-                    _controlleraddress.clear();
+                    _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();

@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:flutter/material.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:stok_takip/bloc/bloc_case_snapshot.dart';
@@ -114,7 +112,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   ///Günlük Durum Bölümü
   widgetDailyAndSnapshoot() {
     return Container(
-      width: _responsiveWidth <= 400 ? 340 : 400,
+      width: _responsiveWidth <= 450 ? 340 : 400,
       constraints: BoxConstraints(minHeight: _shareHeightCard * 2 + 10),
       height: 600,
       child: Card(
@@ -165,11 +163,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     ),
                                   ),
                                   Table(
-                                      columnWidths: {
-                                        0: FixedColumnWidth(
-                                            _dataTableDailyWidth / 2),
-                                        1: FixedColumnWidth(
-                                            _dataTableDailyWidth / 2),
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1),
+                                        1: FlexColumnWidth(1),
                                       },
                                       border:
                                           TableBorder.all(color: Colors.grey),
@@ -194,11 +190,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     ),
                                   ),
                                   Table(
-                                    columnWidths: {
-                                      0: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
-                                      1: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(1),
+                                      1: FlexColumnWidth(1),
                                     },
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [
@@ -233,11 +227,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     ),
                                   ),
                                   Table(
-                                      columnWidths: {
-                                        0: FixedColumnWidth(
-                                            _dataTableDailyWidth / 2),
-                                        1: FixedColumnWidth(
-                                            _dataTableDailyWidth / 2),
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1),
+                                        1: FlexColumnWidth(1),
                                       },
                                       border:
                                           TableBorder.all(color: Colors.grey),
@@ -278,11 +270,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                   ),
                                 ),
                                 Table(
-                                    columnWidths: {
-                                      0: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
-                                      1: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(1),
+                                      1: FlexColumnWidth(1),
                                     },
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [
@@ -335,11 +325,9 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                   ),
                                 ),
                                 Table(
-                                    columnWidths: {
-                                      0: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
-                                      1: FixedColumnWidth(
-                                          _dataTableDailyWidth / 2),
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(1),
+                                      1: FlexColumnWidth(1),
                                     },
                                     border: TableBorder.all(color: Colors.grey),
                                     children: [

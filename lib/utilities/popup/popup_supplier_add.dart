@@ -204,7 +204,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerSupplierName,
         etiket: "Tedarikçi adını giriniz",
-        focusValue: false,
+        skipTravelFocusValue: false,
         karakterGostermeDurumu: false,
         validationFunc: validateFirstAndLastName);
   }
@@ -329,7 +329,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
         shareWidget.widgetTextFieldInput(
             controller: _controlleraddress,
             etiket: "Adres",
-            focusValue: false,
+            skipTravelFocusValue: false,
             karakterGostermeDurumu: false,
             validationFunc: validateAddress),
       ],
@@ -408,7 +408,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
             child: shareWidget.widgetTextFieldInput(
                 controller: _controllerTaxNumber,
                 etiket: "Vergi Numaranızı Giriniz",
-                focusValue: false,
+                skipTravelFocusValue: false,
                 karakterGostermeDurumu: false,
                 maxCharacter: 11,
                 validationFunc: validateTaxNumber,

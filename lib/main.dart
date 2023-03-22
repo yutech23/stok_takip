@@ -100,6 +100,7 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
+
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
         if (authController.role == '') const RouteLogin(),
         if (authController.role == '1') const RouteCaseSnapshot(),
