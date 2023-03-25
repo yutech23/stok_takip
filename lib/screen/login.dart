@@ -79,7 +79,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
     );
   }
 
-  /*  ///Toplu Site için
+  /* ///Toplu Site için
   widgetCustomerLogo() {
     return const Icon(
       Icons.dashboard,

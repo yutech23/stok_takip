@@ -6,10 +6,8 @@ import 'package:stok_takip/screen/case_snapshot.dart';
 import 'package:stok_takip/screen/login.dart';
 import 'package:stok_takip/screen/product_add.dart';
 import 'package:stok_takip/screen/sale.dart';
-import 'package:stok_takip/screen/splash.dart';
 import 'package:stok_takip/screen/stock_edit.dart';
 import 'package:stok_takip/utilities/constants.dart';
-
 import 'package:stok_takip/utilities/navigation/custom_router_builder.dart';
 import '../../screen/cari_customer.dart';
 import '../../screen/category_edit.dart';

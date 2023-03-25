@@ -67,7 +67,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   final double _saleMinWidth = 360, _saleMaxWidth = 970;
   final double _tableMaxWidth = 600;
-  final double _shareheight = 40;
+  final double _shareHeight = 40;
   int tableRowIndex = 0;
   final double _widthSearch = 340;
   int simpleIntInput = 0;
@@ -194,7 +194,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                           Wrap(
                             verticalDirection: VerticalDirection.down,
                             alignment: WrapAlignment.center,
-                            spacing: context.extensionWrapSpacing10(),
+                            runAlignment: WrapAlignment.start,
+                            spacing: 30,
                             runSpacing: context.extensionWrapSpacing10(),
                             children: [
                               widgetSearchFieldCustomer(),
@@ -307,6 +308,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   item: element['type']));
             }
             return SearchField(
+              searchHeight: _shareHeight,
               validator: validateNotEmpty,
               controller: _controllerSearchCustomer,
               searchInputDecoration: InputDecoration(
@@ -320,7 +322,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   )),
               suggestions: listSearch,
               focusNode: _focusSearchCustomer,
-              searchStyle: TextStyle(
+              searchStyle: const TextStyle(
                 fontSize: 14,
                 overflow: TextOverflow.fade,
               ),
@@ -360,7 +362,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   ///Yeni Müşteri Ekleme
   widgetButtonNewCustomer() {
     return SizedBox(
-      height: _shareheight,
+      height: _shareHeight,
       width: _widthMediaQuery,
       child: ElevatedButton.icon(
         //  style: ElevatedButton.styleFrom(minimumSize: const Size(220, 48)),
@@ -387,6 +389,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
             return SearchField(
+              searchHeight: _shareHeight,
               validator: validateNotEmpty,
               controller: _controllerSearchProductCode,
               searchInputDecoration: InputDecoration(
@@ -430,7 +433,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   ///Yeni Ürün Ekleme
   widgetButtonAddProduct() {
     return SizedBox(
-      height: _shareheight,
+      height: _shareHeight,
       width: _widthMediaQuery,
       child: ElevatedButton.icon(
         // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),

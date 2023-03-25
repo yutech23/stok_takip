@@ -23,7 +23,7 @@ class WidgetSaleTable extends StatefulWidget {
 }
 
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
-  final double _tableWidth = 570, _tableHeight = 463;
+  final double _tableWidth = 570, _tableHeight = 483;
   final double _shareheight = 40;
   late double _responceWidth;
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */

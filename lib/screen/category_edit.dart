@@ -56,7 +56,7 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
           child: Container(
             height: context.extendFixedHeighContainer,
             width: context.extendFixedWightContainer,
-            constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
+            constraints: const BoxConstraints(minWidth: 360, maxWidth: 1000),
             padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: context.extensionThemaWhiteContainer(),
             child: SingleChildScrollView(

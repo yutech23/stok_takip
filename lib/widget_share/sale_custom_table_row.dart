@@ -111,7 +111,7 @@ class _SaleTableRowState extends State<SaleTableRow> {
       textAlign: TextAlign.center,
       keyboardType: TextInputType.number,
       maxLines: 1,
-      maxLength: 3,
+      // maxLength: 3,
       textInputAction: TextInputAction.next,
       decoration: const InputDecoration(
           counterText: "",

@@ -82,7 +82,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
       alignment: Alignment.center,
       // decoration: context.extensionThemaGreyContainer(),
       child: Container(
-        constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
+        constraints: const BoxConstraints(minWidth: 360, maxWidth: 1000),
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
         decoration: BoxDecoration(
             color: Colors.white,
