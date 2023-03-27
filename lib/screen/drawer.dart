@@ -29,6 +29,8 @@ class _MyDrawerState extends State<MyDrawer> {
   final String _labelSale = "Satış Ekranı";
   final String _labelCaseSnapshot = "Kasa Durum";
   final String _labelCapital = "Sermaye İşlemleri";
+  final String _labelExpenses = "Giderler";
+
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
     'RouteSale',
@@ -40,6 +42,7 @@ class _MyDrawerState extends State<MyDrawer> {
     'RouteSignUp',
     'RouteCaseSnapshot',
     'RouteCapital',
+    'RouteExpenses'
     //'Test',
   ];
 
@@ -275,6 +278,10 @@ class _MyDrawerState extends State<MyDrawer> {
             case "RouteCapital":
               listWidgetMenuByRole.add(widgetMenuItem(
                   context, const RouteCapital(), Icons.money, _labelCapital));
+              break;
+            case "RouteExpenses":
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context, const RouteExpenses(), Icons.money, _labelCapital));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(context, const Test(),
