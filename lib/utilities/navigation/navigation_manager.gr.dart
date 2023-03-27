@@ -18,7 +18,7 @@ import '../../screen/capital.dart' as _i13;
 import '../../screen/cari_customer.dart' as _i10;
 import '../../screen/cari_supplier.dart' as _i11;
 import '../../screen/case_snapshot.dart' as _i12;
-import '../../screen/category_edit.dart' as _i5;
+import '../../screen/category.dart' as _i5;
 import '../../screen/customer_register.dart' as _i6;
 import '../../screen/login.dart' as _i1;
 import '../../screen/product_add.dart' as _i3;

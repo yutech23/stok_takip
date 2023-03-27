@@ -417,7 +417,8 @@ class _ScreenCustomerSave extends State with Validation {
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerCompanyName,
         etiket: _labelCompanyName,
-        validationFunc: validateFirstAndLastName));
+        maxCharacter: 100,
+        validationFunc: validateCompanyName));
     listCustomerRegister.add(widgetCountryPhoneNumber());
   }
 
@@ -426,7 +427,8 @@ class _ScreenCustomerSave extends State with Validation {
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerSupplierName,
         etiket: _labelSupplierName,
-        validationFunc: validateFirstAndLastName));
+        maxCharacter: 100,
+        validationFunc: validateCompanyName));
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         keyboardInputType: TextInputType.name,
         controller: _controllerBankName,

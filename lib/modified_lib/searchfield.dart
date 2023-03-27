@@ -584,6 +584,7 @@ class _SearchFieldState<T> extends State<SearchField<T>> {
   GlobalKey key = GlobalKey();
   bool _isDirectionCalculated = false;
   Offset _offset = Offset.zero;
+
   @override
   Widget build(BuildContext context) {
     if (widget.suggestions.length > widget.maxSuggestionsInViewPort) {

@@ -1,5 +1,4 @@
 import 'package:adaptivex/adaptivex.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +13,6 @@ import '../modified_lib/responsive_datatable.dart';
 import '../utilities/popup/popup_cari_sale_detail.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
-import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pdf/pdf.dart';
@@ -35,7 +33,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   final double _shareMinWidth = 360;
   final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
-  final String _labelHeading = "Müşteri Cari Sayfa";
+  final String _labelHeading = "Müşteri Cari Ekranı";
   final String _labelInvoice = "Fatura No";
   final String _labelSearchInvoice = "Fatura No ile";
   late final BlocCariCustomer _blocCari;

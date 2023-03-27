@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../models/category.dart';
 import 'database_helper.dart';
 
-class BlocCategory {
+class FetchCategory {
   Stream<List<Map<String, dynamic>>>? getCategory1() {
     var res =
         db.supabase.from('category1').stream(primaryKey: ['category1_id']);
@@ -59,6 +62,40 @@ class BlocCategory {
     }
     return null;
   }
+
+  Future<String> updateNewCategoryValue(
+      Category category,
+      int selectedCategoryIndex,
+      Map<int, String> selectedCategory,
+      String newValue) async {
+    try {
+      if (selectedCategoryIndex == 1) {
+        await db.supabase.from('category1').update({'name': newValue}).eq(
+            'category1_id', selectedCategory.keys.first);
+        return "";
+      } else if (selectedCategoryIndex == 2) {
+        await db.supabase.from('category2').update({'name': newValue}).eq(
+            'category2_id', selectedCategory.keys.first);
+        return "";
+      } else if (selectedCategoryIndex == 3) {
+        await db.supabase.from('category3').update({'name': newValue}).eq(
+            'category3_id', selectedCategory.keys.first);
+        return "";
+      } else if (selectedCategoryIndex == 4) {
+        await db.supabase.from('category4').update({'name': newValue}).eq(
+            'category4_id', selectedCategory.keys.first);
+        return "";
+      } else if (selectedCategoryIndex == 5) {
+        await db.supabase.from('category5').update({'name': newValue}).eq(
+            'category5_id', selectedCategory.keys.first);
+        return "";
+      }
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hata: ${e.message}");
+      return e.message;
+    }
+  }
 }
 
-final categoryBloc = BlocCategory();
+final categoryBloc = FetchCategory();

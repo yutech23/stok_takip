@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
 
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
         if (authController.role == '') const RouteLogin(),
-        if (authController.role == '1') const RouteCaseSnapshot(),
+        if (authController.role == '1') const RouteCategoryEdit(),
         if (authController.role == '2') const RouteSale()
       ]),
       // AutoRouterDelegate(_appRouter,initialRoutes: [const RouteCariSupplier()]),

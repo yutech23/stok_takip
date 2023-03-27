@@ -312,6 +312,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               validator: validateNotEmpty,
               controller: _controllerSearchCustomer,
               searchInputDecoration: InputDecoration(
+                  isDense: true,
                   errorBorder: const OutlineInputBorder(
                     borderSide: BorderSide(),
                   ),
@@ -324,7 +325,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               focusNode: _focusSearchCustomer,
               searchStyle: const TextStyle(
                 fontSize: 14,
-                overflow: TextOverflow.fade,
+                //  overflow: TextOverflow.fade,
               ),
               onSuggestionTap: (selectedValue) {
                 ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
@@ -393,6 +394,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               validator: validateNotEmpty,
               controller: _controllerSearchProductCode,
               searchInputDecoration: InputDecoration(
+                  isDense: true,
                   errorBorder: const OutlineInputBorder(
                     borderSide: BorderSide(),
                   ),
@@ -439,7 +441,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         // style: ElevatedButton.styleFrom(minimumSize: const Size(220, 40)),
         icon: const Icon(Icons.playlist_add),
         onPressed: () async {
-          print(blocSale.getterProductCodeList);
           if (_controllerSearchProductCode.text.isNotEmpty) {
             //seçilen ürün kodunun özellikleri alınıyor.
 

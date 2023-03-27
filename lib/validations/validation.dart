@@ -12,6 +12,15 @@ mixin Validation {
     return null;
   }
 
+  String? validateCompanyName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Lütfen Alanı Boş Bırakmayınız';
+    } else if (value.length < 3 || value.length > 100) {
+      return '3 ile 100 karakter arasında giriniz.';
+    }
+    return null;
+  }
+
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı boş bırakmayınız';

@@ -4,51 +4,40 @@ import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_categorty.dart';
 import 'package:stok_takip/data/database_fetch_category.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import '../data/database_save_new_category.dart';
-import '../models/category.dart';
+import 'package:stok_takip/utilities/share_widgets.dart';
 import '../validations/format_upper_case_capital_text_format.dart';
 import '../validations/validation.dart';
 
 // ignore: must_be_immutable
-class WidgetCategoryAdd extends StatefulWidget {
+class WidgetCategoryEdit extends StatefulWidget {
   BlocCategory blocCategory;
 
-  WidgetCategoryAdd(this.blocCategory, {super.key});
+  WidgetCategoryEdit(this.blocCategory, {super.key});
 
   @override
-  State<WidgetCategoryAdd> createState() => _WidgetCategoryAddState();
+  State<WidgetCategoryEdit> createState() => _WidgetCategoryEditState();
 }
 
-class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
+class _WidgetCategoryEditState extends State<WidgetCategoryEdit>
+    with Validation {
   ///Oluşturlan Listelerin Scroll Kontrolu için oluşturuldu.
   late final List<ScrollController> _controllerScrollList = [];
 
   ///Kategori uzunluğu belirlemek için döngülerde uzunluk vermek için daha
   ///kolay oldu.
-  final int _lengthCategory = 5;
 
   final GlobalKey<FormState> _globalFormKey = GlobalKey<FormState>();
-
   final ValueNotifier<int> _categoryAddIndex = ValueNotifier<int>(0);
 
-  final List<TextEditingController> _controllerCategories = [];
-  final List<Widget> _listCategoryCreate = [];
-  List<bool> _enableCategoryTextFormField = [];
+  final TextEditingController _newValueCategoryController =
+      TextEditingController();
+  final String _labelUpdateButton = "Degiştir";
 
   bool _disableButtonValue = true;
 
-  final CategoryString _newCategoryAdd = CategoryString();
   final double _scrollbarThickness = 10;
   final double _categoryBoxWidth = 150;
   final double _categoryBoxHeight = 175;
-  final Size _buttonAddCategoryMinSize = const Size(150, 40);
-
-  final List<int> _lenghtCategorylistUpdate = [];
-  final String _labelMainCategory1 = "Kategori-1 Ekle";
-  final String _labelSubCategory2 = "Alt Kategori-2 Ekle";
-  final String _labelSubCategory3 = "Alt Kategori-3 Ekle";
-  final String _labelSubCategory4 = "Alt Kategori-4 Ekle";
-  final String _labelSubCategory5 = "Alt Kategori-5 Ekle";
 
   @override
   void initState() {
@@ -99,7 +88,7 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               ]),
           Divider(
               height: 50, color: context.extensionDefaultColor, thickness: 3),
-          widgetCategoryAdd(),
+          widgetCategoryUpdate(),
         ],
       ),
     ));
@@ -195,37 +184,6 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
             ),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              widget.blocCategory.category.category1 = null;
-              widget.blocCategory.category.category2 = null;
-              widget.blocCategory.category.category3 = null;
-              widget.blocCategory.category.category4 = null;
-              widget.blocCategory.listSelectIndex[1] = null;
-              widget.blocCategory.listSelectIndex[2] = null;
-              widget.blocCategory.listSelectIndex[3] = null;
-              widget.blocCategory.listSelectIndex[4] = null;
-            });
-            _categoryAddIndex.value = 1;
-
-            for (var i = 0; i < _lengthCategory; i++) {
-              if (_controllerCategories[i].text.isNotEmpty) {
-                _controllerCategories[i].text = "";
-              }
-            }
-          },
-          style:
-              ElevatedButton.styleFrom(minimumSize: _buttonAddCategoryMinSize),
-          child: Text(
-            textAlign: TextAlign.center,
-            _labelMainCategory1,
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge
-                ?.copyWith(color: Colors.white),
-          ),
-        )
       ],
     );
   }
@@ -323,37 +281,6 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                widget.blocCategory.category.category2 = null;
-                widget.blocCategory.category.category3 = null;
-                widget.blocCategory.category.category4 = null;
-                widget.blocCategory.listSelectIndex[2] = null;
-                widget.blocCategory.listSelectIndex[3] = null;
-                widget.blocCategory.listSelectIndex[4] = null;
-
-                _categoryAddIndex.value = 2;
-                _controllerCategories[0].text =
-                    widget.blocCategory.category.category1!.values.first;
-                if (_controllerCategories[1].text.isNotEmpty) {
-                  _controllerCategories[1].text = "";
-                  _controllerCategories[2].text = "";
-                  _controllerCategories[3].text = "";
-                }
-              });
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: _buttonAddCategoryMinSize),
-            child: Text(
-              textAlign: TextAlign.center,
-              _labelSubCategory2,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: Colors.white),
-            ),
-          )
         ],
       );
     }
@@ -452,37 +379,6 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                widget.blocCategory.category.category3 = null;
-                widget.blocCategory.category.category4 = null;
-                widget.blocCategory.listSelectIndex[3] = null;
-                widget.blocCategory.listSelectIndex[4] = null;
-              });
-
-              _categoryAddIndex.value = 3;
-              _controllerCategories[0].text =
-                  widget.blocCategory.category.category1!.values.first;
-              _controllerCategories[1].text =
-                  widget.blocCategory.category.category2!.values.first;
-
-              if (_controllerCategories[2].text.isNotEmpty) {
-                _controllerCategories[2].text = "";
-                _controllerCategories[3].text = "";
-              }
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: _buttonAddCategoryMinSize),
-            child: Text(
-              textAlign: TextAlign.center,
-              _labelSubCategory3,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: Colors.white),
-            ),
-          )
         ],
       );
     }
@@ -583,36 +479,6 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                widget.blocCategory.category.category4 = null;
-                widget.blocCategory.listSelectIndex[4] = null;
-              });
-
-              _categoryAddIndex.value = 4;
-              _controllerCategories[0].text =
-                  widget.blocCategory.category.category1!.values.first;
-              _controllerCategories[1].text =
-                  widget.blocCategory.category.category2!.values.first;
-              _controllerCategories[2].text =
-                  widget.blocCategory.category.category3!.values.first;
-
-              if (_controllerCategories[3].text.isNotEmpty) {
-                _controllerCategories[3].text = "";
-              }
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: _buttonAddCategoryMinSize),
-            child: Text(
-              textAlign: TextAlign.center,
-              _labelSubCategory4,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: Colors.white),
-            ),
-          )
         ],
       );
     }
@@ -712,29 +578,6 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              _categoryAddIndex.value = 5;
-              _controllerCategories[0].text =
-                  widget.blocCategory.category.category1!.values.first;
-              _controllerCategories[1].text =
-                  widget.blocCategory.category.category2!.values.first;
-              _controllerCategories[2].text =
-                  widget.blocCategory.category.category3!.values.first;
-              _controllerCategories[3].text =
-                  widget.blocCategory.category.category4!.values.first;
-            },
-            style: ElevatedButton.styleFrom(
-                minimumSize: _buttonAddCategoryMinSize),
-            child: Text(
-              textAlign: TextAlign.center,
-              _labelSubCategory5,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: Colors.white),
-            ),
-          )
         ],
       );
     }
@@ -743,288 +586,77 @@ class _WidgetCategoryAddState extends State<WidgetCategoryAdd> with Validation {
   //  #region Kategori girişi için TextFormField ayarları.
 
   ///Kategorileri girmek için TextFieldInput wrap içine dolduruluyor.
-  widgetCategoryAdd() {
-    return Form(
-      key: _globalFormKey,
-      child: ValueListenableBuilder<int>(
-          valueListenable: _categoryAddIndex,
-          builder: (context, value, child) {
-            //kayıt Buttonunu enable yapıyo
-            if (value != 0) {
-              _disableButtonValue = false;
-            }
-            if (value == 1) {
-              _disableButtonValue = false; //Buttonu enable yapıyor
-              listFuncCategoryCreate(enableValueStart: value);
+  widgetCategoryUpdate() {
+    return ValueListenableBuilder<int>(
+        valueListenable: _categoryAddIndex,
+        builder: (context, value, child) {
+          //kayıt Buttonunu enable yapıyo
+          if (value != 0) {
+            _disableButtonValue = false;
+          }
 
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            } else if (value == 2) {
-              listFuncCategoryCreate(enableValueStart: value);
-
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            } else if (value == 3) {
-              listFuncCategoryCreate(enableValueStart: value);
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            } else if (value == 4) {
-              listFuncCategoryCreate(enableValueStart: value);
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            } else if (value == 5) {
-              listFuncCategoryCreate(enableValueStart: value);
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            } else {
-              listFuncCategoryCreate(enableValueStart: 0);
-              return Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      for (var textFieldItem in _listCategoryCreate)
-                        textFieldItem,
-                    ],
-                  ));
-            }
-          }),
-    );
+          return SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                direction: Axis.horizontal,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  widgetTextFieldNewCategoryValue(),
+                  widgetUpdateOnButtonByCategory(),
+                ],
+              ));
+        });
   }
 
   ///Kategori inputlarını liste olarak oluşturuyor.
-  listFuncCategoryCreate({required int enableValueStart}) {
-    _enableCategoryTextFormField = List<bool>.filled(5, false);
-    if (enableValueStart != 0) {
-      for (var i = enableValueStart - 1; i < 5; i++) {
-        _enableCategoryTextFormField[i] = true;
-      }
-    }
-
-    ///Kategori ekleme bölümünü seçer iken liste tekrarlanmamsı için sıfırlama
-    ///gerekiyor.
-    _listCategoryCreate.clear();
-    int categoryNo = 1;
-    for (var i = 0; i < 5; i++) {
-      _controllerCategories.add(TextEditingController());
-      _listCategoryCreate.add(SizedBox(
-          width: 200,
-          child: widgetTextFieldByCategory(
-              controller: _controllerCategories[i],
-              etiket: "Kategori-$categoryNo Elemanını Giriniz",
-              inputFormat: [FormatterUpperCaseCapitalEachWordTextFormatter()],
-              //validationFunc: validateNotEmpty,
-              enable: _enableCategoryTextFormField[i])));
-
-      if (i != 4) {
-        _listCategoryCreate.add(Icon(
-          Icons.arrow_forward_sharp,
-          color: Colors.blueGrey.shade900,
-          size: 40,
+  widgetTextFieldNewCategoryValue() {
+    return SizedBox(
+        width: 200,
+        height: 40,
+        child: TextFormField(
+          controller: _newValueCategoryController,
+          decoration: const InputDecoration(
+              labelStyle: TextStyle(
+                fontSize: 14,
+              ),
+              labelText: "Kategori ismi",
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.amber))),
+          inputFormatters: [FormatterUpperCaseCapitalEachWordTextFormatter()],
+          //validationFunc: validateNotEmpty,
+          enabled: widget.blocCategory.enableCategoryTextFormField,
         ));
-      }
-
-      ///ok işareti olmadığı simetrik olsun diye yapıldı.
-      if (i == 4) {
-        _listCategoryCreate.add(const SizedBox(
-          width: 40,
-        ));
-      }
-      categoryNo++;
-    }
-    _listCategoryCreate.add(const Divider());
-    _listCategoryCreate.add(widgetSaveOnButtonByCategory());
   }
 
-  ///kategori input  TextField özellikleri burada.
-  widgetTextFieldByCategory({
-    TextEditingController? controller,
-    String? Function(String?)? validationFunc,
-    String? etiket,
-    List<TextInputFormatter>? inputFormat,
-    required bool enable,
-  }) {
-    return TextFormField(
-      enabled: enable,
-      controller: controller,
-      validator: validationFunc,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-          labelStyle: const TextStyle(
-            fontSize: 14,
-          ),
-          labelText: etiket,
-          border: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.amber))),
-      inputFormatters: inputFormat,
+  widgetUpdateOnButtonByCategory() {
+    return SizedBox(
+      width: 200,
+      height: 40,
+      child: ElevatedButton(
+          onPressed: widget.blocCategory.enableCategoryTextFormField
+              ? () async {
+                  if (_newValueCategoryController.text.isNotEmpty) {
+                    String res = await widget.blocCategory
+                        .updateNewCategoryValue(
+                            _newValueCategoryController.text);
+                    if (res.isEmpty) {
+                      // ignore: use_build_context_synchronously
+                      context.noticeBarTrue("İşlem başarılı.", 2);
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      context.noticeBarError(res, 3);
+                    }
+                  } else {
+                    context.noticeBarError("Yeni kategori ismi girmediniz", 3);
+                  }
+                }
+              : null,
+          child: Text(
+            _labelUpdateButton,
+            style: context.theme.titleMedium!.copyWith(color: Colors.white),
+          )),
     );
-  }
-
-// #endregion
-  ElevatedButton widgetSaveOnButtonByCategory() {
-    return ElevatedButton(
-        onPressed: _disableButtonValue
-            ? null
-            : () {
-                if (_categoryAddIndex.value != 0) {
-                  //  _globalFormKey.currentState!.validate();
-                }
-
-                ///textfiled girilen kategori adlarını burada Oluşturlan
-                ///CategoryString nesnesinin içine atılıyor.Bunuda database gönderiliyor.
-                _newCategoryAdd.category1 = _controllerCategories[0].text;
-                _newCategoryAdd.category2 = _controllerCategories[1].text;
-                _newCategoryAdd.category3 = _controllerCategories[2].text;
-                _newCategoryAdd.category4 = _controllerCategories[3].text;
-                _newCategoryAdd.category5 = _controllerCategories[4].text;
-
-                if (_categoryAddIndex.value == 1) {
-                  dbCategory
-                      .saveNewCategory(
-                    context,
-                    _globalFormKey,
-                    _newCategoryAdd,
-                  )
-                      .then((value) {
-                    if (value) {
-                      ///Kayıt Başarı olduktan sonra input girişleri sıfırlıyor. Kullanıcı
-                      /// peş peşe daha rahat girsin diye tüm inputları sıfırlanmıyor.
-                      /// son input boşaltılması aynı veri kaydedilmemesi için.
-                      for (var i = 0; i < _lengthCategory; i++) {
-                        _controllerCategories[i].text = "";
-                      }
-                    }
-                    setState(() {
-                      _lenghtCategorylistUpdate;
-                    });
-                  });
-                } else if (_categoryAddIndex.value == 2) {
-                  dbCategory
-                      .saveOnSubCategory2(
-                          context: context,
-                          categoryMap: widget.blocCategory.category,
-                          categoryString: _newCategoryAdd,
-                          categoryIndex: _categoryAddIndex)
-                      .then((value) {
-                    if (value) {
-                      setState(() {
-                        _lenghtCategorylistUpdate;
-                      });
-                      _controllerCategories[1].text = "";
-                      _controllerCategories[2].text = "";
-                      _controllerCategories[3].text = "";
-                      _controllerCategories[4].text = "";
-                    }
-                  });
-                } else if (_categoryAddIndex.value == 3) {
-                  dbCategory
-                      .saveOnSubCategory3(
-                          context: context,
-                          categoryMap: widget.blocCategory.category,
-                          categoryString: _newCategoryAdd,
-                          categoryIndex: _categoryAddIndex)
-                      .then((value) {
-                    if (value) {
-                      setState(() {
-                        _lenghtCategorylistUpdate;
-                      });
-                      _controllerCategories[2].text = "";
-                      _controllerCategories[3].text = "";
-                      _controllerCategories[4].text = "";
-                    }
-                  });
-                } else if (_categoryAddIndex.value == 4) {
-                  dbCategory
-                      .saveOnSubCategory4(
-                          context: context,
-                          categoryMap: widget.blocCategory.category,
-                          categoryString: _newCategoryAdd,
-                          categoryIndex: _categoryAddIndex)
-                      .then((value) {
-                    if (value) {
-                      setState(() {
-                        _lenghtCategorylistUpdate;
-                      });
-                      _controllerCategories[3].text = "";
-                      _controllerCategories[4].text = "";
-                    }
-                  });
-                } else if (_categoryAddIndex.value == 5) {
-                  dbCategory
-                      .saveOnSubCategory5(
-                          context: context,
-                          categoryMap: widget.blocCategory.category,
-                          categoryString: _newCategoryAdd,
-                          categoryIndex: _categoryAddIndex)
-                      .then((value) {
-                    if (value) {
-                      _controllerCategories[4].text = "";
-                      setState(() {
-                        _lenghtCategorylistUpdate;
-                      });
-                    }
-                  });
-                }
-              },
-        child: const Text("Kategoriyi Kaydet"));
   }
 }
