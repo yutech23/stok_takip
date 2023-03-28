@@ -3,8 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_expense.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_limit.dart';
+import 'package:stok_takip/validations/validation.dart';
+
+import '../../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 
 // ignore: must_be_immutable
 class ExpensesTableRow extends StatefulWidget {
@@ -20,7 +24,7 @@ class ExpensesTableRow extends StatefulWidget {
   State<ExpensesTableRow> createState() => _ExpensesTableRowState();
 }
 
-class _ExpensesTableRowState extends State<ExpensesTableRow> {
+class _ExpensesTableRowState extends State<ExpensesTableRow> with Validation {
   final TextEditingController _controllerAmount = TextEditingController();
   final TextEditingController _controllerPrice = TextEditingController();
 
@@ -63,8 +67,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> {
           Expanded(
               flex: 2,
               child: Container(
-                  alignment: Alignment.center,
-                  child: Text(widget.addExpense.service))),
+                  alignment: Alignment.center, child: widgetDropdownService())),
           Expanded(
               flex: 2,
               child: Container(
@@ -84,7 +87,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> {
             child: Container(
                 alignment: Alignment.center,
                 child: Text(
-                    FormatterConvert().currencyShow(widget.addExpense.total!))),
+                    FormatterConvert().currencyShow(widget.addExpense.total))),
           ),
           Expanded(
               flex: 1,
@@ -96,7 +99,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> {
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     widget.blocExpense
-                        .removeFromListProduct(widget.addExpense.productCode);
+                        .removeFromListProduct(widget.addExpense.id);
                   },
                 ),
               )),
@@ -124,6 +127,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> {
         FormatterDecimalLimit(decimalRange: 2)
       ],
       onChanged: (value) {
+        /* 
         ///Maliyet altında fiyat girildiğinde bildirim veriyor.
         if (FormatterConvert().commaToPointDouble(value) <=
             widget.addExpense.currentBuyingPriceWithoutTax!) {
@@ -148,8 +152,48 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> {
           setState(() {
             widget.addExpense.total = 0;
           });
-        }
+        } */
       },
     );
+  }
+
+  final String _labelService = "Hizmet";
+  final List<String> _listService = [
+    'Bürüt Ücretler',
+    'Demirbaş ve Bakım Onarım Giderleri',
+    'Elektrik Giderleri',
+    'Isınma Giderleri',
+    'Su Giderleri',
+    'Doğalgaz Giderleri',
+    'Haberleşme Giderleri',
+    'Kira Giderleri',
+    'Temizlik Giderleri',
+    'Yemek Giderleri',
+    'Yol, OGS, HGS, Ulaşım Giderleri',
+    'Nakliye Giderleri',
+    'Diğer Giderler'
+  ];
+
+  bool _selectedService = false;
+
+  void _getExprense(String value) {
+    setState(() {
+      print(value);
+    });
+    _selectedService = true;
+  }
+
+  widgetDropdownService() {
+    return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        width: 120,
+        height: 80,
+        child: ShareDropdown(
+          validator: validateNotEmpty,
+          hint: _labelService,
+          itemList: _listService,
+          getShareDropdownCallbackFunc: _getExprense,
+        ));
   }
 }

@@ -11,7 +11,7 @@ class BlocExpense {
       _streamControllerListExpense.stream;
 
   //Listeden ürün siliyor
-  void removeFromListProduct(String getId) {
+  void removeFromListProduct(int getId) {
     listExpense.removeWhere((element) => element.id == getId);
     _streamControllerListExpense.add(listExpense);
   }

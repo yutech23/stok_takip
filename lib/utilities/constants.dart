@@ -5,6 +5,22 @@ class Sabitler {
   static String countryCode = "90";
   static int deger = 0;
   static String dbHiveBoxName = 'necessaryData';
+
+  final List<String> listDropdownService = [
+    'Bürüt Ücretler',
+    'Demirbaş ve Bakım Onarım Giderleri',
+    'Elektrik Giderleri',
+    'Isınma Giderleri',
+    'Su Giderleri',
+    'Doğalgaz Giderleri',
+    'Haberleşme Giderleri',
+    'Kira Giderleri',
+    'Temizlik Giderleri',
+    'Yemek Giderleri',
+    'Yol, OGS, HGS, Ulaşım Giderleri',
+    'Nakliye Giderleri',
+    'Diğer Giderler'
+  ];
 }
 
 class ConstRoute {
