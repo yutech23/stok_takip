@@ -20,7 +20,7 @@ import '../../screen/cari_supplier.dart' as _i11;
 import '../../screen/case_snapshot.dart' as _i12;
 import '../../screen/category.dart' as _i5;
 import '../../screen/customer_register.dart' as _i6;
-import '../../screen/expenses.dart' as _i14;
+import '../../screen/expense.dart' as _i14;
 import '../../screen/login.dart' as _i1;
 import '../../screen/product_add.dart' as _i3;
 import '../../screen/sale.dart' as _i9;

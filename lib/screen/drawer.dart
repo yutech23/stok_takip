@@ -149,6 +149,40 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 
+  //Menu Widgetların yapısı. Icon image koymak için
+  InkWell widgetMenuItemWithIconImage(BuildContext context,
+      PageRouteInfo<dynamic> route, String iconPath, String listItemName) {
+    Color backGround = Colors.transparent;
+    return InkWell(
+      onTap: () {
+        /*   if (listItemName == _labelCaseSnapshot) {
+          blocCaseSnapshot.start();
+        } */
+        context.router.push(route);
+      },
+      onHover: (value) {
+        backGround = Colors.grey.shade200;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: backGround,
+            border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+        padding: context.extensionPadding10(),
+        child: Wrap(spacing: context.extensionWrapSpacing20(), children: [
+          ImageIcon(
+            AssetImage(iconPath),
+            size: 30,
+          ),
+          Text(
+            listItemName,
+            style: context.theme.titleMedium!
+                .copyWith(fontWeight: FontWeight.bold),
+          )
+        ]),
+      ),
+    );
+  }
+
   //Bağımlı menüler için widget
   widgetMenuItemSubcategory(
       BuildContext context,
@@ -280,8 +314,8 @@ class _MyDrawerState extends State<MyDrawer> {
                   context, const RouteCapital(), Icons.money, _labelCapital));
               break;
             case "RouteExpenses":
-              listWidgetMenuByRole.add(widgetMenuItem(
-                  context, const RouteExpenses(), Icons.money, _labelCapital));
+              listWidgetMenuByRole.add(widgetMenuItemWithIconImage(context,
+                  const RouteExpenses(), 'assets/gider.png', _labelExpenses));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(context, const Test(),

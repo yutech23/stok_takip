@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:stok_takip/bloc/bloc_expense.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/widget_share/expense_table/expense_table.dart';
 
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
@@ -16,6 +18,14 @@ class _ScreenExpensesState extends State<ScreenExpenses> {
   final String _labelHeading = "Gider Ekranı";
   final double _firstContainerMaxWidth = 1000;
   final double _firstContainerMinWidth = 340;
+
+  late BlocExpense _blocExpense;
+
+  @override
+  void initState() {
+    _blocExpense = BlocExpense();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +64,10 @@ class _ScreenExpensesState extends State<ScreenExpenses> {
                 spacing: context.extensionWrapSpacing20(),
                 runSpacing: context.extensionWrapSpacing10(),
                 children: [
-                  Container(),
+                  WidgetExpansesTable(
+                      blocExprenses: _blocExpense,
+                      listProduct: [],
+                      selectUnitOfCurrencySymbol: "₺"),
                 ]),
           )),
         ));
