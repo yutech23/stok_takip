@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:group_radio_button/group_radio_button.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_expense.dart';
+import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/custom_dropdown/basic_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/share_widgets.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/validations/validation.dart';
 import 'package:stok_takip/widget_share/expense_table/expense_table.dart';
-
+import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
 
@@ -22,8 +22,9 @@ class ScreenExpenses extends StatefulWidget {
 }
 
 class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
-  final GlobalKey<FormState> _formKeySale = GlobalKey();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyService = GlobalKey();
+
+  late Expense _service;
   final String _labelHeading = "Gider Ekranı";
   final double _firstContainerMaxWidth = 1000;
   final double _firstContainerMinWidth = 340;
@@ -32,7 +33,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   final double _shareServiceWidth = 300;
-  String selectedDateTime =
+  String _selectedDateTime =
       DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
 
   /*----------------------------------------------------------------------- */
@@ -49,19 +50,19 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*----------------------------------------------------------------------- */
 
   /*---------------------------Dropdown Menü ------------------------------- */
-  bool _selectedService = false;
+  String? _selectedServiceName;
 
   void _getExprense(String value) {
     setState(() {
-      print(value);
+      _selectedServiceName = value;
     });
-    _selectedService = true;
   }
 /*------------------------------------------------------------------------ */
 
   @override
   void initState() {
     _blocExpense = BlocExpense();
+    _service = Expense();
     super.initState();
   }
 
@@ -84,7 +85,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   buildSale() {
     return Form(
-        key: _formKeySale,
+        key: _formKeyService,
         child: Container(
           width: MediaQuery.of(context).size.width,
           alignment: Alignment.center,
@@ -138,19 +139,14 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
 /*-----------------------Hizmet Ekleme Bölümü-------------------------------- */
-  ///Hizmet Ekleme Buttonu
-  widgetButtonAddService() {
-    return ElevatedButton.icon(
-        onPressed: () {}, icon: Icon(Icons.add), label: Text(_labelService));
-  }
 
   //Dropdown popup içinde
   widgetDropdownService() {
     return Container(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         padding: const EdgeInsets.symmetric(vertical: 2),
         width: _shareServiceWidth,
-        height: 40,
+        height: 70,
         child: BasicDropdown(
           validator: validateNotEmpty,
           hint: _labelService,
@@ -273,6 +269,32 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     );
   }
 
+  ///Hizmet Ekleme Buttonu
+  widgetButtonAddService() {
+    return ElevatedButton.icon(
+        onPressed: () {
+          if (_formKeyService.currentState!.validate()) {
+            _service.name = _selectedServiceName!;
+            _service.saveTime =
+                shareFunc.dateTimeStringConvertToDateTime(_selectedDateTime);
+            _service.description = _controllerDescription.text;
+            _service.paymentType = _selectedGroupPaymentTypeValue;
+            _service.total = FormatterConvert()
+                .commaToPointDouble(_controllerServiceTotal.text);
+
+            _blocExpense.serviceAdd(_service).then((value) {
+              if (value.isEmpty) {
+                context.noticeBarTrue("İşlem Başarılı", 2);
+              } else {
+                context.noticeBarError("Hata \n $value", 3);
+              }
+            });
+          }
+        },
+        icon: Icon(Icons.add),
+        label: Text(_labelService));
+  }
+
 /*------------------------------------------------------------------------- */
 /*-----------------------------TARİH BÖLÜMÜ-------------------------------- */
   ///Zaman Text
@@ -287,12 +309,16 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         child: TextButton.icon(
             onPressed: () async {
               DateTime? dateRes = await pickDate();
-              await showTimePicker(
-                  context: context, initialTime: TimeOfDay.now());
+              TimeOfDay? timeRes = await pickTime();
 
               setState(() {
                 if (dateRes != null) {
-                  selectedDateTime = dateTimeConvertFormatString(dateRes);
+                  if (timeRes != null) {
+                    dateRes = dateRes!.add(
+                        Duration(hours: timeRes.hour, minutes: timeRes.minute));
+                  }
+                  _selectedDateTime =
+                      shareFunc.dateTimeConvertFormatString(dateRes!);
                 }
               });
             },
@@ -301,7 +327,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
               color: context.extensionDefaultColor,
             ),
             label: Text(
-              selectedDateTime,
+              _selectedDateTime,
               style: context.theme.titleSmall,
             )));
   }
@@ -314,10 +340,11 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         lastDate: DateTime(2050),
       );
 
-  ///-----Textfield ekranına basmak için DateTime verisini String çeviriyor.
-  String dateTimeConvertFormatString(DateTime dateTime) {
-    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
-  }
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
 
   widgetTextHeaderService(String label, Color backgroundColor) {
     TextStyle styleHeader =

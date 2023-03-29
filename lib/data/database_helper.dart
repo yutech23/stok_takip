@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/models/cari_partner.dart';
 import 'package:stok_takip/models/customer.dart';
+import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/sale.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -1734,7 +1733,28 @@ class DbHelper {
       return e.message;
     }
   }
+
   /*-------------------------------------------------------------------- */
+  /*------------------------BAŞLANGIÇ HİZMET BÖLÜMÜ--------------------- */
+  Future<String> saveNewService(Expense newService) async {
+    try {
+      print(newService.saveTime);
+      await supabase.from('service').insert([
+        {
+          'save_time': newService.saveTime,
+          'name': newService.name,
+          'description': newService.description,
+          'payment_type': newService.paymentType,
+          'total': newService.total,
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      print("Hizmet Ekleme Hatası : ${e.message}");
+      return e.message;
+    }
+  }
+  /*--------------------------------------------------------------------- */
 
 }
 

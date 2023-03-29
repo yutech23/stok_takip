@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_mango.dart';
 
 class ShareFunc {
@@ -27,6 +28,19 @@ class ShareFunc {
       symbol = "€";
     }
     return symbol;
+  }
+
+  ///DateTime verisini String çeviriyor.
+  String dateTimeConvertFormatString(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+  }
+
+  ///Gelen String Tarihleri dateTime dönüştürüyor
+  DateTime dateTimeStringConvertToDateTime(String stringDateTime) {
+    return DateFormat('dd/MM/yyyy HH:mm')
+        .parse(stringDateTime)
+        .toLocal()
+        .microsecondsSinceEpoch;
   }
 }
 

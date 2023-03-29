@@ -63,7 +63,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> with Validation {
               flex: 2,
               child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(widget.addExpense.dateTime.toString()))),
+                  child: Text(widget.addExpense.saveTime.toString()))),
           Expanded(
               flex: 2,
               child: Container(

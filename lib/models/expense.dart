@@ -1,8 +1,8 @@
 class Expense {
   late int id;
-  late DateTime dateTime;
-  late String service;
-  late String explain;
+  late DateTime saveTime;
+  late String name;
+  late String description;
   late String paymentType;
   late double total;
 }

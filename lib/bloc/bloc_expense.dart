@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/expense.dart';
 
 class BlocExpense {
@@ -14,5 +15,9 @@ class BlocExpense {
   void removeFromListProduct(int getId) {
     listExpense.removeWhere((element) => element.id == getId);
     _streamControllerListExpense.add(listExpense);
+  }
+
+  Future<String> serviceAdd(Expense newService) async {
+    return await db.saveNewService(newService);
   }
 }
