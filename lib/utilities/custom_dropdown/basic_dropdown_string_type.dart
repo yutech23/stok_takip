@@ -26,6 +26,8 @@ class BasicDropdown extends StatelessWidget {
   final TextStyle _shareTextStyle = const TextStyle(
       fontSize: 12, overflow: TextOverflow.visible, color: Colors.black);
 
+  final double _shareHeight = 40;
+
   @override
   Widget build(BuildContext context) {
     ///Dropdown Listesini Dolduruyor.
@@ -36,11 +38,11 @@ class BasicDropdown extends StatelessWidget {
           child: Container(
             /*   decoration: BoxDecoration(
                 border: Border(right: BorderSide(color: Colors.grey))), */
-            height: 30,
+            height: _shareHeight,
             alignment: Alignment.centerLeft,
             child: Text(
               item,
-              style: _shareTextStyle,
+              style: context.theme.titleSmall,
             ),
           )));
     }
@@ -67,10 +69,10 @@ class BasicDropdown extends StatelessWidget {
       /*  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1), */
       hint: Container(
-        height: 30,
+        height: _shareHeight,
         //    color: Colors.blue,
         alignment: Alignment.center,
-        child: Text(hint, style: _shareTextStyle),
+        child: Text(hint, style: context.theme.titleSmall),
       ),
 
       icon: Icon(
