@@ -1,7 +1,6 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:group_radio_button/group_radio_button.dart';
-import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_expense.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/utilities/constants.dart';
@@ -10,8 +9,6 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/validations/validation.dart';
-import 'package:stok_takip/widget_share/expense_table/expense_table.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/share_func.dart';
@@ -67,6 +64,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 800;
   final double _dataTableHeight = 600;
+  final String _labelDecription = "Açıklama: ";
 /*------------------------------------------------------------------------- */
   @override
   void initState() {
@@ -251,7 +249,17 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                 dropContainer: (value) {
                   return Padding(
                       padding: const EdgeInsets.all(12),
-                      child: RichText(text: TextSpan()));
+                      child: RichText(
+                          text: TextSpan(
+                              text: _labelDecription,
+                              style: context.theme.titleSmall!.copyWith(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                              children: [
+                            TextSpan(
+                                text: value['description'],
+                                style: context.theme.titleSmall)
+                          ])));
                 },
                 sortAscending: true,
                 headerDecoration: BoxDecoration(

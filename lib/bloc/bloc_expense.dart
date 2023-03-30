@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/utilities/share_func.dart';
+import 'package:stok_takip/validations/format_convert_point_comma.dart';
 
 class BlocExpense {
   List<Expense> listExpense = <Expense>[];
@@ -46,7 +47,7 @@ class BlocExpense {
         'name': element['name'],
         'description': element['description'],
         'paymentType': element['payment_type'],
-        'total': element['total']
+        'total': FormatterConvert().currencyShow(element['total'])
       });
     }
     _expanded = List.generate(_listService.length, (index) => false);
