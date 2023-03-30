@@ -1,3 +1,4 @@
+import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:group_radio_button/group_radio_button.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +11,9 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/validations/validation.dart';
 import 'package:stok_takip/widget_share/expense_table/expense_table.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../modified_lib/datatable_header.dart';
+import '../modified_lib/responsive_datatable.dart';
 import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
@@ -33,8 +37,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   final double _shareServiceWidth = 300;
-  String _selectedDateTime =
-      DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
+  DateTime? _selectedDateTime = DateTime.now();
 
   /*----------------------------------------------------------------------- */
   /*-------------------------------Popup Bölümü -----------------------------*/
@@ -57,12 +60,95 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
       _selectedServiceName = value;
     });
   }
-/*------------------------------------------------------------------------ */
 
+/*------------------------------------------------------------------------ */
+  /*------------------DATATABLE ----------------------------------------*/
+  late final List<DatatableHeader> _headers;
+  List<Map<String, dynamic>> _selecteds = [];
+  final double _dataTableWidth = 800;
+  final double _dataTableHeight = 600;
+/*------------------------------------------------------------------------- */
   @override
   void initState() {
     _blocExpense = BlocExpense();
     _service = Expense();
+
+    _headers = [];
+
+    _headers.add(DatatableHeader(
+        text: "Tarih - Saat",
+        value: "saveTime",
+        show: true,
+        sortable: true,
+        flex: 3,
+        textAlign: TextAlign.start));
+    _headers.add(DatatableHeader(
+        text: "Hizmet",
+        value: "name",
+        show: true,
+        flex: 3,
+        sortable: true,
+        textAlign: TextAlign.start));
+    _headers.add(DatatableHeader(
+        text: "Açıklama",
+        value: "description",
+        show: true,
+        flex: 3,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Ödeme Türü",
+        value: "paymentType",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Tutar",
+        value: "total",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+
+    _headers.add(DatatableHeader(
+        text: "Sil ve Güncelle",
+        value: "detail",
+        show: true,
+        sortable: false,
+        flex: 2,
+        sourceBuilder: (value, row) {
+          return Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ///Silme Buttonu
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  ///Stok bitmeden silmeyi engelliyor.
+                },
+              ),
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  /*  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return PopupSaleDetail(_blocCari);
+                      }); */
+                },
+              )
+            ],
+          );
+        },
+        textAlign: TextAlign.center));
     super.initState();
   }
 
@@ -105,10 +191,12 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                     spacing: context.extensionWrapSpacing20(),
                     runSpacing: context.extensionWrapSpacing10(),
                     children: [
-                      WidgetExpansesTable(
-                          blocExprenses: _blocExpense,
-                          listProduct: [],
-                          selectUnitOfCurrencySymbol: "₺"),
+                      ElevatedButton(
+                          onPressed: () async {
+                            _blocExpense.getService();
+                          },
+                          child: Text("data")),
+                      widgetDateTable()
                     ]),
               ),
               Container(
@@ -136,6 +224,53 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             ],
           )),
         ));
+  }
+
+  /*----------------------------Hizmet Tablosu ------------------------------ */
+  widgetDateTable() {
+    return SizedBox(
+      width: _dataTableWidth,
+      height: _dataTableHeight,
+      child: Card(
+        margin: const EdgeInsets.only(top: 5),
+        elevation: 5,
+        shadowColor: Colors.black,
+        clipBehavior: Clip.none,
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _blocExpense.getStreamListService,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && !snapshot.hasError) {}
+
+              return ResponsiveDatatable(
+                reponseScreenSizes: const [ScreenSize.xs],
+                headers: _headers,
+                source: snapshot.data,
+                selecteds: _selecteds,
+                expanded: _blocExpense.getterListExpanded,
+                autoHeight: false,
+                dropContainer: (value) {
+                  return Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: RichText(text: TextSpan()));
+                },
+                sortAscending: true,
+                headerDecoration: BoxDecoration(
+                    color: Colors.blueGrey.shade900,
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.red, width: 1))),
+                selectedDecoration: const BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                  color: Colors.green,
+                ),
+                headerTextStyle:
+                    context.theme.titleMedium!.copyWith(color: Colors.white),
+                rowTextStyle: context.theme.titleSmall,
+                selectedTextStyle: const TextStyle(color: Colors.grey),
+              );
+            }),
+      ),
+    );
   }
 
 /*-----------------------Hizmet Ekleme Bölümü-------------------------------- */
@@ -275,8 +410,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         onPressed: () {
           if (_formKeyService.currentState!.validate()) {
             _service.name = _selectedServiceName!;
-            _service.saveTime =
-                shareFunc.dateTimeStringConvertToDateTime(_selectedDateTime);
+            _service.saveTime = _selectedDateTime!;
             _service.description = _controllerDescription.text;
             _service.paymentType = _selectedGroupPaymentTypeValue;
             _service.total = FormatterConvert()
@@ -284,14 +418,22 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
             _blocExpense.serviceAdd(_service).then((value) {
               if (value.isEmpty) {
+                _blocExpense.getService();
                 context.noticeBarTrue("İşlem Başarılı", 2);
+                setState(() {
+                  _selectedDateTime = DateTime.now();
+                  _selectedServiceName = 'Hizmet Ekle';
+                  _controllerDescription.clear();
+                  _selectedGroupPaymentTypeValue = 'Nakit';
+                  _controllerServiceTotal.clear();
+                });
               } else {
                 context.noticeBarError("Hata \n $value", 3);
               }
             });
           }
         },
-        icon: Icon(Icons.add),
+        icon: const Icon(Icons.add),
         label: Text(_labelService));
   }
 
@@ -308,17 +450,13 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             borderRadius: const BorderRadius.all(Radius.circular(5))),
         child: TextButton.icon(
             onPressed: () async {
-              DateTime? dateRes = await pickDate();
+              _selectedDateTime = await pickDate() ?? DateTime.now();
               TimeOfDay? timeRes = await pickTime();
 
               setState(() {
-                if (dateRes != null) {
-                  if (timeRes != null) {
-                    dateRes = dateRes!.add(
-                        Duration(hours: timeRes.hour, minutes: timeRes.minute));
-                  }
-                  _selectedDateTime =
-                      shareFunc.dateTimeConvertFormatString(dateRes!);
+                if (timeRes != null) {
+                  _selectedDateTime = _selectedDateTime!.add(
+                      Duration(hours: timeRes.hour, minutes: timeRes.minute));
                 }
               });
             },
@@ -327,7 +465,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
               color: context.extensionDefaultColor,
             ),
             label: Text(
-              _selectedDateTime,
+              shareFunc.dateTimeConvertFormatString(_selectedDateTime!),
               style: context.theme.titleSmall,
             )));
   }

@@ -98,8 +98,8 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> with Validation {
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    widget.blocExpense
-                        .removeFromListProduct(widget.addExpense.id);
+                    /*   widget.blocExpense
+                        .removeFromListProduct(widget.addExpense.id); */
                   },
                 ),
               )),

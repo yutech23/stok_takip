@@ -58,23 +58,22 @@ class _WidgetExpansesTableState extends State<WidgetExpansesTable> {
               "Tutar",
               "Güncelleme",
             ),
-            Expanded(
-                child: StreamBuilder<List<Expense>>(
-                    stream: widget.blocExprenses.getStreamListExpense,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && !snapshot.hasError) {
-                        return ListView.builder(
-                            itemBuilder: (context, index) {
-                              return ExpensesTableRow(
-                                addExpense: snapshot.data![index],
-                                blocExpense: widget.blocExprenses,
-                              );
-                            },
-                            itemCount: snapshot.data!.length);
-                      } else {
-                        return Container();
-                      }
-                    })),
+            Expanded(child: StreamBuilder<List<Expense>>(
+                /*  stream: widget.blocExprenses.getStreamListService, */
+                builder: (context, snapshot) {
+              if (snapshot.hasData && !snapshot.hasError) {
+                return ListView.builder(
+                    itemBuilder: (context, index) {
+                      return ExpensesTableRow(
+                        addExpense: snapshot.data![index],
+                        blocExpense: widget.blocExprenses,
+                      );
+                    },
+                    itemCount: snapshot.data!.length);
+              } else {
+                return Container();
+              }
+            })),
           ],
         ),
       ),

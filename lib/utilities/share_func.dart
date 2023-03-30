@@ -37,10 +37,13 @@ class ShareFunc {
 
   ///Gelen String Tarihleri dateTime dönüştürüyor
   DateTime dateTimeStringConvertToDateTime(String stringDateTime) {
+    return DateFormat('dd/MM/yyyy HH:mm').parse(stringDateTime).toLocal();
+  }
+
+  ///String gelen dateTime mı Tekrar Formatlamak için
+  String dateTimeStringToString(String stringDateTime) {
     return DateFormat('dd/MM/yyyy HH:mm')
-        .parse(stringDateTime)
-        .toLocal()
-        .microsecondsSinceEpoch;
+        .format(DateTime.parse(stringDateTime));
   }
 }
 

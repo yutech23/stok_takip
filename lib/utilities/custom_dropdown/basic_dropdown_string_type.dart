@@ -77,8 +77,8 @@ class BasicDropdown extends StatelessWidget {
 
       icon: Icon(
         Icons.arrow_drop_down_circle,
-        color: context.extensionDisableColor,
-        size: 20,
+        color: context.extensionDefaultColor,
+        size: 30,
       ),
       isExpanded: true,
       isDense: true,

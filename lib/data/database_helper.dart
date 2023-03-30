@@ -1736,12 +1736,24 @@ class DbHelper {
 
   /*-------------------------------------------------------------------- */
   /*------------------------BAŞLANGIÇ HİZMET BÖLÜMÜ--------------------- */
+
+  Future<List<Map<String, dynamic>>> fetchService() async {
+    List<Map<String, dynamic>> resService = [];
+    try {
+      resService = await db.supabase.from('service').select();
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
   Future<String> saveNewService(Expense newService) async {
     try {
-      print(newService.saveTime);
       await supabase.from('service').insert([
         {
-          'save_time': newService.saveTime,
+          'save_time': toTimestampString(newService.saveTime.toString()),
           'name': newService.name,
           'description': newService.description,
           'payment_type': newService.paymentType,
@@ -1750,10 +1762,12 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
+      // ignore: avoid_print
       print("Hizmet Ekleme Hatası : ${e.message}");
       return e.message;
     }
   }
+
   /*--------------------------------------------------------------------- */
 
 }
