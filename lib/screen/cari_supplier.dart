@@ -164,6 +164,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                     widgetDeleteSupplierPayment(row);
                   },
                 ),
+
+                ///Güncelleme Buttonu
                 row['totalPrice'] != "-"
                     ? IconButton(
                         iconSize: 20,
@@ -175,9 +177,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                               .fetchPaymentInfoByPaymentId(row['paymentId']);
                           Map<String, dynamic> supplierInfo =
                               await db.fetchSupplierInfo(row['supplierName']);
-
-                          paymentInfo['seller'] = await _blocCariSupplier
-                              .getSaleInfo(dbHive.getValues('uuid'));
 
                           showDialog(
                               context: context,

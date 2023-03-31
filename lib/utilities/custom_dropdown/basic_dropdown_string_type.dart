@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 
@@ -50,7 +48,7 @@ class BasicDropdown extends StatelessWidget {
       focusNode: FocusNode(skipTraversal: skipTravel),
       decoration: const InputDecoration(
         fillColor: Colors.white,
-        contentPadding: EdgeInsets.fromLTRB(4, 0, 4, 0),
+        contentPadding: EdgeInsets.fromLTRB(8, 0, 4, 0),
         disabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.grey),
         ),

@@ -1403,6 +1403,19 @@ class DbHelper {
           .select()
           .eq('payment_id', paymentId)
           .single();
+      print(res);
+      try {
+        final resSellerName = await db.supabase
+            .from('users')
+            .select('name,last_name')
+            .eq('user_uuid', res['seller'])
+            .single();
+
+        res['seller'] =
+            "${resSellerName['name']} ${resSellerName['last_name']}";
+      } on PostgrestException catch (e) {
+        print("Hata Seller Id: ${e.message}");
+      }
 
       return res;
     } on PostgrestException catch (e) {
@@ -1754,6 +1767,40 @@ lt('save_date', endTime)
     }
   }
 
+  Future<List<dynamic>> fetchServiceWithRangeDate(
+      DateTime startTime, DateTime endTime) async {
+    List<dynamic> resService = [];
+    try {
+      resService = await db.supabase
+          .from('service')
+          .select()
+          .lt('save_time', endTime)
+          .gt('save_time', startTime)
+          .order('save_time');
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
+  Future<List<dynamic>> fetchServiceByDropdown(String selectedService) async {
+    List<dynamic> resService = [];
+    try {
+      resService = await db.supabase
+          .from('service')
+          .select()
+          .eq('name', selectedService)
+          .order('save_time');
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
   Future<String> saveNewService(Expense newService) async {
     try {
       await supabase.from('service').insert([
@@ -1763,6 +1810,7 @@ lt('save_date', endTime)
           'description': newService.description,
           'payment_type': newService.paymentType,
           'total': newService.total,
+          'current_user': newService.currentUserId
         }
       ]);
       return "";
