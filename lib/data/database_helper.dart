@@ -1403,7 +1403,7 @@ class DbHelper {
           .select()
           .eq('payment_id', paymentId)
           .single();
-      print(res);
+
       try {
         final resSellerName = await db.supabase
             .from('users')

@@ -31,7 +31,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final double _firstContainerMaxWidth = 1000;
   final double _firstContainerMinWidth = 340;
   late BlocExpense _blocExpense;
-  final double _shareHeight = 50;
+  final double _shareHeight = 40;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   final double _shareServiceWidth = 300;
@@ -40,7 +40,6 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*----------------------------------------------------------------------- */
   /*-------------------------------Popup Bölümü -----------------------------*/
   final String _labelService = "Hizmet Ekle";
-  final String _labelHeaderService = "Hizmet Ekle";
   final String _labelServiceTotal = "Hizmet Tutarı";
   final String _labelServiceDescription = "Açıklama";
   final String _labelHeaderServiceSection = "Hizmet Ekleme Bölümü";
@@ -69,19 +68,20 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final String _labelDescription = "Açıklama: ";
 
   final String _labelServiceSelect = "Hizmet Seçiniz";
-  String? _selectedGetServiceDropdown;
+  /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
 
-  void _getServiceByDropdown(String value) {
-    _blocExpense.getServiceDropdown(value);
-    setState(() {
-      _selectedGetServiceDropdown = value;
-    });
-  }
-/*------------------------------------------------------------------------- */
-  /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
-
+  ///Tarih bölümü
   DateTimeRange? _selectDateTimeRange;
   String _labelSelectedDateTime = "Tarih seçiniz";
+
+  final String _labelGet = "Getir";
+
+  void _getServiceByDropdown(String value) {
+    _blocExpense.selectedServiceDropdown = true;
+    setState(() {
+      _blocExpense.selectedGetServiceDropdownValue = value;
+    });
+  }
 
   /*----------------------------------------------------------------------- */
   @override
@@ -186,6 +186,8 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
   buildSale() {
+    ///ekran büyüklüğü tesbiti
+    getResponseWidth();
     return Form(
         key: _formKeyService,
         child: Container(
@@ -207,8 +209,8 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                     spacing: context.extensionWrapSpacing20(),
                     runSpacing: context.extensionWrapSpacing10(),
                     children: [
-                      widgetRangeSelectDateTime(),
                       widgetDropdownGetService(),
+                      widgetRangeSelectDateTime(),
                       widgetButtonGetService(),
                       widgetDateTable()
                     ]),
@@ -240,11 +242,16 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         ));
   }
 
+  ///Verileri Getiren Button
   widgetButtonGetService() {
     return SizedBox(
-      width: 300,
+      width: getResponseWidth(),
+      height: _shareHeight,
       child: shareWidget.widgetElevatedButton(
-          onPressedDoSomething: () {}, label: "dene"),
+          onPressedDoSomething: () async {
+            await _blocExpense.getServiceButton();
+          },
+          label: _labelGet),
     );
   }
 
@@ -257,9 +264,10 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         height: _shareHeight,
         child: BasicDropdown(
           hint: _labelServiceSelect,
-          selectValue: _selectedGetServiceDropdown,
+          selectValue: _blocExpense.selectedGetServiceDropdownValue,
           itemList: sabitler.listDropdownService,
           getShareDropdownCallbackFunc: _getServiceByDropdown,
+          borderColor: context.extensionDefaultColor,
         ));
   }
 
@@ -333,6 +341,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           hint: _labelService,
           itemList: sabitler.listDropdownService,
           getShareDropdownCallbackFunc: _getExprense,
+          borderColor: context.extensionDisableColor,
         ));
   }
 
@@ -558,12 +567,11 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         height: _shareHeight,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
+            border: Border.all(color: context.extensionDefaultColor),
             borderRadius: const BorderRadius.all(Radius.circular(5))),
         child: TextButton.icon(
             onPressed: () async {
               await pickDateRange();
-              await _blocExpense.getServiceWithRangeDate();
             },
             icon: Icon(
               Icons.date_range,
@@ -613,7 +621,9 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
   /*----------------------------------------------------------------------- */
-  getResponseWidth() {
+  ///Ekran büyüklüğüne göre ayarlama
+  double getResponseWidth() {
     double resWidth = MediaQuery.of(context).size.width >= 500 ? 160 : 300;
+    return resWidth;
   }
 }

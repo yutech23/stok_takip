@@ -11,6 +11,7 @@ class BlocExpense {
   }
 
   start() async {
+    ///açıldığında o günkü yapılan işlemleri getiriyor.
     await getServiceWithRangeDate();
   }
 
@@ -26,6 +27,12 @@ class BlocExpense {
     }
   ];
   List<bool> _expanded = [false];
+
+  ///Arama için Dropdown seçilen hizmet atanıyor.
+  String? selectedGetServiceDropdownValue;
+  bool selectedServiceDropdown = false;
+  bool selectedDateTime = false;
+
 /*-------------------------------TARİH BÖLÜMÜ----------------------------- */
   DateTime _startTime =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -73,7 +80,7 @@ class BlocExpense {
     _streamControllerListService.sink.add(_listService);
   }
 
-  ///Müşterileri arama için getirilen veriler(tip,isim,numara)
+  ///Tarihe göre verileri getiriyor. Başlangıç olarak o gün gönderiliyor.
   Future getServiceWithRangeDate() async {
     _listService.clear();
     final resService = await db.fetchServiceWithRangeDate(_startTime, _endTime);
@@ -97,6 +104,7 @@ class BlocExpense {
     _streamControllerListService.add(listExpense);
   } */
 
+  ///Hizmet ekleniyor.
   Future<String> serviceAdd(Expense newService) async {
     return await db.saveNewService(newService);
   }
@@ -117,5 +125,15 @@ class BlocExpense {
     }
     _expanded = List.generate(_listService.length, (index) => false);
     _streamControllerListService.sink.add(_listService);
+  }
+
+  getServiceButton() async {
+    ///sadece hizmet dropdown seçildiğinde.
+    if (selectedServiceDropdown && selectedDateTime == false) {
+      await getServiceDropdown(selectedGetServiceDropdownValue!);
+    } else if (selectedDateTime) {
+      print("şimdi");
+      await getServiceWithRangeDate();
+    } else if (selectedServiceDropdown && selectedDateTime) {}
   }
 }

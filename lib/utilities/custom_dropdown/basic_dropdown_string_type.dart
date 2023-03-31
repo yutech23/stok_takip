@@ -11,6 +11,7 @@ class BasicDropdown extends StatelessWidget {
   String? Function(String?)? validator;
   String? selectValue;
   bool skipTravel = false;
+  Color borderColor;
 
   BasicDropdown(
       {super.key,
@@ -19,6 +20,7 @@ class BasicDropdown extends StatelessWidget {
       this.validator,
       this.selectValue,
       this.getShareDropdownCallbackFunc,
+      required this.borderColor,
       skipTravel});
 
   final TextStyle _shareTextStyle = const TextStyle(
@@ -46,20 +48,20 @@ class BasicDropdown extends StatelessWidget {
     }
     return DropdownButtonFormField<String>(
       focusNode: FocusNode(skipTraversal: skipTravel),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         fillColor: Colors.white,
-        contentPadding: EdgeInsets.fromLTRB(8, 0, 4, 0),
+        contentPadding: const EdgeInsets.fromLTRB(8, 0, 4, 0),
         disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: BorderSide(color: borderColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: BorderSide(color: borderColor),
         ),
         border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: BorderSide(color: borderColor),
         ),
         filled: true,
       ),
@@ -76,7 +78,7 @@ class BasicDropdown extends StatelessWidget {
       icon: Icon(
         Icons.arrow_drop_down_circle,
         color: context.extensionDefaultColor,
-        size: 30,
+        size: 20,
       ),
       isExpanded: true,
       isDense: true,
