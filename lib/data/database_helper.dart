@@ -1403,6 +1403,19 @@ class DbHelper {
           .select()
           .eq('payment_id', paymentId)
           .single();
+      print(res);
+      try {
+        final resSellerName = await db.supabase
+            .from('users')
+            .select('name,last_name')
+            .eq('user_uuid', res['seller'])
+            .single();
+
+        res['seller'] =
+            "${resSellerName['name']} ${resSellerName['last_name']}";
+      } on PostgrestException catch (e) {
+        print("Hata Seller Id: ${e.message}");
+      }
 
       return res;
     } on PostgrestException catch (e) {

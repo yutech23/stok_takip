@@ -1,17 +1,15 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:group_radio_button/group_radio_button.dart';
-import 'package:intl/intl.dart';
 import 'package:stok_takip/bloc/bloc_expense.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/custom_dropdown/basic_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
+import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/validations/validation.dart';
-import 'package:stok_takip/widget_share/expense_table/expense_table.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/share_func.dart';
@@ -62,6 +60,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
 /*------------------------------------------------------------------------ */
+
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
@@ -69,6 +68,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final double _dataTableHeight = 600;
   final String _labelDescription = "Açıklama: ";
 
+  final String _labelServiceSelect = "Hizmet Seçiniz";
   String? _selectedGetServiceDropdown;
 
   void _getServiceByDropdown(String value) {
@@ -209,6 +209,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                     children: [
                       widgetRangeSelectDateTime(),
                       widgetDropdownGetService(),
+                      widgetButtonGetService(),
                       widgetDateTable()
                     ]),
               ),
@@ -239,6 +240,14 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         ));
   }
 
+  widgetButtonGetService() {
+    return SizedBox(
+      width: 300,
+      child: shareWidget.widgetElevatedButton(
+          onPressedDoSomething: () {}, label: "dene"),
+    );
+  }
+
   /*----------------------------Hizmet Tablosu ------------------------------ */
   widgetDropdownGetService() {
     return Container(
@@ -247,7 +256,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         width: _shareServiceWidth,
         height: _shareHeight,
         child: BasicDropdown(
-          hint: "deneme",
+          hint: _labelServiceSelect,
           selectValue: _selectedGetServiceDropdown,
           itemList: sabitler.listDropdownService,
           getShareDropdownCallbackFunc: _getServiceByDropdown,
@@ -604,5 +613,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
   /*----------------------------------------------------------------------- */
-
+  getResponseWidth() {
+    double resWidth = MediaQuery.of(context).size.width >= 500 ? 160 : 300;
+  }
 }
