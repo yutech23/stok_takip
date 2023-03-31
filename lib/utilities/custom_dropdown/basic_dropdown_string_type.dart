@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 

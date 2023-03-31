@@ -5,4 +5,5 @@ class Expense {
   late String description;
   late String paymentType;
   late double total;
+  late String currentUserId;
 }

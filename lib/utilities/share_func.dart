@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_mango.dart';
 
@@ -44,6 +45,11 @@ class ShareFunc {
   String dateTimeStringToString(String stringDateTime) {
     return DateFormat('dd/MM/yyyy HH:mm')
         .format(DateTime.parse(stringDateTime));
+  }
+
+  ///DateTime zaman hariç verisini String çeviriyor.
+  String dateTimeConvertFormatStringWithoutTime(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy').format(dateTime);
   }
 }
 

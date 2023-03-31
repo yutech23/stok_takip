@@ -33,7 +33,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final double _firstContainerMaxWidth = 1000;
   final double _firstContainerMinWidth = 340;
   late BlocExpense _blocExpense;
-  final double _shareHeight = 40;
+  final double _shareHeight = 50;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   final double _shareServiceWidth = 300;
@@ -67,7 +67,23 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 800;
   final double _dataTableHeight = 600;
+  final String _labelDescription = "Açıklama: ";
+
+  String? _selectedGetServiceDropdown;
+
+  void _getServiceByDropdown(String value) {
+    _blocExpense.getServiceDropdown(value);
+    setState(() {
+      _selectedGetServiceDropdown = value;
+    });
+  }
 /*------------------------------------------------------------------------- */
+  /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
+
+  DateTimeRange? _selectDateTimeRange;
+  String _labelSelectedDateTime = "Tarih seçiniz";
+
+  /*----------------------------------------------------------------------- */
   @override
   void initState() {
     _blocExpense = BlocExpense();
@@ -110,7 +126,6 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
-
     _headers.add(DatatableHeader(
         text: "Sil ve Güncelle",
         value: "detail",
@@ -149,6 +164,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           );
         },
         textAlign: TextAlign.center));
+
     super.initState();
   }
 
@@ -191,11 +207,8 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                     spacing: context.extensionWrapSpacing20(),
                     runSpacing: context.extensionWrapSpacing10(),
                     children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            _blocExpense.getService();
-                          },
-                          child: Text("data")),
+                      widgetRangeSelectDateTime(),
+                      widgetDropdownGetService(),
                       widgetDateTable()
                     ]),
               ),
@@ -227,6 +240,20 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
   /*----------------------------Hizmet Tablosu ------------------------------ */
+  widgetDropdownGetService() {
+    return Container(
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        width: _shareServiceWidth,
+        height: _shareHeight,
+        child: BasicDropdown(
+          hint: "deneme",
+          selectValue: _selectedGetServiceDropdown,
+          itemList: sabitler.listDropdownService,
+          getShareDropdownCallbackFunc: _getServiceByDropdown,
+        ));
+  }
+
   widgetDateTable() {
     return SizedBox(
       width: _dataTableWidth,
@@ -251,7 +278,17 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                 dropContainer: (value) {
                   return Padding(
                       padding: const EdgeInsets.all(12),
-                      child: RichText(text: TextSpan()));
+                      child: RichText(
+                          text: TextSpan(
+                              text: _labelDescription,
+                              style: context.theme.titleSmall!.copyWith(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                              children: [
+                            TextSpan(
+                                style: context.theme.titleSmall,
+                                text: value['description'])
+                          ])));
                 },
                 sortAscending: true,
                 headerDecoration: BoxDecoration(
@@ -415,7 +452,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             _service.paymentType = _selectedGroupPaymentTypeValue;
             _service.total = FormatterConvert()
                 .commaToPointDouble(_controllerServiceTotal.text);
-
+            _service.currentUserId = shareFunc.getCurrentUserId();
             _blocExpense.serviceAdd(_service).then((value) {
               if (value.isEmpty) {
                 _blocExpense.getService();
@@ -438,7 +475,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
 /*------------------------------------------------------------------------- */
-/*-----------------------------TARİH BÖLÜMÜ-------------------------------- */
+/*-------------------------TARİH BÖLÜMÜ  Hizmet Ekleme----------------------- */
   ///Zaman Text
   shareWidgetDateTimeTextFormField(Function(void Function()) setState) {
     return Container(
@@ -502,4 +539,70 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   }
 
   /*----------------------------------------------------------------------- */
+
+  /*-------------------------TARİH BÖLÜMÜ  Seçilen ----------------------- */
+
+  ///Zaman Aralı Seçildiği yer
+  widgetRangeSelectDateTime() {
+    return Container(
+        width: _shareServiceWidth,
+        height: _shareHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              await pickDateRange();
+              await _blocExpense.getServiceWithRangeDate();
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              _labelSelectedDateTime,
+              style: context.theme.titleSmall,
+            )));
+  }
+
+  ///Tarihin seçilip geldiği yer.
+  pickDateRange() async {
+    _selectDateTimeRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: DateTimeRange(
+            start: _blocExpense.getterStartDate,
+            end: _blocExpense.getterEndDate),
+        firstDate: DateTime(2010),
+        lastDate: DateTime(2035),
+        builder: (context, child) {
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: SizedBox(
+                  height: 500,
+                  width: 450,
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        });
+
+    if (_selectDateTimeRange != null) {
+      ///seçilen tarih ataması yapılıyor.
+
+      _blocExpense.setDateRange(_selectDateTimeRange!);
+
+      ///Ekrana tarihi basıyor.
+      setState(() {
+        _labelSelectedDateTime =
+            "${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.start)} - ${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.end)}";
+      });
+    }
+  }
+
+  /*----------------------------------------------------------------------- */
+
 }

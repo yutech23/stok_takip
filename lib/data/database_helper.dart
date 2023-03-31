@@ -1749,6 +1749,40 @@ class DbHelper {
     }
   }
 
+  Future<List<dynamic>> fetchServiceWithRangeDate(
+      DateTime startTime, DateTime endTime) async {
+    List<dynamic> resService = [];
+    try {
+      resService = await db.supabase
+          .from('service')
+          .select()
+          .lt('save_time', endTime)
+          .gt('save_time', startTime)
+          .order('save_time');
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
+  Future<List<dynamic>> fetchServiceByDropdown(String selectedService) async {
+    List<dynamic> resService = [];
+    try {
+      resService = await db.supabase
+          .from('service')
+          .select()
+          .eq('name', selectedService)
+          .order('save_time');
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
   Future<String> saveNewService(Expense newService) async {
     try {
       await supabase.from('service').insert([
@@ -1758,6 +1792,7 @@ class DbHelper {
           'description': newService.description,
           'payment_type': newService.paymentType,
           'total': newService.total,
+          'current_user': newService.currentUserId
         }
       ]);
       return "";
