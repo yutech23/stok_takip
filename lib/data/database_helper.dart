@@ -1750,15 +1750,10 @@ class DbHelper {
   /*-------------------------------------------------------------------- */
   /*------------------------BAŞLANGIÇ HİZMET BÖLÜMÜ--------------------- */
 
-  Future<List<dynamic>> fetchService() async {
-/* 
-lt('save_date', endTime)
-          .gt('save_date', startTime);
- */
-    List<dynamic> resService = [];
+  Future<List<Map<String, dynamic>>> fetchService() async {
+    List<Map<String, dynamic>> resService = [];
     try {
-      resService =
-          await db.supabase.from('service').select().order('save_time');
+      resService = await db.supabase.from('service').select();
 
       return resService;
     } on PostgrestException catch (e) {
