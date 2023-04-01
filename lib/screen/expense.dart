@@ -228,7 +228,9 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
               child: Wrap(
-            spacing: 10,
+            alignment: WrapAlignment.center,
+            spacing: context.extensionWrapSpacing10(),
+            runSpacing: context.extensionWrapSpacing10(),
             children: [
               Container(
                 constraints: BoxConstraints(
@@ -361,7 +363,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     );
   }
 
-  /*-------------------------TARİH BÖLÜMÜ  Seçilen ----------------------- */
+  /*-------------------------TARİH BÖLÜMÜ ARAMA BÖLÜMÜ --------------------- */
 
   ///Zaman Aralı Seçildiği yer
   widgetRangeSelectDateTime() {

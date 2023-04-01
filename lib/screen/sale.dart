@@ -15,6 +15,7 @@ import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import 'package:turkish/turkish.dart';
 import '../modified_lib/searchfield.dart';
+import '../utilities/share_func.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/validation.dart';
@@ -218,6 +219,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       runSpacing: context.extensionWrapSpacing10(),
                       spacing: context.extensionWrapSpacing20(),
                       children: [
+                        shareWidgetDateTimeTextFormField(),
                         widgetExchangeRate(),
                         widgetCurrencySelectSection(),
                         widgetPaymentInformationSection(),
@@ -877,6 +879,57 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   void getWidthScreenSize(BuildContext context) {
     _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 340 : 190;
   }
+
+  /*-------------------------TARİH BÖLÜMÜ ARAMA BÖLÜMÜ --------------------- */
+//Hizmet ekleme bölümündeki tarih.
+  DateTime? _selectedDateTime = DateTime.now();
+
+  ///Zaman Text
+  shareWidgetDateTimeTextFormField() {
+    return Container(
+        width: _shareWidthPaymentSection,
+        height: _shareHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              _selectedDateTime = await pickDateSaveTime() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _selectedDateTime = _selectedDateTime!.add(
+                      Duration(hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              shareFunc.dateTimeConvertFormatString(_selectedDateTime!),
+              style: context.theme.titleSmall,
+            )));
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDateSaveTime() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+  /*----------------------------------------------------------------------- */
 
   /*----------------------PDF BÖLÜMÜ ----------------------------------*/
   createPdfInvoice() async {

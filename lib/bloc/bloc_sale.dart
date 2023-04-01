@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/product.dart';
 import 'package:stok_takip/models/sale.dart';
@@ -72,6 +73,26 @@ class BlocSale {
   Stream<double> get getStreamPaymentSystem =>
       _streamControllerPaymentSystem.stream;
 
+/*-------------------------------TARİH BÖLÜMÜ----------------------------- */
+  DateTime _startTime =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+  DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, 23, 59, 59);
+
+  DateTime get getterStartDate => _startTime;
+  DateTime get getterEndDate => _endTime;
+  set setterStartDate(DateTime dateTime) => _startTime = dateTime;
+  set setterEndDate(DateTime dateTime) => _endTime = dateTime;
+
+  ///Zaman Aralığı girme bölümü
+  setDateRange(DateTimeRange? dateTimeRange) {
+    _startTime = dateTimeRange!.start;
+    _endTime = dateTimeRange.end
+        .add(const Duration(hours: 23, minutes: 59, seconds: 59));
+  }
+
+/*----------------------------------------------------------------------- */
   ///Listeye ürün ekliyor
   void addProduct(Product selectedProduct) {
     if (!listProduct.contains(selectedProduct)) {
