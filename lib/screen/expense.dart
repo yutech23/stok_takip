@@ -28,13 +28,15 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   late Expense _service;
   final String _labelHeading = "Gider Ekranı";
-  final double _firstContainerMaxWidth = 1000;
+  final double _firstContainerMaxWidth = 900;
   final double _firstContainerMinWidth = 340;
   late BlocExpense _blocExpense;
   final double _shareHeight = 40;
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
   final double _shareServiceWidth = 300;
+
+  ///Hizmet ekleme bölümündeki tarih.
   DateTime? _selectedDateTime = DateTime.now();
 
   /*----------------------------------------------------------------------- */
@@ -43,18 +45,19 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final String _labelServiceTotal = "Hizmet Tutarı";
   final String _labelServiceDescription = "Açıklama";
   final String _labelHeaderServiceSection = "Hizmet Ekleme Bölümü";
-  String _selectedGroupPaymentTypeValue = "Nakit";
   final List<String> _paymentTypeItems = ['Nakit', 'Banka'];
-  final TextEditingController _controllerDescription = TextEditingController();
-  final TextEditingController _controllerServiceTotal = TextEditingController();
+
   /*----------------------------------------------------------------------- */
 
   /*---------------------------Dropdown Menü ------------------------------- */
-  String? _selectedServiceName;
+  String _paymentType = "Nakit";
+  final TextEditingController _controllerDescription = TextEditingController();
+  final TextEditingController _controllerServiceTotal = TextEditingController();
 
-  void _getExprense(String value) {
+  String? _serviceTypeSave;
+  void _saveServiceType(String value) {
     setState(() {
-      _selectedServiceName = value;
+      _serviceTypeSave = value;
     });
   }
 
@@ -76,13 +79,39 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   final String _labelGet = "Getir";
 
-  void _getServiceByDropdown(String value) {
+  void _getServiceType(String value) {
     _blocExpense.selectedServiceDropdown = true;
     setState(() {
       _blocExpense.selectedGetServiceDropdownValue = value;
     });
   }
 
+  /*----------------------------------------------------------------------- */
+  /*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
+  final String _labelPopupUpdateHeader = "Güncelleme";
+  final GlobalKey<FormState> _formKeyUpdate = GlobalKey<FormState>();
+
+  ///Silme İşlemi
+  final String _header = "Hizmeti silmek istediğinizden emin misiniz?";
+  final String _yesText = "Evet";
+
+  /*---------------------------Güncelleme ------------------------------- */
+  DateTime? _selectedPopupDateTime;
+  String? _popupServiceType;
+  void _getServiceTypePopup(String value) {
+    setState(() {
+      _popupServiceType = value;
+    });
+  }
+
+  final TextEditingController _controllerPopupDescription =
+      TextEditingController();
+  final TextEditingController _controllerPopupServiceTotal =
+      TextEditingController();
+
+  String _popupPaymentType = "Nakit";
+
+/*------------------------------------------------------------------------ */
   /*----------------------------------------------------------------------- */
   @override
   void initState() {
@@ -143,21 +172,24 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                 padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
                 icon: const Icon(Icons.delete),
-                onPressed: () {
-                  ///Stok bitmeden silmeyi engelliyor.
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return popupDelete(row['id']);
+                    },
+                  );
                 },
               ),
+
+              ///Güncelleme Buttonu
               IconButton(
                 iconSize: 20,
                 padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
                 icon: const Icon(Icons.edit),
                 onPressed: () async {
-                  /*  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return PopupSaleDetail(_blocCari);
-                      }); */
+                  popupServiceEdit(row);
                 },
               )
             ],
@@ -209,30 +241,32 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
                     spacing: context.extensionWrapSpacing20(),
                     runSpacing: context.extensionWrapSpacing10(),
                     children: [
-                      widgetDropdownGetService(),
+                      widgetDropdownGetServiceType(),
                       widgetRangeSelectDateTime(),
                       widgetButtonGetService(),
                       widgetDateTable()
                     ]),
               ),
+
+              ///Hizmet Ekleme Bölümü
               Container(
                 width: 340,
-                height: 600,
+                height: _dataTableHeight + 90,
                 padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
                 decoration: context.extensionThemaWhiteContainer(),
                 child: Column(children: [
                   widgetTextHeaderService(
                       _labelHeaderServiceSection, Colors.grey),
                   context.extensionHighSizedBox20(),
-                  shareWidgetDateTimeTextFormField(setState),
+                  shareWidgetDateTimeTextFormField(),
                   context.extensionHighSizedBox10(),
-                  widgetDropdownService(),
+                  widgetDropdownSaveServiceType(),
                   context.extensionHighSizedBox10(),
-                  widgetTextFieldDescription(),
+                  widgetTextFieldDescription(_controllerDescription),
                   context.extensionHighSizedBox10(),
-                  widgetRadioButtonPaymentType(setState),
+                  widgetRadioButtonPaymentType(),
                   context.extensionHighSizedBox10(),
-                  widgetTextFieldTotal(),
+                  widgetTextFieldTotal(_controllerServiceTotal),
                   context.extensionHighSizedBox10(),
                   widgetButtonAddService()
                 ]),
@@ -255,8 +289,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     );
   }
 
-  /*----------------------------Hizmet Tablosu ------------------------------ */
-  widgetDropdownGetService() {
+  widgetDropdownGetServiceType() {
     return Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -266,11 +299,12 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           hint: _labelServiceSelect,
           selectValue: _blocExpense.selectedGetServiceDropdownValue,
           itemList: sabitler.listDropdownService,
-          getShareDropdownCallbackFunc: _getServiceByDropdown,
+          getShareDropdownCallbackFunc: _getServiceType,
           borderColor: context.extensionDefaultColor,
         ));
   }
 
+  /*----------------------------Hizmet Tablosu ------------------------------ */
   widgetDateTable() {
     return SizedBox(
       width: _dataTableWidth,
@@ -327,10 +361,76 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     );
   }
 
+  /*-------------------------TARİH BÖLÜMÜ  Seçilen ----------------------- */
+
+  ///Zaman Aralı Seçildiği yer
+  widgetRangeSelectDateTime() {
+    return Container(
+        width: _shareServiceWidth,
+        height: _shareHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              await pickDateRange();
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              _labelSelectedDateTime,
+              style: context.theme.titleSmall,
+            )));
+  }
+
+  ///Tarihin seçilip geldiği yer.
+  pickDateRange() async {
+    _selectDateTimeRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: DateTimeRange(
+            start: _blocExpense.getterStartDate,
+            end: _blocExpense.getterEndDate),
+        firstDate: DateTime(2010),
+        lastDate: DateTime(2035),
+        builder: (context, child) {
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: SizedBox(
+                  height: 500,
+                  width: 450,
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        });
+
+    if (_selectDateTimeRange != null) {
+      //tarih seçildiğini belirtiyor. ve buna göre getir Buttonunu ona göre çağırıyor.
+      _blocExpense.selectedDateTime = true;
+
+      ///seçilen tarih ataması yapılıyor.
+      _blocExpense.setDateRange(_selectDateTimeRange!);
+
+      ///Ekrana tarihi basıyor.
+      setState(() {
+        _labelSelectedDateTime =
+            "${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.start)} - ${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.end)}";
+      });
+    }
+  }
+
+  /*----------------------------------------------------------------------- */
+
 /*-----------------------Hizmet Ekleme Bölümü-------------------------------- */
 
   //Dropdown popup içinde
-  widgetDropdownService() {
+  widgetDropdownSaveServiceType() {
     return Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -340,77 +440,13 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           validator: validateNotEmpty,
           hint: _labelService,
           itemList: sabitler.listDropdownService,
-          getShareDropdownCallbackFunc: _getExprense,
+          getShareDropdownCallbackFunc: _saveServiceType,
+          selectValue: _serviceTypeSave,
           borderColor: context.extensionDisableColor,
         ));
   }
 
-  /* popupServiceAdd() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: Text(_labelHeaderService,
-                textAlign: TextAlign.center,
-                style: context.theme.titleLarge!
-                    .copyWith(fontWeight: FontWeight.bold)),
-            alignment: Alignment.center,
-            content: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Container(
-                  width: 400,
-                  padding: context.extensionPadding10(),
-                  alignment: Alignment.center,
-                  child: Wrap(
-                      alignment: WrapAlignment.center,
-                      direction: Axis.vertical,
-                      spacing: 10,
-                      children: [
-                        shareWidgetDateTimeTextFormField(setState),
-                        widgetDropdownService(),
-                        widgetTextFieldDescription(),
-                        widgetRadioButtonPaymentType(setState),
-                        widgetTextFieldTotal()
-                      ]),
-                ),
-              ),
-            ),
-            actionsAlignment: MainAxisAlignment.spaceEvenly,
-            actions: <Widget>[
-              SizedBox(
-                width: 100,
-                height: 30,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Yes",
-                        style: context.theme.titleSmall!
-                            .copyWith(color: Colors.white))),
-              ),
-              SizedBox(
-                width: 100,
-                height: 30,
-                child: ElevatedButton(
-                  child: Text("İptal",
-                      style: context.theme.titleSmall!
-                          .copyWith(color: Colors.white)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  } */
-
-  widgetTextFieldDescription() {
+  widgetTextFieldDescription(TextEditingController controller) {
     return SizedBox(
       width: _shareServiceWidth,
       child: TextField(
@@ -418,23 +454,23 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             hintText: _labelServiceDescription,
             border: OutlineInputBorder(
                 borderSide: BorderSide(color: context.extensionDisableColor))),
-        controller: _controllerDescription,
+        controller: controller,
         maxLines: 4,
         style: context.theme.titleSmall,
       ),
     );
   }
 
-  widgetRadioButtonPaymentType(Function(void Function()) setState) {
+  widgetRadioButtonPaymentType() {
     return SizedBox(
       width: _shareServiceWidth,
       child: RadioGroup<String>.builder(
         activeColor: context.extensionDefaultColor,
         direction: Axis.horizontal,
-        groupValue: _selectedGroupPaymentTypeValue,
+        groupValue: _paymentType,
         onChanged: (p0) {
           setState(() {
-            _selectedGroupPaymentTypeValue = p0!;
+            _paymentType = p0!;
           });
         },
         items: _paymentTypeItems,
@@ -444,7 +480,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     );
   }
 
-  widgetTextFieldTotal() {
+  widgetTextFieldTotal(TextEditingController controller) {
     return SizedBox(
       width: _shareServiceWidth,
       height: _shareHeight,
@@ -453,7 +489,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             hintText: _labelServiceTotal,
             border: OutlineInputBorder(
                 borderSide: BorderSide(color: context.extensionDisableColor))),
-        controller: _controllerServiceTotal,
+        controller: controller,
         inputFormatters: [FormatterDecimalThreeByThreeFinancial()],
       ),
     );
@@ -464,22 +500,22 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     return ElevatedButton.icon(
         onPressed: () {
           if (_formKeyService.currentState!.validate()) {
-            _service.name = _selectedServiceName!;
+            _service.name = _serviceTypeSave!;
             _service.saveTime = _selectedDateTime!;
             _service.description = _controllerDescription.text;
-            _service.paymentType = _selectedGroupPaymentTypeValue;
+            _service.paymentType = _paymentType;
             _service.total = FormatterConvert()
                 .commaToPointDouble(_controllerServiceTotal.text);
             _service.currentUserId = shareFunc.getCurrentUserId();
             _blocExpense.serviceAdd(_service).then((value) {
               if (value.isEmpty) {
-                _blocExpense.getService();
+                _blocExpense.getServiceWithRangeDate();
                 context.noticeBarTrue("İşlem Başarılı", 2);
                 setState(() {
                   _selectedDateTime = DateTime.now();
-                  _selectedServiceName = 'Hizmet Ekle';
+                  // _serviceTypeSave = 'Hizmet Ekle';
+                  _paymentType = 'Nakit';
                   _controllerDescription.clear();
-                  _selectedGroupPaymentTypeValue = 'Nakit';
                   _controllerServiceTotal.clear();
                 });
               } else {
@@ -495,7 +531,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 /*------------------------------------------------------------------------- */
 /*-------------------------TARİH BÖLÜMÜ  Hizmet Ekleme----------------------- */
   ///Zaman Text
-  shareWidgetDateTimeTextFormField(Function(void Function()) setState) {
+  shareWidgetDateTimeTextFormField() {
     return Container(
         width: _shareServiceWidth,
         height: _shareHeight,
@@ -558,72 +594,229 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   /*----------------------------------------------------------------------- */
 
-  /*-------------------------TARİH BÖLÜMÜ  Seçilen ----------------------- */
+  ///Ekran büyüklüğüne göre ayarlama
+  double getResponseWidth() {
+    double resWidth = MediaQuery.of(context).size.width >= 500 ? 160 : 300;
+    return resWidth;
+  }
 
-  ///Zaman Aralı Seçildiği yer
-  widgetRangeSelectDateTime() {
+  /*------------------------Popup Widgetları--------------------------- */
+  //Dropdown popup içinde
+  widgetPopupDropdownService(
+      String? selectedValue, Function(String)? getShareDropdownCallbackFunc) {
+    return Container(
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        width: _shareServiceWidth,
+        height: 70,
+        child: BasicDropdown(
+          validator: validateNotEmpty,
+          hint: _labelService,
+          itemList: sabitler.listDropdownService,
+          getShareDropdownCallbackFunc: getShareDropdownCallbackFunc,
+          selectValue: selectedValue,
+          borderColor: context.extensionDisableColor,
+        ));
+  }
+
+  ///Popup zaman aralığı
+  widgetPopupDateTimeTextFormField(Function(void Function()) setState) {
     return Container(
         width: _shareServiceWidth,
         height: _shareHeight,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            border: Border.all(color: context.extensionDefaultColor),
+            border: Border.all(color: Colors.grey),
             borderRadius: const BorderRadius.all(Radius.circular(5))),
         child: TextButton.icon(
             onPressed: () async {
-              await pickDateRange();
+              _selectedPopupDateTime = await pickDate() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _selectedPopupDateTime = _selectedPopupDateTime!.add(
+                      Duration(hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
             },
             icon: Icon(
               Icons.date_range,
               color: context.extensionDefaultColor,
             ),
             label: Text(
-              _labelSelectedDateTime,
+              shareFunc.dateTimeConvertFormatString(_selectedPopupDateTime!),
               style: context.theme.titleSmall,
             )));
   }
 
-  ///Tarihin seçilip geldiği yer.
-  pickDateRange() async {
-    _selectDateTimeRange = await showDateRangePicker(
-        context: context,
-        initialDateRange: DateTimeRange(
-            start: _blocExpense.getterStartDate,
-            end: _blocExpense.getterEndDate),
-        firstDate: DateTime(2010),
-        lastDate: DateTime(2035),
-        builder: (context, child) {
-          return Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 100.0),
-                child: SizedBox(
-                  height: 500,
-                  width: 450,
-                  child: child,
-                ),
-              ),
-            ],
-          );
-        });
-
-    if (_selectDateTimeRange != null) {
-      ///seçilen tarih ataması yapılıyor.
-
-      _blocExpense.setDateRange(_selectDateTimeRange!);
-
-      ///Ekrana tarihi basıyor.
-      setState(() {
-        _labelSelectedDateTime =
-            "${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.start)} - ${shareFunc.dateTimeConvertFormatStringWithoutTime(_selectDateTimeRange!.end)}";
-      });
-    }
+  widgetPopupRadioButtonPaymentType(Function(void Function()) setState) {
+    return SizedBox(
+      width: _shareServiceWidth,
+      child: RadioGroup<String>.builder(
+        activeColor: context.extensionDefaultColor,
+        direction: Axis.horizontal,
+        groupValue: _popupPaymentType,
+        onChanged: (p0) {
+          setState(() {
+            _popupPaymentType = p0!;
+          });
+        },
+        items: _paymentTypeItems,
+        itemBuilder: (value) => RadioButtonBuilder(value,
+            textPosition: RadioButtonTextPosition.right),
+      ),
+    );
   }
 
   /*----------------------------------------------------------------------- */
-  ///Ekran büyüklüğüne göre ayarlama
-  double getResponseWidth() {
-    double resWidth = MediaQuery.of(context).size.width >= 500 ? 160 : 300;
-    return resWidth;
+  /*-------------------POPUP SİLME ve GÜNCELLEME------------------------- */
+  popupServiceEdit(Map<String?, dynamic> selectedService) {
+    _controllerPopupDescription.text = selectedService['description'];
+    _controllerPopupServiceTotal.text = FormatterConvert()
+        .commaToPointDouble(selectedService['total'])
+        .toString();
+    _popupPaymentType = selectedService['paymentType'];
+    _popupServiceType = selectedService['name'];
+    _selectedPopupDateTime =
+        shareFunc.dateTimeStringConvertToDateTime(selectedService['saveTime']);
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(_labelPopupUpdateHeader,
+                textAlign: TextAlign.center,
+                style: context.theme.titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold)),
+            alignment: Alignment.center,
+            content: SingleChildScrollView(
+              child: Form(
+                key: _formKeyUpdate,
+                child: Container(
+                  width: 360,
+                  padding: context.extensionPadding10(),
+                  alignment: Alignment.center,
+                  child: Wrap(
+                      alignment: WrapAlignment.center,
+                      direction: Axis.vertical,
+                      spacing: 10,
+                      children: [
+                        widgetPopupDateTimeTextFormField(setState),
+                        widgetPopupDropdownService(
+                            _popupServiceType, _getServiceTypePopup),
+                        widgetTextFieldDescription(_controllerPopupDescription),
+                        widgetPopupRadioButtonPaymentType(setState),
+                        widgetTextFieldTotal(_controllerPopupServiceTotal)
+                      ]),
+                ),
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+            actions: <Widget>[
+              SizedBox(
+                width: 120,
+                height: 40,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      Expense updateService = Expense();
+                      updateService.saveTime = _selectedPopupDateTime!;
+                      updateService.id = selectedService['id'];
+                      updateService.name = _popupServiceType!;
+                      updateService.description =
+                          _controllerPopupDescription.text;
+                      updateService.paymentType = _popupPaymentType;
+                      updateService.total = FormatterConvert()
+                          .commaToPointDouble(
+                              _controllerPopupServiceTotal.text);
+                      updateService.currentUserId =
+                          shareFunc.getCurrentUserId();
+
+                      String res =
+                          await _blocExpense.updateService(updateService);
+                      if (res.isEmpty) {
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pop();
+                        // ignore: use_build_context_synchronously
+                        await context.noticeBarTrue("İşlem Başarılı", 2);
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        context.noticeBarError("Hata : $res", 3);
+                      }
+                    },
+                    child: Text("Yes",
+                        style: context.theme.titleSmall!
+                            .copyWith(color: Colors.white))),
+              ),
+              SizedBox(
+                width: 120,
+                height: 40,
+                child: ElevatedButton(
+                  child: Text("İptal",
+                      style: context.theme.titleSmall!
+                          .copyWith(color: Colors.white)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  ///Silme popup bölümü
+  popupDelete(int serviceId) {
+    return AlertDialog(
+      title: Text('UYARI',
+          textAlign: TextAlign.center,
+          style:
+              context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
+      alignment: Alignment.center,
+      content: Text(_header,
+          style:
+              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: <Widget>[
+        SizedBox(
+          width: 100,
+          height: 30,
+          child: ElevatedButton(
+              onPressed: () async {
+                ///Stok bitmeden silmeyi engelliyor.
+
+                String res = await _blocExpense.deleteService(serviceId);
+                if (res.isEmpty) {
+                  Navigator.pop(context);
+                  // ignore: use_build_context_synchronously
+                  await context.noticeBarTrue("İşlem başarılı.", 2);
+
+                  // ignore: use_build_context_synchronously
+
+                } else {
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarError("Hata $res", 3);
+                }
+              },
+              child: Text(_yesText,
+                  style:
+                      context.theme.titleSmall!.copyWith(color: Colors.white))),
+        ),
+        SizedBox(
+          width: 100,
+          height: 30,
+          child: ElevatedButton(
+            child: Text("İptal",
+                style: context.theme.titleSmall!.copyWith(color: Colors.white)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

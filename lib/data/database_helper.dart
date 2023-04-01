@@ -1498,13 +1498,8 @@ class DbHelper {
   }
 
   ///GÜnlük Durumu - Satış bölümü
-  calculateCollectionDailySnapshoot() async {
-    DateTime startTime =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
-    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
-        DateTime.now().day, 23, 59, 59);
-
+  calculateCollectionDailySnapshoot(
+      DateTime startTime, DateTime endTime) async {
     List<Map<String, dynamic>> res = [];
     try {
       res = await db.supabase
@@ -1521,13 +1516,7 @@ class DbHelper {
   }
 
   ///GÜnlük Durumu - Cari bölümü
-  fetchCariCustomerDaily() async {
-    DateTime startTime =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
-    DateTime endTime = DateTime(DateTime.now().year, DateTime.now().month,
-        DateTime.now().day, 23, 59, 59);
-
+  fetchCariCustomerDaily(DateTime startTime, DateTime endTime) async {
     List<Map<String, dynamic>> resCariCustomer = [];
     try {
       resCariCustomer = await db.supabase
@@ -1542,6 +1531,26 @@ class DbHelper {
     } on PostgrestException catch (e) {
       print("Kasa hata: ${e.message}");
       return {'Hata': e.message};
+    }
+  }
+
+  ///Giderlerin tutarlarını getiriyor. Günlük Bölümde göstermek için
+  Future<List<dynamic>> fetchServiceOnlyTotalDaily(
+      DateTime startTime, DateTime endTime) async {
+    List<dynamic> res = [];
+    try {
+      res = await db.supabase
+          .from('service')
+          .select('total')
+          .lt('save_time', endTime)
+          .gt('save_time', startTime);
+      print(res);
+      return res;
+    } on PostgrestException catch (e) {
+      print("Gider Toplam Tutar hata: ${e.message}");
+      return [
+        {'Hata': e.message}
+      ];
     }
   }
 
@@ -1606,6 +1615,20 @@ class DbHelper {
       return resCashBox;
     } on PostgrestException catch (e) {
       print("Kasa hata: ${e.message}");
+      return {'Hata': e.message};
+    }
+  }
+
+  ///Hizmetlerin Toplam tutarları
+  fetchServiceOnlyTotal() async {
+    List<dynamic> resService = [];
+    try {
+      resService =
+          await db.supabase.from('service').select('payment_type,total');
+
+      return resService;
+    } on PostgrestException catch (e) {
+      print("Service toplam hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1749,7 +1772,7 @@ class DbHelper {
 
   /*-------------------------------------------------------------------- */
   /*------------------------BAŞLANGIÇ HİZMET BÖLÜMÜ--------------------- */
-
+  ///Tüm verileri getiriyor
   Future<List<Map<String, dynamic>>> fetchService() async {
     List<Map<String, dynamic>> resService = [];
     try {
@@ -1762,6 +1785,7 @@ class DbHelper {
     }
   }
 
+  /// Sadece Zaman aralığına göre verileri getiriyor
   Future<List<dynamic>> fetchServiceWithRangeDate(
       DateTime startTime, DateTime endTime) async {
     List<dynamic> resService = [];
@@ -1780,13 +1804,39 @@ class DbHelper {
     }
   }
 
+  ///Hizmet tipine göre verileri getiriyor.
   Future<List<dynamic>> fetchServiceByDropdown(String selectedService) async {
+    List<dynamic> resService = [];
+    try {
+      if (selectedService == "Hepsi") {
+        resService =
+            await db.supabase.from('service').select().order('save_time');
+      } else {
+        resService = await db.supabase
+            .from('service')
+            .select()
+            .eq('name', selectedService)
+            .order('save_time');
+      }
+
+      return resService;
+    } on PostgrestException catch (e) {
+      resService.add({'Hata': e.message});
+      return resService;
+    }
+  }
+
+  /// Hizme tipi ve zamna aralığı getirmek için
+  Future<List<dynamic>> fetchServiceTypeWithRangeDate(
+      String selectedServiceType, DateTime startTime, DateTime endTime) async {
     List<dynamic> resService = [];
     try {
       resService = await db.supabase
           .from('service')
           .select()
-          .eq('name', selectedService)
+          .eq('name', selectedServiceType)
+          .lt('save_time', endTime)
+          .gt('save_time', startTime)
           .order('save_time');
 
       return resService;
@@ -1796,6 +1846,7 @@ class DbHelper {
     }
   }
 
+  ///Yeni Hizmet Ekleme işlemi
   Future<String> saveNewService(Expense newService) async {
     try {
       await supabase.from('service').insert([
@@ -1812,6 +1863,33 @@ class DbHelper {
     } on PostgrestException catch (e) {
       // ignore: avoid_print
       print("Hizmet Ekleme Hatası : ${e.message}");
+      return e.message;
+    }
+  }
+
+  ///Silme İşlemi
+  Future<String> deleteService(int idService) async {
+    try {
+      await supabase.from('service').delete().eq('id', idService);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
+
+  ///Güncelleme işlemi
+  Future<String> updateService(Expense updateService) async {
+    try {
+      await db.supabase.from('service').update({
+        'save_time': toTimestampString(updateService.saveTime.toString()),
+        'name': updateService.name,
+        'description': updateService.description,
+        'payment_type': updateService.paymentType,
+        'total': updateService.total,
+        'current_user': updateService.currentUserId
+      }).match({'id': updateService.id});
+      return "";
+    } on PostgrestException catch (e) {
       return e.message;
     }
   }

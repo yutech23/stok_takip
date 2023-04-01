@@ -3,6 +3,12 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 
 class BlocCaseSnapshot {
+  DateTime _startTime =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+  DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, 23, 59, 59);
+
   Map<String, double> _collectionData = {
     'Nakit': 0,
     'Banka': 0,
@@ -28,7 +34,9 @@ class BlocCaseSnapshot {
     'totalCollectionBySale': 0,
     'totalCollectionLate': 0,
     'totalCollection': 0,
-    'totalPayment': 0
+    'totalPayment': 0,
+    'totalExpense': 0,
+    'totalPaymentAndExpense': 0
   };
 
   Map<String, num> _calculateDailySnapshoot = {
@@ -41,6 +49,11 @@ class BlocCaseSnapshot {
   Map<String, num> _calculateGeneralSituation = {
     'totalStockPrice': 0,
     'totalProfit': 0,
+  };
+
+  Map<String, num> _calculateService = {
+    'totalCash': 0,
+    'totalBank': 0,
   };
 
   BlocCaseSnapshot() {
@@ -158,6 +171,8 @@ class BlocCaseSnapshot {
     // calculateCase = {'Kar': 0, 'Anlık Kasa': 0, 'Anlık Banka': 0};
     final resCashBox = await db.fetchCashBox();
     final resCariCapital = await db.fetchCariCapital();
+    final resService = await db.fetchServiceOnlyTotal();
+
     /*  await getCollection();
     await getPayment(); */
     _calculateCashBox['snapshootCash'] =
@@ -172,18 +187,33 @@ class BlocCaseSnapshot {
       bankCapital += element['lend_bank'] - element['borrow_bank'];
     }
 
+    ///Hizmet nakit ve banka hesaplama
+    for (var element in resService) {
+      if (element['payment_type'] == 'Nakit') {
+        _calculateService['totalCash'] =
+            _calculateService['totalCash']! + element['total'];
+      }
+      if (element['payment_type'] == 'Banka') {
+        _calculateService['totalBank'] =
+            _calculateService['totalBank']! + element['total'];
+      }
+    }
+
     _calculateCashBox['snapshootCash'] = _calculateCashBox['snapshootCash']! +
         cashCapital +
         _collectionData['Nakit']! -
-        _paymentData['Nakit']!;
+        _paymentData['Nakit']! -
+        _calculateService['totalCash']!;
 
     _calculateCashBox['snapshootBank'] = _calculateCashBox['snapshootBank']! +
         bankCapital +
         _collectionData['Banka']! -
-        _paymentData['Banka']!;
+        _paymentData['Banka']! -
+        _calculateService['totalBank']!;
 
     _calculateCashBox['snapshootTotal'] = _calculateCashBox['snapshootCash']! +
         _calculateCashBox['snapshootBank']!;
+
 /*     print("gelen veri ${_collectionData['Nakit']!}");
 
     print("kasa nakit : ${_calculateCashBox['snapshootCash']}");
@@ -199,8 +229,13 @@ class BlocCaseSnapshot {
       'bankCollection': 0,
       'totalSale': 0,
     }; */
-    final resSoldDaily = await db.calculateCollectionDailySnapshoot();
-    final resCariCustomerDaily = await db.fetchCariCustomerDaily();
+    final resSoldDaily =
+        await db.calculateCollectionDailySnapshoot(_startTime, _endTime);
+    final resCariCustomerDaily =
+        await db.fetchCariCustomerDaily(_startTime, _endTime);
+    final resExpense =
+        await db.fetchServiceOnlyTotalDaily(_startTime, _endTime);
+
     await getCalculateDailyPayment();
 
     ///Satışlar tablosundaki veriler alınıyor
@@ -225,10 +260,20 @@ class BlocCaseSnapshot {
               element['bankcard_payment']! +
               element['eft_havale_payment']!;
     }
+
+    ///Giderlerin Tutarlarını topluyoruz.
+    for (Map<String, dynamic> element in resExpense) {
+      _calculatePaymentDaily['totalExpense'] =
+          _calculatePaymentDaily['totalExpense']! + element['total'];
+    }
+
     _calculatePaymentDaily['totalCollection'] =
         _calculatePaymentDaily['totalCollectionBySale']! +
             _calculatePaymentDaily['totalCollectionLate']!;
 
+    _calculatePaymentDaily['totalPaymentAndExpense'] =
+        _calculatePaymentDaily['totalPayment']! +
+            _calculatePaymentDaily['totalExpense']!;
     /*  print(_calculateDailySnapshoot['cashCollection']);
     print(_calculateDailySnapshoot['bankCollection']);
     print(_calculateDailySnapshoot['totalSale']); */

@@ -16,7 +16,7 @@ class BlocExpense {
   }
 
   List<Expense> listExpense = <Expense>[];
-  final List<Map<String, dynamic>> _listService = [
+  List<Map<String, dynamic>> _listService = [
     {
       'id': '0',
       'saveTime': '',
@@ -61,24 +61,6 @@ class BlocExpense {
       _streamControllerListService.stream;
 
   get getterListExpanded => _expanded;
-
-  ///Müşterileri arama için getirilen veriler(tip,isim,numara)
-  Future getService() async {
-    _listService.clear();
-    final resService = await db.fetchService();
-    for (Map<String, dynamic> element in resService) {
-      _listService.add({
-        'id': element['id'],
-        'saveTime': shareFunc.dateTimeStringToString(element['save_time']),
-        'name': element['name'],
-        'description': element['description'],
-        'paymentType': element['payment_type'],
-        'total': FormatterConvert().currencyShow(element['total'])
-      });
-    }
-    _expanded = List.generate(_listService.length, (index) => false);
-    _streamControllerListService.sink.add(_listService);
-  }
 
   ///Tarihe göre verileri getiriyor. Başlangıç olarak o gün gönderiliyor.
   Future getServiceWithRangeDate() async {
@@ -127,13 +109,79 @@ class BlocExpense {
     _streamControllerListService.sink.add(_listService);
   }
 
+  ///Hizmet seçimi ve tarih seçimi beraber seçildiğinde verileri getirir.
+  getServiceTypeWithDate() async {
+    _listService.clear();
+    final res = await db.fetchServiceTypeWithRangeDate(
+        selectedGetServiceDropdownValue!, _startTime, _endTime);
+
+    for (Map<String, dynamic> element in res) {
+      _listService.add({
+        'id': element['id'],
+        'saveTime': shareFunc.dateTimeStringToString(element['save_time']),
+        'name': element['name'],
+        'description': element['description'],
+        'paymentType': element['payment_type'],
+        'total': FormatterConvert().currencyShow(element['total'])
+      });
+    }
+    _expanded = List.generate(_listService.length, (index) => false);
+    _streamControllerListService.sink.add(_listService);
+  }
+
   getServiceButton() async {
     ///sadece hizmet dropdown seçildiğinde.
     if (selectedServiceDropdown && selectedDateTime == false) {
       await getServiceDropdown(selectedGetServiceDropdownValue!);
-    } else if (selectedDateTime) {
-      print("şimdi");
+    } else if (selectedDateTime && selectedServiceDropdown == false) {
       await getServiceWithRangeDate();
-    } else if (selectedServiceDropdown && selectedDateTime) {}
+    } else if (selectedServiceDropdown && selectedDateTime) {
+      await getServiceTypeWithDate();
+    }
+  }
+
+  ///Satır silme işlemi.
+  Future<String> deleteService(int idService) async {
+    String res = await db.deleteService(idService);
+
+    for (Map<String, dynamic> element in _listService) {
+      if (element['id'] == idService) {
+        _listService.remove(element);
+      }
+    }
+
+    _expanded = List.generate(_listService.length, (index) => false);
+    _streamControllerListService.sink.add(_listService);
+    return res;
+  }
+
+  ///Güncelleme işlemi
+  Future<String> updateService(Expense updateService) async {
+    /* print(updateService.id);
+    print(updateService.saveTime);
+    print(updateService.name);
+    print(updateService.description);
+    print(updateService.paymentType);
+    print(updateService.total); */
+    for (var i = 0; i < _listService.length; i++) {
+      if (_listService[i]['id'] == updateService.id) {
+        _listService.setAll(i, [
+          {
+            'id': updateService.id,
+            'saveTime':
+                shareFunc.dateTimeConvertFormatString(updateService.saveTime),
+            'name': updateService.name,
+            'description': updateService.description,
+            'paymentType': updateService.paymentType,
+            'total': FormatterConvert().currencyShow(updateService.total)
+          }
+        ]);
+
+        break;
+      }
+    }
+    _expanded = List.generate(_listService.length, (index) => false);
+    _streamControllerListService.add(_listService);
+    return await db.updateService(updateService);
   }
 }

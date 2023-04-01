@@ -7,7 +7,7 @@ class Sabitler {
   static String dbHiveBoxName = 'necessaryData';
 
   final List<String> listDropdownService = [
-    'Hizmet Ekle',
+    'Hepsi',
     'Bürüt Ücretler',
     'Demirbaş ve Bakım Onarım Giderleri',
     'Elektrik Giderleri',

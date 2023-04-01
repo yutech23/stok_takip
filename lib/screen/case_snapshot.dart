@@ -36,6 +36,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   final String _labelPaid = "YAPILAN ÖDEMELER";
   final String _labelPayable = "YAPILACAK ÖDEMELER";
   final String _labelTotal = "TOPLAM";
+  final String _labelExpense = "Diğer Ödemeler";
   /*---------------------------------------------------------------------- */
 
   final String _labelTotalTableHeader = "Toplam";
@@ -238,6 +239,17 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                           _labelTotalPayment,
                                           FormatterConvert().currencyShow(
                                               snapshot.data!['totalPayment']),
+                                        ),
+                                        buildRowRight(
+                                          _labelExpense,
+                                          FormatterConvert().currencyShow(
+                                              snapshot.data!['totalExpense']),
+                                        ),
+                                        buildRowRight(
+                                          _labelTotalTableHeader,
+                                          FormatterConvert().currencyShow(
+                                              snapshot.data![
+                                                  'totalPaymentAndExpense']),
                                         ),
                                       ]),
                                 ],
