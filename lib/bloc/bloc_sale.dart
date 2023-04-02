@@ -229,7 +229,8 @@ class BlocSale {
       String? eftHavalePayment,
       required String unitOfCurrency,
       String? paymentNextDate,
-      required String userId}) async {
+      required String userId,
+      required DateTime saleTime}) async {
     final Sale soldProducts = Sale();
     final List<SaleDetail> listDetailProducts = <SaleDetail>[];
     soldProducts.userId = userId;
@@ -248,6 +249,7 @@ class BlocSale {
         FormatterConvert().commaToPointDouble(eftHavalePayment!);
     soldProducts.kdvRate = kdv;
     soldProducts.paymentNextDate = paymentNextDate;
+    soldProducts.saleTime = saleTime;
 
     ///Satılan Ürünlerin Listesi Ürün kodu, Miktar, Fiyat(KDVsiz)
     for (var element in listProduct) {

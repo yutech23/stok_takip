@@ -16,6 +16,7 @@ import 'package:stok_takip/utilities/share_widgets.dart';
 import 'package:stok_takip/utilities/widget_category_show.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../modified_lib/searchfield.dart';
+import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_3by3_financial.dart';
@@ -41,6 +42,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   late AutovalidateMode _autovalidateMode;
 
   final double _containerMainMinWidth = 360, _containerMainMaxWidth = 750;
+  final double _shareHeight = 50;
   double? _responceWidth;
   // late Product? _product;
 
@@ -118,6 +120,9 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
   }
   /*------------------------------------------------------ */
 
+  //Hizmet ekleme bölümündeki tarih.
+  DateTime _selectedSaveDateTime = DateTime.now();
+
   @override
   void initState() {
     _autovalidateMode = AutovalidateMode.onUserInteraction;
@@ -171,58 +176,75 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
-              child: Container(
-            constraints: BoxConstraints(
-                minWidth: _containerMainMinWidth,
-                maxWidth: _containerMainMaxWidth),
-            padding: context.extensionPadding20(),
-            decoration: context.extensionThemaWhiteContainer(),
-            child: Column(
-              children: [
-                Wrap(
-                    alignment: WrapAlignment.center,
-                    direction: Axis.horizontal,
-                    spacing: 30,
-                    runSpacing: 10,
-                    children: [
-                      Wrap(
+              child: Wrap(
+            direction: Axis.vertical,
+            alignment: WrapAlignment.end,
+            spacing: 10,
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                    minWidth: _containerMainMinWidth,
+                    maxWidth: _containerMainMaxWidth),
+                padding: context.extensionPadding20(),
+                decoration: context.extensionThemaWhiteContainer(),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20),
+                      child: SizedBox(
+                          width: 200,
+                          height: 40,
+                          child: shareWidgetDateTimeTextFormField()),
+                    ),
+                    context.extensionHighSizedBox10(),
+                    Wrap(
+                        alignment: WrapAlignment.center,
                         direction: Axis.horizontal,
-                        spacing: context.extensionWrapSpacing20(),
-                        runSpacing: context.extensionWrapSpacing10(),
+                        spacing: 30,
+                        runSpacing: 10,
                         children: [
-                          widgetWrapTextFieldMinAndMaxWidth(
-                              widgetSearchTextFieldProductCodeUpperCase()),
-                          widgetWrapTextFieldMinAndMaxWidth(
-                            widgetInvoiceCode(),
+                          Wrap(
+                            direction: Axis.horizontal,
+                            spacing: context.extensionWrapSpacing20(),
+                            runSpacing: context.extensionWrapSpacing10(),
+                            children: [
+                              widgetWrapTextFieldMinAndMaxWidth(
+                                  widgetSearchTextFieldProductCodeUpperCase()),
+                              widgetWrapTextFieldMinAndMaxWidth(
+                                widgetInvoiceCode(),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: widgetSearchTextFieldSupplier(),
-                      )
-                    ]),
-                widgetDividerHeader(_categorySections, 35),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: widgetCategorySelectSection(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: widgetSearchTextFieldSupplier(),
+                          )
+                        ]),
+                    widgetDividerHeader(_categorySections, 35),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      child: widgetCategorySelectSection(),
+                    ),
+                    const Divider(),
+                    widgetDividerHeader(_paymentSections, null),
+                    widgetPaymentOptions(),
+                    Divider(
+                        color: context.extensionLineColor,
+                        endIndent: 30,
+                        indent: 30,
+                        thickness: 2.5,
+                        height: 20),
+                    const Divider(),
+                    widgetProductUnitSection(),
+                    const Divider(),
+                    widgetSaveProduct(),
+                  ],
                 ),
-                const Divider(),
-                widgetDividerHeader(_paymentSections, null),
-                widgetPaymentOptions(),
-                Divider(
-                    color: context.extensionLineColor,
-                    endIndent: 30,
-                    indent: 30,
-                    thickness: 2.5,
-                    height: 20),
-                const Divider(),
-                widgetProductUnitSection(),
-                const Divider(),
-                widgetSaveProduct(),
-              ],
-            ),
+              ),
+            ],
           )),
         ));
   }
@@ -1011,6 +1033,55 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
     );
   }
 
+  ///Zaman Bölümü
+  shareWidgetDateTimeTextFormField() {
+    return Container(
+        width: _shareTextFormFieldPaymentSystemWidth,
+        height: _shareHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              _selectedSaveDateTime =
+                  await pickDateSaveTime() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _selectedSaveDateTime = _selectedSaveDateTime.add(
+                      Duration(hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              shareFunc.dateTimeConvertFormatString(_selectedSaveDateTime),
+              style: context.theme.titleSmall!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )));
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDateSaveTime() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+  /*----------------------------------------------------------------------- */
+
   ///Ürün Kaydı yapıldı yer.
   widgetSaveProduct() {
     return ElevatedButton(
@@ -1040,6 +1111,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
 
             ///ÖDEME TÜRÜNÜN EKLENMESİ.
             var payment = Payment(
+                saveDateTime: _selectedSaveDateTime,
                 suppliersFk: _controllerSupplier.text,
                 productFk: _controllerProductCode.text,
                 amountOfStock: int.parse(_controllerProductAmountOfStock.text),

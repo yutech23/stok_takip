@@ -12,6 +12,7 @@ import 'package:stok_takip/utilities/popup/popup_cari_supplier_payment.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
+import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_3by3_financial.dart';
@@ -109,7 +110,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         value: "dateTime",
         show: true,
         sortable: true,
-        flex: 2,
+        flex: 3,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
         text: "Tedarikçi",
@@ -625,9 +626,16 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         elevation: 5,
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
-          Container(
-              margin: const EdgeInsets.only(top: 20),
-              child: widgetCurrencySelectSection()),
+          context.extensionHighSizedBox20(),
+          widgetSaveDateTimeTextFormField(),
+          const Divider(
+            color: Colors.grey,
+            thickness: 1.5,
+            endIndent: 20,
+            indent: 20,
+            height: 40,
+          ),
+          Container(child: widgetCurrencySelectSection()),
           widgetPaymentOptionsTextFieldAndButton(),
         ]),
       ),
@@ -757,6 +765,55 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
       ),
     );
   }
+
+  ///Zaman Bölümü
+  widgetSaveDateTimeTextFormField() {
+    return Container(
+        width: _widthCurrency,
+        height: _shareHeightInputTextField,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              _blocCariSupplier.selectedSaveDateTime =
+                  await pickDateSaveTime() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _blocCariSupplier.selectedSaveDateTime =
+                      _blocCariSupplier.selectedSaveDateTime.add(Duration(
+                          hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              shareFunc.dateTimeConvertFormatString(
+                  _blocCariSupplier.selectedSaveDateTime),
+              style: context.theme.titleSmall!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )));
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDateSaveTime() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
 
   ///PaymentSystem textfield
   sharedTextFormField(

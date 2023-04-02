@@ -11,6 +11,7 @@ import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/popup/popup_cari_sale_detail.dart';
+import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import 'drawer.dart';
@@ -220,6 +221,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
     _colorBackgroundCurrencyEUR = context.extensionDefaultColor;
 
 /*----------------------------------------------------------------------- */
+
     cariGetpay = CariGetPay();
     super.initState();
   }
@@ -326,15 +328,15 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
       height: _shareHeightInputTextField,
       child: Row(
         children: [
-          shareWidgetDateTimeTextFormField(
+          shareWidgetSaveDateTimeTextFormField(
               _controllerStartDate, _labelStartDate, (value) {
             if (value.length == 10) {
               _blocCari.setterStartDate = DateFormat('dd/MM/yyyy').parse(value);
             }
           }),
           context.extensionWidhSizedBox10(),
-          shareWidgetDateTimeTextFormField(_controllerEndDate, _labelEndDate,
-              (value) {
+          shareWidgetSaveDateTimeTextFormField(
+              _controllerEndDate, _labelEndDate, (value) {
             if (value.length == 10) {
               _blocCari.setterEndDate = DateFormat('dd/MM/yyyy').parse(value);
             }
@@ -585,8 +587,10 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   }
 
   ///Zaman Aralık için textformfiled
-  Expanded shareWidgetDateTimeTextFormField(TextEditingController controller,
-      String label, Function(String)? onChanged) {
+  Expanded shareWidgetSaveDateTimeTextFormField(
+      TextEditingController controller,
+      String label,
+      Function(String)? onChanged) {
     return Expanded(
         child: TextFormField(
       textAlign: TextAlign.start,
@@ -625,8 +629,17 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
         elevation: 5,
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
+          context.extensionHighSizedBox20(),
+          shareWidgetDateTimeTextFormField(),
+          const Divider(
+            color: Colors.grey,
+            thickness: 1.5,
+            endIndent: 20,
+            indent: 20,
+            height: 40,
+          ),
           Container(
-              margin: const EdgeInsets.only(top: 20),
+              // margin: const EdgeInsets.only(top: 10),
               child: widgetCurrencySelectSection()),
           widgetPaymentOptionsTextFieldAndButton(),
         ]),
@@ -1014,6 +1027,57 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
           color: Colors.grey,
         ));
   }
+
+  ///Zaman Bölümü
+  shareWidgetDateTimeTextFormField() {
+    return Container(
+        width: _widthCurrency,
+        height: _shareHeightInputTextField,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              _blocCari.selectedSaveDateTime =
+                  await pickDateSaveTime() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _blocCari.selectedSaveDateTime =
+                      _blocCari.selectedSaveDateTime.add(Duration(
+                          hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              shareFunc
+                  .dateTimeConvertFormatString(_blocCari.selectedSaveDateTime),
+              style: context.theme.titleSmall!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )));
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDateSaveTime() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+  /*----------------------------------------------------------------------- */
 
   ///PDF ekleme
   printPDF(List<DatatableHeader> headers, List<Map<String, dynamic>>? source,

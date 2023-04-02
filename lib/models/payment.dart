@@ -11,7 +11,7 @@ class Payment {
   double? eftHavale;
   double buyingPriceWithoutTax;
   double sallingPriceWithoutTax;
-  DateTime? recordDateTime;
+  DateTime? saveDateTime;
   int amountOfStock;
   String? repaymentDateTime;
   String userId;
@@ -29,7 +29,8 @@ class Payment {
       required this.sallingPriceWithoutTax,
       required this.amountOfStock,
       this.repaymentDateTime,
-      required this.userId});
+      required this.userId,
+      this.saveDateTime});
 
   Payment.withId({
     required this.paymentId,
@@ -45,7 +46,7 @@ class Payment {
     this.bankcard,
     this.cash,
     this.eftHavale,
-    this.recordDateTime,
+    this.saveDateTime,
     this.repaymentDateTime,
   });
 }

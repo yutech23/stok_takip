@@ -440,6 +440,7 @@ class DbHelper {
       if (payment.suppliersFk.isNotEmpty) {
         await supabase.from('payment').insert([
           {
+            'save_date': toTimestampString(payment.saveDateTime.toString()),
             'supplier_fk': payment.suppliersFk,
             'product_fk': payment.productFk,
             'amount_of_stock': product.currentAmountOfStock,
@@ -656,7 +657,8 @@ class DbHelper {
           'salling_price_without_tax': payment.sallingPriceWithoutTax,
           'amount_of_stock': payment.amountOfStock,
           'repayment_date': payment.repaymentDateTime,
-          'seller': payment.userId
+          'seller': payment.userId,
+          'save_date': toTimestampString(payment.saveDateTime.toString())
         }
       ]);
       return "";
@@ -801,6 +803,7 @@ class DbHelper {
 
       final res = await supabase.from('sales').insert([
         {
+          'sale_date': toTimestampString(soldProducts.saleTime.toString()),
           'customer_type': soldProducts.customerType,
           'customer_fk': customerId[0]['customer_id'],
           'total_payment_without_tax': soldProducts.totalPaymentWithoutTax,
@@ -991,7 +994,8 @@ class DbHelper {
           'bankcard_payment': pay.bankcardPayment,
           'eft_havale_payment': pay.eftHavalePayment,
           'unit_of_currency': pay.unitOfCurrency,
-          'seller': pay.sellerId
+          'seller': pay.sellerId,
+          'payment_date': toTimestampString(pay.paymentDate.toString())
         }
       ]);
 
@@ -1328,7 +1332,8 @@ class DbHelper {
           'bankcard': pay.bankcardPayment,
           'eft_havale': pay.eftHavalePayment,
           'unit_of_currency': pay.unitOfCurrency,
-          'seller': pay.sellerId
+          'seller': pay.sellerId,
+          'save_date': toTimestampString(pay.paymentDate.toString())
         }
       ]);
 

@@ -92,9 +92,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final String _labelPaymentInfo = "Ödeme Bilgileri";
   String _buttonDateTimeLabel = "Ödeme Tarihi Ekle";
 
-  String? _selectDateTime;
+  String? _selectNextPaymentDateTimeString;
   DateTime? _nextPaymentDateTime;
-
+//Hizmet ekleme bölümündeki tarih.
+  DateTime _selectedSaleDateTime = DateTime.now();
 /*??????????????????***SON - (ÖDEME ALINDIĞI YER)??????????????? */
   num? totalPriceForListProduct;
   late String _selectCustomerType;
@@ -712,14 +713,15 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                         _valueNotifierButtonDateTimeState.value
                             ? () async {
                                 //Takvimden veri alınıyor.
-                                final dataForCalendar = await pickDate();
-                                _nextPaymentDateTime = dataForCalendar;
-                                if (dataForCalendar != null) {
-                                  _selectDateTime = DateFormat('dd/MM/yyyy')
-                                      .format(dataForCalendar);
+                                _nextPaymentDateTime = await pickDate();
+
+                                if (_nextPaymentDateTime != null) {
+                                  _selectNextPaymentDateTimeString =
+                                      DateFormat('dd/MM/yyyy')
+                                          .format(_nextPaymentDateTime!);
                                   setState(() {
                                     _buttonDateTimeLabel =
-                                        "Seçilen Tarih \n ${dataForCalendar.day}/${dataForCalendar.month}/${dataForCalendar.year}";
+                                        "Seçilen Tarih \n ${_nextPaymentDateTime!.day}/${_nextPaymentDateTime!.month}/${_nextPaymentDateTime!.year}";
                                   });
                                 }
                               }
@@ -794,13 +796,14 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               String? userId = dbHive.getValues('uuid');
 
               final res = await blocSale.save(
+                  saleTime: _selectedSaleDateTime,
                   customerType: _selectCustomerType,
                   customerPhone: _customerPhone,
                   unitOfCurrency: _selectUnitOfCurrencyAbridgment,
                   cashPayment: _controllerCashValue.text,
                   bankcardPayment: _controllerBankValue.text,
                   eftHavalePayment: _controllerEftHavaleValue.text,
-                  paymentNextDate: _selectDateTime,
+                  paymentNextDate: _selectNextPaymentDateTimeString,
                   userId: userId!);
 
               ///BAŞARILI kAYIT
@@ -812,7 +815,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 _controllerCashValue.clear();
                 _controllerSearchCustomer.clear();
                 _controllerSearchProductCode.clear();
-                _selectDateTime = null;
+                _selectNextPaymentDateTimeString = null;
                 setState(() {
                   ///Burada Parabirimi ayarları sıfırlanıyor.
                   _selectUnitOfCurrencyAbridgment =
@@ -881,8 +884,6 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   }
 
   /*-------------------------TARİH BÖLÜMÜ ARAMA BÖLÜMÜ --------------------- */
-//Hizmet ekleme bölümündeki tarih.
-  DateTime? _selectedDateTime = DateTime.now();
 
   ///Zaman Text
   shareWidgetDateTimeTextFormField() {
@@ -895,12 +896,13 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             borderRadius: const BorderRadius.all(Radius.circular(5))),
         child: TextButton.icon(
             onPressed: () async {
-              _selectedDateTime = await pickDateSaveTime() ?? DateTime.now();
+              _selectedSaleDateTime =
+                  await pickDateSaveTime() ?? DateTime.now();
               TimeOfDay? timeRes = await pickTime();
 
               setState(() {
                 if (timeRes != null) {
-                  _selectedDateTime = _selectedDateTime!.add(
+                  _selectedSaleDateTime = _selectedSaleDateTime.add(
                       Duration(hours: timeRes.hour, minutes: timeRes.minute));
                 }
               });
@@ -910,8 +912,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               color: context.extensionDefaultColor,
             ),
             label: Text(
-              shareFunc.dateTimeConvertFormatString(_selectedDateTime!),
-              style: context.theme.titleSmall,
+              shareFunc.dateTimeConvertFormatString(_selectedSaleDateTime),
+              style: context.theme.titleSmall!
+                  .copyWith(fontWeight: FontWeight.bold),
             )));
   }
 
@@ -1218,7 +1221,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                             ]),
                             buildRowRight([
                               'Ödeme Tarihi ',
-                              _selectDateTime ?? 'Girilmedi'
+                              _selectNextPaymentDateTimeString ?? 'Girilmedi'
                             ])
                           ])))
             ]));

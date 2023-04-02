@@ -96,6 +96,8 @@ class BlocCariCustomer {
   }
 
 /*-------------------------ÖDEME SİSTEMİ--------------------------- */
+  //Hizmet ekleme bölümündeki tarih.
+  DateTime selectedSaveDateTime = DateTime.now();
 
   double paymentTotalValue() {
     double paymentTotal = 0;
@@ -260,6 +262,7 @@ class BlocCariCustomer {
         FormatterConvert().commaToPointDouble(_paymentSystem['eftHavale']!);
     cariGetPay.unitOfCurrency = unitOfCurrency;
     cariGetPay.sellerId = dbHive.getValues('uuid');
+    cariGetPay.paymentDate = selectedSaveDateTime;
 
     /*   print(cariGetPay.customerType);
     print(cariGetPay.customerFk);

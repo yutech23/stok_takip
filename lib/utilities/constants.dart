@@ -22,6 +22,8 @@ class Sabitler {
     'Nakliye Giderleri',
     'Diğer Giderler'
   ];
+
+  final productTaxList = <String>['% 0', '% 8', '% 18'];
 }
 
 class ConstRoute {

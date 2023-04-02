@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/models/payment.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
@@ -37,6 +38,9 @@ class ScreenStockEdit extends StatefulWidget {
 class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  final double _shareHeight = 50;
+  final double _shareWidth = 250;
+
   late final List<Map<int, String>> _category1;
   late final List<Map<int, String>> _category2;
   late final List<Map<int, String>> _category3;
@@ -53,6 +57,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   bool _disableCategory5 = false;
 
 /*-------------Update Bölümü için------------- */
+
   final _controllerSupplier = TextEditingController();
   final FocusNode _searchFocusSupplier = FocusNode();
   final String _labelInvoiceCode = "Fatura Kodu";
@@ -94,6 +99,9 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     "amerika": {"symbol": '\$', "abridgment": "USD"},
     "avrupa": {"symbol": '€', "abridgment": "EURO"}
   };
+
+//Hizmet ekleme bölümündeki tarih.
+  DateTime _selectedSaveDateTime = DateTime.now();
 
   /*-------------------------END UPDATE------------------------------*/
   ///KDV seçilip Seçilmediğini kontrol ediyorum.
@@ -203,8 +211,6 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   late final List<DatatableHeader> _headers;
   Stream<List<Map<String, dynamic>>>? _stream;
   String? _selectedSearchValue;
-
-  final _productTaxList = <String>['% 0', '% 8', '% 18'];
 
   String? _selectedTaxValueString;
   int? _selectedTaxValueInt;
@@ -333,13 +339,15 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 alignment: Alignment.center,
                 icon: const Icon(Icons.delete),
                 onPressed: () {
+                  widgetDeleteProduct(row['productCode']);
+
                   ///Stok bitmeden silmeyi engelliyor.
-                  if (row['amountOfStock'] == 0) {
+                  /* if (row['amountOfStock'] == 0) {
                     widgetDeleteProduct(row['productCode']);
                   } else {
                     context.extensionShowErrorSnackBar(
                         message: "Stok bitmediği için silemezsiniz.");
-                  }
+                  } */
                 },
               ),
             ],
@@ -1028,7 +1036,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               title: Text(
                   textAlign: TextAlign.center,
                   'STOK GÜNCELLEME',
-                  style: context.theme.headline6!
+                  style: context.theme.titleMedium!
                       .copyWith(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Form(
@@ -1046,30 +1054,32 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       children: [
                         //STOKTA KALAN ÜRÜN BAŞLIK LABEL
                         Container(
-                          width: 360,
-                          height: 50,
+                          width: _shareWidth,
+                          height: _shareHeight,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                               border: Border.all(
                                   width: 1, color: Colors.blueGrey.shade700),
-                              borderRadius: BorderRadius.circular(15)),
+                              borderRadius: BorderRadius.circular(5)),
                           child: RichText(
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                   text: 'Stokta Kalan Ürün Sayısı: ',
-                                  style: context.theme.headline6!
+                                  style: context.theme.titleMedium!
                                       .copyWith(fontWeight: FontWeight.bold),
                                   children: [
                                     TextSpan(
                                       text: selectedProduct.currentAmountOfStock
                                           .toString(),
-                                      style: context.theme.headline6!.copyWith(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold),
+                                      style: context.theme.titleMedium!
+                                          .copyWith(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold),
                                     )
                                   ])),
                         ),
-                        const Divider(),
+                        widgetSaveDateTimeTextFormField(setState),
+
                         widgetSearchTextFieldSupplier(),
                         widgetDividerHeader(_paymentSections),
                         widgetPaymentOptions(
@@ -1119,13 +1129,14 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         if (resDatabase == "") {
                           controllerSallingPriceWithoutTax.clear();
 
+                          // ignore: use_build_context_synchronously
                           context.noticeBarTrue(
                               "Satış fiyatı Günccellendi.", 3);
                         } else {
+                          // ignore: use_build_context_synchronously
                           context.noticeBarError(
                               "İşlem Başarısız : \n $resDatabase", 2);
                         }
-                        print(resDatabase);
                       } else if (keyPopupForm.currentState!.validate()) {
                         ///Yeni verilerin aktarıldığı değişkenler.
                         newStockValue = int.parse(
@@ -1193,7 +1204,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             sallingPriceWithoutTax: newSallingPriceWithoutTax,
                             amountOfStock: newStockValue,
                             repaymentDateTime: _selectDateTime,
-                            userId: userId!);
+                            userId: userId!,
+                            saveDateTime: _selectedSaveDateTime);
 
                         //Product Nesmesi
                         productDetailToBeupdateMap.addAll({
@@ -1434,6 +1446,57 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
       ],
     );
   }
+
+  /*-------------------------TARİH BÖLÜMÜ ARAMA BÖLÜMÜ --------------------- */
+
+  ///Zaman Text
+  widgetSaveDateTimeTextFormField(Function(void Function()) setState) {
+    return Container(
+        width: _shareWidth,
+        height: _shareHeight,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            border: Border.all(color: context.extensionDefaultColor),
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: TextButton.icon(
+            onPressed: () async {
+              _selectedSaveDateTime =
+                  await pickDateSaveTime() ?? DateTime.now();
+              TimeOfDay? timeRes = await pickTime();
+
+              setState(() {
+                if (timeRes != null) {
+                  _selectedSaveDateTime = _selectedSaveDateTime.add(
+                      Duration(hours: timeRes.hour, minutes: timeRes.minute));
+                }
+              });
+            },
+            icon: Icon(
+              Icons.date_range,
+              color: context.extensionDefaultColor,
+            ),
+            label: Text(
+              shareFunc.dateTimeConvertFormatString(_selectedSaveDateTime),
+              style: context.theme.titleSmall!
+                  .copyWith(fontWeight: FontWeight.bold),
+            )));
+  }
+
+  ///Tarih seçildiği yer.
+  Future<DateTime?> pickDateSaveTime() => showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2050),
+      );
+
+  ///Saat seçildiği yer.
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+  /*----------------------------------------------------------------------- */
 
   searchTextFieldFiltre(String value) {
     if (value.isEmpty && value == "") {
@@ -1827,7 +1890,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             child: ShareDropdown(
               validator: validateNotEmpty,
               hint: _labelKDV,
-              itemList: _productTaxList,
+              itemList: sabitler.productTaxList,
               selectValue: _selectedTaxValueString,
               getShareDropdownCallbackFunc: _getProductTax,
             )),
@@ -1969,13 +2032,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   ///Tedarikçi Bölümü.
   widgetSearchTextFieldSupplier() {
-    double height = 75, width = 250;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: width,
-          height: height,
+          width: _shareWidth,
+          height: _shareHeight,
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: db.getSuppliersNameStream(),
             builder: (context, snapshot) {
@@ -2009,12 +2071,12 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             },
           ),
         ),
-        context.extensionWidhSizedBox20(),
+        context.extensionWidhSizedBox10(),
 
-        ///Tedarikçi Ekleme Buttonu.
+        ///Fatura Ekleme.
         SizedBox(
-          width: width,
-          height: height,
+          width: _shareWidth,
+          height: _shareHeight,
           child: TextFormField(
             maxLength: 25,
             controller: _controllerInvoiceCode,

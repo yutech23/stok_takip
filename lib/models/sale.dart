@@ -8,7 +8,8 @@ class Sale {
   double? bankcardPayment;
   double? eftHavalePayment;
   late String unitOfCurrency;
-  DateTime? saleDate;
+  DateTime? forwardSaleDate;
+  late DateTime saleTime;
   String? paymentNextDate;
   late List<SaleDetail> soldProductsList;
   late String userId;
