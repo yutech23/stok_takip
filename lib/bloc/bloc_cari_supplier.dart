@@ -55,7 +55,11 @@ class BlocCariSuppleirs {
   Map<String?, dynamic> _rowCustomerInfo = {};
 
   BlocCariSuppleirs() {
-    getSuppliers();
+    start();
+  }
+  start() async {
+    await getSuppliers();
+    await getOnlyUseDateTimeForPaymentList();
   }
 
   get getterExpandad => _expanded;

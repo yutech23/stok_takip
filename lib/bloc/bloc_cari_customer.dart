@@ -11,6 +11,15 @@ import '../data/database_mango.dart';
 import '../modified_lib/searchfield.dart';
 
 class BlocCariCustomer {
+  BlocCariCustomer() {
+    start();
+  }
+  start() async {
+    await getAllCustomerAndSuppliers();
+
+    await getOnlyUseDateTimeForSoldList();
+  }
+
   List<SearchFieldListItem<String>> listSearchFieldListItemForAllCustomer = [];
   final List<Map<String, String>> _allCustomerAndSuppliers = [];
   Map<String, String> _selectedCustomer = {};
@@ -55,10 +64,6 @@ class BlocCariCustomer {
   Map<String, dynamic> _saleInfo = {};
   String _saleCurrencySembol = "";
   Map<String?, dynamic> _rowCustomerInfo = {};
-
-  BlocCariCustomer() {
-    getAllCustomerAndSuppliers();
-  }
 
   get getterExpandad => _expanded;
 
