@@ -1,6 +1,8 @@
+import 'package:adaptivex/adaptivex.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:stok_takip/bloc/bloc_customer_register.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
@@ -8,6 +10,8 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
 import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import 'package:stok_takip/validations/validation.dart';
+import '../modified_lib/datatable_header.dart';
+import '../modified_lib/responsive_datatable.dart';
 import '../utilities/constants.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
@@ -49,6 +53,9 @@ class _ScreenCustomerSave extends State with Validation {
   final String _labelTC = "TC Kimlik Numarası giriniz";
   final String _labelAddress = "Adres";
 
+  final double _sectionCustomerSaveWidthMin = 360;
+  final double _sectionCustomerSaveWidthMax = 500;
+  final double _sectionHeight = 800;
   late List<dynamic> listCustomerRegister;
 
   String? _selectedCity;
@@ -58,8 +65,9 @@ class _ScreenCustomerSave extends State with Validation {
   Customer? _customer;
 
   //Müşteri Tipi Seçimini başka stateless Widget Çağırma Callback Func. kullanarak.
-  var customerTypeitems = <String>["Şahıs", "Şirket", "Tedarikçi"];
-  String? _customerType = "Şahıs";
+  var customerTypeitems = <String>["Şahıs", "Firma", "Tedarikçi"];
+
+  String? _customerType;
 
   void _getCustomerType(String value) {
     setState(() {
@@ -68,18 +76,122 @@ class _ScreenCustomerSave extends State with Validation {
     });
   }
 
+  late BlocCustomerRegister _blocCustomerRegister;
+
+/*------------------DATATABLE ----------------------------------------*/
+  late final List<DatatableHeader> _headers;
+  List<Map<String, dynamic>> _selecteds = [];
+  final double _dataTableWidth = 700;
+  final String _labelDescription = "Açıklama: ";
+  final TextEditingController _controllerSearchCustomerName =
+      TextEditingController();
+
+  final String _labelSearchHint = 'İsim ile Arama Yapınız';
+
+  /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
+/*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
+  final String _labelPopupUpdateHeader = "Güncelleme";
+  final GlobalKey<FormState> _formKeyUpdate = GlobalKey<FormState>();
+
+  ///Silme İşlemi
+  final String _header = "Hizmeti silmek istediğinizden emin misiniz?";
+  final String _yesText = "Evet";
+
+  /*---------------------------Güncelleme ------------------------------- */
   @override
   void initState() {
-    super.initState();
+    _blocCustomerRegister = BlocCustomerRegister();
+    _headers = [];
     listCustomerRegister = <dynamic>[];
     _visibleDistrict = false;
     _controllerIban.text = "TR";
-    _customerType = "Şahıs";
 
     ///İlk ekran açıldığında gelmesi için burası koyuldu. Bir sorun il ilçe seçimini
     ///listenin içine alındığında il seçiminde ilçe çıkmıyor. visible konusu çalışmıyor.
     ///liste içindeki nesneye ulaşılmıyor.
     listeEklemeSahis();
+
+    _headers.add(DatatableHeader(
+        text: "Tip",
+        value: "type",
+        show: true,
+        flex: 1,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "Müşteri İsmi",
+        value: "name",
+        show: true,
+        flex: 4,
+        sortable: true,
+        textAlign: TextAlign.center));
+    _headers.add(DatatableHeader(
+        text: "İletişim",
+        value: "phone",
+        show: true,
+        sortable: true,
+        flex: 2,
+        textAlign: TextAlign.center));
+
+    _headers.add(DatatableHeader(
+        text: "Sil ve Güncelle",
+        value: "detail",
+        show: true,
+        sortable: false,
+        flex: 2,
+        sourceBuilder: (value, row) {
+          return Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ///Silme Buttonu
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.delete),
+                onPressed: () async {
+                  print(row);
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return popupDelete(row, _controllerSearchCustomerName);
+                    },
+                  );
+                },
+              ),
+
+              ///Güncelleme Buttonu
+              IconButton(
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  setState(() {
+                    _customerType = row['type'];
+                    if (row['type'] == "Şahıs") {
+                      listCustomerRegister.clear();
+                      listeEklemeSahis();
+                      _controllerTC.text = row['tc_no'];
+                      _controllerName.text = row['name'];
+                      _controllerPhoneNumber.text = row['phone'];
+                    } else if (row['type'] == "Firma") {
+                      listCustomerRegister.clear();
+                      listeEklemeCompany();
+                    } else if (row['type'] == "Tedarikçi") {
+                      listCustomerRegister.clear();
+                      listeEklemeSupplier();
+                    }
+                  });
+                },
+              )
+            ],
+          );
+        },
+        textAlign: TextAlign.center));
+
+    super.initState();
   }
 
   @override
@@ -102,7 +214,7 @@ class _ScreenCustomerSave extends State with Validation {
       if (_customerType == "Şahıs") {
         listCustomerRegister.clear();
         listeEklemeSahis();
-      } else if (_customerType == "Şirket") {
+      } else if (_customerType == "Firma") {
         listCustomerRegister.clear();
         listeEklemeCompany();
       } else if (_customerType == "Tedarikçi") {
@@ -139,40 +251,132 @@ class _ScreenCustomerSave extends State with Validation {
             decoration: context.extensionThemaGreyContainer(),
             alignment: Alignment.center,
             child: SingleChildScrollView(
-              child: Container(
-                padding: context.extensionPadding20(),
-                alignment: Alignment.center,
-                decoration: context.extensionThemaWhiteContainer(),
-                constraints: const BoxConstraints(minWidth: 360, maxWidth: 750),
-                child: Column(children: [
-                  const Divider(),
-                  ShareDropdown(
-                      hint: "Müşteri Tipini Seçiniz.",
-                      itemList: customerTypeitems,
-                      selectValue: _customerType,
-                      getShareDropdownCallbackFunc: _getCustomerType),
-                  widgetListCustomerInformationInput(),
-                  //Deprecated yaptım.
-                  //  widgetPhoneNumber(),
-                  widgetRowCityAndDistrict(),
-                  const Divider(),
-                  _customerType != "Şahıs"
-                      ? widgetTaxOfficeAndTaxCodeInfo()
-                      : const SizedBox(),
-                  _customerType != "Şahıs" ? const Divider() : const SizedBox(),
-                  _customerType != "Şahıs"
-                      ? widgetCargoCompanyAndCargoCode()
-                      : const SizedBox(),
-                  _customerType != "Şahıs" ? const Divider() : const SizedBox(),
-                  widgetCustomerSaveButton(),
-                  const Divider(),
-                ]),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: context.extensionWrapSpacing10(),
+                runSpacing: context.extensionWrapSpacing10(),
+                children: [
+                  ///Müşteri Tablosu Bulunduğu yer.
+                  Container(
+                    width: _dataTableWidth,
+                    height: _sectionHeight,
+                    padding: context.extensionPadding20(),
+                    decoration: context.extensionThemaWhiteContainer(),
+                    child: widgetDateTable(),
+                  ),
+
+                  ///Müşteri Kayıt Bölümü
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                    alignment: Alignment.center,
+                    decoration: context.extensionThemaWhiteContainer(),
+                    constraints: BoxConstraints(
+                        minWidth: _sectionCustomerSaveWidthMin,
+                        maxWidth: _sectionCustomerSaveWidthMax),
+                    height: _sectionHeight,
+                    child: Column(children: [
+                      const Divider(),
+                      ShareDropdown(
+                          hint: "Müşteri Tipini Seçiniz.",
+                          itemList: customerTypeitems,
+                          selectValue: _customerType,
+                          getShareDropdownCallbackFunc: _getCustomerType),
+                      widgetListCustomerInformationInput(),
+                      widgetRowCityAndDistrict(),
+                      const Divider(),
+                      _customerType != "Şahıs"
+                          ? widgetTaxOfficeAndTaxCodeInfo()
+                          : const SizedBox(),
+                      _customerType != "Şahıs"
+                          ? const Divider()
+                          : const SizedBox(),
+                      _customerType != "Şahıs"
+                          ? widgetCargoCompanyAndCargoCode()
+                          : const SizedBox(),
+                      _customerType != "Şahıs"
+                          ? const Divider()
+                          : const SizedBox(),
+                      widgetCustomerSaveButton(),
+                      const Divider(),
+                    ]),
+                  ),
+                ],
               ),
             ),
           ),
         ));
   }
 
+  /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
+  widgetDateTable() {
+    return SizedBox(
+      width: _dataTableWidth,
+      child: Card(
+        margin: const EdgeInsets.only(top: 5),
+        elevation: 5,
+        shadowColor: Colors.black,
+        clipBehavior: Clip.none,
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _blocCustomerRegister.getStremAllCustomer,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && !snapshot.hasError) {}
+
+              return ResponsiveDatatable(
+                reponseScreenSizes: const [ScreenSize.xs],
+                headers: _headers,
+                source: snapshot.data,
+                selecteds: _selecteds,
+                expanded: _blocCustomerRegister.getterDatatableExpanded,
+                autoHeight: false,
+                actions: [
+                  Expanded(
+                      child: TextField(
+                    controller: _controllerSearchCustomerName,
+                    onChanged: (value) {
+                      _blocCustomerRegister.searchList(value);
+                    },
+                    decoration: InputDecoration(
+                      hintText: _labelSearchHint,
+                      prefixIcon: const Icon(Icons.search),
+                    ),
+                  ))
+                ],
+                dropContainer: (value) {
+                  return Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: RichText(
+                          text: TextSpan(
+                              text: _labelDescription,
+                              style: context.theme.titleSmall!.copyWith(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                              children: [
+                            TextSpan(
+                                style: context.theme.titleSmall,
+                                text: value['description'])
+                          ])));
+                },
+                sortAscending: true,
+                headerDecoration: BoxDecoration(
+                    color: Colors.blueGrey.shade900,
+                    border: const Border(
+                        bottom: BorderSide(color: Colors.red, width: 1))),
+                selectedDecoration: const BoxDecoration(
+                  border:
+                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                  color: Colors.green,
+                ),
+                headerTextStyle:
+                    context.theme.titleMedium!.copyWith(color: Colors.white),
+                rowTextStyle: context.theme.titleSmall,
+                selectedTextStyle: const TextStyle(color: Colors.grey),
+              );
+            }),
+      ),
+    );
+  }
+
+/*-------------------------------------------------------------------------- */
 //Müşteri bilgilerin girildiği input listesini içerir.
   ListView widgetListCustomerInformationInput() {
     return ListView.separated(
@@ -301,6 +505,30 @@ class _ScreenCustomerSave extends State with Validation {
             Expanded(child: widgetSearchDropdownDistrict()),
           ],
         ),
+        const Divider(color: Colors.transparent),
+
+        ///Adres giriş bölümü
+        TextFormField(
+          controller: _controllerAddress,
+          validator: validateAddress,
+          decoration: InputDecoration(
+              counterText: "",
+              labelText: _labelAddress,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              )),
+        ),
+      ],
+    );
+  }
+
+  //İl ve İlçe Satır Fonksiyonu
+  widgetRowCityAndDistrictColumn() {
+    return Column(
+      children: [
+        widgetSearchDropdownCities(),
+        context.extensionHighSizedBox10(),
+        widgetSearchDropdownDistrict(),
         const Divider(color: Colors.transparent),
 
         ///Adres giriş bölümü
@@ -500,7 +728,7 @@ class _ScreenCustomerSave extends State with Validation {
                     context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
-              } else if (_customerType == 'Şirket') {
+              } else if (_customerType == 'Firma') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
                     phone: Sabitler.countryCode + _controllerPhoneNumber.text,
@@ -590,5 +818,60 @@ class _ScreenCustomerSave extends State with Validation {
             "KAYIT",
           ),
         ));
+  }
+
+  ///Silme popup bölümü
+  popupDelete(
+      Map<String?, dynamic> serviceId, TextEditingController controllerSearch) {
+    return AlertDialog(
+      title: Text('UYARI',
+          textAlign: TextAlign.center,
+          style:
+              context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
+      alignment: Alignment.center,
+      content: Text(_header,
+          style:
+              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: <Widget>[
+        SizedBox(
+          width: 100,
+          height: 30,
+          child: ElevatedButton(
+              onPressed: () async {
+                ///Stok bitmeden silmeyi engelliyor.
+
+                String res =
+                    await _blocCustomerRegister.deleteCustomer(serviceId);
+                if (res.isEmpty) {
+                  controllerSearch.clear();
+                  Navigator.pop(context);
+                  // ignore: use_build_context_synchronously
+                  await context.noticeBarTrue("İşlem başarılı.", 2);
+
+                  // ignore: use_build_context_synchronously
+
+                } else {
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarError("Hata $res", 3);
+                }
+              },
+              child: Text(_yesText,
+                  style:
+                      context.theme.titleSmall!.copyWith(color: Colors.white))),
+        ),
+        SizedBox(
+          width: 100,
+          height: 30,
+          child: ElevatedButton(
+            child: Text("İptal",
+                style: context.theme.titleSmall!.copyWith(color: Colors.white)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

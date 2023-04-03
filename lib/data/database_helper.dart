@@ -1901,6 +1901,69 @@ class DbHelper {
 
   /*--------------------------------------------------------------------- */
 
+  /*-----------------------Müşteri İşlemler ekranı----------------------- */
+  Future<List<Map<String, dynamic>>> fetchAllCustomer() async {
+    List<Map<String, dynamic>> allCustomer = [];
+    List<Map<String, dynamic>> customerSoleTrader = [];
+    List<Map<String, dynamic>> customerCompany = [];
+    List<Map<String, dynamic>> customerSuppliers = [];
+    try {
+      customerSoleTrader = await db.supabase
+          .from('customer_sole_trader')
+          .select<List<Map<String, dynamic>>>();
+      customerCompany = await db.supabase
+          .from('customer_company')
+          .select<List<Map<String, dynamic>>>();
+      customerSuppliers = await db.supabase
+          .from('suppliers')
+          .select<List<Map<String, dynamic>>>();
+
+      ///Şahıs Müşterileri tabloda isim ile soyism farklı kolonda tutluyor.Bu yüzden
+      ///birleştiriliyor.
+      for (var element in customerSoleTrader) {
+        element['name'] = "${element['name']} ${element['last_name']}";
+      }
+
+      allCustomer.addAll(customerSoleTrader);
+      allCustomer.addAll(customerCompany);
+      allCustomer.addAll(customerSuppliers);
+      return allCustomer;
+    } on PostgrestException catch (e) {
+      return [
+        {'Hata': e.message}
+      ];
+    }
+  }
+
+  Future<String> deleteCustomerSoleTrader(int id) async {
+    try {
+      await db.supabase
+          .from('customer_sole_trader')
+          .delete()
+          .eq('customer_id', id);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<String> deleteCustomerCompany(int id) async {
+    try {
+      await db.supabase.from('customer_company').delete().eq('customer_id', id);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
+
+  Future<String> deleteCustomerSupplier(int id) async {
+    try {
+      await db.supabase.from('suppliers').delete().eq('id', id);
+      return "";
+    } on PostgrestException catch (e) {
+      return e.message;
+    }
+  }
 }
 
 final db = DbHelper();

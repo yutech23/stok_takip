@@ -20,6 +20,9 @@ class Sabitler {
     'Yemek Giderleri',
     'Yol, OGS, HGS, Ulaşım Giderleri',
     'Nakliye Giderleri',
+    'SGK',
+    'Ambalaj, Boşet ve Çuval',
+    'Ambar Ödemesi',
     'Diğer Giderler'
   ];
 

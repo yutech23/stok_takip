@@ -92,6 +92,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                 BoxConstraints(minWidth: _shareMinWidth, maxWidth: 1200),
             padding: context.extensionPadding20(),
             child: Wrap(
+              alignment: WrapAlignment.center,
               spacing: 10,
               runSpacing: 10,
               direction: Axis.horizontal,
