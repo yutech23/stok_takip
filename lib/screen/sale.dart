@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
+import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_invoice.dart';
 import 'package:stok_takip/bloc/bloc_sale.dart';
 import 'package:stok_takip/data/database_helper.dart';
@@ -14,7 +15,6 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import 'package:stok_takip/validations/format_decimal_3by3_financial.dart';
 import 'package:stok_takip/widget_share/sale_custom_table.dart';
 import 'package:turkish/turkish.dart';
-import '../modified_lib/searchfield.dart';
 import '../utilities/share_func.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
@@ -69,6 +69,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   final double _saleMinWidth = 360, _saleMaxWidth = 970;
   final double _tableMaxWidth = 600;
   final double _shareHeight = 40;
+  final double _searchItemHeight = 30;
   int tableRowIndex = 0;
   final double _widthSearch = 340;
   int simpleIntInput = 0;
@@ -310,49 +311,53 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   "${element['type']} - ${element['name']!} - ${element['phone']}",
                   item: element['type']));
             }
-            return SearchField(
-              searchHeight: _shareHeight,
-              validator: validateNotEmpty,
-              controller: _controllerSearchCustomer,
-              searchInputDecoration: InputDecoration(
-                  isDense: true,
-                  errorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  ),
-                  label: Text(_labelSearchCustomer),
-                  prefixIcon: const Icon(Icons.search, color: Colors.black),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  )),
-              suggestions: listSearch,
-              focusNode: _focusSearchCustomer,
-              searchStyle: const TextStyle(
-                fontSize: 14,
-                //  overflow: TextOverflow.fade,
+            return SizedBox(
+              height: _shareHeight,
+              child: SearchField(
+                scrollbarAlwaysVisible: true,
+                itemHeight: _searchItemHeight,
+                validator: validateNotEmpty,
+                controller: _controllerSearchCustomer,
+                searchInputDecoration: InputDecoration(
+                    isDense: true,
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    ),
+                    label: Text(_labelSearchCustomer),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    )),
+                suggestions: listSearch,
+                focusNode: _focusSearchCustomer,
+                searchStyle: const TextStyle(
+                  fontSize: 14,
+                  //  overflow: TextOverflow.fade,
+                ),
+                onSuggestionTap: (selectedValue) {
+                  ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
+                  var _customerInfoList = selectedValue.searchKey.split(' - ');
+                  //  print(_customerInfoList);
+                  _selectCustomerType = _customerInfoList[0];
+
+                  ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
+                  /// numarsı üzerinden id buluncak. telefon numarası unique.
+                  ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
+                  //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
+
+                  _customerPhone = _customerInfoList[2];
+                  // print(_customerPhone);
+                  /* for (var element in listCustomer) {
+                    if (element['name'] == selectedValue.searchKey) {
+                      _customerPhone = element['phone']!;
+                      break;
+                    }
+                  } */
+
+                  _focusSearchCustomer.unfocus();
+                },
+                maxSuggestionsInViewPort: 6,
               ),
-              onSuggestionTap: (selectedValue) {
-                ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
-                var _customerInfoList = selectedValue.searchKey.split(' - ');
-                //  print(_customerInfoList);
-                _selectCustomerType = _customerInfoList[0];
-
-                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
-                /// numarsı üzerinden id buluncak. telefon numarası unique.
-                ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
-                //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
-
-                _customerPhone = _customerInfoList[2];
-                // print(_customerPhone);
-                /* for (var element in listCustomer) {
-                  if (element['name'] == selectedValue.searchKey) {
-                    _customerPhone = element['phone']!;
-                    break;
-                  }
-                } */
-
-                _focusSearchCustomer.unfocus();
-              },
-              maxSuggestionsInViewPort: 6,
             );
           }
           return Container();
@@ -392,40 +397,48 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       child: FutureBuilder<List<String>>(
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
-            return SearchField(
-              searchHeight: _shareHeight,
-              validator: validateNotEmpty,
-              controller: _controllerSearchProductCode,
-              searchInputDecoration: InputDecoration(
-                  isDense: true,
-                  errorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  ),
-                  label: Text(_labelSearchProductCode),
-                  prefixIcon: const Icon(Icons.search, color: Colors.black),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(),
-                  )),
-              suggestions: snapshot.data!.map((e) {
-                return SearchFieldListItem(e);
-              }).toList(),
-              focusNode: _focusSearchProductCode,
-              onSuggestionTap: (selectedValue) {
-                _focusSearchProductCode.unfocus();
-              },
-              onSubmit: (p0) async {
-                if (p0.isNotEmpty) {
-                  //seçilen ürün kodunun özellikleri alınıyor.
-                  if (snapshot.data!.contains(p0)) {
-                    _selectProduct = await db.fetchProductDetailForSale(
-                        _controllerSearchProductCode.text);
-                    blocSale.addProduct(_selectProduct!);
-                    blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
-                    blocSale.balance();
+            return SizedBox(
+              height: _shareHeight,
+              child: SearchField(
+                itemHeight: _searchItemHeight,
+                validator: validateNotEmpty,
+                controller: _controllerSearchProductCode,
+                searchInputDecoration: InputDecoration(
+                    isDense: true,
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    ),
+                    label: Text(_labelSearchProductCode),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    )),
+                suggestions: snapshot.data!.map((e) {
+                  return SearchFieldListItem(e);
+                }).toList(),
+                focusNode: _focusSearchProductCode,
+                onSuggestionTap: (selectedValue) {
+                  _focusSearchProductCode.unfocus();
+                },
+                searchStyle: const TextStyle(
+                  fontSize: 14,
+                  //  overflow: TextOverflow.fade,
+                ),
+                onSubmit: (p0) async {
+                  if (p0.isNotEmpty) {
+                    //seçilen ürün kodunun özellikleri alınıyor.
+                    if (snapshot.data!.contains(p0)) {
+                      _selectProduct = await db.fetchProductDetailForSale(
+                          _controllerSearchProductCode.text);
+                      blocSale.addProduct(_selectProduct!);
+                      blocSale
+                          .getTotalPriceSection(_selectUnitOfCurrencySymbol);
+                      blocSale.balance();
+                    }
                   }
-                }
-              },
-              maxSuggestionsInViewPort: 6,
+                },
+                maxSuggestionsInViewPort: 6,
+              ),
             );
           }
           return Container();

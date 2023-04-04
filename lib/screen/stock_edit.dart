@@ -4,6 +4,7 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -16,7 +17,7 @@ import '../models/category.dart';
 import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-import '../modified_lib/searchfield.dart';
+
 import '../utilities/convert_string_currency_digits.dart';
 import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';

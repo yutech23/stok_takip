@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/modified_lib/searchfield.dart';
+import 'package:searchfield/searchfield.dart';
 
 class Test extends StatefulWidget {
   const Test({super.key});
@@ -45,83 +45,31 @@ class _TestState extends State<Test> {
         Center(
             child: SizedBox(
           width: 300,
-          child: StreamBuilder2(
-            builder: (context, snapshot) {
-              if (snapshot.snapshot1.hasData && snapshot.snapshot2.hasData) {
-                final listCustomer = <Map<String, String>>[];
-                listCustomer.clear();
-
-                for (var item in snapshot.snapshot1.data) {
-                  listCustomer.add({
-                    'type': item['type'],
-                    'name': "${item['name']} ${item['last_name']}",
-                    'phone': item['phone']
-                  });
-                }
-                for (var item in snapshot.snapshot2.data) {
-                  listCustomer.add({
-                    'type': item['type'],
-                    'name': item['name'],
-                    'phone': item['phone']
-                  });
-                }
-
-                List<SearchFieldListItem<String>> listSearch =
-                    <SearchFieldListItem<String>>[];
-
-                for (var element in listCustomer) {
-                  ///item müşterinin type atıyorum.
-                  listSearch.add(SearchFieldListItem(
-                      "${element['type']} - ${element['name']!} - ${element['phone']}",
-                      item: element['type']));
-                }
-                return SearchField(
-                  controller: controllerSearch,
-                  searchInputDecoration: InputDecoration(
-                      isDense: true,
-                      errorBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(),
+          child: SearchField<String>(
+            suggestions: ['yusuf', 'deneme']
+                .map(
+                  (e) => SearchFieldListItem(
+                    e,
+                    item: e,
+                    // Use child to show Custom Widgets in the suggestions
+                    // defaults to Text widget
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(e),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(e),
+                        ],
                       ),
-                      label: Text("_labelSearchCustomer"),
-                      prefixIcon: const Icon(Icons.search, color: Colors.black),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(),
-                      )),
-                  suggestions: listSearch,
-                  searchStyle: const TextStyle(
-                    fontSize: 14,
-                    //  overflow: TextOverflow.fade,
+                    ),
                   ),
-                  onSuggestionTap: (selectedValue) {
-                    ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
-                    var _customerInfoList =
-                        selectedValue.searchKey.split(' - ');
-                    //  print(_customerInfoList);
-                    _selectCustomerType = _customerInfoList[0];
-
-                    ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
-                    /// numarsı üzerinden id buluncak. telefon numarası unique.
-                    ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
-                    //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
-
-                    _customerPhone = _customerInfoList[2];
-                    // print(_customerPhone);
-                    /* for (var element in listCustomer) {
-                  if (element['name'] == selectedValue.searchKey) {
-                    _customerPhone = element['phone']!;
-                    break;
-                  }
-                } */
-
-                    //   _focusSearchCustomer.unfocus();
-                  },
-                  maxSuggestionsInViewPort: 6,
-                );
-              }
-              return Container();
-            },
-            streams: StreamTuple2(db.fetchSoloCustomerAndPhoneStream(),
-                db.fetchCompanyCustomerAndPhoneStream()),
+                )
+                .toList(),
           ),
         )),
         ElevatedButton(

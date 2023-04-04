@@ -411,7 +411,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Container(
       constraints: _responseWidth,
       child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber, dialCode: dialCode),
+          controllerPhoneNumber: _controllerPhoneNumber),
     );
   }
 
@@ -424,8 +424,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
               _customer = Customer.soleTrader(
                 soleTraderName: _controllerName.text,
                 soleTraderLastName: _controllerLastName.text,
-                dialCode: dialCode,
-                phone: _controllerPhoneNumber.text,
+                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                 city: _selectedCity,
                 district: _selectDistrict,
                 address: _controlleraddress.text,

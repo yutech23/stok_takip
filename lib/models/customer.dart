@@ -4,7 +4,6 @@ class Customer {
   late String? soleTraderName;
   late String? soleTraderLastName;
   late String? companyName;
-  late String dialCode;
   late String phone;
   late String? city;
   late String? district;
@@ -23,7 +22,6 @@ class Customer {
     this.type = "Şahıs",
     this.soleTraderName,
     this.soleTraderLastName,
-    required this.dialCode,
     required this.phone,
     this.city,
     this.district,
@@ -34,7 +32,6 @@ class Customer {
   Customer.company({
     this.type = "Firma",
     required this.companyName,
-    required this.dialCode,
     required this.phone,
     required this.city,
     required this.district,
@@ -47,7 +44,6 @@ class Customer {
   Customer.supplier({
     this.type = "Tedarikçi",
     required this.supplierName,
-    required this.dialCode,
     required this.phone,
     required this.city,
     required this.district,

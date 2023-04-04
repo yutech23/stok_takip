@@ -444,7 +444,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   widgetCountryPhoneNumber() {
     return Container(
       child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber, dialCode: dialCode),
+          controllerPhoneNumber: _controllerPhoneNumber),
     );
   }
 
@@ -462,8 +462,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 supplierName: _controllerSupplierName.text,
                 bankName: _controllerBankName.text,
                 iban: iban,
-                dialCode: dialCode,
-                phone: _controllerPhoneNumber.text,
+                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                 city: _selectedCity,
                 district: _selectDistrict,
                 address: _controlleraddress.text,
@@ -496,7 +495,6 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                   .then((value) => Navigator.of(context).pop());
 
               ///popup tan sonra tedarikçi ismini ürün ekleme saydasına taşıyor
-
             } else {
               context.noticeBarError("Kayıtlı olan bir Tedarikçi girdiniz.", 2);
             }

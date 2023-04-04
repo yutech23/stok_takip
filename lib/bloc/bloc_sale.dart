@@ -23,7 +23,7 @@ class BlocSale {
   double _balance = 0;
   Map<String, num> totalPriceAndKdv = <String, num>{
     'total_without_tax': 0,
-    'kdv': 8,
+    'kdv': 0,
     'total_with_tax': 0,
   };
 
@@ -32,17 +32,17 @@ class BlocSale {
     "bankCard": "0",
     "EftHavale": "0"
   };
-  int kdv = 8;
+  int kdv = 0;
 
   clearValues() {
     listProduct.clear();
     listUSD.clear();
     totalPriceAndKdv = <String, num>{
       'total_without_tax': 0,
-      'kdv': 8,
+      'kdv': 0,
       'total_with_tax': 0,
     };
-    kdv = 8;
+    kdv = 0;
     _paymentSystem = {"cash": "0", "bankCard": "0", "EftHavale": "0"};
 
     _streamControllerIndex.add(listProduct);

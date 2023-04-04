@@ -3,12 +3,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../data/database_mango.dart';
-import '../modified_lib/searchfield.dart';
 
 class BlocCariCustomer {
   BlocCariCustomer() {

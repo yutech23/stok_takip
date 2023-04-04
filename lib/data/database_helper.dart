@@ -289,7 +289,6 @@ class DbHelper {
         {
           'name': customerSoleTrader.soleTraderName,
           'last_name': customerSoleTrader.soleTraderLastName,
-          'dial_code': customerSoleTrader.dialCode,
           'phone': customerSoleTrader.phone,
           'city': customerSoleTrader.city,
           'district': customerSoleTrader.district,
@@ -312,7 +311,6 @@ class DbHelper {
       await supabase.from('customer_company').insert([
         {
           'name': customerCompany.companyName,
-          'dial_code': customerCompany.dialCode,
           'phone': customerCompany.phone,
           'city': customerCompany.city,
           'district': customerCompany.district,
@@ -339,7 +337,6 @@ class DbHelper {
           'name': supplier.supplierName,
           'iban': supplier.iban,
           'bank_name': supplier.bankName,
-          'dial_code': supplier.dialCode,
           'phone': supplier.phone,
           'city': supplier.city,
           'district': supplier.district,

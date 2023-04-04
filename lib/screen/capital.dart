@@ -1,7 +1,8 @@
 import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import '../modified_lib/searchfield.dart';
+import 'package:searchfield/searchfield.dart';
+
 import 'package:stok_takip/bloc/bloc_capital.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_convert_point_comma.dart';

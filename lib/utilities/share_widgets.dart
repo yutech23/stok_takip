@@ -69,7 +69,7 @@ class ShareWidget with Validation {
 
 //Aktif Telefon Numara giriş bölmü kullanılıyor
   IntlPhoneField widgetIntlPhoneField(
-      {TextEditingController? controllerPhoneNumber, String? dialCode}) {
+      {TextEditingController? controllerPhoneNumber}) {
     return IntlPhoneField(
       controller: controllerPhoneNumber,
       initialCountryCode: 'TR',
@@ -89,7 +89,9 @@ class ShareWidget with Validation {
       ///static olarak bir değişken tanımladım çünkü diğer sayfadan ulaşmak için
       ///SetState ihtiyaç vardı. AYNI İŞİ "KEY" YAPILABİLİR. İŞ HIZLI OLMASI İÇİN
       ///ŞUABNLIK BÖYLE YAPILDI.
-      onCountryChanged: (value) => dialCode = value.dialCode,
+      onCountryChanged: (value) {
+        Sabitler.countryCode = value.dialCode;
+      },
     );
   }
 

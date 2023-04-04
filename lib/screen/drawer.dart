@@ -42,8 +42,8 @@ class _MyDrawerState extends State<MyDrawer> {
     'RouteSignUp',
     'RouteCaseSnapshot',
     'RouteCapital',
-    'RouteExpenses'
-        'Test',
+    'RouteExpenses',
+    'Test',
   ];
 
   late List<Widget> listWidgetMenuByRole = [];
@@ -298,10 +298,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   Icons.person_search,
                   [const RouteCariCustomer(), const RouteCariSupplier()]));
               break;
-            case "Test":
-              listWidgetMenuByRole.add(widgetMenuItem(
-                  context, const Test(), Icons.try_sms_star, _labelTest));
-              break;
+
             case "RouteCaseSnapshot":
               listWidgetMenuByRole.add(widgetMenuItem(
                   context,
@@ -318,8 +315,8 @@ class _MyDrawerState extends State<MyDrawer> {
                   const RouteExpenses(), 'assets/gider.png', _labelExpenses));
               break;
             case "Test":
-              listWidgetMenuByRole.add(widgetMenuItem(context, const Test(),
-                  Icons.reduce_capacity_sharp, _labelTest));
+              listWidgetMenuByRole.add(widgetMenuItem(
+                  context, const Test(), Icons.try_sms_star, _labelTest));
               break;
             default:
           }

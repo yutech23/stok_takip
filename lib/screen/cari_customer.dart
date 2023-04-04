@@ -2,7 +2,7 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../modified_lib/searchfield.dart';
+import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_cari_customer.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';

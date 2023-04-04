@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_customer_register.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
@@ -43,8 +44,6 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerIban = TextEditingController();
   final _controllerSupplierName = TextEditingController();
   final _controllerTC = TextEditingController();
-
-  late String _dialCode;
 
   final String _labelBankName = "Banka İsmi";
   final String _labelCompanyName = "Firma Adını Giriniz";
@@ -154,6 +153,7 @@ class _ScreenCustomerSave extends State with Validation {
             children: [
               ///Silme Buttonu
               IconButton(
+                focusNode: FocusNode(skipTraversal: true),
                 iconSize: 20,
                 padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
@@ -170,6 +170,7 @@ class _ScreenCustomerSave extends State with Validation {
 
               ///Güncelleme Buttonu
               IconButton(
+                focusNode: FocusNode(skipTraversal: true),
                 iconSize: 20,
                 padding: const EdgeInsets.only(bottom: 20),
                 alignment: Alignment.center,
@@ -771,8 +772,7 @@ class _ScreenCustomerSave extends State with Validation {
                 _customer = Customer.soleTrader(
                   soleTraderName: _controllerName.text,
                   soleTraderLastName: _controllerLastName.text,
-                  dialCode: _dialCode,
-                  phone: _controllerPhoneNumber.text,
+                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
                   address: _controllerAddress.text,
@@ -799,8 +799,7 @@ class _ScreenCustomerSave extends State with Validation {
               } else if (_customerType == 'Firma') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
-                    dialCode: _dialCode,
-                    phone: _controllerPhoneNumber.text,
+                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -836,8 +835,7 @@ class _ScreenCustomerSave extends State with Validation {
                     supplierName: _controllerSupplierName.text,
                     bankName: _controllerBankName.text,
                     iban: iban,
-                    dialCode: _dialCode,
-                    phone: _controllerPhoneNumber.text,
+                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -874,7 +872,6 @@ class _ScreenCustomerSave extends State with Validation {
               /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
               /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
               /// dönen değer 1 eşitleniyor.
-
             }
           });
         },
@@ -920,7 +917,6 @@ class _ScreenCustomerSave extends State with Validation {
                   await context.noticeBarTrue("İşlem başarılı.", 2);
 
                   // ignore: use_build_context_synchronously
-
                 } else {
                   // ignore: use_build_context_synchronously
                   context.noticeBarError("Hata $res", 3);

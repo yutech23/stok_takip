@@ -30,7 +30,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
   final String _labelGeneralTotal = "KDV'li Tutar";
-
+  // TextEditingController _controllerKDV = TextEditingController();
   /*????????????????????????????? SON ???????????????????????????????*/
 
   @override
@@ -143,7 +143,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
           stream: widget.blocSale.getStreamTotalPriceSection,
           initialData: const {
             'total_without_tax': 0,
-            'kdv': 8, //Başlangıçtaki değer ataması veri gelmediğinde
+            'kdv': 0, //Başlangıçtaki değer ataması veri gelmediğinde
             'total_with_tax': 0
           },
           builder: (context, snapshot) {
@@ -274,6 +274,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
           ],
+          //  controller: _controllerKDV,
           onChanged: (value) {
             ///değiştirlen miktar Product nesnesinin içindeki değere atanıyor.
             ///eğer value boş gelirse tryParse sorunçıkıyor bu yüzden gelen verinin içi boş ise çalışmayacak.
@@ -283,7 +284,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
               widget.blocSale
                   .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
               widget.blocSale.balance();
-            } else {
+            } else if (value != null) {
               widget.blocSale.setKdv = "0";
               widget.blocSale
                   .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
