@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:stok_takip/env/env.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/models/cari_partner.dart';
@@ -75,6 +77,7 @@ class DbHelper {
             role: resData[0]['role'].toString());
         return selectedKullanici;
       } on PostgrestException catch (e) {
+        debugPrint("hata : ${e.message}");
         selectedKullanici = Kullanici.nameSurnameRole(
             name: 'Null', lastName: 'Null', role: 'Null');
 
@@ -102,7 +105,7 @@ class DbHelper {
     try {
       final data = await db.supabase.auth.setSession(refleshToken);
     } on PostgrestException catch (e) {
-      print("erorr :${e.message}");
+      debugPrint("erorr :${e.message}");
     }
   }
 
@@ -147,15 +150,15 @@ class DbHelper {
           .toString()
           .replaceAll(RegExp(r"[)(]"), '');
 
-      /*   print("**********");
-      print(kullanici.name);
-      print(kullanici.lastName);
-      print(kullanici.email);
-      print(kullanici.password);
-      print(roleIdString);
-      print(kullanici.activeUser);
-      print(kullanici.isPartner);
-      print("***********"); */
+      /*   debugPrint("**********");
+      debugPrint(kullanici.name);
+      debugPrint(kullanici.lastName);
+      debugPrint(kullanici.email);
+      debugPrint(kullanici.password);
+      debugPrint(roleIdString);
+      debugPrint(kullanici.activeUser);
+      debugPrint(kullanici.isPartner);
+      debugPrint("***********"); */
 
       //Kulanıcı Bilgileri Kayıt
       await db.supabase.from('users').insert([
@@ -171,7 +174,7 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
-      print("Hata SignUp : ${e.message}");
+      debugPrint("Hata SignUp : ${e.message}");
       return e.message;
     }
   }
@@ -186,10 +189,10 @@ class DbHelper {
           .single();
 
       res = resList['email'];
-      print(res);
+      debugPrint(res);
       return res;
     } on PostgrestException catch (e) {
-      print("Kullanıcı Email adresi arama Hata: ${e.message}");
+      debugPrint("Kullanıcı Email adresi arama Hata: ${e.message}");
       return "";
     }
   }
@@ -210,7 +213,7 @@ class DbHelper {
       }
       return dropdownYetkiListe;
     } on PostgrestException catch (e) {
-      print("Hata getRole :${e.message} ");
+      debugPrint("Hata getRole :${e.message} ");
       return rolesList;
     }
   }
@@ -226,7 +229,7 @@ class DbHelper {
       }
       return citiesList;
     } on PostgrestException catch (e) {
-      print("Hata Cities : ${e.message}");
+      debugPrint("Hata Cities : ${e.message}");
       return citiesList;
     }
   }
@@ -250,7 +253,7 @@ class DbHelper {
       districtsList.sort(turkish.comparator);
       return districtsList;
     } on PostgrestException catch (e) {
-      print("Hata districts : ${e.message}");
+      debugPrint("Hata districts : ${e.message}");
       return districtsList;
     }
   }
@@ -274,7 +277,7 @@ class DbHelper {
 
       return taxOfficesNameList;
     } on PostgrestException catch (e) {
-      print("Hata taxOffice : ${e.message}");
+      debugPrint("Hata taxOffice : ${e.message}");
       return taxOfficesNameList;
     }
   }
@@ -286,6 +289,7 @@ class DbHelper {
         {
           'name': customerSoleTrader.soleTraderName,
           'last_name': customerSoleTrader.soleTraderLastName,
+          'dial_code': customerSoleTrader.dialCode,
           'phone': customerSoleTrader.phone,
           'city': customerSoleTrader.city,
           'district': customerSoleTrader.district,
@@ -308,6 +312,7 @@ class DbHelper {
       await supabase.from('customer_company').insert([
         {
           'name': customerCompany.companyName,
+          'dial_code': customerCompany.dialCode,
           'phone': customerCompany.phone,
           'city': customerCompany.city,
           'district': customerCompany.district,
@@ -320,7 +325,7 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
-      print("Hata saveCustomer : ${e.message}");
+      debugPrint("Hata saveCustomer : ${e.message}");
       return e.message;
     }
   }
@@ -334,6 +339,7 @@ class DbHelper {
           'name': supplier.supplierName,
           'iban': supplier.iban,
           'bank_name': supplier.bankName,
+          'dial_code': supplier.dialCode,
           'phone': supplier.phone,
           'city': supplier.city,
           'district': supplier.district,
@@ -346,7 +352,7 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
-      print("Hata SaveSupplier : ${e.message}");
+      debugPrint("Hata SaveSupplier : ${e.message}");
       return e.message;
     }
   }
@@ -367,7 +373,7 @@ class DbHelper {
       }
       return productCode;
     } on PostgrestException catch (e) {
-      print("Hata Product Code : ${e.message}");
+      debugPrint("Hata Product Code : ${e.message}");
       return productCode;
     }
   }
@@ -459,7 +465,7 @@ class DbHelper {
       }
       return "";
     } on PostgrestException catch (e) {
-      print("Hata New Product Add : ${e.message}");
+      debugPrint("Hata New Product Add : ${e.message}");
       return e.message;
     }
 
@@ -473,7 +479,7 @@ class DbHelper {
     ]).execute();
     final errorStorehouse = resStorehouse.error; */
 
-    //  print('Storehouse error : $errorStorehouse');
+    //  debugPrint('Storehouse error : $errorStorehouse');
   }
 
   //*-----------------KULLANILMIYOR--------------------------- */
@@ -569,7 +575,7 @@ class DbHelper {
         primaryKey: ['product_code']).order('product_code', ascending: true);
 
     /*  resProduct.listen((event) {
-      print(event);
+      debugPrint(event);
     }); */
     /* final resStorehouseStock = db.supabase
         .from('storehouse_stock')
@@ -581,8 +587,8 @@ class DbHelper {
       elementProductList.forEach((elementProductMap) {
         resStorehouseStock.forEach((elementStorehouseList) {
           elementStorehouseList.forEach((elementStorehouseMap) {
-            // print(elementProductMap['product_code']);
-            // print(elementStorehouseMap['product_fk']);
+            // debugPrint(elementProductMap['product_code']);
+            // debugPrint(elementStorehouseMap['product_fk']);
             if (elementProductMap['product_code'] ==
                 elementStorehouseMap['product_fk']) {
               elementProductMap.addAll({
@@ -607,7 +613,7 @@ class DbHelper {
           .match({'product_code': productCode});
       return "";
     } on PostgrestException catch (e) {
-      print("Hata Product Delete : ${e.message}");
+      debugPrint("Hata Product Delete : ${e.message}");
       return e.message;
     }
 
@@ -629,19 +635,19 @@ class DbHelper {
           .update(data)
           .match({'product_code': productCode});
       /*  //TEST
-  print("veri içinde ");
-  print(payment.productFk);
-  print(payment.suppliersFk);
-  print(payment.invoiceCode);
-  print(payment.amountOfStock);
-  print(payment.bankcard);
-  print(payment.buyingPriceWithoutTax);
-  print(payment.cash);
-  print(payment.eftHavale);
-  print(payment.repaymentDateTime);
-  print(payment.sallingPriceWithoutTax);
-  print(payment.total);
-  print(payment.unitOfCurrency); */
+  debugPrint("veri içinde ");
+  debugPrint(payment.productFk);
+  debugPrint(payment.suppliersFk);
+  debugPrint(payment.invoiceCode);
+  debugPrint(payment.amountOfStock);
+  debugPrint(payment.bankcard);
+  debugPrint(payment.buyingPriceWithoutTax);
+  debugPrint(payment.cash);
+  debugPrint(payment.eftHavale);
+  debugPrint(payment.repaymentDateTime);
+  debugPrint(payment.sallingPriceWithoutTax);
+  debugPrint(payment.total);
+  debugPrint(payment.unitOfCurrency); */
 
       final resPayment = await db.supabase.from('payment').insert([
         {
@@ -663,7 +669,7 @@ class DbHelper {
       ]);
       return "";
     } on PostgrestException catch (e) {
-      print("Hata Product Update : ${e.message}");
+      debugPrint("Hata Product Update : ${e.message}");
       return e.message;
     }
   }
@@ -679,13 +685,13 @@ class DbHelper {
 
       /*  //TEST
  
-  print(payment.productFk);
-   print(payment.sallingPriceWithoutTax);
+  debugPrint(payment.productFk);
+   debugPrint(payment.sallingPriceWithoutTax);
   */
 
       return "";
     } on PostgrestException catch (e) {
-      print("Hata Product Update : ${e.message}");
+      debugPrint("Hata Product Update : ${e.message}");
       return e.message;
     }
   }
@@ -698,7 +704,7 @@ class DbHelper {
           await supabase.from('users').select('*').match({'user_uuid': uuid});
       return resData[0]['password'];
     } on PostgrestException catch (e) {
-      print("Hata getPassword : ${e.message}");
+      debugPrint("Hata getPassword : ${e.message}");
       return "";
     }
   }
@@ -711,7 +717,7 @@ class DbHelper {
           .update({'password': newPassword}).eq('user_uuid', userId);
       return "";
     } on PostgrestException catch (e) {
-      print("Hata NewPassword : ${e.message}");
+      debugPrint("Hata NewPassword : ${e.message}");
       return e.message;
     }
   }
@@ -748,7 +754,7 @@ class DbHelper {
       }
       return listCustomer;
     } on PostgrestException catch (e) {
-      print("Hata Product Code : ${e.message}");
+      debugPrint("Hata Product Code : ${e.message}");
       return listCustomer;
     }
   } */
@@ -762,7 +768,7 @@ class DbHelper {
 
       return resDataSoleTrader;
     } on PostgrestException catch (e) {
-      print("Hata Product Code : ${e.message}");
+      debugPrint("Hata Product Code : ${e.message}");
 
       return const Stream.empty();
     }
@@ -776,7 +782,7 @@ class DbHelper {
 
       return resDataCompany;
     } on PostgrestException catch (e) {
-      print("Hata Product Code : ${e.message}");
+      debugPrint("Hata Product Code : ${e.message}");
       return const Stream.empty();
     }
   }
@@ -846,7 +852,7 @@ class DbHelper {
 
       return resData;
     } on PostgrestException catch (e) {
-      print("Hata Save Sale : ${e.message}");
+      debugPrint("Hata Save Sale : ${e.message}");
       resData['hata'] = e.message;
       return resData;
     }
@@ -874,7 +880,7 @@ class DbHelper {
       }
       return resCustomerInfo;
     } on PostgrestException catch (e) {
-      print("Hata : ${e.message}");
+      debugPrint("Hata : ${e.message}");
       return resCustomerInfo;
     }
   }
@@ -887,7 +893,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Hata New Product Add : ${e.message}");
+      debugPrint("Hata New Product Add : ${e.message}");
       return res;
     }
   }
@@ -906,7 +912,7 @@ class DbHelper {
       resSellerName = resData['name'] + " " + resData['last_name'];
       return resSellerName;
     } on PostgrestException catch (e) {
-      print("Satıcı Bilgileri Hata: ${e.message}");
+      debugPrint("Satıcı Bilgileri Hata: ${e.message}");
       return resSellerName = "";
     }
   }
@@ -922,7 +928,7 @@ class DbHelper {
           .select('name,last_name,type,phone');
       return res;
     } on PostgrestException catch (e) {
-      print("Hata Cari Sahıs: ${e.message}");
+      debugPrint("Hata Cari Sahıs: ${e.message}");
       return res;
     }
   }
@@ -935,7 +941,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Hata Cari Firma: ${e.message}");
+      debugPrint("Hata Cari Firma: ${e.message}");
       return res;
     }
   }
@@ -1001,7 +1007,7 @@ class DbHelper {
 
       return resData;
     } on PostgrestException catch (e) {
-      print("Hata Ödeme Alma : ${e.message}");
+      debugPrint("Hata Ödeme Alma : ${e.message}");
       resData['hata'] = e.message;
       return resData;
     }
@@ -1036,10 +1042,10 @@ class DbHelper {
           .lt('payment_date', endTime)
           .gt('payment_date', startTime);
 
-      /*   print("Satış listesi : ${resSold}");
-      print("Şahıs listesi :${resCustomerSoleInfo}");
-      print("Şirket Listesi: ${resCustomerCompanyInfo}");
-      print("Cari Listesi ${resCari}"); */
+      /*   debugPrint("Satış listesi : ${resSold}");
+      debugPrint("Şahıs listesi :${resCustomerSoleInfo}");
+      debugPrint("Şirket Listesi: ${resCustomerCompanyInfo}");
+      debugPrint("Cari Listesi ${resCari}"); */
 
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
@@ -1100,14 +1106,14 @@ class DbHelper {
         }
       }
 
-      /* print("yeni deger. ${resSold[0]}");
-       print("database Sınıfında : $resSold");
-      print("yeni deger. ${resSold[1]}");
-      print("yeni deger. ${resSold[2]}");
-      print("yeni deger. ${resSold[3]}"); */
+      /* debugPrint("yeni deger. ${resSold[0]}");
+       debugPrint("database Sınıfında : $resSold");
+      debugPrint("yeni deger. ${resSold[1]}");
+      debugPrint("yeni deger. ${resSold[2]}");
+      debugPrint("yeni deger. ${resSold[3]}"); */
       return resSold;
     } on PostgrestException catch (e) {
-      print("Hata Cari Tedarikci: ${e.message}");
+      debugPrint("Hata Cari Tedarikci: ${e.message}");
       return resSold;
     }
   }
@@ -1138,7 +1144,7 @@ class DbHelper {
       }
       return res;
     } on PostgrestException catch (e) {
-      print("Fatura No ile Cari Getirme Hata :${e.message}");
+      debugPrint("Fatura No ile Cari Getirme Hata :${e.message}");
       return res;
     }
   }
@@ -1154,7 +1160,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Satılan ürün listesi Hata :${e.message}");
+      debugPrint("Satılan ürün listesi Hata :${e.message}");
       return res;
     }
   }
@@ -1197,7 +1203,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Satış Detaylar satış Hata :${e.message}");
+      debugPrint("Satış Detaylar satış Hata :${e.message}");
       return res;
     }
   }
@@ -1237,7 +1243,7 @@ class DbHelper {
           .delete()
           .match({'invoice_number': invoiceNumber});
     } on PostgrestException catch (e) {
-      print("Fatura Silme Hatası : ${e.message}");
+      debugPrint("Fatura Silme Hatası : ${e.message}");
     }
   }
 
@@ -1252,7 +1258,7 @@ class DbHelper {
           .delete()
           .match({'cari_id': cariId}).select();
     } on PostgrestException catch (e) {
-      print("Fatura Silme Hatası : ${e.message}");
+      debugPrint("Fatura Silme Hatası : ${e.message}");
     }
   }
 
@@ -1265,7 +1271,7 @@ class DbHelper {
       res = await db.supabase.from('suppliers').select('name,phone');
       return res;
     } on PostgrestException catch (e) {
-      print("Hata Cari Tedarikci: ${e.message}");
+      debugPrint("Hata Cari Tedarikci: ${e.message}");
       return res;
     }
   }
@@ -1287,7 +1293,7 @@ class DbHelper {
 
       return resPayment;
     } on PostgrestException catch (e) {
-      print("Hata Cari Tedarikci: ${e.message}");
+      debugPrint("Hata Cari Tedarikci: ${e.message}");
       return resPayment;
     }
   }
@@ -1316,7 +1322,7 @@ class DbHelper {
 
       return resPayment;
     } on PostgrestException catch (e) {
-      print("Hata Cari Tedarikci Sadece Tarih Girildiğinde: ${e.message}");
+      debugPrint("Hata Cari Tedarikci Sadece Tarih Girildiğinde: ${e.message}");
       return resPayment;
     }
   }
@@ -1339,7 +1345,7 @@ class DbHelper {
 
       return resData;
     } on PostgrestException catch (e) {
-      print("Hata Ödeme Alma : ${e.message}");
+      debugPrint("Hata Ödeme Alma : ${e.message}");
       resData['hata'] = e.message;
       return resData;
     }
@@ -1376,11 +1382,11 @@ class DbHelper {
             resDeletePaymentOrCariSupplier['amount_of_stock'];
         var newBuyingPrice = newTotalPayment / newAmount;
 
-        /*  print(totalPayment);
-        print(deletePaymentTotal);
-        print(newTotalPayment);
-        print(newAmount);
-        print(newBuyingPrice); */
+        /*  debugPrint(totalPayment);
+        debugPrint(deletePaymentTotal);
+        debugPrint(newTotalPayment);
+        debugPrint(newAmount);
+        debugPrint(newBuyingPrice); */
 
         await db.supabase.from('product').update({
           'current_amount_of_stock': newAmount,
@@ -1394,7 +1400,7 @@ class DbHelper {
             .match({'cari_supplier_id': rowSelect['cariId']});
       }
     } on PostgrestException catch (e) {
-      print("Fatura Silme Hatası : ${e.message}");
+      debugPrint("Fatura Silme Hatası : ${e.message}");
     }
   }
 
@@ -1419,12 +1425,12 @@ class DbHelper {
         res['seller'] =
             "${resSellerName['name']} ${resSellerName['last_name']}";
       } on PostgrestException catch (e) {
-        print("Hata Seller Id: ${e.message}");
+        debugPrint("Hata Seller Id: ${e.message}");
       }
 
       return res;
     } on PostgrestException catch (e) {
-      print("Tedarikçi detay Hata :${e.message}");
+      debugPrint("Tedarikçi detay Hata :${e.message}");
       return res;
     }
   }
@@ -1440,7 +1446,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Tedarikçi Bilgileri Hata :${e.message}");
+      debugPrint("Tedarikçi Bilgileri Hata :${e.message}");
       return res;
     }
   }
@@ -1458,7 +1464,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Fatura No ile Cari Getirme Hata :${e.message}");
+      debugPrint("Fatura No ile Cari Getirme Hata :${e.message}");
       return res;
     }
   }
@@ -1515,7 +1521,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1530,11 +1536,11 @@ class DbHelper {
           .lt('payment_date', endTime)
           .gt('payment_date', startTime);
 
-      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+      //  debugPrint("Günlük cari alınan ödemeler: ${resCariCustomer}");
 
       return resCariCustomer;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1549,10 +1555,10 @@ class DbHelper {
           .select('total')
           .lt('save_time', endTime)
           .gt('save_time', startTime);
-      print(res);
+
       return res;
     } on PostgrestException catch (e) {
-      print("Gider Toplam Tutar hata: ${e.message}");
+      debugPrint("Gider Toplam Tutar hata: ${e.message}");
       return [
         {'Hata': e.message}
       ];
@@ -1575,11 +1581,11 @@ class DbHelper {
           .lt('save_date', endTime)
           .gt('save_date', startTime);
 
-      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+      //  debugPrint("Günlük cari alınan ödemeler: ${resCariCustomer}");
 
       return resPayment;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1600,11 +1606,11 @@ class DbHelper {
           .lt('save_date', endTime)
           .gt('save_date', startTime);
 
-      //  print("Günlük cari alınan ödemeler: ${resCariCustomer}");
+      //  debugPrint("Günlük cari alınan ödemeler: ${resCariCustomer}");
 
       return resCariSupplier;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1619,7 +1625,7 @@ class DbHelper {
 
       return resCashBox;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1633,7 +1639,7 @@ class DbHelper {
 
       return resService;
     } on PostgrestException catch (e) {
-      print("Service toplam hata: ${e.message}");
+      debugPrint("Service toplam hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1648,7 +1654,7 @@ class DbHelper {
 
       return resProfit;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       resProfit.add({'hata': e.message});
       return resProfit;
     }
@@ -1665,7 +1671,7 @@ class DbHelper {
 
       return resProduct;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       resProduct.add({'hata': e.message});
       return resProduct;
     }
@@ -1686,7 +1692,7 @@ class DbHelper {
 
       return resCashBox;
     } on PostgrestException catch (e) {
-      print("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1715,7 +1721,7 @@ class DbHelper {
           .eq('partner', true);
       return resAllPartner;
     } on PostgrestException catch (e) {
-      print("Cari Ortak hata: ${e.message}");
+      debugPrint("Cari Ortak hata: ${e.message}");
       resAllPartner.add({'hata': e.message});
       return resAllPartner;
     }
@@ -1740,7 +1746,7 @@ class DbHelper {
 
       return res;
     } on PostgrestException catch (e) {
-      print("Cari Ortak hata: ${e.message}");
+      debugPrint("Cari Ortak hata: ${e.message}");
       return [];
     }
   }
@@ -1867,7 +1873,7 @@ class DbHelper {
       return "";
     } on PostgrestException catch (e) {
       // ignore: avoid_print
-      print("Hizmet Ekleme Hatası : ${e.message}");
+      debugPrint("Hizmet Ekleme Hatası : ${e.message}");
       return e.message;
     }
   }
@@ -1921,6 +1927,11 @@ class DbHelper {
       ///Şahıs Müşterileri tabloda isim ile soyism farklı kolonda tutluyor.Bu yüzden
       ///birleştiriliyor.
       for (var element in customerSoleTrader) {
+        ///tabloda isimler bölümüne ad ve soyadı bir arada yazabilmek için birleştirme
+        ///yapmak gerekti. ve 'name' tag göre tabloda veriye geliyor.i
+        ///Ama müşterinin verilerini düzenlemek için textfield yazabilmek için
+        ///bu veride olması gerekiyor. o yüzden copyName veri tutuluyor.
+        element.addAll({'copyName': element['name']});
         element['name'] = "${element['name']} ${element['last_name']}";
       }
 

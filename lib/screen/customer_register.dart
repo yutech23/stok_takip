@@ -12,7 +12,6 @@ import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-import '../utilities/constants.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
@@ -45,13 +44,14 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerSupplierName = TextEditingController();
   final _controllerTC = TextEditingController();
 
+  late String _dialCode;
+
   final String _labelBankName = "Banka İsmi";
   final String _labelCompanyName = "Firma Adını Giriniz";
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
   final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
   final String _labelTC = "TC Kimlik Numarası giriniz";
-  final String _labelAddress = "Adres";
 
   final double _sectionCustomerSaveWidthMin = 360;
   final double _sectionCustomerSaveWidthMax = 500;
@@ -82,11 +82,20 @@ class _ScreenCustomerSave extends State with Validation {
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 700;
-  final String _labelDescription = "Açıklama: ";
+
   final TextEditingController _controllerSearchCustomerName =
       TextEditingController();
 
   final String _labelSearchHint = 'İsim ile Arama Yapınız';
+
+  final String _labelTcNo = "TC No: ";
+  final String _labelAddress = "Adres: ";
+  final String _labelTaxNumber = "Vergi Numarası: ";
+  final String _labelTaxOffice = "Vergi Dairesi: ";
+  final String _labelCargoCompany = "Kargo Firma: ";
+  final String _labelCargoNo = "Kargo No: ";
+  final String _labelBankname = "Banka Adı: ";
+  final String _labelIban = "IBAN: ";
 
   /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
 /*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
@@ -132,7 +141,6 @@ class _ScreenCustomerSave extends State with Validation {
         sortable: true,
         flex: 2,
         textAlign: TextAlign.center));
-
     _headers.add(DatatableHeader(
         text: "Sil ve Güncelle",
         value: "detail",
@@ -151,7 +159,6 @@ class _ScreenCustomerSave extends State with Validation {
                 alignment: Alignment.center,
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
-                  print(row);
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -174,8 +181,12 @@ class _ScreenCustomerSave extends State with Validation {
                       listCustomerRegister.clear();
                       listeEklemeSahis();
                       _controllerTC.text = row['tc_no'];
-                      _controllerName.text = row['name'];
+                      _controllerName.text = row['copyName'];
+                      _controllerLastName.text = row['last_name'];
                       _controllerPhoneNumber.text = row['phone'];
+                      _selectedCity = row['city'];
+                      _selectDistrict = row['district'];
+                      _controllerAddress.text = row['address'];
                     } else if (row['type'] == "Firma") {
                       listCustomerRegister.clear();
                       listeEklemeCompany();
@@ -342,19 +353,76 @@ class _ScreenCustomerSave extends State with Validation {
                   ))
                 ],
                 dropContainer: (value) {
-                  return Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: RichText(
-                          text: TextSpan(
-                              text: _labelDescription,
-                              style: context.theme.titleSmall!.copyWith(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
+                  if (value['type'] == "Şahıs") {
+                    return Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.grey.shade100,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            widgetRichTextDetail(_labelTcNo, value['tc_no']),
+                            widgetRichTextDetail(_labelAddress,
+                                "${value['address']} \n ${value['city']}/${value['district']}"),
+                          ],
+                        ));
+                  } else if (value['type'] == "Firma") {
+                    return Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.grey.shade100,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
                               children: [
-                            TextSpan(
-                                style: context.theme.titleSmall,
-                                text: value['description'])
-                          ])));
+                                widgetRichTextDetail(
+                                    _labelTaxNumber, value['tax_number']),
+                                widgetRichTextDetail(
+                                    _labelTaxOffice, value['tax_office']),
+                                widgetRichTextDetail(_labelAddress,
+                                    "${value['address']} \n ${value['city']}/${value['district']}"),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                widgetRichTextDetail(
+                                    _labelCargoCompany, value['cargo_company']),
+                                widgetRichTextDetail(
+                                    _labelCargoNo, value['cargo_number']),
+                              ],
+                            )
+                          ],
+                        ));
+                  } else {
+                    return Container(
+                        padding: const EdgeInsets.all(10),
+                        color: Colors.grey.shade100,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                widgetRichTextDetail(
+                                    _labelTaxNumber, value['tax_number']),
+                                widgetRichTextDetail(
+                                    _labelTaxOffice, value['tax_office']),
+                                widgetRichTextDetail(_labelAddress,
+                                    "${value['address']} \n ${value['city']}/${value['district']}"),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                widgetRichTextDetail(
+                                    _labelCargoCompany, value['cargo_company']),
+                                widgetRichTextDetail(
+                                    _labelCargoNo, value['cargo_number']),
+                                widgetRichTextDetail(
+                                    _labelBankName, value['bank_name']),
+                                widgetRichTextDetail(_labelIban, value['iban']),
+                              ],
+                            )
+                          ],
+                        ));
+                  }
                 },
                 sortAscending: true,
                 headerDecoration: BoxDecoration(
@@ -690,8 +758,7 @@ class _ScreenCustomerSave extends State with Validation {
   widgetCountryPhoneNumber() {
     return Container(
       child: shareWidget.widgetIntlPhoneField(
-        controllerPhoneNumber: _controllerPhoneNumber,
-      ),
+          controllerPhoneNumber: _controllerPhoneNumber),
     );
   }
 
@@ -704,7 +771,8 @@ class _ScreenCustomerSave extends State with Validation {
                 _customer = Customer.soleTrader(
                   soleTraderName: _controllerName.text,
                   soleTraderLastName: _controllerLastName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                  dialCode: _dialCode,
+                  phone: _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
                   address: _controllerAddress.text,
@@ -731,7 +799,8 @@ class _ScreenCustomerSave extends State with Validation {
               } else if (_customerType == 'Firma') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    dialCode: _dialCode,
+                    phone: _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -767,7 +836,8 @@ class _ScreenCustomerSave extends State with Validation {
                     supplierName: _controllerSupplierName.text,
                     bankName: _controllerBankName.text,
                     iban: iban,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    dialCode: _dialCode,
+                    phone: _controllerPhoneNumber.text,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -873,5 +943,19 @@ class _ScreenCustomerSave extends State with Validation {
         ),
       ],
     );
+  }
+
+  ///Detay bölümü için RichText
+  widgetRichTextDetail(String header, String? value) {
+    return RichText(
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.start,
+        text: TextSpan(
+            text: header,
+            style: context.theme.titleSmall!
+                .copyWith(color: Colors.red, fontWeight: FontWeight.bold),
+            children: [
+              TextSpan(style: context.theme.titleSmall, text: value)
+            ]));
   }
 }

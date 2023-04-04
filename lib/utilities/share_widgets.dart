@@ -48,8 +48,10 @@ class ShareWidget with Validation {
   ///Widget -  Telefon numarası alanı ŞUAN KULLANILMIYOR AŞAĞIDAKİ KULLANILIYOR
   TextFormField widgetTextFormFieldPhone(
       {TextEditingController? controllerPhoneNumber,
-      String? Function(String?)? validateFunc}) {
+      String? Function(String?)? validateFunc,
+      String? intialNumber}) {
     return TextFormField(
+      initialValue: intialNumber,
       controller: controllerPhoneNumber,
       keyboardType: TextInputType.phone,
       inputFormatters: [
@@ -67,13 +69,15 @@ class ShareWidget with Validation {
 
 //Aktif Telefon Numara giriş bölmü kullanılıyor
   IntlPhoneField widgetIntlPhoneField(
-      {TextEditingController? controllerPhoneNumber}) {
+      {TextEditingController? controllerPhoneNumber, String? dialCode}) {
     return IntlPhoneField(
       controller: controllerPhoneNumber,
       initialCountryCode: 'TR',
+
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp("[0-9,-]")),
       ],
+
       decoration: const InputDecoration(
         labelText: 'Telefon Numarısı Giriniz',
         border: OutlineInputBorder(
@@ -85,7 +89,7 @@ class ShareWidget with Validation {
       ///static olarak bir değişken tanımladım çünkü diğer sayfadan ulaşmak için
       ///SetState ihtiyaç vardı. AYNI İŞİ "KEY" YAPILABİLİR. İŞ HIZLI OLMASI İÇİN
       ///ŞUABNLIK BÖYLE YAPILDI.
-      onCountryChanged: (value) => Sabitler.countryCode = value.dialCode,
+      onCountryChanged: (value) => dialCode = value.dialCode,
     );
   }
 

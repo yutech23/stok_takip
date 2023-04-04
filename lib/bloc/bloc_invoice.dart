@@ -32,6 +32,7 @@ class BlocInvoice {
         address: resDataCustomerInfo[0]['address'],
         city: resDataCustomerInfo[0]['city'],
         district: resDataCustomerInfo[0]['district'],
+        dialCode: resDataCustomerInfo[0]['dial_code'],
         phone: resDataCustomerInfo[0]['phone'],
         TCno: resDataCustomerInfo[0]['tc_no'],
         type: resDataCustomerInfo[0]['type'],
@@ -39,6 +40,7 @@ class BlocInvoice {
     } else if (customerType == "Firma") {
       _customerInfo = Customer.company(
           companyName: resDataCustomerInfo[0]['name'],
+          dialCode: resDataCustomerInfo[0]['dial_code'],
           phone: resDataCustomerInfo[0]['phone'],
           city: resDataCustomerInfo[0]['city'],
           district: resDataCustomerInfo[0]['district'],

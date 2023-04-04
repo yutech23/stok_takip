@@ -405,13 +405,13 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     );
   }
 
+  late String dialCode;
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
       constraints: _responseWidth,
       child: shareWidget.widgetIntlPhoneField(
-        controllerPhoneNumber: _controllerPhoneNumber,
-      ),
+          controllerPhoneNumber: _controllerPhoneNumber, dialCode: dialCode),
     );
   }
 
@@ -424,7 +424,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
               _customer = Customer.soleTrader(
                 soleTraderName: _controllerName.text,
                 soleTraderLastName: _controllerLastName.text,
-                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                dialCode: dialCode,
+                phone: _controllerPhoneNumber.text,
                 city: _selectedCity,
                 district: _selectDistrict,
                 address: _controlleraddress.text,
