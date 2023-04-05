@@ -19,7 +19,7 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   String nameAndLastnameFirstLatter = '';
   String nameAndLastNameCapitalFirst = '';
-  final String _labelCustomerSave = 'Müşteri ve Tedarikçi Kayıt';
+  final String _labelCustomerSave = 'Müşteri ve Tedarikçi İşlemleri';
   final String _labelNewUserAdd = 'Yeni Kullanıcı Ekle';
   final String _labelCategoryAdd = 'Kategori Düzenleme';
   final String _labelNewProductAdd = 'Yeni Ürün Ekle';

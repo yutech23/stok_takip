@@ -178,34 +178,31 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                 },
               ),
               row['totalPrice'] != "-"
-                  ? Container(
-                      child: IconButton(
-                        iconSize: 20,
-                        padding: const EdgeInsets.only(bottom: 20),
-                        alignment: Alignment.center,
-                        icon: const Icon(Icons.list),
-                        onPressed: () async {
-                          ///satır bilgisi aktarılıyor
-                          _blocCari.setterRowCustomerInfo = row;
-                          //  print(row);
+                  ? IconButton(
+                      iconSize: 20,
+                      padding: const EdgeInsets.only(bottom: 20),
+                      alignment: Alignment.center,
+                      icon: const Icon(Icons.list),
+                      onPressed: () async {
+                        ///satır bilgisi aktarılıyor
+                        _blocCari.setterRowCustomerInfo = row;
+                        //  print(row);
 
-                          ///Fatura No'suna göre detaylar geliyor.
-                          await _blocCari.getSaleDetail(row['invoiceNumber']);
-                          await _blocCari.getSaleInfo(row['invoiceNumber']);
+                        ///Fatura No'suna göre detaylar geliyor.
+                        await _blocCari.getSaleDetail(row['invoiceNumber']);
+                        await _blocCari.getSaleInfo(row['invoiceNumber']);
 
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return PopupSaleDetail(_blocCari);
-                              });
-                        },
-                      ),
+                        // ignore: use_build_context_synchronously
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return PopupSaleDetail(_blocCari);
+                            });
+                      },
                     )
-                  : Container(
-                      child: const Padding(
-                        padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
-                        child: Icon(Icons.disabled_by_default),
-                      ),
+                  : const Padding(
+                      padding: EdgeInsets.fromLTRB(8, 0, 8, 20),
+                      child: Icon(Icons.disabled_by_default),
                     ),
             ],
           );
@@ -522,8 +519,6 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                 selecteds: _selecteds,
                 expanded: _blocCari.getterExpandad,
                 autoHeight: false,
-                sortColumn: 'dataTime',
-                sortAscending: true,
                 actions: [widgetButtonPrinter(snapshot)],
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),

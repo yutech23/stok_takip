@@ -294,7 +294,8 @@ class DbHelper {
           'district': customerSoleTrader.district,
           'address': customerSoleTrader.address,
           'tc_no': customerSoleTrader.TCno,
-          'type': customerSoleTrader.type
+          'type': customerSoleTrader.type,
+          'country_code': customerSoleTrader.countryCode
         }
       ]);
       return "";
@@ -319,6 +320,7 @@ class DbHelper {
           'tax_number': customerCompany.taxNumber,
           'cargo_company': customerCompany.cargoName,
           'cargo_number': customerCompany.cargoNumber,
+          'country_code': customerCompany.countryCode
         }
       ]);
       return "";
@@ -329,6 +331,80 @@ class DbHelper {
   }
 
   Future<String> saveSuppliers(
+    Customer supplier,
+  ) async {
+    try {
+      await supabase.from('suppliers').insert([
+        {
+          'name': supplier.supplierName,
+          'iban': supplier.iban,
+          'bank_name': supplier.bankName,
+          'phone': supplier.phone,
+          'city': supplier.city,
+          'district': supplier.district,
+          'address': supplier.address,
+          'tax_office': supplier.taxOffice,
+          'tax_number': supplier.taxNumber,
+          'cargo_company': supplier.cargoName,
+          'cargo_number': supplier.cargoNumber,
+          'country_code': supplier.countryCode
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      debugPrint("Hata SaveSupplier : ${e.message}");
+      return e.message;
+    }
+  }
+
+  ///*****************Müşteri Güncelleme İşlemleri************************
+  Future<String> updateCustomerSoleTrader(
+      Customer customerSoleTrader, int id) async {
+    try {
+      print("object");
+      await supabase.from('customer_sole_trader').update({
+        'name': customerSoleTrader.soleTraderName,
+        'last_name': customerSoleTrader.soleTraderLastName,
+        'phone': customerSoleTrader.phone,
+        'city': customerSoleTrader.city,
+        'district': customerSoleTrader.district,
+        'address': customerSoleTrader.address,
+        'tc_no': customerSoleTrader.TCno,
+        'type': customerSoleTrader.type
+      }).eq('id', id);
+      return "";
+    } on PostgrestException catch (e) {
+      debugPrint("Hata güncelleme Şahıs müşteri : ${e.message}");
+      return e.message;
+    }
+  }
+
+  /// Şirket Kayıt
+  Future<String> updateCustomerCompany(
+    Customer customerCompany,
+  ) async {
+    try {
+      await supabase.from('customer_company').insert([
+        {
+          'name': customerCompany.companyName,
+          'phone': customerCompany.phone,
+          'city': customerCompany.city,
+          'district': customerCompany.district,
+          'address': customerCompany.address,
+          'tax_office': customerCompany.taxOffice,
+          'tax_number': customerCompany.taxNumber,
+          'cargo_company': customerCompany.cargoName,
+          'cargo_number': customerCompany.cargoNumber,
+        }
+      ]);
+      return "";
+    } on PostgrestException catch (e) {
+      debugPrint("Hata saveCustomer : ${e.message}");
+      return e.message;
+    }
+  }
+
+  Future<String> updateSuppliers(
     Customer supplier,
   ) async {
     try {
@@ -759,9 +835,8 @@ class DbHelper {
 //Şahıs müşterileri getiriyor.
   Stream fetchSoloCustomerAndPhoneStream() {
     try {
-      final resDataSoleTrader = supabase
-          .from('customer_sole_trader')
-          .stream(primaryKey: ['customer_id']);
+      final resDataSoleTrader =
+          supabase.from('customer_sole_trader').stream(primaryKey: ['id']);
 
       return resDataSoleTrader;
     } on PostgrestException catch (e) {
@@ -775,7 +850,7 @@ class DbHelper {
   Stream fetchCompanyCustomerAndPhoneStream() {
     try {
       final resDataCompany =
-          supabase.from('customer_company').stream(primaryKey: ['customer_id']);
+          supabase.from('customer_company').stream(primaryKey: ['id']);
 
       return resDataCompany;
     } on PostgrestException catch (e) {
@@ -795,12 +870,12 @@ class DbHelper {
       if (soldProducts.customerType == "Şahıs") {
         customerId = await supabase
             .from('customer_sole_trader')
-            .select('customer_id')
+            .select('id')
             .eq('phone', soldProducts.customerPhone);
       } else {
         customerId = await supabase
             .from('customer_company')
-            .select('customer_id')
+            .select('id')
             .eq('phone', soldProducts.customerPhone);
       }
 
@@ -808,7 +883,7 @@ class DbHelper {
         {
           'sale_date': toTimestampString(soldProducts.saleTime.toString()),
           'customer_type': soldProducts.customerType,
-          'customer_fk': customerId[0]['customer_id'],
+          'customer_fk': customerId[0]['id'],
           'total_payment_without_tax': soldProducts.totalPaymentWithoutTax,
           'kdv_rate': soldProducts.kdvRate,
           'cash_payment': soldProducts.cashPayment,
@@ -950,16 +1025,16 @@ class DbHelper {
     if (customerTypeAndPhoneName['type'] == 'Şahıs') {
       customerId = await db.supabase
           .from('customer_sole_trader')
-          .select('customer_id')
+          .select('id')
           .eq('phone', customerTypeAndPhoneName['phone']);
     } else if (customerTypeAndPhoneName['type'] == 'Firma') {
       customerId = await db.supabase
           .from('customer_company')
-          .select('customer_id')
+          .select('id')
           .eq('name', customerTypeAndPhoneName['name']);
     }
 
-    return customerId[0]['customer_id'];
+    return customerId[0]['id'];
   }
 
   ///Seçilen müşterinin tipi ve id ile satış listesi çekiliyor.
@@ -1027,11 +1102,11 @@ class DbHelper {
 
       resCustomerCompanyInfo = await db.supabase
           .from('customer_company')
-          .select('type,customer_id,name,phone');
+          .select('type,id,name,phone');
 
       resCustomerSoleInfo = await db.supabase
           .from('customer_sole_trader')
-          .select('type,customer_id,name,last_name,phone');
+          .select('type,id,name,last_name,phone');
 
       resCari = await db.supabase
           .from('cari_customer')
@@ -1047,7 +1122,7 @@ class DbHelper {
       for (var element in resSold) {
         for (var item in resCustomerSoleInfo) {
           if (element['customer_type'] == item['type'] &&
-              element['customer_fk'] == item['customer_id']) {
+              element['customer_fk'] == item['id']) {
             //verilerde tekrar oluyor o yüzden siliniyor.
 
             element.addAll({
@@ -1062,7 +1137,7 @@ class DbHelper {
       for (var element in resSold) {
         for (var item in resCustomerCompanyInfo) {
           if (element['customer_type'] == item['type'] &&
-              element['customer_fk'] == item['customer_id']) {
+              element['customer_fk'] == item['id']) {
             //verilerde tekrar oluyor o yüzden siliniyor.
 
             element.addAll({'name': item['name'], 'phone': item['phone']});
@@ -1075,7 +1150,7 @@ class DbHelper {
       for (var element in resCari) {
         for (var item in resCustomerSoleInfo) {
           if (element['customer_type'] == item['type'] &&
-              element['customer_fk'] == item['customer_id']) {
+              element['customer_fk'] == item['id']) {
             //verilerde tekrar oluyor o yüzden siliniyor.
             element.addAll({'sale_date': element['payment_date']});
             element.remove('payment_date');
@@ -1092,7 +1167,7 @@ class DbHelper {
       for (var element in resCari) {
         for (var item in resCustomerCompanyInfo) {
           if (element['customer_type'] == item['type'] &&
-              element['customer_fk'] == item['customer_id']) {
+              element['customer_fk'] == item['id']) {
             //verilerde tekrar oluyor o yüzden siliniyor.
             element.addAll({'save_time': element['payment_date']});
             element.remove('payment_date');
@@ -1131,7 +1206,7 @@ class DbHelper {
           resCustomerInfo = await db.supabase
               .from('customer_sole_trader')
               .select('name,last_name')
-              .eq('customer_id', res['customer_fk']);
+              .eq('id', res['customer_fk']);
           var tempName = resCustomerInfo[0]['name'] +
               " " +
               resCustomerInfo[0]['last_name'];
@@ -1179,7 +1254,7 @@ class DbHelper {
         resCustomerInfo = await db.supabase
             .from('customer_sole_trader')
             .select('phone,address,tc_no,district,city')
-            .eq('customer_id', res['customer_fk'])
+            .eq('id', res['customer_fk'])
             .single();
 
         ///Firmalar tablosunda firma bilgilerini getiriyor.
@@ -1187,7 +1262,7 @@ class DbHelper {
         resCustomerInfo = await db.supabase
             .from('customer_company')
             .select('phone,address,tax_number,tax_office,district,city')
-            .eq('customer_id', res['customer_fk'])
+            .eq('id', res['customer_fk'])
             .single();
       }
       var sellerName = await db.supabase
@@ -1945,10 +2020,7 @@ class DbHelper {
 
   Future<String> deleteCustomerSoleTrader(int id) async {
     try {
-      await db.supabase
-          .from('customer_sole_trader')
-          .delete()
-          .eq('customer_id', id);
+      await db.supabase.from('customer_sole_trader').delete().eq('id', id);
       return "";
     } on PostgrestException catch (e) {
       return e.message;
@@ -1957,7 +2029,7 @@ class DbHelper {
 
   Future<String> deleteCustomerCompany(int id) async {
     try {
-      await db.supabase.from('customer_company').delete().eq('customer_id', id);
+      await db.supabase.from('customer_company').delete().eq('id', id);
       return "";
     } on PostgrestException catch (e) {
       return e.message;

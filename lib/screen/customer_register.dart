@@ -17,10 +17,6 @@ import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
 
-class ReferanceByPass {
-  int? value;
-}
-
 class ScreenCustomerRegister extends StatefulWidget {
   const ScreenCustomerRegister({Key? key}) : super(key: key);
 
@@ -98,7 +94,10 @@ class _ScreenCustomerSave extends State with Validation {
 
   /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
 /*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
-  final String _labelPopupUpdateHeader = "Güncelleme";
+  bool _switchButtonUpdateAndSave = false;
+  final String _labelUpdate = "Güncelle";
+  final String _labelNewCustomerSave = "Yeni Müşteri Kaydet";
+  late int _customerId;
   final GlobalKey<FormState> _formKeyUpdate = GlobalKey<FormState>();
 
   ///Silme İşlemi
@@ -176,6 +175,8 @@ class _ScreenCustomerSave extends State with Validation {
                 alignment: Alignment.center,
                 icon: const Icon(Icons.edit),
                 onPressed: () {
+                  _switchButtonUpdateAndSave = true;
+                  _customerId = row['id'];
                   setState(() {
                     _customerType = row['type'];
                     if (row['type'] == "Şahıs") {
@@ -308,7 +309,13 @@ class _ScreenCustomerSave extends State with Validation {
                       _customerType != "Şahıs"
                           ? const Divider()
                           : const SizedBox(),
-                      widgetCustomerSaveButton(),
+                      Visibility(
+                        visible: !_switchButtonUpdateAndSave,
+                        child: widgetCustomerSaveButton(),
+                      ),
+                      Visibility(
+                          visible: _switchButtonUpdateAndSave,
+                          child: widgetCustomerUpdateButton()),
                       const Divider(),
                     ]),
                   ),
@@ -755,24 +762,29 @@ class _ScreenCustomerSave extends State with Validation {
     );
   }
 
+  String? _selectedDial;
+
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
       child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber),
+          controllerPhoneNumber: _controllerPhoneNumber,
+          selectedCountryCode: (value) => _selectedDial = value),
     );
   }
 
   widgetCustomerSaveButton() {
     return ElevatedButton(
         onPressed: () async {
+          print("seçilen kod : $_selectedDial");
           setState(() {
             if (_formKey.currentState!.validate()) {
               if (_customerType == 'Şahıs') {
                 _customer = Customer.soleTrader(
                   soleTraderName: _controllerName.text,
                   soleTraderLastName: _controllerLastName.text,
-                  phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                  countryCode: Sabitler.countryCode,
+                  phone: _controllerPhoneNumber.text,
                   city: _selectedCity,
                   district: _selectDistrict,
                   address: _controllerAddress.text,
@@ -780,6 +792,135 @@ class _ScreenCustomerSave extends State with Validation {
                 );
 
                 db.saveCustomerSoleTrader(_customer!).then((resValue) {
+                  if (resValue.isEmpty) {
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
+                    _selectDistrict = "";
+                    _selectedCity = "";
+                    _selectedTaxOffice = "";
+                    _controllerAddress.clear();
+                    _controllerTC.clear();
+
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
+                  }
+                });
+              } else if (_customerType == 'Firma') {
+                _customer = Customer.company(
+                    companyName: _controllerCompanyName.text,
+                    countryCode: Sabitler.countryCode,
+                    phone: _controllerPhoneNumber.text,
+                    city: _selectedCity,
+                    district: _selectDistrict,
+                    address: _controllerAddress.text,
+                    taxOffice: _selectedTaxOffice,
+                    taxNumber: _controllerTaxNumber.text,
+                    cargoName: _controllerCargoName.text,
+                    cargoNumber: _controllerCargoCode.text);
+
+                db.saveCustomerCompany(_customer!).then((resValue) {
+                  if (resValue.isEmpty) {
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
+                    _controllerAddress.clear();
+                    _controllerTaxNumber.clear();
+                    _controllerCargoName.clear();
+                    _controllerCargoCode.clear();
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
+                  }
+                });
+              } else if (_customerType == 'Tedarikçi') {
+                ///
+                String? iban;
+                if (_controllerIban.text.length > 2) {
+                  iban = _controllerIban.text.replaceAll(" ", "");
+                } else {
+                  iban = null;
+                }
+                _customer = Customer.supplier(
+                    supplierName: _controllerSupplierName.text,
+                    bankName: _controllerBankName.text,
+                    iban: iban,
+                    countryCode: Sabitler.countryCode,
+                    phone: _controllerPhoneNumber.text,
+                    city: _selectedCity,
+                    district: _selectDistrict,
+                    address: _controllerAddress.text,
+                    taxOffice: _selectedTaxOffice,
+                    taxNumber: _controllerTaxNumber.text,
+                    cargoName: _controllerCargoName.text,
+                    cargoNumber: _controllerCargoCode.text);
+
+                db.saveSuppliers(_customer!).then((value) {
+                  if (value.isEmpty) {
+                    _controllerSupplierName.clear();
+                    _controllerBankName.clear();
+                    _controllerIban.clear();
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerCompanyName.clear();
+                    _controllerPhoneNumber.clear();
+                    _controllerAddress.clear();
+                    _controllerTaxNumber.clear();
+                    _controllerCargoName.clear();
+                    _controllerCargoCode.clear();
+                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  } else {
+                    context.noticeBarError("Kayıt Başarısız", 2);
+                  }
+                });
+              } else if (_customerType == null) {
+                context.extensionShowErrorSnackBar(
+                    message: "Lütfen Firma Türünü Seçiniz");
+              }
+
+              /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
+              /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
+              /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
+              /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
+              /// dönen değer 1 eşitleniyor.
+            }
+          });
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 50,
+          // ignore: prefer_const_constructors
+          child: Text(
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+            _labelNewCustomerSave,
+          ),
+        ));
+  }
+
+  widgetCustomerUpdateButton() {
+    return ElevatedButton(
+        onPressed: () async {
+          setState(() {
+            if (_formKey.currentState!.validate()) {
+              print("aaa");
+              if (_customerType == 'Şahıs') {
+                _customer = Customer.soleTrader(
+                  soleTraderName: _controllerName.text,
+                  soleTraderLastName: _controllerLastName.text,
+                  phone: _controllerPhoneNumber.text,
+                  city: _selectedCity,
+                  district: _selectDistrict,
+                  address: _controllerAddress.text,
+                  TCno: _controllerTC.text,
+                );
+
+                db
+                    .updateCustomerSoleTrader(_customer!, _customerId)
+                    .then((resValue) {
                   if (resValue.isEmpty) {
                     _controllerName.clear();
                     _controllerLastName.clear();
@@ -882,7 +1023,7 @@ class _ScreenCustomerSave extends State with Validation {
           child: Text(
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 20),
-            "KAYIT",
+            _labelUpdate,
           ),
         ));
   }

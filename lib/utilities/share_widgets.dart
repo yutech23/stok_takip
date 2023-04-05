@@ -69,7 +69,8 @@ class ShareWidget with Validation {
 
 //Aktif Telefon Numara giriş bölmü kullanılıyor
   IntlPhoneField widgetIntlPhoneField(
-      {TextEditingController? controllerPhoneNumber}) {
+      {TextEditingController? controllerPhoneNumber,
+      Function(String?)? selectedCountryCode}) {
     return IntlPhoneField(
       controller: controllerPhoneNumber,
       initialCountryCode: 'TR',
@@ -92,6 +93,7 @@ class ShareWidget with Validation {
       onCountryChanged: (value) {
         Sabitler.countryCode = value.dialCode;
       },
+      selectedCountryCode: selectedCountryCode,
     );
   }
 

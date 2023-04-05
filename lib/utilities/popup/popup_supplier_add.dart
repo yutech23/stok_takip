@@ -439,12 +439,13 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     );
   }
 
-  late String dialCode;
+  String? dialCode;
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
       child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber),
+          controllerPhoneNumber: _controllerPhoneNumber,
+          selectedCountryCode: (value) => dialCode = value),
     );
   }
 
