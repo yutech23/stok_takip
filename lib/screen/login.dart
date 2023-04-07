@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -195,22 +197,24 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                     userInfo['accessToken']!);
                 SecurityStorageUser.setUserRefleshToken(
                     userInfo['refreshToken']!);
+                Timer(
+                  const Duration(milliseconds: 200),
+                  () async {
+                    final userNameSurnameRole =
+                        await db.fetchNameSurnameRole(userInfo['id']);
 
-                ///SingIn fonksiyonu supabase farklı bir table olduğu için
-                ///Bu fonksiyona ihtiyaç var.
-                final userNameSurnameRole =
-                    await db.fetchNameSurnameRole(userInfo['id']);
+                    authController.role = userNameSurnameRole.role!;
+                    //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
+                    final roleList =
+                        await db.fetchPageInfoByRole(authController.role);
+                    await SecurityStorageUser.setPageList(roleList);
 
-                authController.role = userNameSurnameRole.role!;
-                //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
-                final roleList =
-                    await db.fetchPageInfoByRole(authController.role);
-                await SecurityStorageUser.setPageList(roleList);
-
-                SecurityStorageUser.setUserName(userNameSurnameRole.name!);
-                SecurityStorageUser.setUserLastName(
-                    userNameSurnameRole.lastName!);
-                SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
+                    SecurityStorageUser.setUserName(userNameSurnameRole.name!);
+                    SecurityStorageUser.setUserLastName(
+                        userNameSurnameRole.lastName!);
+                    SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
+                  },
+                );
 
                 if (authController.role == '1') {
                   context.router.pushNamed(ConstRoute.caseSnapshot);

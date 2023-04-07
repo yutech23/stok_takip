@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 
 import '../../data/database_helper.dart';
@@ -34,6 +35,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   final _controllerCompanyName = TextEditingController();
   final _controllerIban = TextEditingController();
   final _controllerTC = TextEditingController();
+  PhoneController _phoneController = PhoneController(null);
 
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
@@ -410,9 +412,9 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   widgetCountryPhoneNumber() {
     return Container(
       constraints: _responseWidth,
-      child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber,
-          selectedCountryCode: (value) => dialCode = value),
+      child: shareWidget.widgetPhoneFormField(
+        controllerPhoneNumber: _phoneController,
+      ),
     );
   }
 

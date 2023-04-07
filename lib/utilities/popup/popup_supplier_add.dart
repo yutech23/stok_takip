@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
@@ -30,6 +31,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final _controllerSupplierName = TextEditingController();
   final _controllerIban = TextEditingController();
   final _controllerBankName = TextEditingController();
+  PhoneController _phoneController = PhoneController(null);
 
   late AutovalidateMode _autovalidateMode;
 
@@ -443,9 +445,9 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
-      child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber,
-          selectedCountryCode: (value) => dialCode = value),
+      child: shareWidget.widgetPhoneFormField(
+        controllerPhoneNumber: _phoneController,
+      ),
     );
   }
 

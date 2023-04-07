@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
@@ -67,7 +68,7 @@ class ShareWidget with Validation {
     );
   }
 
-//Aktif Telefon Numara giriş bölmü kullanılıyor
+/* //Aktif Telefon Numara giriş bölmü kullanılıyor
   IntlPhoneField widgetIntlPhoneField(
       {TextEditingController? controllerPhoneNumber,
       Function(String?)? selectedCountryCode}) {
@@ -95,6 +96,29 @@ class ShareWidget with Validation {
       },
       selectedCountryCode: selectedCountryCode,
     );
+  } */
+
+  //Aktif Telefon Numara giriş bölmü kullanılıyor
+  widgetPhoneFormField({
+    PhoneController? controllerPhoneNumber,
+  }) {
+    return PhoneFormField(
+        validator: (phoneNumber) {
+          if (phoneNumber?.nsn == null) {
+            return validateNotEmpty("");
+          } else {
+            return validateNotEmpty(phoneNumber?.nsn);
+          }
+        },
+        defaultCountry: IsoCode.TR,
+        isCountryChipPersistent: true,
+        autocorrect: false,
+        controller: controllerPhoneNumber,
+        decoration: const InputDecoration(
+            labelText: 'Telefon Numarısı Giriniz',
+            border: OutlineInputBorder(
+              borderSide: BorderSide(),
+            )));
   }
 
   ///Elevated Button

@@ -2,10 +2,10 @@ import 'package:adaptivex/adaptivex.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/bloc/bloc_customer_register.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/models/customer.dart';
-import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/get_keys.dart';
@@ -15,6 +15,7 @@ import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
+import 'package:phone_number_metadata/phone_number_metadata.dart';
 import 'drawer.dart';
 
 class ScreenCustomerRegister extends StatefulWidget {
@@ -30,7 +31,6 @@ class _ScreenCustomerSave extends State with Validation {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _controllerName = TextEditingController();
   final _controllerLastName = TextEditingController();
-  final _controllerPhoneNumber = TextEditingController();
   final _controllerAddress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
@@ -81,28 +81,31 @@ class _ScreenCustomerSave extends State with Validation {
   final TextEditingController _controllerSearchCustomerName =
       TextEditingController();
 
-  final String _labelSearchHint = 'İsim ile Arama Yapınız';
-
+  final String _labelSearchHint = 'İsim ile arama yapınız';
   final String _labelTcNo = "TC No: ";
   final String _labelAddress = "Adres: ";
   final String _labelTaxNumber = "Vergi Numarası: ";
   final String _labelTaxOffice = "Vergi Dairesi: ";
   final String _labelCargoCompany = "Kargo Firma: ";
   final String _labelCargoNo = "Kargo No: ";
-  final String _labelBankname = "Banka Adı: ";
   final String _labelIban = "IBAN: ";
+  final String _labelDropdownBankName = "Banka İsmi: ";
+  final String _labelAddNewCustomer = "Yeni Müşteri Ekle";
 
   /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
 /*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
-  bool _switchButtonUpdateAndSave = false;
+  bool _isNewCustomerSaveButton = true;
+  bool _isUpdateButton = false;
   final String _labelUpdate = "Güncelle";
   final String _labelNewCustomerSave = "Yeni Müşteri Kaydet";
   late int _customerId;
-  final GlobalKey<FormState> _formKeyUpdate = GlobalKey<FormState>();
+
+  final PhoneController _phoneController = PhoneController(null);
 
   ///Silme İşlemi
   final String _header = "Hizmeti silmek istediğinizden emin misiniz?";
   final String _yesText = "Evet";
+  bool _isDisableCustomerType = false;
 
   /*---------------------------Güncelleme ------------------------------- */
   @override
@@ -175,7 +178,9 @@ class _ScreenCustomerSave extends State with Validation {
                 alignment: Alignment.center,
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  _switchButtonUpdateAndSave = true;
+                  _isUpdateButton = true;
+                  _isDisableCustomerType = true;
+                  _isNewCustomerSaveButton = false;
                   _customerId = row['id'];
                   setState(() {
                     _customerType = row['type'];
@@ -185,16 +190,78 @@ class _ScreenCustomerSave extends State with Validation {
                       _controllerTC.text = row['tc_no'];
                       _controllerName.text = row['copyName'];
                       _controllerLastName.text = row['last_name'];
-                      _controllerPhoneNumber.text = row['phone'];
+
+                      ///Veritabanında ülke kodları sayı ile tutuyorum
+                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                      countryCodeToIsoCode.forEach((key, value) {
+                        if (key == row['country_code']) {
+                          _phoneController.value =
+                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                        }
+                      });
+
                       _selectedCity = row['city'];
                       _selectDistrict = row['district'];
                       _controllerAddress.text = row['address'];
+
+                      ///Firma Güncelleme Bölümü
                     } else if (row['type'] == "Firma") {
                       listCustomerRegister.clear();
                       listeEklemeCompany();
+
+                      _controllerCompanyName.text = row['name'];
+
+                      ///Veritabanında ülke kodları sayı ile tutuyorum
+                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                      countryCodeToIsoCode.forEach((key, value) {
+                        if (key == row['country_code']) {
+                          _phoneController.value =
+                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                        }
+                      });
+
+                      _selectedCity = row['city'];
+                      _selectDistrict = row['district'];
+                      _controllerAddress.text = row['address'];
+                      _selectedTaxOffice = row['tax_office'];
+                      _controllerTaxNumber.text = row['tax_number'];
+                      _controllerCargoName.text = row['cargo_company'];
+                      _controllerCargoCode.text = row['cargo_number'];
+
+                      ///Tedarikçi Güncelleme Bölümü
                     } else if (row['type'] == "Tedarikçi") {
                       listCustomerRegister.clear();
                       listeEklemeSupplier();
+
+                      _controllerSupplierName.text = row['name'];
+                      _controllerBankName.text = row['bank_name'];
+                      // _controllerIban.text = row['iban'];
+
+                      ///Veritabanında ülke kodları sayı ile tutuyorum
+                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                      countryCodeToIsoCode.forEach((key, value) {
+                        if (key == row['country_code']) {
+                          _phoneController.value =
+                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                        }
+                      });
+
+                      _selectedCity = row['city'];
+                      _selectDistrict = row['district'];
+                      _controllerAddress.text = row['address'];
+                      _selectedTaxOffice = row['tax_office'];
+                      _controllerTaxNumber.text = row['tax_number'];
+                      _controllerCargoName.text = row['cargo_company'];
+                      _controllerCargoCode.text = row['cargo_number'];
                     }
                   });
                 },
@@ -211,7 +278,7 @@ class _ScreenCustomerSave extends State with Validation {
   void dispose() {
     _controllerName.dispose();
     _controllerLastName.dispose();
-    _controllerPhoneNumber.dispose();
+    _phoneController.dispose();
     _controllerAddress.dispose();
     _controllerTaxNumber.dispose();
     _controllerCargoCode.dispose();
@@ -279,51 +346,123 @@ class _ScreenCustomerSave extends State with Validation {
                   ),
 
                   ///Müşteri Kayıt Bölümü
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                    alignment: Alignment.center,
-                    decoration: context.extensionThemaWhiteContainer(),
-                    constraints: BoxConstraints(
-                        minWidth: _sectionCustomerSaveWidthMin,
-                        maxWidth: _sectionCustomerSaveWidthMax),
-                    height: _sectionHeight,
-                    child: Column(children: [
-                      const Divider(),
-                      ShareDropdown(
-                          hint: "Müşteri Tipini Seçiniz.",
-                          itemList: customerTypeitems,
-                          selectValue: _customerType,
-                          getShareDropdownCallbackFunc: _getCustomerType),
-                      widgetListCustomerInformationInput(),
-                      widgetRowCityAndDistrict(),
-                      const Divider(),
-                      _customerType != "Şahıs"
-                          ? widgetTaxOfficeAndTaxCodeInfo()
-                          : const SizedBox(),
-                      _customerType != "Şahıs"
-                          ? const Divider()
-                          : const SizedBox(),
-                      _customerType != "Şahıs"
-                          ? widgetCargoCompanyAndCargoCode()
-                          : const SizedBox(),
-                      _customerType != "Şahıs"
-                          ? const Divider()
-                          : const SizedBox(),
-                      Visibility(
-                        visible: !_switchButtonUpdateAndSave,
-                        child: widgetCustomerSaveButton(),
+                  Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Container(
+                        constraints: BoxConstraints(
+                            minWidth: _sectionCustomerSaveWidthMin,
+                            maxWidth: _sectionCustomerSaveWidthMax),
+                        height: 40,
+                        alignment: Alignment.centerLeft,
+                        decoration: BoxDecoration(
+                            color: Colors.blueGrey.shade100,
+                            boxShadow: const [
+                              BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.5),
+                                  blurRadius: 8)
+                            ]),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isNewCustomerSaveButton = true;
+                              _isDisableCustomerType = false;
+                              _isUpdateButton = false;
+                              _customerType = null;
+                              _controllerCompanyName.clear();
+                              _controllerSupplierName.clear();
+                              _controllerBankName.clear();
+                              _controllerIban.clear();
+                              _controllerName.clear();
+                              _controllerLastName.clear();
+                              _phoneController.reset();
+                              _controllerAddress.clear();
+                              _controllerTaxNumber.clear();
+                              _controllerCargoName.clear();
+                              _controllerCargoCode.clear();
+                              _controllerTC.clear();
+                              _selectDistrict = null;
+                              _selectedCity = null;
+                              _selectedTaxOffice = null;
+                            });
+                          },
+                          icon: Icon(Icons.add,
+                              color: context.extensionDefaultColor),
+                          label: Text(
+                            _labelAddNewCustomer,
+                            style: context.theme.titleMedium!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          style: ButtonStyle(overlayColor:
+                              MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.hovered)) {
+                              return Colors.blueGrey.shade700.withOpacity(0.2);
+                            }
+                            return null;
+                          })),
+                        ),
                       ),
-                      Visibility(
-                          visible: _switchButtonUpdateAndSave,
-                          child: widgetCustomerUpdateButton()),
-                      const Divider(),
-                    ]),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(15),
+                                bottomRight: Radius.circular(15)),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.5),
+                                  blurRadius: 8)
+                            ]),
+                        constraints: BoxConstraints(
+                            minWidth: _sectionCustomerSaveWidthMin,
+                            maxWidth: _sectionCustomerSaveWidthMax),
+                        height: _sectionHeight - 40,
+                        child: Column(children: [
+                          const Divider(),
+                          widgetDropdownSelectCustomerType(),
+                          widgetListCustomerInformationInput(),
+                          widgetRowCityAndDistrict(),
+                          const Divider(),
+                          _customerType != "Şahıs"
+                              ? widgetTaxOfficeAndTaxCodeInfo()
+                              : const SizedBox(),
+                          _customerType != "Şahıs"
+                              ? const Divider()
+                              : const SizedBox(),
+                          _customerType != "Şahıs"
+                              ? widgetCargoCompanyAndCargoCode()
+                              : const SizedBox(),
+                          _customerType != "Şahıs"
+                              ? const Divider()
+                              : const SizedBox(),
+                          Visibility(
+                            visible: _isNewCustomerSaveButton,
+                            child: widgetCustomerSaveButton(),
+                          ),
+                          Visibility(
+                            visible: _isUpdateButton,
+                            child: widgetCustomerUpdateButton(),
+                          ),
+                        ]),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
         ));
+  }
+
+  ShareDropdown widgetDropdownSelectCustomerType() {
+    return ShareDropdown(
+        hint: "Müşteri Tipini Seçiniz.",
+        itemList: customerTypeitems,
+        selectValue: _customerType,
+        getShareDropdownCallbackFunc: _getCustomerType,
+        isDisable: _isDisableCustomerType);
   }
 
   /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
@@ -424,7 +563,7 @@ class _ScreenCustomerSave extends State with Validation {
                                 widgetRichTextDetail(
                                     _labelCargoNo, value['cargo_number']),
                                 widgetRichTextDetail(
-                                    _labelBankName, value['bank_name']),
+                                    _labelDropdownBankName, value['bank_name']),
                                 widgetRichTextDetail(_labelIban, value['iban']),
                               ],
                             )
@@ -472,7 +611,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -501,7 +640,7 @@ class _ScreenCustomerSave extends State with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -526,7 +665,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -556,7 +695,7 @@ class _ScreenCustomerSave extends State with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İlk Önce İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -586,7 +725,7 @@ class _ScreenCustomerSave extends State with Validation {
         ///Adres giriş bölümü
         TextFormField(
           controller: _controllerAddress,
-          validator: validateAddress,
+          // validator: validateAddress,
           decoration: InputDecoration(
               counterText: "",
               labelText: _labelAddress,
@@ -762,29 +901,28 @@ class _ScreenCustomerSave extends State with Validation {
     );
   }
 
-  String? _selectedDial;
+  String? deger;
 
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
-      child: shareWidget.widgetIntlPhoneField(
-          controllerPhoneNumber: _controllerPhoneNumber,
-          selectedCountryCode: (value) => _selectedDial = value),
+      child: shareWidget.widgetPhoneFormField(
+        controllerPhoneNumber: _phoneController,
+      ),
     );
   }
 
   widgetCustomerSaveButton() {
     return ElevatedButton(
         onPressed: () async {
-          print("seçilen kod : $_selectedDial");
           setState(() {
             if (_formKey.currentState!.validate()) {
               if (_customerType == 'Şahıs') {
                 _customer = Customer.soleTrader(
                   soleTraderName: _controllerName.text,
                   soleTraderLastName: _controllerLastName.text,
-                  countryCode: Sabitler.countryCode,
-                  phone: _controllerPhoneNumber.text,
+                  countryCode: _phoneController.value!.countryCode,
+                  phone: _phoneController.value!.nsn,
                   city: _selectedCity,
                   district: _selectDistrict,
                   address: _controllerAddress.text,
@@ -796,23 +934,28 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
-                    _selectDistrict = "";
-                    _selectedCity = "";
-                    _selectedTaxOffice = "";
+                    _phoneController.reset();
+
                     _controllerAddress.clear();
                     _controllerTC.clear();
-
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
+                    _blocCustomerRegister.getAllCustomer();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
+                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
                   }
                 });
+
+                ///Firma Kaydetme İşlemi
               } else if (_customerType == 'Firma') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
-                    countryCode: Sabitler.countryCode,
-                    phone: _controllerPhoneNumber.text,
+                    countryCode: _phoneController.value!.countryCode,
+                    phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -826,18 +969,25 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
+                    _phoneController.reset();
                     _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
+                    _blocCustomerRegister.getAllCustomer();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
+                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
                   }
                 });
+
+                ///Tedarikçi Kaydetme işlemi
               } else if (_customerType == 'Tedarikçi') {
-                ///
                 String? iban;
                 if (_controllerIban.text.length > 2) {
                   iban = _controllerIban.text.replaceAll(" ", "");
@@ -848,8 +998,8 @@ class _ScreenCustomerSave extends State with Validation {
                     supplierName: _controllerSupplierName.text,
                     bankName: _controllerBankName.text,
                     iban: iban,
-                    countryCode: Sabitler.countryCode,
-                    phone: _controllerPhoneNumber.text,
+                    countryCode: _phoneController.value!.countryCode,
+                    phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -858,22 +1008,28 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveSuppliers(_customer!).then((value) {
-                  if (value.isEmpty) {
+                db.saveSuppliers(_customer!).then((resValue) {
+                  if (resValue.isEmpty) {
                     _controllerSupplierName.clear();
                     _controllerBankName.clear();
                     _controllerIban.clear();
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
+                    _phoneController.reset();
                     _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
+                    _blocCustomerRegister.getAllCustomer();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
+                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
                   }
                 });
               } else if (_customerType == null) {
@@ -901,17 +1057,19 @@ class _ScreenCustomerSave extends State with Validation {
         ));
   }
 
+  ///Güncelleme Button bölümü
   widgetCustomerUpdateButton() {
     return ElevatedButton(
         onPressed: () async {
           setState(() {
             if (_formKey.currentState!.validate()) {
-              print("aaa");
+              ///Şahıs Veri Güncelleme
               if (_customerType == 'Şahıs') {
                 _customer = Customer.soleTrader(
                   soleTraderName: _controllerName.text,
                   soleTraderLastName: _controllerLastName.text,
-                  phone: _controllerPhoneNumber.text,
+                  countryCode: _phoneController.value!.countryCode,
+                  phone: _phoneController.value!.nsn,
                   city: _selectedCity,
                   district: _selectDistrict,
                   address: _controllerAddress.text,
@@ -919,28 +1077,38 @@ class _ScreenCustomerSave extends State with Validation {
                 );
 
                 db
-                    .updateCustomerSoleTrader(_customer!, _customerId)
+                    .updateCustomerSoleTrader(_customer!,
+                        customerId: _customerId)
                     .then((resValue) {
                   if (resValue.isEmpty) {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
-                    _selectDistrict = "";
-                    _selectedCity = "";
-                    _selectedTaxOffice = "";
+                    _phoneController.reset();
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
                     _controllerAddress.clear();
                     _controllerTC.clear();
 
+                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                    ///veriler çekiliyor.
+                    _blocCustomerRegister.getAllCustomer();
+                    _controllerSearchCustomerName.clear();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
                     context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
+
+                ///Firma Veri Güncelleme
               } else if (_customerType == 'Firma') {
                 _customer = Customer.company(
                     companyName: _controllerCompanyName.text,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    countryCode: _phoneController.value!.countryCode,
+                    phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -949,23 +1117,37 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveCustomerCompany(_customer!).then((resValue) {
+                db
+                    .updateCustomerCompany(_customer!, customerId: _customerId)
+                    .then((resValue) {
                   if (resValue.isEmpty) {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
+                    _phoneController.reset();
                     _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    _phoneController.reset();
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
+
+                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                    ///veriler çekiliyor.
+                    _blocCustomerRegister.getAllCustomer();
+                    _controllerSearchCustomerName.clear();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
                     context.noticeBarError("Kayıt Başarısız", 2);
                   }
                 });
+
+                /// tedarikçi veri Güncelleme
               } else if (_customerType == 'Tedarikçi') {
-                ///
                 String? iban;
                 if (_controllerIban.text.length > 2) {
                   iban = _controllerIban.text.replaceAll(" ", "");
@@ -976,7 +1158,8 @@ class _ScreenCustomerSave extends State with Validation {
                     supplierName: _controllerSupplierName.text,
                     bankName: _controllerBankName.text,
                     iban: iban,
-                    phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                    countryCode: _phoneController.value!.countryCode,
+                    phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
@@ -985,7 +1168,9 @@ class _ScreenCustomerSave extends State with Validation {
                     cargoName: _controllerCargoName.text,
                     cargoNumber: _controllerCargoCode.text);
 
-                db.saveSuppliers(_customer!).then((value) {
+                db
+                    .updateSuppliers(_customer!, customerId: _customerId)
+                    .then((value) {
                   if (value.isEmpty) {
                     _controllerSupplierName.clear();
                     _controllerBankName.clear();
@@ -993,11 +1178,22 @@ class _ScreenCustomerSave extends State with Validation {
                     _controllerName.clear();
                     _controllerLastName.clear();
                     _controllerCompanyName.clear();
-                    _controllerPhoneNumber.clear();
+                    _phoneController.reset();
                     _controllerAddress.clear();
                     _controllerTaxNumber.clear();
                     _controllerCargoName.clear();
                     _controllerCargoCode.clear();
+                    _phoneController.reset();
+                    setState(() {
+                      _selectDistrict = null;
+                      _selectedCity = null;
+                      _selectedTaxOffice = null;
+                    });
+
+                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                    ///veriler çekiliyor.
+                    _blocCustomerRegister.getAllCustomer();
+                    _controllerSearchCustomerName.clear();
                     context.noticeBarTrue("Kayıt Başarılı", 2);
                   } else {
                     context.noticeBarError("Kayıt Başarısız", 2);
@@ -1053,6 +1249,7 @@ class _ScreenCustomerSave extends State with Validation {
                     await _blocCustomerRegister.deleteCustomer(serviceId);
                 if (res.isEmpty) {
                   controllerSearch.clear();
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                   // ignore: use_build_context_synchronously
                   await context.noticeBarTrue("İşlem başarılı.", 2);

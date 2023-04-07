@@ -68,8 +68,8 @@ class DbHelper {
       try {
         final resData = await db.supabase
             .from('users')
-            .select('name,last_name,role')
-            .match({'user_uuid': uuid});
+            .select<List<Map<String, dynamic>>>('name,last_name,role')
+            .eq('user_uuid', uuid);
 
         selectedKullanici = Kullanici.nameSurnameRole(
             name: resData[0]['name'],
@@ -358,20 +358,20 @@ class DbHelper {
   }
 
   ///*****************Müşteri Güncelleme İşlemleri************************
-  Future<String> updateCustomerSoleTrader(
-      Customer customerSoleTrader, int id) async {
+  Future<String> updateCustomerSoleTrader(Customer customerSoleTrader,
+      {required int customerId}) async {
     try {
-      print("object");
       await supabase.from('customer_sole_trader').update({
         'name': customerSoleTrader.soleTraderName,
         'last_name': customerSoleTrader.soleTraderLastName,
         'phone': customerSoleTrader.phone,
+        'country_code': customerSoleTrader.countryCode,
         'city': customerSoleTrader.city,
         'district': customerSoleTrader.district,
         'address': customerSoleTrader.address,
         'tc_no': customerSoleTrader.TCno,
         'type': customerSoleTrader.type
-      }).eq('id', id);
+      }).eq('id', customerId);
       return "";
     } on PostgrestException catch (e) {
       debugPrint("Hata güncelleme Şahıs müşteri : ${e.message}");
@@ -380,52 +380,48 @@ class DbHelper {
   }
 
   /// Şirket Kayıt
-  Future<String> updateCustomerCompany(
-    Customer customerCompany,
-  ) async {
+  Future<String> updateCustomerCompany(Customer customerCompany,
+      {required int customerId}) async {
     try {
-      await supabase.from('customer_company').insert([
-        {
-          'name': customerCompany.companyName,
-          'phone': customerCompany.phone,
-          'city': customerCompany.city,
-          'district': customerCompany.district,
-          'address': customerCompany.address,
-          'tax_office': customerCompany.taxOffice,
-          'tax_number': customerCompany.taxNumber,
-          'cargo_company': customerCompany.cargoName,
-          'cargo_number': customerCompany.cargoNumber,
-        }
-      ]);
+      await supabase.from('customer_company').update({
+        'name': customerCompany.companyName,
+        'country_code': customerCompany.countryCode,
+        'phone': customerCompany.phone,
+        'city': customerCompany.city,
+        'district': customerCompany.district,
+        'address': customerCompany.address,
+        'tax_office': customerCompany.taxOffice,
+        'tax_number': customerCompany.taxNumber,
+        'cargo_company': customerCompany.cargoName,
+        'cargo_number': customerCompany.cargoNumber,
+      }).eq('id', customerId);
       return "";
     } on PostgrestException catch (e) {
-      debugPrint("Hata saveCustomer : ${e.message}");
+      debugPrint("Hata updateCustomer : ${e.message}");
       return e.message;
     }
   }
 
-  Future<String> updateSuppliers(
-    Customer supplier,
-  ) async {
+  Future<String> updateSuppliers(Customer supplier,
+      {required int customerId}) async {
     try {
-      await supabase.from('suppliers').insert([
-        {
-          'name': supplier.supplierName,
-          'iban': supplier.iban,
-          'bank_name': supplier.bankName,
-          'phone': supplier.phone,
-          'city': supplier.city,
-          'district': supplier.district,
-          'address': supplier.address,
-          'tax_office': supplier.taxOffice,
-          'tax_number': supplier.taxNumber,
-          'cargo_company': supplier.cargoName,
-          'cargo_number': supplier.cargoNumber,
-        }
-      ]);
+      await supabase.from('suppliers').update({
+        'name': supplier.supplierName,
+        'iban': supplier.iban,
+        'bank_name': supplier.bankName,
+        'country_code': supplier.countryCode,
+        'phone': supplier.phone,
+        'city': supplier.city,
+        'district': supplier.district,
+        'address': supplier.address,
+        'tax_office': supplier.taxOffice,
+        'tax_number': supplier.taxNumber,
+        'cargo_company': supplier.cargoName,
+        'cargo_number': supplier.cargoNumber,
+      }).eq('id', customerId);
       return "";
     } on PostgrestException catch (e) {
-      debugPrint("Hata SaveSupplier : ${e.message}");
+      debugPrint("Hata updateSupplier : ${e.message}");
       return e.message;
     }
   }

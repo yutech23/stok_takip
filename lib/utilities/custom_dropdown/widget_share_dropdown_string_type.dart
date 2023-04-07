@@ -11,6 +11,7 @@ class ShareDropdown extends StatelessWidget {
   String? Function(String?)? validator;
   String? selectValue;
   bool skipTravel = false;
+  bool isDisable;
 
   ShareDropdown(
       {required this.hint,
@@ -18,7 +19,8 @@ class ShareDropdown extends StatelessWidget {
       this.validator,
       this.selectValue,
       this.getShareDropdownCallbackFunc,
-      skipTravel});
+      skipTravel,
+      this.isDisable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -33,57 +35,64 @@ class ShareDropdown extends StatelessWidget {
             child: Text(item),
           )));
     }
-    return DropdownButtonFormField<String>(
-      focusNode: FocusNode(skipTraversal: skipTravel),
-      decoration: InputDecoration(
-        isDense: false,
-        contentPadding: const EdgeInsets.only(right: 5, bottom: 15),
-        disabledBorder: OutlineInputBorder(
+    return Theme(
+      data: Theme.of(context).copyWith(disabledColor: Colors.white),
+      child: DropdownButtonFormField<String>(
+        enableFeedback: false,
+        focusNode: FocusNode(skipTraversal: skipTravel),
+        decoration: InputDecoration(
+          fillColor: isDisable ? Colors.grey.shade400 : null,
+          isDense: false,
+          contentPadding: const EdgeInsets.only(right: 5, bottom: 15),
+          disabledBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(15)),
+          enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(15)),
+          focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(15)),
+          border: OutlineInputBorder(
             borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(15)),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(15)),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(15)),
-        border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-          borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          filled: true,
         ),
-        filled: true,
-      ),
-      // ignore: prefer_const_constructors
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
-      hint: Container(
-        height: 50,
-        alignment: Alignment.center,
-        child: Text(hint,
-            style: context.theme.bodyMedium!.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1)),
-      ),
+        // ignore: prefer_const_constructors
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
+        hint: Container(
+          height: 50,
+          alignment: Alignment.center,
+          child: Text(hint,
+              style: context.theme.bodyMedium!.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1)),
+        ),
 
-      icon: const Icon(
-        Icons.arrow_drop_down_circle_sharp,
-        color: Colors.white,
-        size: 30,
+        icon: const Icon(
+          Icons.arrow_drop_down_circle_sharp,
+          color: Colors.white,
+          size: 30,
+        ),
+        isExpanded: true,
+        isDense: true,
+        itemHeight: 50,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+        dropdownColor: Colors.blueGrey.shade200,
+        items: dropdownMenuitemList,
+        value: selectValue,
+        onChanged: isDisable
+            ? null
+            : (String? value) {
+                selectValue = value;
+                getShareDropdownCallbackFunc!(selectValue!);
+              },
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
       ),
-      isExpanded: true,
-      isDense: true,
-      itemHeight: 50,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-      dropdownColor: Colors.blueGrey.shade200,
-      items: dropdownMenuitemList,
-      value: selectValue,
-      onChanged: (String? value) {
-        selectValue = value;
-        getShareDropdownCallbackFunc!(selectValue!);
-      },
-      validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
     );
   }
 }

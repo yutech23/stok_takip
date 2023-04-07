@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:searchfield/searchfield.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 
 class Test extends StatefulWidget {
   const Test({super.key});
@@ -37,6 +38,7 @@ class _TestState extends State<Test> {
     super.initState();
   }
 
+  PhoneController _controllerPhone = PhoneController(null);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,12 +76,35 @@ class _TestState extends State<Test> {
         )),
         ElevatedButton(
             onPressed: () {
-              String valueString =
-                  controllerTest.text.replaceAll(RegExp(r'[₺$€.]'), '');
+              /*    print(_controllerPhone.value!.countryCode);
+              print(_controllerPhone.value!.nsn); */
 
-              print(double.parse(valueString.replaceAll(RegExp(r','), ".")));
+              _controllerPhone.value =
+                  PhoneNumber(isoCode: IsoCode.TR, nsn: "5074563423");
             },
-            child: Text("dene"))
+            child: Text("dene")),
+        SizedBox(
+          height: 40,
+        ),
+        SizedBox(
+          width: 300,
+          child: PhoneFormField(
+              defaultCountry: IsoCode.TR,
+              isCountryChipPersistent: true,
+              countrySelectorNavigator: CountrySelectorNavigator.bottomSheet(),
+              controller: _controllerPhone,
+              decoration: const InputDecoration(
+                  labelText: 'Telefon Numarısı Giriniz',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ))),
+        ),
+        ElevatedButton(
+            onPressed: () {
+              print(_controllerPhone.value!.countryCode);
+              print(_controllerPhone.value!.nsn);
+            },
+            child: Text("dene")),
       ],
     ));
   }

@@ -13,8 +13,9 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbBaslat();
-  await authController.controllerAuth();
   await dbHive.initDbHive(Sabitler.dbHiveBoxName);
+  await authController.controllerAuth();
+
   runApp(const MyApp());
 }
 
