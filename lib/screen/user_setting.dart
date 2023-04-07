@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:stok_takip/screen/drawer.dart';
+import 'package:stok_takip/utilities/share_func.dart';
 import 'package:stok_takip/validations/validation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/database_helper.dart';
 import '../utilities/dimension_font.dart';
 import '../utilities/widget_appbar_setting.dart';
+import 'package:crypto/crypto.dart';
 
 class ScreenUserSetting extends StatefulWidget {
   ScreenUserSetting({Key? key}) : super(key: key);
@@ -18,7 +22,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
   late final TextEditingController _controllerNewPassword;
   late final TextEditingController _controllerReNewPassword;
   late final TextEditingController _controllerCurrentPassword;
-  AutovalidateMode _autovalidateMode = AutovalidateMode.onUserInteraction;
+  final AutovalidateMode _autovalidateMode = AutovalidateMode.onUserInteraction;
 
   bool obscureValue = true,
       confirmObscureValue = true,
@@ -44,13 +48,13 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Ayarlar"),
+        title: const Text("Ayarlar"),
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
-        actions: [
+        actions: const [
           ShareWidgetAppbarSetting(),
         ],
       ),
-      drawer: MyDrawer(),
+      drawer: const MyDrawer(),
       body: buildUserSetting(context),
     );
   }
@@ -69,7 +73,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
                 ]),
             padding: const EdgeInsets.all(20),
@@ -78,7 +82,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
             width: 350,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text("Şifre Değiştirme", style: context.theme.headline4),
+              Text("Şifre Değiştirme", style: context.theme.headlineSmall),
               const SizedBox(height: 40),
               widgetTextFieldCurrentPassword(
                   _controllerCurrentPassword,
@@ -185,6 +189,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
   buttonSave() {
     return ElevatedButton(
       onPressed: () async {
+        ///girilen şifrelerin bir biri ile eşleşmesini kontrol ediyor.
         if (_controllerNewPassword.text == _controllerReNewPassword.text &&
             _formKey.currentState!.validate()) {
           final Session? sessionUserId = db.supabase.auth.currentSession;
@@ -192,9 +197,13 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
           ///şuanki kullanıcı id ile controllerText içindeki veriyi karşılaştırılıyor
           ///eğer doğru ise yeni şifre veri tabanına kaydediliyor.
           ///
+          // ignore: unnecessary_null_comparison
           if (sessionUserId!.user.id != null) {
+            /// veritabanında şifrelenmiş şifreyi eşleşme kontrolü ediyor.
             db.getPassword(sessionUserId.user.id).then((userPassword) {
-              if (_controllerCurrentPassword.text == userPassword) {
+              if (shareFunc.hashSha512ConvertToString(
+                      _controllerCurrentPassword.text) ==
+                  userPassword) {
                 ///password güncelliyor ama sadece supabase user içinde yapıyor.
                 ///şifreyi kullanıcılar tablosunda tutuluyor. göstermek için.
                 db
@@ -206,6 +215,9 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
                     context.noticeBarError("İşlem Başarısız", 1);
                   }
                 });
+
+                ///kullanıcı şifresi 2 ayrı tabloda tutluyor. Bu yüzden
+                ///diğer tabloyada şifrenin hash lanmiş verisi kaydediliyor.
                 db
                     .saveNewPassword(
                         _controllerNewPassword.text, sessionUserId.user.id)

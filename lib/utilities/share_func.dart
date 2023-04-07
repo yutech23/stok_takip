@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:stok_takip/data/database_mango.dart';
 
@@ -50,6 +51,14 @@ class ShareFunc {
   ///DateTime zaman hariç verisini String çeviriyor.
   String dateTimeConvertFormatStringWithoutTime(DateTime dateTime) {
     return DateFormat('dd/MM/yyyy').format(dateTime);
+  }
+
+  ///Şifrelemek için SHA512 kullanılıyor Stringe dönüştürüyor
+  String hashSha512ConvertToString(String password) {
+    final bytes = utf8.encode(password);
+    final diges = sha512.convert(bytes);
+    final hashPass = diges.toString();
+    return hashPass;
   }
 }
 

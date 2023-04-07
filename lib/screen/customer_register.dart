@@ -41,6 +41,7 @@ class _ScreenCustomerSave extends State with Validation {
   final _controllerSupplierName = TextEditingController();
   final _controllerTC = TextEditingController();
 
+  final String _labelPageHeader = "Müşteri & Tedarikçi Ekranı";
   final String _labelBankName = "Banka İsmi";
   final String _labelCompanyName = "Firma Adını Giriniz";
   final String _labelCustomerName = "Müşteri adını giriniz";
@@ -143,130 +144,109 @@ class _ScreenCustomerSave extends State with Validation {
         flex: 2,
         textAlign: TextAlign.center));
     _headers.add(DatatableHeader(
-        text: "Sil ve Güncelle",
+        text: "Düzenle",
         value: "detail",
         show: true,
         sortable: false,
-        flex: 2,
+        flex: 1,
         sourceBuilder: (value, row) {
-          return Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ///Silme Buttonu
-              IconButton(
-                focusNode: FocusNode(skipTraversal: true),
-                iconSize: 20,
-                padding: const EdgeInsets.only(bottom: 20),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.delete),
-                onPressed: () async {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return popupDelete(row, _controllerSearchCustomerName);
-                    },
-                  );
-                },
-              ),
+          return Container(
+            alignment: Alignment.center,
+            child: IconButton(
+              focusNode: FocusNode(skipTraversal: true),
+              iconSize: 20,
+              padding: const EdgeInsets.only(bottom: 20),
+              alignment: Alignment.center,
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                _isUpdateButton = true;
+                _isDisableCustomerType = true;
+                _isNewCustomerSaveButton = false;
+                _customerId = row['id'];
+                setState(() {
+                  _customerType = row['type'];
+                  if (row['type'] == "Şahıs") {
+                    listCustomerRegister.clear();
+                    listeEklemeSahis();
+                    _controllerTC.text = row['tc_no'];
+                    _controllerName.text = row['copyName'];
+                    _controllerLastName.text = row['last_name'];
 
-              ///Güncelleme Buttonu
-              IconButton(
-                focusNode: FocusNode(skipTraversal: true),
-                iconSize: 20,
-                padding: const EdgeInsets.only(bottom: 20),
-                alignment: Alignment.center,
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  _isUpdateButton = true;
-                  _isDisableCustomerType = true;
-                  _isNewCustomerSaveButton = false;
-                  _customerId = row['id'];
-                  setState(() {
-                    _customerType = row['type'];
-                    if (row['type'] == "Şahıs") {
-                      listCustomerRegister.clear();
-                      listeEklemeSahis();
-                      _controllerTC.text = row['tc_no'];
-                      _controllerName.text = row['copyName'];
-                      _controllerLastName.text = row['last_name'];
+                    ///Veritabanında ülke kodları sayı ile tutuyorum
+                    ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                    ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                    ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                    ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                    countryCodeToIsoCode.forEach((key, value) {
+                      if (key == row['country_code']) {
+                        _phoneController.value =
+                            PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                      }
+                    });
 
-                      ///Veritabanında ülke kodları sayı ile tutuyorum
-                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
-                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
-                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
-                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
-                      countryCodeToIsoCode.forEach((key, value) {
-                        if (key == row['country_code']) {
-                          _phoneController.value =
-                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
-                        }
-                      });
+                    _selectedCity = row['city'];
+                    _selectDistrict = row['district'];
+                    _controllerAddress.text = row['address'];
 
-                      _selectedCity = row['city'];
-                      _selectDistrict = row['district'];
-                      _controllerAddress.text = row['address'];
+                    ///Firma Güncelleme Bölümü
+                  } else if (row['type'] == "Firma") {
+                    listCustomerRegister.clear();
+                    listeEklemeCompany();
 
-                      ///Firma Güncelleme Bölümü
-                    } else if (row['type'] == "Firma") {
-                      listCustomerRegister.clear();
-                      listeEklemeCompany();
+                    _controllerCompanyName.text = row['name'];
 
-                      _controllerCompanyName.text = row['name'];
+                    ///Veritabanında ülke kodları sayı ile tutuyorum
+                    ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                    ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                    ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                    ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                    countryCodeToIsoCode.forEach((key, value) {
+                      if (key == row['country_code']) {
+                        _phoneController.value =
+                            PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                      }
+                    });
 
-                      ///Veritabanında ülke kodları sayı ile tutuyorum
-                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
-                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
-                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
-                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
-                      countryCodeToIsoCode.forEach((key, value) {
-                        if (key == row['country_code']) {
-                          _phoneController.value =
-                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
-                        }
-                      });
+                    _selectedCity = row['city'];
+                    _selectDistrict = row['district'];
+                    _controllerAddress.text = row['address'];
+                    _selectedTaxOffice = row['tax_office'];
+                    _controllerTaxNumber.text = row['tax_number'];
+                    _controllerCargoName.text = row['cargo_company'];
+                    _controllerCargoCode.text = row['cargo_number'];
 
-                      _selectedCity = row['city'];
-                      _selectDistrict = row['district'];
-                      _controllerAddress.text = row['address'];
-                      _selectedTaxOffice = row['tax_office'];
-                      _controllerTaxNumber.text = row['tax_number'];
-                      _controllerCargoName.text = row['cargo_company'];
-                      _controllerCargoCode.text = row['cargo_number'];
+                    ///Tedarikçi Güncelleme Bölümü
+                  } else if (row['type'] == "Tedarikçi") {
+                    listCustomerRegister.clear();
+                    listeEklemeSupplier();
 
-                      ///Tedarikçi Güncelleme Bölümü
-                    } else if (row['type'] == "Tedarikçi") {
-                      listCustomerRegister.clear();
-                      listeEklemeSupplier();
+                    _controllerSupplierName.text = row['name'];
+                    _controllerBankName.text = row['bank_name'];
+                    // _controllerIban.text = row['iban'];
 
-                      _controllerSupplierName.text = row['name'];
-                      _controllerBankName.text = row['bank_name'];
-                      // _controllerIban.text = row['iban'];
+                    ///Veritabanında ülke kodları sayı ile tutuyorum
+                    ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
+                    ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
+                    ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
+                    ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
+                    countryCodeToIsoCode.forEach((key, value) {
+                      if (key == row['country_code']) {
+                        _phoneController.value =
+                            PhoneNumber(isoCode: value[0], nsn: row['phone']);
+                      }
+                    });
 
-                      ///Veritabanında ülke kodları sayı ile tutuyorum
-                      ///Bu gelen veriyi direk telefon bölümüne akataramıyorum
-                      ///çünkü widget sadece Isocode(Tr) ile veri gönderilebiliyor.
-                      ///Bu yüzden kütüphanenin listesinde  gelen kodu arama
-                      ///yapıyorum ki güncelleme sırasında ekrana değişkliği yapabilsin.
-                      countryCodeToIsoCode.forEach((key, value) {
-                        if (key == row['country_code']) {
-                          _phoneController.value =
-                              PhoneNumber(isoCode: value[0], nsn: row['phone']);
-                        }
-                      });
-
-                      _selectedCity = row['city'];
-                      _selectDistrict = row['district'];
-                      _controllerAddress.text = row['address'];
-                      _selectedTaxOffice = row['tax_office'];
-                      _controllerTaxNumber.text = row['tax_number'];
-                      _controllerCargoName.text = row['cargo_company'];
-                      _controllerCargoCode.text = row['cargo_number'];
-                    }
-                  });
-                },
-              )
-            ],
+                    _selectedCity = row['city'];
+                    _selectDistrict = row['district'];
+                    _controllerAddress.text = row['address'];
+                    _selectedTaxOffice = row['tax_office'];
+                    _controllerTaxNumber.text = row['tax_number'];
+                    _controllerCargoName.text = row['cargo_company'];
+                    _controllerCargoCode.text = row['cargo_number'];
+                  }
+                });
+              },
+            ),
           );
         },
         textAlign: TextAlign.center));
@@ -309,7 +289,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text("Yeni Müşteri Kayıt Formu"),
+        title: Text(_labelPageHeader),
         // ignore: prefer_const_literals_to_create_immutables
         actions: [
           const ShareWidgetAppbarSetting(),
@@ -403,7 +383,7 @@ class _ScreenCustomerSave extends State with Validation {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
                             color: Colors.white,
@@ -766,7 +746,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -795,7 +775,7 @@ class _ScreenCustomerSave extends State with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "Vergi Dairesini Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),

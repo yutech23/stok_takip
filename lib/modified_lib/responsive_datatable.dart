@@ -298,6 +298,8 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                       child: header.headerBuilder != null
                           ? header.headerBuilder!(header.value)
                           : Container(
+                              ///Header background renk
+                              //   color: Colors.blue,
                               padding: const EdgeInsets.all(11),
                               alignment: headerAlignSwitch(header.textAlign),
                               child: Wrap(
@@ -347,7 +349,9 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
             },
             child: Container(
               height: widget.rowHeight,
-              padding: EdgeInsets.all(widget.showSelect ? 0 : 11),
+              // padding: EdgeInsets.symmetric(vertical: 11),
+              padding:
+                  EdgeInsets.symmetric(vertical: widget.showSelect ? 0 : 11),
               decoration: widget.selecteds!.contains(data)
                   ? selectedDecoration
                   : rowDecoration,

@@ -8,6 +8,7 @@ import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/sale.dart';
+import 'package:stok_takip/utilities/share_func.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
 import '../models/product.dart';
@@ -166,6 +167,8 @@ class DbHelper {
           'name': kullanici.name,
           'last_name': kullanici.lastName,
           'email': kullanici.email,
+          'encrypt_password':
+              shareFunc.hashSha512ConvertToString(kullanici.password!),
           'user_uuid': resAuth.user!.id,
           'role': roleIdString,
           'partner': kullanici.isPartner,
@@ -769,9 +772,12 @@ class DbHelper {
   ///istoruz kişi güvenliği için
   Future<String?> getPassword(String? uuid) async {
     try {
-      final resData =
-          await supabase.from('users').select('*').match({'user_uuid': uuid});
-      return resData[0]['password'];
+      final resData = await supabase
+          .from('users')
+          .select('encrypt_password')
+          .match({'user_uuid': uuid}).single();
+
+      return resData['encrypt_password'];
     } on PostgrestException catch (e) {
       debugPrint("Hata getPassword : ${e.message}");
       return "";
@@ -780,10 +786,14 @@ class DbHelper {
 
   /// Şifre Değiştirme Yeri
   Future<String> saveNewPassword(String? newPassword, String userId) async {
+    /*  print("save : $newPassword");
+    print("kullanıcı id :$userId");
+    print("encrypt : ${shareFunc.hashSha512ConvertToString(newPassword!)}"); */
     try {
-      await supabase
-          .from('users')
-          .update({'password': newPassword}).eq('user_uuid', userId);
+      await supabase.from('users').update({
+        'encrypt_password': shareFunc.hashSha512ConvertToString(newPassword!)
+      }).eq('user_uuid', userId);
+
       return "";
     } on PostgrestException catch (e) {
       debugPrint("Hata NewPassword : ${e.message}");

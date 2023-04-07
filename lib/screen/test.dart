@@ -3,6 +3,7 @@ import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:phone_form_field/phone_form_field.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Test extends StatefulWidget {
   const Test({super.key});
@@ -62,7 +63,7 @@ class _TestState extends State<Test> {
                           CircleAvatar(
                             backgroundImage: NetworkImage(e),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           Text(e),
@@ -75,12 +76,9 @@ class _TestState extends State<Test> {
           ),
         )),
         ElevatedButton(
-            onPressed: () {
-              /*    print(_controllerPhone.value!.countryCode);
-              print(_controllerPhone.value!.nsn); */
-
-              _controllerPhone.value =
-                  PhoneNumber(isoCode: IsoCode.TR, nsn: "5074563423");
+            onPressed: () async {
+              final res = await db.supabase.from('auth').select();
+              print(res);
             },
             child: Text("dene")),
         SizedBox(

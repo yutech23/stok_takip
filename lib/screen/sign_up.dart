@@ -222,7 +222,6 @@ class _ScreenSignUpState extends State with Validation {
           if (formKey.currentState!.validate()) {
             //oturm açık olan kullanıcı id alıyor.
             kullanici.activeUser = dbHive.getValues('uuid');
-
             kullanici.name = _controllerName.text;
             kullanici.lastName = _controllerLastName.text;
             kullanici.email = _controllerEmail.text;
