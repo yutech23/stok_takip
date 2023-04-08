@@ -2050,6 +2050,32 @@ class DbHelper {
       return e.message;
     }
   }
+
+  /*-----------------------Kullanıcı Ekranı------------------------------ */
+
+  Future<List<Map<String, dynamic>>> fetchAllUsers() async {
+    List<Map<String, dynamic>> allUsers = [];
+
+    try {
+      allUsers = await db.supabase
+          .from('users')
+          .select<List<Map<String, dynamic>>>(
+              'id,name,last_name,email,partner,role,status');
+
+      ///Şahıs Müşterileri tabloda isim ile soyism farklı kolonda tutluyor.Bu yüzden
+      ///birleştiriliyor.
+      for (var element in allUsers) {
+        element['name'] = "${element['name']} ${element['last_name']}";
+      }
+
+      return allUsers;
+    } on PostgrestException catch (e) {
+      return [
+        {'Hata': e.message}
+      ];
+    }
+  }
+  /*--------------------------------------------------------------------- */
 }
 
 final db = DbHelper();

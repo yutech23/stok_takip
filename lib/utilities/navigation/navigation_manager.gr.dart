@@ -11,8 +11,8 @@
 // ignore_for_file: type=lint
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i15;
-import 'package:flutter/material.dart' as _i16;
+import 'package:auto_route/auto_route.dart' as _i16;
+import 'package:flutter/material.dart' as _i17;
 
 import '../../screen/capital.dart' as _i13;
 import '../../screen/cari_customer.dart' as _i10;
@@ -28,71 +28,72 @@ import '../../screen/sign_up.dart' as _i4;
 import '../../screen/stock_edit.dart' as _i2;
 import '../../screen/test.dart' as _i8;
 import '../../screen/user_setting.dart' as _i7;
-import 'auth_guard.dart' as _i17;
-import 'custom_router_builder.dart' as _i18;
+import '../../screen/users.dart' as _i15;
+import 'auth_guard.dart' as _i18;
+import 'custom_router_builder.dart' as _i19;
 
-class AppRouter extends _i15.RootStackRouter {
+class AppRouter extends _i16.RootStackRouter {
   AppRouter({
-    _i16.GlobalKey<_i16.NavigatorState>? navigatorKey,
+    _i17.GlobalKey<_i17.NavigatorState>? navigatorKey,
     required this.authGuard,
   }) : super(navigatorKey);
 
-  final _i17.AuthGuard authGuard;
+  final _i18.AuthGuard authGuard;
 
   @override
-  final Map<String, _i15.PageFactory> pagesMap = {
+  final Map<String, _i16.PageFactory> pagesMap = {
     RouteLogin.name: (routeData) {
-      return _i15.MaterialPageX<dynamic>(
+      return _i16.MaterialPageX<dynamic>(
         routeData: routeData,
         child: const _i1.ScreenLogin(),
       );
     },
     RouteStockEdit.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i2.ScreenStockEdit(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteProductAdd.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i3.ScreenProductAdd(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteSignUp.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i4.ScreenSignUp(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCategoryEdit.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i5.ScreenCategoryEdit(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCustomerRegister.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i6.ScreenCustomerRegister(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
@@ -100,81 +101,91 @@ class AppRouter extends _i15.RootStackRouter {
     RouteUserSetting.name: (routeData) {
       final args = routeData.argsAs<RouteUserSettingArgs>(
           orElse: () => const RouteUserSettingArgs());
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: _i7.ScreenUserSetting(key: args.key),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     Test.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i8.Test(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteSale.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i9.ScreenSale(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCariCustomer.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i10.ScreenCariCustomer(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCariSupplier.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i11.ScreenCariSupplier(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCaseSnapshot.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i12.ScreenCaseSnapshot(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteCapital.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i13.ScreenCapital(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdmin,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
     },
     RouteExpenses.name: (routeData) {
-      return _i15.CustomPage<dynamic>(
+      return _i16.CustomPage<dynamic>(
         routeData: routeData,
         child: const _i14.ScreenExpenses(),
         customRouteBuilder:
-            _i18.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
+        opaque: true,
+        barrierDismissible: false,
+      );
+    },
+    RouteUsers.name: (routeData) {
+      return _i16.CustomPage<dynamic>(
+        routeData: routeData,
+        child: const _i15.ScreenUsers(),
+        customRouteBuilder:
+            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
         opaque: true,
         barrierDismissible: false,
       );
@@ -182,74 +193,79 @@ class AppRouter extends _i15.RootStackRouter {
   };
 
   @override
-  List<_i15.RouteConfig> get routes => [
-        _i15.RouteConfig(
+  List<_i16.RouteConfig> get routes => [
+        _i16.RouteConfig(
           RouteLogin.name,
           path: '/login',
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteStockEdit.name,
           path: '/stockEdit',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteProductAdd.name,
           path: '/productAdd',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteSignUp.name,
           path: '/signUp',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCategoryEdit.name,
           path: '/categoryEdit',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCustomerRegister.name,
           path: '/customerRegister',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteUserSetting.name,
           path: '/userSetting',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           Test.name,
           path: '/Test',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteSale.name,
           path: '/sale',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCariCustomer.name,
           path: '/cariCustomer',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCariSupplier.name,
           path: '/cariSupplier',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCaseSnapshot.name,
           path: '/caseSnapshot',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteCapital.name,
           path: '/capital',
           guards: [authGuard],
         ),
-        _i15.RouteConfig(
+        _i16.RouteConfig(
           RouteExpenses.name,
           path: '/expenses',
+          guards: [authGuard],
+        ),
+        _i16.RouteConfig(
+          RouteUsers.name,
+          path: '/usersEdit',
           guards: [authGuard],
         ),
       ];
@@ -257,7 +273,7 @@ class AppRouter extends _i15.RootStackRouter {
 
 /// generated route for
 /// [_i1.ScreenLogin]
-class RouteLogin extends _i15.PageRouteInfo<void> {
+class RouteLogin extends _i16.PageRouteInfo<void> {
   const RouteLogin()
       : super(
           RouteLogin.name,
@@ -269,7 +285,7 @@ class RouteLogin extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.ScreenStockEdit]
-class RouteStockEdit extends _i15.PageRouteInfo<void> {
+class RouteStockEdit extends _i16.PageRouteInfo<void> {
   const RouteStockEdit()
       : super(
           RouteStockEdit.name,
@@ -281,7 +297,7 @@ class RouteStockEdit extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i3.ScreenProductAdd]
-class RouteProductAdd extends _i15.PageRouteInfo<void> {
+class RouteProductAdd extends _i16.PageRouteInfo<void> {
   const RouteProductAdd()
       : super(
           RouteProductAdd.name,
@@ -293,7 +309,7 @@ class RouteProductAdd extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.ScreenSignUp]
-class RouteSignUp extends _i15.PageRouteInfo<void> {
+class RouteSignUp extends _i16.PageRouteInfo<void> {
   const RouteSignUp()
       : super(
           RouteSignUp.name,
@@ -305,7 +321,7 @@ class RouteSignUp extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i5.ScreenCategoryEdit]
-class RouteCategoryEdit extends _i15.PageRouteInfo<void> {
+class RouteCategoryEdit extends _i16.PageRouteInfo<void> {
   const RouteCategoryEdit()
       : super(
           RouteCategoryEdit.name,
@@ -317,7 +333,7 @@ class RouteCategoryEdit extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i6.ScreenCustomerRegister]
-class RouteCustomerRegister extends _i15.PageRouteInfo<void> {
+class RouteCustomerRegister extends _i16.PageRouteInfo<void> {
   const RouteCustomerRegister()
       : super(
           RouteCustomerRegister.name,
@@ -329,8 +345,8 @@ class RouteCustomerRegister extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i7.ScreenUserSetting]
-class RouteUserSetting extends _i15.PageRouteInfo<RouteUserSettingArgs> {
-  RouteUserSetting({_i16.Key? key})
+class RouteUserSetting extends _i16.PageRouteInfo<RouteUserSettingArgs> {
+  RouteUserSetting({_i17.Key? key})
       : super(
           RouteUserSetting.name,
           path: '/userSetting',
@@ -343,7 +359,7 @@ class RouteUserSetting extends _i15.PageRouteInfo<RouteUserSettingArgs> {
 class RouteUserSettingArgs {
   const RouteUserSettingArgs({this.key});
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
   @override
   String toString() {
@@ -353,7 +369,7 @@ class RouteUserSettingArgs {
 
 /// generated route for
 /// [_i8.Test]
-class Test extends _i15.PageRouteInfo<void> {
+class Test extends _i16.PageRouteInfo<void> {
   const Test()
       : super(
           Test.name,
@@ -365,7 +381,7 @@ class Test extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i9.ScreenSale]
-class RouteSale extends _i15.PageRouteInfo<void> {
+class RouteSale extends _i16.PageRouteInfo<void> {
   const RouteSale()
       : super(
           RouteSale.name,
@@ -377,7 +393,7 @@ class RouteSale extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i10.ScreenCariCustomer]
-class RouteCariCustomer extends _i15.PageRouteInfo<void> {
+class RouteCariCustomer extends _i16.PageRouteInfo<void> {
   const RouteCariCustomer()
       : super(
           RouteCariCustomer.name,
@@ -389,7 +405,7 @@ class RouteCariCustomer extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i11.ScreenCariSupplier]
-class RouteCariSupplier extends _i15.PageRouteInfo<void> {
+class RouteCariSupplier extends _i16.PageRouteInfo<void> {
   const RouteCariSupplier()
       : super(
           RouteCariSupplier.name,
@@ -401,7 +417,7 @@ class RouteCariSupplier extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i12.ScreenCaseSnapshot]
-class RouteCaseSnapshot extends _i15.PageRouteInfo<void> {
+class RouteCaseSnapshot extends _i16.PageRouteInfo<void> {
   const RouteCaseSnapshot()
       : super(
           RouteCaseSnapshot.name,
@@ -413,7 +429,7 @@ class RouteCaseSnapshot extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i13.ScreenCapital]
-class RouteCapital extends _i15.PageRouteInfo<void> {
+class RouteCapital extends _i16.PageRouteInfo<void> {
   const RouteCapital()
       : super(
           RouteCapital.name,
@@ -425,7 +441,7 @@ class RouteCapital extends _i15.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i14.ScreenExpenses]
-class RouteExpenses extends _i15.PageRouteInfo<void> {
+class RouteExpenses extends _i16.PageRouteInfo<void> {
   const RouteExpenses()
       : super(
           RouteExpenses.name,
@@ -433,4 +449,16 @@ class RouteExpenses extends _i15.PageRouteInfo<void> {
         );
 
   static const String name = 'RouteExpenses';
+}
+
+/// generated route for
+/// [_i15.ScreenUsers]
+class RouteUsers extends _i16.PageRouteInfo<void> {
+  const RouteUsers()
+      : super(
+          RouteUsers.name,
+          path: '/usersEdit',
+        );
+
+  static const String name = 'RouteUsers';
 }

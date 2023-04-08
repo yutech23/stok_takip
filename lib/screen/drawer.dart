@@ -30,6 +30,7 @@ class _MyDrawerState extends State<MyDrawer> {
   final String _labelCaseSnapshot = "Kasa Durum";
   final String _labelCapital = "Sermaye İşlemleri";
   final String _labelExpenses = "Giderler";
+  final String _labelUsers = "Kullanıcılar";
 
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
@@ -43,6 +44,7 @@ class _MyDrawerState extends State<MyDrawer> {
     'RouteCaseSnapshot',
     'RouteCapital',
     'RouteExpenses',
+    'RouteUsers',
     'Test',
   ];
 
@@ -104,13 +106,13 @@ class _MyDrawerState extends State<MyDrawer> {
           backgroundColor: Colors.white,
           // ignore: sort_child_properties_last
           child: Text(nameAndLastnameFirstLatter,
-              style: context.theme.headline4!
+              style: context.theme.headlineMedium!
                   .copyWith(letterSpacing: 1, fontWeight: FontWeight.bold)),
           radius: 40,
         ),
         const Divider(),
         Text(nameAndLastNameCapitalFirst,
-            style: context.theme.headline5!.copyWith(color: Colors.white)),
+            style: context.theme.headlineSmall!.copyWith(color: Colors.white)),
       ]),
     );
   }
@@ -246,7 +248,7 @@ class _MyDrawerState extends State<MyDrawer> {
           dbHive.delete('uuid');
         },
         child: Text(_labelExit,
-            style: context.theme.headline6!.copyWith(
+            style: context.theme.titleLarge!.copyWith(
               color: Colors.white,
             )),
       ),
@@ -313,6 +315,10 @@ class _MyDrawerState extends State<MyDrawer> {
             case "RouteExpenses":
               listWidgetMenuByRole.add(widgetMenuItemWithIconImage(context,
                   const RouteExpenses(), 'assets/gider.png', _labelExpenses));
+              break;
+            case "RouteUsers":
+              listWidgetMenuByRole.add(widgetMenuItem(context,
+                  const RouteUsers(), Icons.manage_accounts, _labelUsers));
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(
