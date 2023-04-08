@@ -20,6 +20,7 @@ class BlocUsers {
   List<bool> _expanded = [false];
   List<bool> get getterDatatableExpanded => _expanded;
   List<Map<String, dynamic>> _allUsers = [];
+  List<Map<String, dynamic>> _searchUsersList = [];
 
   getAllUsers() async {
     _allUsers.clear();
@@ -51,5 +52,19 @@ class BlocUsers {
     }
     _expanded = List.generate(_allUsers.length, ((index) => false));
     _streamControllerAllUsers.sink.add(_allUsers);
+  }
+
+  searchList(String searchValue) async {
+    _searchUsersList = _allUsers
+        .where(
+            (element) => element['name'].contains(searchValue.toUpperCaseTr()))
+        .toList();
+
+    _expanded = List.generate(_allUsers.length, ((index) => false));
+    _streamControllerAllUsers.add(_searchUsersList);
+  }
+
+  resetPassword(String userId, String userEmail, String newPassword) async {
+    await db.updateResetPassword(userId, newPassword, userEmail);
   }
 }

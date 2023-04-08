@@ -70,6 +70,7 @@ class ResponsiveDatatable extends StatefulWidget {
   int rowLenght = 0;
 
   double rowHeight;
+  bool skipFocusNode;
 
   ResponsiveDatatable(
       {Key? key,
@@ -109,7 +110,8 @@ class ResponsiveDatatable extends StatefulWidget {
       this.selectedTextStyle,
       this.rowHeight = 40,
       this.footerDecoration,
-      this.footerHeight})
+      this.footerHeight,
+      this.skipFocusNode = false})
       : super(key: key);
 
   @override
@@ -290,6 +292,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                 (header) => Expanded(
                     flex: header.flex,
                     child: InkWell(
+                      focusNode: FocusNode(skipTraversal: true),
                       onTap: () {
                         if (widget.onSort != null && header.sortable) {
                           widget.onSort!(header.value);
@@ -341,6 +344,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
       widgets.add(Column(
         children: [
           InkWell(
+            focusNode: FocusNode(skipTraversal: widget.skipFocusNode),
             onTap: () {
               widget.onTabRow?.call(data);
               setState(() {

@@ -172,7 +172,8 @@ class DbHelper {
           'user_uuid': resAuth.user!.id,
           'role': roleIdString,
           'partner': kullanici.isPartner,
-          'active_user': kullanici.activeUser
+          'active_user': kullanici.activeUser,
+          'status': true
         }
       ]);
       return "";
@@ -2060,11 +2061,12 @@ class DbHelper {
       allUsers = await db.supabase
           .from('users')
           .select<List<Map<String, dynamic>>>(
-              'id,name,last_name,email,partner,role,status');
+              'user_uuid,name,last_name,email,partner,role,status');
 
       ///Şahıs Müşterileri tabloda isim ile soyism farklı kolonda tutluyor.Bu yüzden
       ///birleştiriliyor.
       for (var element in allUsers) {
+        element.addAll({'copyName': element['name']});
         element['name'] = "${element['name']} ${element['last_name']}";
       }
 
@@ -2073,6 +2075,22 @@ class DbHelper {
       return [
         {'Hata': e.message}
       ];
+    }
+  }
+
+  ///Reset Password
+  Future<String> updateResetPassword(
+      String userId, String newPassword, String userEmail) async {
+    try {
+      await db.supabase.from('users').update({
+        'encrypt_password': shareFunc.hashSha512ConvertToString(newPassword)
+      }).eq('user_uuid', userId);
+
+      final data = await db.supabase.auth.resetPasswordForEmail(userEmail);
+
+      return "";
+    } on PostgrestException catch (e) {
+      return "Hata şifre Resetleme : ${e.message}";
     }
   }
   /*--------------------------------------------------------------------- */

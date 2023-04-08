@@ -1,15 +1,12 @@
 import 'package:adaptivex/adaptivex.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/bloc/bloc_customer_register.dart';
 import 'package:stok_takip/bloc/bloc_users.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/models/customer.dart';
-import 'package:stok_takip/utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/get_keys.dart';
+import 'package:stok_takip/validations/format_lower_case_text_format.dart';
 import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../data/database_mango.dart';
@@ -19,7 +16,6 @@ import '../modified_lib/responsive_datatable.dart';
 import '../utilities/custom_dropdown/widget_dropdown_roles.dart';
 import '../utilities/share_widgets.dart';
 import '../utilities/widget_appbar_setting.dart';
-import 'package:phone_number_metadata/phone_number_metadata.dart';
 import 'drawer.dart';
 
 class ScreenUsers extends StatefulWidget {
@@ -53,14 +49,10 @@ class _ScreenCustomerSave extends State with Validation {
   late final Kullanici kullanici;
   bool obscureValue = true, confirmObscureValue = true;
 
-  final String _labelPageHeader = "Müşteri & Tedarikçi Ekranı";
-
+  final String _labelPageHeader = "Kullanıcı Ekranı";
   final double _sectionUserSaveWidth = 360;
-
   final double _sectionHeight = 800;
   late List<dynamic> listCustomerRegister;
-
-  late BlocCustomerRegister _blocCustomerRegister;
   late BlocUsers _blocUsers;
 
 /*------------------DATATABLE ----------------------------------------*/
@@ -77,9 +69,7 @@ class _ScreenCustomerSave extends State with Validation {
   bool _isUpdateButton = false;
   final String _labelUpdate = "Güncelle";
   final String _labelNewCustomerSave = "Yeni Müşteri Kaydet";
-  late int _customerId;
-
-  final PhoneController _phoneController = PhoneController(null);
+  late String _userId;
 
   bool _isDisableCustomerType = false;
 
@@ -87,7 +77,6 @@ class _ScreenCustomerSave extends State with Validation {
   @override
   void initState() {
     _blocUsers = BlocUsers();
-    _blocCustomerRegister = BlocCustomerRegister();
     _headers = [];
     listCustomerRegister = <dynamic>[];
     _controllerName = TextEditingController();
@@ -140,21 +129,44 @@ class _ScreenCustomerSave extends State with Validation {
         sortable: false,
         flex: 2,
         sourceBuilder: (value, row) {
-          return Container(
-            alignment: Alignment.center,
-            child: IconButton(
-              focusNode: FocusNode(skipTraversal: true),
-              iconSize: 20,
-              padding: const EdgeInsets.only(bottom: 20),
-              alignment: Alignment.center,
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                _isUpdateButton = true;
-                _isDisableCustomerType = true;
-                _isNewCustomerSaveButton = false;
-                _customerId = row['id'];
-              },
-            ),
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                focusNode: FocusNode(skipTraversal: true),
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.key),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return widgetPopupResetPassword(
+                          row, _controllerSearchCustomerName);
+                    },
+                  );
+                },
+              ),
+              IconButton(
+                focusNode: FocusNode(skipTraversal: true),
+                iconSize: 20,
+                padding: const EdgeInsets.only(bottom: 20),
+                alignment: Alignment.center,
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  print(row);
+                  _controllerName.text = row['copyName'];
+                  _controllerLastName.text = row['last_name'];
+                  _controllerEmail.text = row['email'];
+                  _switchPartnerValue = row['status'] == 'Evet' ? true : false;
+                  _isUpdateButton = true;
+                  _isDisableCustomerType = true;
+                  _isNewCustomerSaveButton = false;
+                  _userId = row['user_uuid'];
+                },
+              ),
+            ],
           );
         },
         textAlign: TextAlign.center));
@@ -276,21 +288,30 @@ class _ScreenCustomerSave extends State with Validation {
                                   etiket: "Adınızı Giriniz",
                                   skipTravelFocusValue: false,
                                   karakterGostermeDurumu: false,
-                                  validationFunc: validateFirstAndLastName),
+                                  validationFunc: validateFirstAndLastName,
+                                  inputFormat: [
+                                    FormatterUpperCaseTextFormatter()
+                                  ]),
                               const SizedBox(height: 20),
                               shareWidget.widgetTextFieldInput(
                                   controller: _controllerLastName,
                                   etiket: "Soyadınız Giriniz",
                                   skipTravelFocusValue: false,
                                   karakterGostermeDurumu: false,
-                                  validationFunc: validateFirstAndLastName),
+                                  validationFunc: validateFirstAndLastName,
+                                  inputFormat: [
+                                    FormatterUpperCaseTextFormatter()
+                                  ]),
                               const SizedBox(height: 20),
                               shareWidget.widgetTextFieldInput(
                                   controller: _controllerEmail,
                                   etiket: "Email Adresinizi Giriniz",
                                   skipTravelFocusValue: false,
                                   karakterGostermeDurumu: false,
-                                  validationFunc: validateEmail),
+                                  validationFunc: validateEmail,
+                                  inputFormat: [
+                                    FormatterLowerCaseTextFormatter()
+                                  ]),
                               const SizedBox(height: 20),
                               widgetTextFieldPassword(
                                   _controllerPassword,
@@ -350,12 +371,13 @@ class _ScreenCustomerSave extends State with Validation {
                 selecteds: _selecteds,
                 expanded: _blocUsers.getterDatatableExpanded,
                 autoHeight: false,
+                skipFocusNode: true,
                 actions: [
                   Expanded(
                       child: TextField(
                     controller: _controllerSearchCustomerName,
                     onChanged: (value) {
-                      _blocCustomerRegister.searchList(value);
+                      _blocUsers.searchList(value);
                     },
                     decoration: InputDecoration(
                       hintText: _labelSearchHint,
@@ -470,71 +492,92 @@ class _ScreenCustomerSave extends State with Validation {
 
   //Kullanıcı oluşturma kayıt buttonu.
   buttonSave(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        /*   print(kullanici.name);
-        print(kullanici.lastName);
-        print(kullanici.email);
-        print(kullanici.password);
-        print(kullanici.role); */
+    return SizedBox(
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () async {
+          /*   print(kullanici.name);
+          print(kullanici.lastName);
+          print(kullanici.email);
+          print(kullanici.password);
+          print(kullanici.role); */
 
-        String checkEmail = await db.controllerUserEmail(_controllerEmail.text);
-        if (checkEmail == "") {
-          if (_formKey.currentState!.validate()) {
-            //oturm açık olan kullanıcı id alıyor.
-            kullanici.activeUser = dbHive.getValues('uuid');
-            kullanici.name = _controllerName.text;
-            kullanici.lastName = _controllerLastName.text;
-            kullanici.email = _controllerEmail.text;
-            kullanici.password = _controllerPassword.text;
-            kullanici.role = _role;
-            kullanici.isPartner = _switchPartnerValue;
-            db.signUpMy(kullanici).then((value) {
-              if (value.isEmpty) {
-                setState(() {
-                  _controllerEmail.clear();
-                  _controllerName.clear();
-                  _controllerLastName.clear();
-                  _controllerPassword.clear();
-                  _controllerRePassword.clear();
-                });
-                context.noticeBarTrue("Kayıt Başarılı", 1);
-              } else {
-                context.noticeBarError("Hata gerçekleşti : $value", 2);
-              }
-            });
+          String checkEmail =
+              await db.controllerUserEmail(_controllerEmail.text);
+          if (checkEmail == "") {
+            if (_formKey.currentState!.validate()) {
+              //oturm açık olan kullanıcı id alıyor.
+              kullanici.activeUser = dbHive.getValues('uuid');
+              kullanici.name = _controllerName.text;
+              kullanici.lastName = _controllerLastName.text;
+              kullanici.email = _controllerEmail.text;
+              kullanici.password = _controllerPassword.text;
+              kullanici.role = _role;
+              kullanici.isPartner = _switchPartnerValue;
+              db.signUpMy(kullanici).then((value) {
+                if (value.isEmpty) {
+                  ///Tabloyu güncelleniyor.
+                  _blocUsers.getAllUsers();
+
+                  ///Eğer search bölümü dolu ise sıfırlanıyor.
+                  _controllerSearchCustomerName.clear();
+                  setState(() {
+                    _controllerEmail.clear();
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerPassword.clear();
+                    _controllerRePassword.clear();
+                  });
+                  context.noticeBarTrue("Kayıt Başarılı", 1);
+                } else {
+                  context.noticeBarError("Hata gerçekleşti : $value", 2);
+                }
+              });
+            } else {
+              context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+            }
           } else {
-            context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+            context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
           }
-        } else {
-          context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        height: 50,
-        // ignore: prefer_const_constructors
-        child: Text(
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20),
-          "KAYIT",
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 50,
+          // ignore: prefer_const_constructors
+          child: Text(
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+            "KAYIT",
+          ),
         ),
       ),
     );
   }
 
+  String _header = "UYARI";
+  String _yesText = "Uygula";
+
+  TextEditingController controllerPassword = TextEditingController();
+
   ///Silme popup bölümü
-  popupDelete(
-      Map<String?, dynamic> serviceId, TextEditingController controllerSearch) {
+  widgetPopupResetPassword(
+      Map<String?, dynamic> userInfo, TextEditingController) {
     return AlertDialog(
       title: Text('UYARI',
           textAlign: TextAlign.center,
           style:
               context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
       alignment: Alignment.center,
-      content: Text(_header,
-          style:
-              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
+      content: Container(
+        width: 360,
+        height: 400,
+        child: Column(
+          children: [
+            shareWidget.widgetTextFieldInput(
+                controller: controllerPassword, etiket: "Şifre")
+          ],
+        ),
+      ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: <Widget>[
         SizedBox(
@@ -544,10 +587,12 @@ class _ScreenCustomerSave extends State with Validation {
               onPressed: () async {
                 ///Stok bitmeden silmeyi engelliyor.
 
-                String res =
-                    await _blocCustomerRegister.deleteCustomer(serviceId);
+                String res = await _blocUsers.resetPassword(
+                    userInfo['user_uuid'],
+                    userInfo['email'],
+                    controllerPassword.text);
                 if (res.isEmpty) {
-                  controllerSearch.clear();
+                  //  controllerSearch.clear();
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                   // ignore: use_build_context_synchronously
@@ -576,19 +621,5 @@ class _ScreenCustomerSave extends State with Validation {
         ),
       ],
     );
-  }
-
-  ///Detay bölümü için RichText
-  widgetRichTextDetail(String header, String? value) {
-    return RichText(
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.start,
-        text: TextSpan(
-            text: header,
-            style: context.theme.titleSmall!
-                .copyWith(color: Colors.red, fontWeight: FontWeight.bold),
-            children: [
-              TextSpan(style: context.theme.titleSmall, text: value)
-            ]));
   }
 }
