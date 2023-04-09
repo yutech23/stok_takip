@@ -142,8 +142,7 @@ class _ScreenCustomerSave extends State with Validation {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return widgetPopupResetPassword(
-                          row, _controllerSearchCustomerName);
+                      return widgetPopupResetPassword(row);
                     },
                   );
                 },
@@ -560,8 +559,7 @@ class _ScreenCustomerSave extends State with Validation {
   TextEditingController controllerPassword = TextEditingController();
 
   ///Silme popup bölümü
-  widgetPopupResetPassword(
-      Map<String?, dynamic> userInfo, TextEditingController) {
+  widgetPopupResetPassword(Map<String?, dynamic> userInfo) {
     return AlertDialog(
       title: Text('UYARI',
           textAlign: TextAlign.center,
@@ -569,15 +567,13 @@ class _ScreenCustomerSave extends State with Validation {
               context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
       alignment: Alignment.center,
       content: Container(
-        width: 360,
-        height: 400,
-        child: Column(
-          children: [
-            shareWidget.widgetTextFieldInput(
-                controller: controllerPassword, etiket: "Şifre")
-          ],
-        ),
-      ),
+          width: 360,
+          height: 200,
+          alignment: Alignment.center,
+          child: Text(
+            "Şifreyi sıfırlamak mı istiyorsunuz?",
+            style: context.theme.headlineSmall,
+          )),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: <Widget>[
         SizedBox(
@@ -587,10 +583,8 @@ class _ScreenCustomerSave extends State with Validation {
               onPressed: () async {
                 ///Stok bitmeden silmeyi engelliyor.
 
-                String res = await _blocUsers.resetPassword(
-                    userInfo['user_uuid'],
-                    userInfo['email'],
-                    controllerPassword.text);
+                String res = await _blocUsers.resetPassword(userInfo['email']);
+                print(res);
                 if (res.isEmpty) {
                   //  controllerSearch.clear();
                   // ignore: use_build_context_synchronously

@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
           dividerColor: Colors.transparent),
 
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
-        if (authController.role == '') const RouteLogin(),
+        // if (authController.role == '') const RouteLogin(),
         if (authController.role == '1') const RouteUsers(),
         if (authController.role == '2') const RouteSale()
       ]),

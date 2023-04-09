@@ -32,7 +32,7 @@ class Sabitler {
 
 class ConstRoute {
   static const String splash = '/splash';
-  static const String login = '/login';
+  static const String login = '/';
   static const String stockEdit = '/stockEdit';
   static const String productAdd = '/productAdd';
   static const String signUp = '/signUp';
@@ -47,6 +47,7 @@ class ConstRoute {
   static const String capital = '/capital';
   static const String expenses = '/expenses';
   static const String users = '/usersEdit';
+  static const String resetPassword = "/resetPassword";
 }
 
 Sabitler sabitler = Sabitler();

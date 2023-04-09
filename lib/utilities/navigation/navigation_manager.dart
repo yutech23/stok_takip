@@ -14,6 +14,7 @@ import 'package:stok_takip/utilities/navigation/custom_router_builder.dart';
 import '../../screen/cari_customer.dart';
 import '../../screen/category.dart';
 import '../../screen/customer_register.dart';
+import '../../screen/reset_password.dart';
 import '../../screen/sign_up.dart';
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
@@ -24,6 +25,10 @@ import 'auth_guard.dart';
   AutoRoute(
     page: ScreenLogin,
     path: ConstRoute.login,
+  ),
+  AutoRoute(
+    page: ScreenResetPassword,
+    path: ConstRoute.resetPassword,
   ),
   CustomRoute(
       page: ScreenStockEdit,

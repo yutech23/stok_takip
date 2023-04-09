@@ -2079,14 +2079,10 @@ class DbHelper {
   }
 
   ///Reset Password
-  Future<String> updateResetPassword(
-      String userId, String newPassword, String userEmail) async {
+  Future<String> updateResetPassword(String userEmail) async {
     try {
-      await db.supabase.from('users').update({
-        'encrypt_password': shareFunc.hashSha512ConvertToString(newPassword)
-      }).eq('user_uuid', userId);
-
-      final data = await db.supabase.auth.resetPasswordForEmail(userEmail);
+      final data = await db.supabase.auth.resetPasswordForEmail(userEmail,
+          redirectTo: 'http://localhost:3000/#/resetPassword');
 
       return "";
     } on PostgrestException catch (e) {

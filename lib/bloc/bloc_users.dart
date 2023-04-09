@@ -64,7 +64,7 @@ class BlocUsers {
     _streamControllerAllUsers.add(_searchUsersList);
   }
 
-  resetPassword(String userId, String userEmail, String newPassword) async {
-    await db.updateResetPassword(userId, newPassword, userEmail);
+  Future<String> resetPassword(String userEmail) async {
+    return await db.updateResetPassword(userEmail);
   }
 }
