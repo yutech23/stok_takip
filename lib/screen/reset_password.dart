@@ -1,4 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:stok_takip/auth/auth_controller.dart';
+import 'package:stok_takip/data/database_helper.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
 
@@ -19,7 +23,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
 
   final String _labelNewPassword = "Yeni şifrenizi giriniz";
   final String _labelReNewPassword = "Yeni şifrenizi doğrulayın";
-  final String _labelHeaderPassword = "Parolayı Değiştir";
+  final String _labelHeader = "ŞİFREMİ UNUTTUM";
   final String _labelSaveButton = "Uygula";
 
   bool obscureValue = true,
@@ -69,38 +73,45 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
   }
 
 //Şifre Değiştirrme ve KayıtButton bölümü
-  Container widgetSignInContainer() {
-    return Container(
-        height: 300,
-        width: 360,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              widgetTextHeader(),
-              const SizedBox(height: 20),
-              widgetTextFieldPassword(_controllerNewPassword, _labelNewPassword,
-                  obscureValue, validatePassword),
-              const SizedBox(height: 20),
-              widgetTextFieldPasswordConfirm(
-                  _controllerReNewPassword,
-                  _labelReNewPassword,
-                  confirmObscureValue,
-                  validateConfirmPassword),
-              const SizedBox(height: 20),
-              widgetButtonSaveNewPassword(context)
-            ])));
+  widgetSignInContainer() {
+    return Form(
+      key: _formKey,
+      autovalidateMode: _autovalidateMode,
+      child: Container(
+          height: 340,
+          width: 360,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    widgetTextHeader(),
+                    const SizedBox(height: 20),
+                    widgetTextFieldPassword(_controllerNewPassword,
+                        _labelNewPassword, obscureValue, validatePassword),
+                    const SizedBox(height: 20),
+                    widgetTextFieldPasswordConfirm(
+                        _controllerReNewPassword,
+                        _labelReNewPassword,
+                        confirmObscureValue,
+                        validateConfirmPassword),
+                    const SizedBox(height: 20),
+                    widgetButtonSaveNewPassword(context)
+                  ]))),
+    );
   }
 
   ///Başlık
   widgetTextHeader() {
-    return Text(_labelHeaderPassword,
-        style: context.theme.headlineSmall!
-            .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1));
+    return Text(_labelHeader,
+        style: context.theme.headlineSmall!.copyWith(
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1));
   }
 
 // Şifre Widget
@@ -115,7 +126,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: "Yeni Şifrenizi Giriniz",
+        labelText: _labelNewPassword,
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
             focusNode: FocusNode(skipTraversal: true),
@@ -141,7 +152,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: "Yeni şifrenizi doğrulayın",
+        labelText: _labelReNewPassword,
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
             focusNode: FocusNode(skipTraversal: true),
@@ -158,6 +169,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
 
   //Kayıt Buttonu
   DecoratedBox widgetButtonSaveNewPassword(BuildContext context) {
+    print("deger : ${authController.resetPasswordButtonActive}");
     return DecoratedBox(
         decoration: context.extensionThemaButton(),
         child: ElevatedButton(
@@ -166,30 +178,35 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
               disabledBackgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
             ),
-            onPressed: () async {
-              ///girilen şifrelerin bir biri ile eşleşmesini kontrol ediyor.
-              if (_controllerNewPassword.text ==
-                      _controllerReNewPassword.text &&
-                  _formKey.currentState!.validate()) {
-                /* 
-                   
+            onPressed: authController.resetPasswordButtonActive
+                ? () async {
+                    ///girilen şifrelerin bir biri ile eşleşmesini kontrol ediyor.
+                    if (_controllerNewPassword.text ==
+                            _controllerReNewPassword.text &&
+                        _formKey.currentState!.validate()) {
                       ///password güncelliyor ama sadece supabase user içinde yapıyor.
                       ///şifreyi kullanıcılar tablosunda tutuluyor. göstermek için.
-                      db
-                          .updateUserInformation(_controllerReNewPassword.text)
-                          .then((resValue) {
-                        if (resValue.isEmpty) {
-                          context.noticeBarTrue("İşlem başarılı.", 1);
-                        } else {
-                          context.noticeBarError("İşlem Başarısız", 1);
-                        }
-                      });
- */
-              } else {
-                context.noticeBarError(
-                    'Düzgün giriş gerçekliştirilmemiştir.', 2);
-              }
-            },
+                      final resValue = await db
+                          .updateUserInformation(_controllerReNewPassword.text);
+
+                      if (resValue.isEmpty) {
+                        _controllerNewPassword.clear();
+                        _controllerReNewPassword.clear();
+                        // ignore: use_build_context_synchronously
+                        await context.noticeBarTrue(
+                            "Şifreniz başarı ile değişmiştir.", 2);
+                        // ignore: use_build_context_synchronously
+                        context.router.pushNamed(ConstRoute.login);
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        context.noticeBarError("HATA\n $resValue", 3);
+                      }
+                    } else {
+                      context.noticeBarError(
+                          'Girdiğiniz şifreler eşleşmedi', 2);
+                    }
+                  }
+                : null,
             child: Container(
               alignment: Alignment.center,
               height: 50,

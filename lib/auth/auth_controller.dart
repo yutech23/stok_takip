@@ -13,6 +13,10 @@ class AuthController {
   bool isAuth = false;
   String role = '';
 
+  ///Bu değer resetPassword Bölümüne deeplink gelmeyenler
+  ///olursa diye buttonu disable yapmak için
+  bool resetPasswordButtonActive = false;
+
   /* bool isAuth = true;
   String role = '1'; */
 
@@ -20,24 +24,30 @@ class AuthController {
     isAuth = true;
   }
 
+  getRole() async {
+    role = await SecurityStorageUser.getUserRole() ?? '';
+    print("role func içi : $role");
+  }
+
   controllerAuth() async {
-    // final user = await db.supabase.auth.currentUser;
-    final Session? userSession = await db.supabase.auth.currentSession;
+    await getRole();
+    db.supabase.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      print("Auth durumu : $event");
+      if (AuthChangeEvent.signedIn == event) {
+        isAuth = true;
 
-    if (userSession?.accessToken != null) {
-      isAuth = true;
-      role = (await SecurityStorageUser.getUserRole())!;
-
-      // print("sesion burada durumu : ${userSession!.user.email}");
-      await db.supabase.auth.setSession(userSession!.refreshToken!);
-      //  print("session : ${userSession!.accessToken}");
-    } else {
-      print("Session YOKK");
-      //Browser Bulunan Local Storage veriler temizleniyor.
-      SecurityStorageUser.deleteStorege();
-    }
-
-    // Login Sayfasına yönlendiriliyor
+        print("role nedir : $role");
+      } else if (AuthChangeEvent.tokenRefreshed == event) {
+        Session? userSession = data.session;
+        db.supabase.auth.setSession(userSession!.refreshToken!);
+        isAuth = true;
+      } else if (AuthChangeEvent.passwordRecovery == event) {
+        resetPasswordButtonActive = true;
+      } else if (AuthChangeEvent.signedOut == event) {
+        SecurityStorageUser.deleteStorege();
+      }
+    });
   }
 }
 

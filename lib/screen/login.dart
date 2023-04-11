@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
@@ -10,6 +11,8 @@ import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
+
+import '../bloc/bloc_login.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
@@ -19,14 +22,29 @@ class ScreenLogin extends StatefulWidget {
 }
 
 class _ScreenLoginState extends State<ScreenLogin> with Validation {
+  late BlocLogin _blocLogin;
   final _controllerEmail = TextEditingController();
   final _controllerSifre = TextEditingController();
+  final _controllerResetEmail = TextEditingController();
+
+  final FocusNode _focusResetEmail = FocusNode();
   final FocusNode _focusLoginButton = FocusNode();
   final FocusNode _focusEmail = FocusNode();
   final FocusNode _focusPassword = FocusNode();
+  bool _switchLoginToForgetPassword = false;
+
+  final String _labelHeaderLogin = "HOŞGELDİNİZ";
+  final String _labelHeaderResetPassword = "ŞİFREMİ UNUTTUM";
+  final String _labelResetEmail = "Email Adresinizi Giriniz";
+  final String _labelButtonLogin = "GİRİŞ";
+  final String _labelButtonResetPassword = "GÖNDER";
+  final String _labelLinkResetPassword = "Giriş yapmak mı istiyorsunuz?";
+  final String _labelLinkLogin = "Şifrenizi mi unuttunuz?";
+  final String _labelNoticeResetPassword = "E-Mail Gönderildi.";
 
   @override
   void initState() {
+    _blocLogin = BlocLogin();
     super.initState();
   }
 
@@ -101,22 +119,71 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
         ),
         child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child:
+            child: !_switchLoginToForgetPassword
+                ?
+
+                /// Giriş Ekranı
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              widgetTextHeader(),
-              const SizedBox(height: 50),
-              widgetTextFieldEmail(),
-              const SizedBox(height: 20),
-              widgetTextFieldPassword(),
-              const SizedBox(height: 50),
-              widgetButtonLoginOn(context)
-            ])));
+                    widgetTextHeader(_labelHeaderLogin),
+                    const SizedBox(height: 50),
+                    widgetTextFieldEmail(),
+                    const SizedBox(height: 20),
+                    widgetTextFieldPassword(),
+                    const SizedBox(height: 50),
+                    widgetButtonLogin(context, _labelButtonLogin),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _switchLoginToForgetPassword = true;
+                              });
+                            },
+                            child: Text(
+                              _labelLinkLogin,
+                            )),
+                      ],
+                    )
+                  ])
+
+                ///Şifre Ekranı
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                        widgetTextHeader(_labelHeaderResetPassword),
+                        const SizedBox(height: 50),
+                        widgetTextFieldEmail(),
+                        const SizedBox(height: 30),
+                        widgetButtonResetPassword(
+                            context, _labelButtonResetPassword),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _switchLoginToForgetPassword = false;
+                                  });
+                                },
+                                child: Text(_labelLinkResetPassword)),
+                          ],
+                        )
+                      ])));
   }
 
-  widgetTextHeader() {
-    return Text("HOŞGELDİNİZ", style: context.theme.headline4!);
+  widgetTextHeader(String header) {
+    return Text(header,
+        style: context.theme.headlineSmall!.copyWith(
+          // color: Color.fromARGB(255, 218, 90, 81),
+          color: Colors.grey.shade600,
+          fontWeight: FontWeight.bold,
+        ));
   }
 
+  ///Email adresi giriş
   TextFormField widgetTextFieldEmail() {
     return TextFormField(
       validator: validateEmail,
@@ -125,9 +192,9 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
       textInputAction: TextInputAction.next,
       focusNode: _focusEmail,
       controller: _controllerEmail,
-      decoration: const InputDecoration(
-        labelText: "Email Adresinizi Giriniz",
-        suffixIcon: Icon(
+      decoration: InputDecoration(
+        labelText: _labelResetEmail,
+        suffixIcon: const Icon(
           FontAwesomeIcons.envelope,
           size: 20,
         ),
@@ -163,8 +230,8 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
     );
   }
 
-  //Kayıt Buttonu
-  DecoratedBox widgetButtonLoginOn(BuildContext context) {
+  //GİRİŞ Buttonu
+  DecoratedBox widgetButtonLogin(BuildContext context, String label) {
     return DecoratedBox(
         decoration: context.extensionThemaButton(),
         child: ElevatedButton(
@@ -213,14 +280,15 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
                     SecurityStorageUser.setUserLastName(
                         userNameSurnameRole.lastName!);
                     SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
+                    if (authController.role == '1') {
+                      // ignore: use_build_context_synchronously
+                      context.router.pushNamed(ConstRoute.caseSnapshot);
+                    } else if (authController.role == '2') {
+                      // ignore: use_build_context_synchronously
+                      context.router.pushNamed(ConstRoute.sale);
+                    }
                   },
                 );
-
-                if (authController.role == '1') {
-                  context.router.pushNamed(ConstRoute.caseSnapshot);
-                } else if (authController.role == '2') {
-                  context.router.pushNamed(ConstRoute.sale);
-                }
               } else {
                 // ignore: use_build_context_synchronously
                 context.noticeBarError("Giriş başarısız.", 1);
@@ -232,10 +300,49 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
             child: Container(
               alignment: Alignment.center,
               height: 50,
-              child: const Text(
+              child: Text(
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20),
-                "GİRİŞ",
+                style: const TextStyle(fontSize: 20),
+                label,
+              ),
+            )));
+  }
+
+  //Şifre Sıfırlama Buttonu
+  DecoratedBox widgetButtonResetPassword(BuildContext context, String label) {
+    return DecoratedBox(
+        decoration: context.extensionThemaButton(),
+        child: ElevatedButton(
+            focusNode: _focusLoginButton,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+            ),
+            onPressed: () async {
+              String res =
+                  await _blocLogin.resetPassword(_controllerEmail.text);
+
+              if (res.isEmpty) {
+                _controllerEmail.clear();
+                // ignore: use_build_context_synchronously
+                context.noticeBarTrue(_labelNoticeResetPassword, 2);
+
+                setState(() {
+                  _switchLoginToForgetPassword = false;
+                });
+              } else {
+                // ignore: use_build_context_synchronously
+                context.noticeBarError("HATA \n $res", 3);
+              }
+            },
+            child: Container(
+              alignment: Alignment.center,
+              height: 50,
+              child: Text(
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20),
+                label,
               ),
             )));
   }

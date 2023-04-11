@@ -55,6 +55,18 @@ class DbHelper {
     }
   }
 
+  ///Şifrenin Resetlenmesi
+  Future<String> resetPasswordByEmail(String email) async {
+    try {
+      db.supabase.auth.resetPasswordForEmail(email,
+          redirectTo: "http://localhost:3000/resetPassword");
+      return "";
+    } on PostgrestException catch (e) {
+      debugPrint("Hata Email gönderilme : ${e.message}");
+      return e.message;
+    }
+  }
+
   ///Kullanıcı Adını, Soyadını ve Role getiriyor.
   ///SingIn fonksiyonu supabase farklı bir table olduğu için
   ///Bu fonksiyona ihtiyaç var.
@@ -123,6 +135,7 @@ class DbHelper {
   //Kulanıcının Şifresini Güncelleme
   Future<String> updateUserInformation(String newPassword) async {
     try {
+      print("object");
       final data = await db.supabase.auth.updateUser(
         UserAttributes(
           password: newPassword,
@@ -2082,8 +2095,22 @@ class DbHelper {
   Future<String> updateResetPassword(String userEmail) async {
     try {
       final data = await db.supabase.auth.resetPasswordForEmail(userEmail,
-          redirectTo: 'http://localhost:3000/#/resetPassword');
+          redirectTo: 'http://localhost:3000/resetPassword');
 
+      return "";
+    } on PostgrestException catch (e) {
+      return "Hata şifre Resetleme : ${e.message}";
+    }
+  }
+
+  ///Reset Password
+  Future<String> updateResetPasswordByAdmin(
+      String userId, String newPassword) async {
+    try {
+      final data = await db.supabase.auth.admin.updateUserById(userId,
+          attributes: AdminUserAttributes(password: newPassword));
+
+      print("dönüt: $data");
       return "";
     } on PostgrestException catch (e) {
       return "Hata şifre Resetleme : ${e.message}";

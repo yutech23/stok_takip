@@ -76,7 +76,7 @@ class _ScreenCustomerSave extends State with Validation {
 
 /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 700;
 
   final TextEditingController _controllerSearchCustomerName =
@@ -160,7 +160,7 @@ class _ScreenCustomerSave extends State with Validation {
               icon: const Icon(Icons.edit),
               onPressed: () {
                 _isUpdateButton = true;
-                _isDisableCustomerType = true;
+                // _isDisableCustomerType = true;
                 _isNewCustomerSaveButton = false;
                 _customerId = row['id'];
                 setState(() {

@@ -57,21 +57,26 @@ class _ScreenCustomerSave extends State with Validation {
 
 /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableWidth = 830;
 
   final String _labelSearchHint = 'İsim ile arama yapınız';
-  final String _labelAddNewCustomer = "Yeni Müşteri Ekle";
+  final String _labelAddNewCustomer = "Yeni Kullanıcı Ekle";
 
   /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
-/*----------------------POPUP BÖLÜMÜ GÜNCELLEME VE SİLME----------------- */
-  bool _isNewCustomerSaveButton = true;
-  bool _isUpdateButton = false;
+/*----------------------POPUP BÖLÜMÜ ŞİFRE SIFIRLAMA ----------------- */
+  TextEditingController controllerPassword = TextEditingController();
+  final double _widthPopupButton = 120;
+  final double _heightPopupButton = 35;
+  final String _labelPopupResetContent =
+      "Şifreyi sıfırlaması için kullanıcıya Email gönderilecektir.";
+  bool _isSelectedAddNewUserOrUpdate = true;
+
   final String _labelUpdate = "Güncelle";
-  final String _labelNewCustomerSave = "Yeni Müşteri Kaydet";
+  final String _labelNewUserSave = "Yeni Kullanıcı Kaydet";
   late String _userId;
 
-  bool _isDisableCustomerType = false;
+  bool _isDisableUserRoleType = false;
 
   /*---------------------------Güncelleme ------------------------------- */
   @override
@@ -132,6 +137,7 @@ class _ScreenCustomerSave extends State with Validation {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ///Şifre sıfırlama bölümü
               IconButton(
                 focusNode: FocusNode(skipTraversal: true),
                 iconSize: 20,
@@ -147,6 +153,8 @@ class _ScreenCustomerSave extends State with Validation {
                   );
                 },
               ),
+
+              ///Kullanıcı Bilgilerini güncelleme buttunu
               IconButton(
                 focusNode: FocusNode(skipTraversal: true),
                 iconSize: 20,
@@ -154,14 +162,18 @@ class _ScreenCustomerSave extends State with Validation {
                 alignment: Alignment.center,
                 icon: const Icon(Icons.edit),
                 onPressed: () {
+                  setState(() {
+                    _isSelectedAddNewUserOrUpdate = false;
+                    _role = row['role'];
+                  });
                   print(row);
                   _controllerName.text = row['copyName'];
                   _controllerLastName.text = row['last_name'];
                   _controllerEmail.text = row['email'];
                   _switchPartnerValue = row['status'] == 'Evet' ? true : false;
-                  _isUpdateButton = true;
-                  _isDisableCustomerType = true;
-                  _isNewCustomerSaveButton = false;
+
+                  _isDisableUserRoleType = true;
+
                   _userId = row['user_uuid'];
                 },
               ),
@@ -227,41 +239,7 @@ class _ScreenCustomerSave extends State with Validation {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       ///Yeni Müşteri Ekle Bölümündeki Header
-                      Container(
-                        width: _sectionUserSaveWidth,
-                        height: 40,
-                        alignment: Alignment.centerLeft,
-                        decoration: BoxDecoration(
-                            color: Colors.blueGrey.shade100,
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.5),
-                                  blurRadius: 8)
-                            ]),
-                        child: TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _isNewCustomerSaveButton = true;
-                              _isDisableCustomerType = false;
-                              _isUpdateButton = false;
-                            });
-                          },
-                          icon: Icon(Icons.add,
-                              color: context.extensionDefaultColor),
-                          label: Text(
-                            _labelAddNewCustomer,
-                            style: context.theme.titleMedium!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          style: ButtonStyle(overlayColor:
-                              MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.hovered)) {
-                              return Colors.blueGrey.shade700.withOpacity(0.2);
-                            }
-                            return null;
-                          })),
-                        ),
-                      ),
+                      widgetTextButtonNewUser(),
 
                       ///kayıt Bölümündeki verilerin girildiği yer
                       Container(
@@ -312,32 +290,35 @@ class _ScreenCustomerSave extends State with Validation {
                                     FormatterLowerCaseTextFormatter()
                                   ]),
                               const SizedBox(height: 20),
-                              widgetTextFieldPassword(
-                                  _controllerPassword,
-                                  "Şifrenizi Giriniz",
-                                  obscureValue,
-                                  validatePassword),
+                              Visibility(
+                                visible: _isSelectedAddNewUserOrUpdate,
+                                child: widgetTextFieldPassword(
+                                    _controllerPassword,
+                                    "Şifrenizi Giriniz",
+                                    obscureValue,
+                                    validatePassword),
+                              ),
                               const SizedBox(height: 20),
-                              widgetTextFieldPasswordConfirm(
-                                  _controllerRePassword,
-                                  "Şifrenizi Tekrar Giriniz",
-                                  confirmObscureValue,
-                                  validateConfirmPassword),
+                              Visibility(
+                                visible: _isSelectedAddNewUserOrUpdate,
+                                child: widgetTextFieldPasswordConfirm(
+                                    _controllerRePassword,
+                                    "Şifrenizi Tekrar Giriniz",
+                                    confirmObscureValue,
+                                    validateConfirmPassword),
+                              ),
                               const SizedBox(height: 20),
                               widgetSwitchButtonPartner(),
                               const SizedBox(height: 20),
                               WidgetDropdownRoles(_getRole),
                               const SizedBox(height: 20),
-                              buttonSave(context),
-
-                              /*   Visibility(
-                            visible: _isNewCustomerSaveButton,
-                            child: ,
-                          ),
-                          Visibility(
-                            visible: _isUpdateButton,
-                            child: ,
-                          ), */
+                              Visibility(
+                                visible: _isSelectedAddNewUserOrUpdate,
+                                child: widgetButtonSave(context),
+                              ),
+                              Visibility(
+                                  visible: !_isSelectedAddNewUserOrUpdate,
+                                  child: widgetButtonUpdate(context))
                             ]),
                       ),
                     ],
@@ -347,6 +328,41 @@ class _ScreenCustomerSave extends State with Validation {
             ),
           ),
         ));
+  }
+
+  ///Yeni kayıt textButton Bölümü
+  Container widgetTextButtonNewUser() {
+    return Container(
+      width: _sectionUserSaveWidth,
+      height: 40,
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+          color: Colors.blueGrey.shade100,
+          boxShadow: const [
+            BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
+          ]),
+      child: TextButton.icon(
+        onPressed: () {
+          setState(() {
+            _isSelectedAddNewUserOrUpdate = true;
+            _isDisableUserRoleType = false;
+          });
+        },
+        icon: Icon(Icons.add, color: context.extensionDefaultColor),
+        label: Text(
+          _labelAddNewCustomer,
+          style:
+              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+        ),
+        style: ButtonStyle(
+            overlayColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.hovered)) {
+            return Colors.blueGrey.shade700.withOpacity(0.2);
+          }
+          return null;
+        })),
+      ),
+    );
   }
 
   /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
@@ -490,7 +506,7 @@ class _ScreenCustomerSave extends State with Validation {
   }
 
   //Kullanıcı oluşturma kayıt buttonu.
-  buttonSave(BuildContext context) {
+  widgetButtonSave(BuildContext context) {
     return SizedBox(
       height: 40,
       child: ElevatedButton(
@@ -553,38 +569,96 @@ class _ScreenCustomerSave extends State with Validation {
     );
   }
 
-  String _header = "UYARI";
-  String _yesText = "Uygula";
+  //Kullanıcı GÜNCELLEME buttonu.
+  widgetButtonUpdate(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () async {
+          /*   print(kullanici.name);
+          print(kullanici.lastName);
+          print(kullanici.email);
+          print(kullanici.password);
+          print(kullanici.role); */
 
-  TextEditingController controllerPassword = TextEditingController();
+          String checkEmail =
+              await db.controllerUserEmail(_controllerEmail.text);
+          if (checkEmail == "") {
+            if (_formKey.currentState!.validate()) {
+              //oturm açık olan kullanıcı id alıyor.
+              kullanici.activeUser = dbHive.getValues('uuid');
+              kullanici.name = _controllerName.text;
+              kullanici.lastName = _controllerLastName.text;
+              kullanici.email = _controllerEmail.text;
+              kullanici.password = _controllerPassword.text;
+              kullanici.role = _role;
+              kullanici.isPartner = _switchPartnerValue;
+              db.signUpMy(kullanici).then((value) {
+                if (value.isEmpty) {
+                  ///Tabloyu güncelleniyor.
+                  _blocUsers.getAllUsers();
+
+                  ///Eğer search bölümü dolu ise sıfırlanıyor.
+                  _controllerSearchCustomerName.clear();
+                  setState(() {
+                    _controllerEmail.clear();
+                    _controllerName.clear();
+                    _controllerLastName.clear();
+                    _controllerPassword.clear();
+                    _controllerRePassword.clear();
+                  });
+                  context.noticeBarTrue("Kayıt Başarılı", 1);
+                } else {
+                  context.noticeBarError("Hata gerçekleşti : $value", 2);
+                }
+              });
+            } else {
+              context.noticeBarError("Gerekli Alanları Doldurun.", 2);
+            }
+          } else {
+            context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
+          }
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 50,
+          // ignore: prefer_const_constructors
+          child: Text(
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+            "GÜNCELLE",
+          ),
+        ),
+      ),
+    );
+  }
 
   ///Silme popup bölümü
   widgetPopupResetPassword(Map<String?, dynamic> userInfo) {
     return AlertDialog(
-      title: Text('UYARI',
+      title: Text('ŞİFRE SIFIRLAMA',
           textAlign: TextAlign.center,
           style:
               context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
       alignment: Alignment.center,
       content: Container(
           width: 360,
-          height: 200,
+          height: 100,
           alignment: Alignment.center,
           child: Text(
-            "Şifreyi sıfırlamak mı istiyorsunuz?",
-            style: context.theme.headlineSmall,
+            _labelPopupResetContent,
+            style: context.theme.titleMedium!
+                .copyWith(fontWeight: FontWeight.bold),
           )),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: <Widget>[
         SizedBox(
-          width: 100,
-          height: 30,
+          width: _widthPopupButton,
+          height: _heightPopupButton,
           child: ElevatedButton(
               onPressed: () async {
-                ///Stok bitmeden silmeyi engelliyor.
-
                 String res = await _blocUsers.resetPassword(userInfo['email']);
-                print(res);
+
                 if (res.isEmpty) {
                   //  controllerSearch.clear();
                   // ignore: use_build_context_synchronously
@@ -598,16 +672,17 @@ class _ScreenCustomerSave extends State with Validation {
                   context.noticeBarError("Hata $res", 3);
                 }
               },
-              child: Text(_yesText,
-                  style:
-                      context.theme.titleSmall!.copyWith(color: Colors.white))),
+              child: Text("Gönder",
+                  style: context.theme.titleMedium!
+                      .copyWith(color: Colors.white))),
         ),
         SizedBox(
-          width: 100,
-          height: 30,
+          width: _widthPopupButton,
+          height: _heightPopupButton,
           child: ElevatedButton(
             child: Text("İptal",
-                style: context.theme.titleSmall!.copyWith(color: Colors.white)),
+                style:
+                    context.theme.titleMedium!.copyWith(color: Colors.white)),
             onPressed: () {
               Navigator.of(context).pop();
             },

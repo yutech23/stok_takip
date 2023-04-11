@@ -1,8 +1,12 @@
+import 'dart:js';
+
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:stok_takip/utilities/constants.dart';
+import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
 import 'package:stok_takip/validations/validation_phone_number.dart';

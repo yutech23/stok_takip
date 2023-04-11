@@ -67,4 +67,8 @@ class BlocUsers {
   Future<String> resetPassword(String userEmail) async {
     return await db.updateResetPassword(userEmail);
   }
+
+  Future<String> resetPasswordAdmin(String userId, String newPassword) async {
+    return await db.updateResetPasswordByAdmin(userId, newPassword);
+  }
 }
