@@ -144,7 +144,7 @@ class _ScreenSignUpState extends State with Validation {
               const SizedBox(height: 20),
               widgetSwitchButtonPartner(),
               const SizedBox(height: 20),
-              WidgetDropdownRoles(_getRole),
+              WidgetDropdownRoles(_role, _getRole),
               const SizedBox(height: 20),
               buttonSave(context),
             ]),
@@ -193,7 +193,7 @@ class _ScreenSignUpState extends State with Validation {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: "Tekrar Şifrenizi Giriniz",
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
             focusNode: FocusNode(skipTraversal: true),
             onPressed: () {
@@ -221,7 +221,7 @@ class _ScreenSignUpState extends State with Validation {
         if (checkEmail == "") {
           if (formKey.currentState!.validate()) {
             //oturm açık olan kullanıcı id alıyor.
-            kullanici.activeUser = dbHive.getValues('uuid');
+            kullanici.isActiveUser = dbHive.getValues('uuid');
             kullanici.name = _controllerName.text;
             kullanici.lastName = _controllerLastName.text;
             kullanici.email = _controllerEmail.text;
@@ -243,9 +243,11 @@ class _ScreenSignUpState extends State with Validation {
               }
             });
           } else {
+            // ignore: use_build_context_synchronously
             context.noticeBarError("Gerekli Alanları Doldurun.", 2);
           }
         } else {
+          // ignore: use_build_context_synchronously
           context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
         }
       },

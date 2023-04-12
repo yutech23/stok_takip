@@ -6,7 +6,8 @@ import '../../data/database_helper.dart';
 // ignore: must_be_immutable
 class WidgetDropdownRoles extends StatelessWidget with Validation {
   final ValueChanged<String>? _getRoleCallbackFunc;
-  WidgetDropdownRoles(this._getRoleCallbackFunc, {Key? key}) : super(key: key);
+  WidgetDropdownRoles(this._role, this._getRoleCallbackFunc, {Key? key})
+      : super(key: key);
   String? _role;
 
   @override
@@ -48,6 +49,7 @@ class WidgetDropdownRoles extends StatelessWidget with Validation {
                 isExpanded: true,
                 dropdownColor: Colors.blueGrey.shade200,
                 items: roleList(snapshot.data!),
+
                 value: _role,
                 onChanged: (String? value) {
                   _role = value;

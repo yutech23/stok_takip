@@ -106,11 +106,11 @@ extension DimensionFont on BuildContext {
       titleText: Text(
         'HATA MESAJI',
         textAlign: TextAlign.center,
-        style: theme.headline6!.copyWith(
+        style: theme.titleLarge!.copyWith(
             color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
       ),
       messageText: Text(message,
-          style: theme.headline6!.copyWith(color: Colors.white),
+          style: theme.titleLarge!.copyWith(color: Colors.white),
           textAlign: TextAlign.center),
       duration: Duration(seconds: durationSeconds),
     ).show(this);
@@ -123,11 +123,11 @@ extension DimensionFont on BuildContext {
       titleText: Text(
         header,
         textAlign: TextAlign.center,
-        style: theme.headline6!.copyWith(
+        style: theme.titleLarge!.copyWith(
             color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
       ),
       messageText: Text(message,
-          style: theme.headline6!.copyWith(color: Colors.white),
+          style: theme.titleLarge!.copyWith(color: Colors.white),
           textAlign: TextAlign.center),
       duration: Duration(seconds: durationSeconds),
     ).show(this);
@@ -139,12 +139,12 @@ extension DimensionFont on BuildContext {
       titleText: Text(
         'BAŞARILI',
         textAlign: TextAlign.center,
-        style: theme.headline6!.copyWith(
+        style: theme.titleLarge!.copyWith(
             color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
       ),
       messageText: Text(
         message,
-        style: theme.headline6!.copyWith(color: Colors.white),
+        style: theme.titleLarge!.copyWith(color: Colors.white),
         textAlign: TextAlign.center,
       ),
       duration: Duration(seconds: durationSeconds),

@@ -145,13 +145,17 @@ class BlocCariCustomer {
           " " +
           element['last_name'] +
           " - " +
+          "${element['country_code']} " +
           element['phone'];
       _allCustomerAndSuppliers.add({'type': element['type'], 'name': araDeger});
     }
 
     final resCustomerCompany = await db.fetchCustomerCompany();
     for (var element in resCustomerCompany) {
-      String araDeger = element['name'] + " - " + element['phone'];
+      String araDeger = element['name'] +
+          " - " +
+          "${element['country_code']} " +
+          element['phone'];
       _allCustomerAndSuppliers.add({'type': element['type'], 'name': araDeger});
     }
 

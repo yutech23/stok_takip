@@ -131,11 +131,15 @@ class BlocCariSuppleirs {
 
   ///Müşterileri arama için getirilen veriler(tip,isim,numara)
   Future getSuppliers() async {
-    final resCustomerSolo = await db.fetchCariSuppliers();
+    final resCustomerSupplier = await db.fetchCariSuppliers();
 
-    for (var element in resCustomerSolo) {
-      String araDeger = element['name'] + " - " + element['phone'];
-      _suppliers.add({'name': araDeger});
+    for (var element in resCustomerSupplier) {
+      String araDeger =
+          element['name'] + " - " + element['country_code'] + element['phone'];
+      _suppliers.add({
+        'name': araDeger,
+        'phone': "${element['country_code']} " + element['phone']
+      });
     }
 
     _streamControllerSuppliers.sink.add(_suppliers);

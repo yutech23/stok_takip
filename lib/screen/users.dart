@@ -71,14 +71,17 @@ class _ScreenCustomerSave extends State with Validation {
   final String _labelPopupResetContent =
       "Şifreyi sıfırlaması için kullanıcıya Email gönderilecektir.";
   bool _isSelectedAddNewUserOrUpdate = true;
+  final String _labelStatus = "Aktif";
+  late String _userId;
+  bool _switchStatusValue = true;
 
   final String _labelUpdate = "Güncelle";
   final String _labelNewUserSave = "Yeni Kullanıcı Kaydet";
-  late String _userId;
 
   bool _isDisableUserRoleType = false;
 
   /*---------------------------Güncelleme ------------------------------- */
+
   @override
   void initState() {
     _blocUsers = BlocUsers();
@@ -164,17 +167,16 @@ class _ScreenCustomerSave extends State with Validation {
                 onPressed: () {
                   setState(() {
                     _isSelectedAddNewUserOrUpdate = false;
+                    _userId = row['user_uuid'];
+                    _controllerName.text = row['copyName'];
+                    _controllerLastName.text = row['last_name'];
+                    //  _controllerEmail.text = row['email'];
+                    _switchPartnerValue =
+                        row['status'] == 'Evet' ? true : false;
                     _role = row['role'];
                   });
                   print(row);
-                  _controllerName.text = row['copyName'];
-                  _controllerLastName.text = row['last_name'];
-                  _controllerEmail.text = row['email'];
-                  _switchPartnerValue = row['status'] == 'Evet' ? true : false;
-
-                  _isDisableUserRoleType = true;
-
-                  _userId = row['user_uuid'];
+                  print("id $_userId");
                 },
               ),
             ],
@@ -243,7 +245,7 @@ class _ScreenCustomerSave extends State with Validation {
 
                       ///kayıt Bölümündeki verilerin girildiği yer
                       Container(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
                             color: Colors.white,
@@ -280,37 +282,40 @@ class _ScreenCustomerSave extends State with Validation {
                                     FormatterUpperCaseTextFormatter()
                                   ]),
                               const SizedBox(height: 20),
-                              shareWidget.widgetTextFieldInput(
-                                  controller: _controllerEmail,
-                                  etiket: "Email Adresinizi Giriniz",
-                                  skipTravelFocusValue: false,
-                                  karakterGostermeDurumu: false,
-                                  validationFunc: validateEmail,
-                                  inputFormat: [
-                                    FormatterLowerCaseTextFormatter()
-                                  ]),
-                              const SizedBox(height: 20),
                               Visibility(
                                 visible: _isSelectedAddNewUserOrUpdate,
-                                child: widgetTextFieldPassword(
-                                    _controllerPassword,
-                                    "Şifrenizi Giriniz",
-                                    obscureValue,
-                                    validatePassword),
+                                child: Column(
+                                  children: [
+                                    shareWidget.widgetTextFieldInput(
+                                        controller: _controllerEmail,
+                                        etiket: "Email Adresinizi Giriniz",
+                                        skipTravelFocusValue: false,
+                                        karakterGostermeDurumu: false,
+                                        validationFunc: validateEmail,
+                                        inputFormat: [
+                                          FormatterLowerCaseTextFormatter()
+                                        ]),
+                                    const SizedBox(height: 20),
+                                    widgetTextFieldPassword(
+                                        _controllerPassword,
+                                        "Şifrenizi Giriniz",
+                                        obscureValue,
+                                        validatePassword),
+                                    const SizedBox(height: 20),
+                                    widgetTextFieldPasswordConfirm(
+                                        _controllerRePassword,
+                                        "Şifrenizi Tekrar Giriniz",
+                                        confirmObscureValue,
+                                        validateConfirmPassword),
+                                    const SizedBox(height: 20),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 20),
-                              Visibility(
-                                visible: _isSelectedAddNewUserOrUpdate,
-                                child: widgetTextFieldPasswordConfirm(
-                                    _controllerRePassword,
-                                    "Şifrenizi Tekrar Giriniz",
-                                    confirmObscureValue,
-                                    validateConfirmPassword),
-                              ),
+                              widgetSwitchButtonStatus(),
                               const SizedBox(height: 20),
                               widgetSwitchButtonPartner(),
                               const SizedBox(height: 20),
-                              WidgetDropdownRoles(_getRole),
+                              WidgetDropdownRoles(_role, _getRole),
                               const SizedBox(height: 20),
                               Visibility(
                                 visible: _isSelectedAddNewUserOrUpdate,
@@ -344,6 +349,10 @@ class _ScreenCustomerSave extends State with Validation {
       child: TextButton.icon(
         onPressed: () {
           setState(() {
+            _controllerName.clear();
+            _controllerLastName.clear();
+            _switchPartnerValue = false;
+
             _isSelectedAddNewUserOrUpdate = true;
             _isDisableUserRoleType = false;
           });
@@ -479,7 +488,7 @@ class _ScreenCustomerSave extends State with Validation {
     return Container(
       width: 360,
       height: 40,
-      padding: EdgeInsets.only(left: 10),
+      padding: const EdgeInsets.only(left: 10),
       decoration: BoxDecoration(
           border: Border.symmetric(
               horizontal: BorderSide(color: context.extensionDisableColor))),
@@ -495,6 +504,36 @@ class _ScreenCustomerSave extends State with Validation {
             onChanged: (value) {
               setState(() {
                 _switchPartnerValue = value;
+              });
+            },
+            activeTrackColor: Colors.amberAccent,
+            activeColor: context.extensionDefaultColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  widgetSwitchButtonStatus() {
+    return Container(
+      width: 360,
+      height: 40,
+      padding: const EdgeInsets.only(left: 10),
+      decoration: BoxDecoration(
+          border: Border.symmetric(
+              horizontal: BorderSide(color: context.extensionDisableColor))),
+      child: Row(
+        children: [
+          Expanded(
+              child: Text(_labelStatus,
+                  style: context.theme.titleMedium!.copyWith(
+                    color: context.extensionDisableColor,
+                  ))),
+          Switch(
+            value: _switchStatusValue,
+            onChanged: (value) {
+              setState(() {
+                _switchStatusValue = value;
               });
             },
             activeTrackColor: Colors.amberAccent,
@@ -522,7 +561,7 @@ class _ScreenCustomerSave extends State with Validation {
           if (checkEmail == "") {
             if (_formKey.currentState!.validate()) {
               //oturm açık olan kullanıcı id alıyor.
-              kullanici.activeUser = dbHive.getValues('uuid');
+              kullanici.isActiveUser = dbHive.getValues('uuid');
               kullanici.name = _controllerName.text;
               kullanici.lastName = _controllerLastName.text;
               kullanici.email = _controllerEmail.text;
@@ -581,42 +620,22 @@ class _ScreenCustomerSave extends State with Validation {
           print(kullanici.password);
           print(kullanici.role); */
 
-          String checkEmail =
-              await db.controllerUserEmail(_controllerEmail.text);
-          if (checkEmail == "") {
-            if (_formKey.currentState!.validate()) {
-              //oturm açık olan kullanıcı id alıyor.
-              kullanici.activeUser = dbHive.getValues('uuid');
-              kullanici.name = _controllerName.text;
-              kullanici.lastName = _controllerLastName.text;
-              kullanici.email = _controllerEmail.text;
-              kullanici.password = _controllerPassword.text;
-              kullanici.role = _role;
-              kullanici.isPartner = _switchPartnerValue;
-              db.signUpMy(kullanici).then((value) {
-                if (value.isEmpty) {
-                  ///Tabloyu güncelleniyor.
-                  _blocUsers.getAllUsers();
+          ///Varolan Email adresini kaydetmemesi için burada kontrol ediliyor.
 
-                  ///Eğer search bölümü dolu ise sıfırlanıyor.
-                  _controllerSearchCustomerName.clear();
-                  setState(() {
-                    _controllerEmail.clear();
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerPassword.clear();
-                    _controllerRePassword.clear();
-                  });
-                  context.noticeBarTrue("Kayıt Başarılı", 1);
-                } else {
-                  context.noticeBarError("Hata gerçekleşti : $value", 2);
-                }
-              });
-            } else {
-              context.noticeBarError("Gerekli Alanları Doldurun.", 2);
-            }
+          if (_formKey.currentState!.validate()) {
+            //oturm açık olan kullanıcı id alıyor.
+            kullanici.id = _userId;
+            kullanici.isActiveUser = dbHive.getValues('uuid');
+            kullanici.name = _controllerName.text;
+            kullanici.lastName = _controllerLastName.text;
+            kullanici.email = _controllerEmail.text;
+            kullanici.isPartner = _switchPartnerValue;
+            kullanici.status = _switchStatusValue;
+            kullanici.role = _role;
+            _blocUsers.updateUser(kullanici);
           } else {
-            context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
+            // ignore: use_build_context_synchronously
+            context.noticeBarError("Gerekli Alanları Doldurun.", 2);
           }
         },
         child: Container(

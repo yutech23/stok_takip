@@ -35,22 +35,21 @@ class DbHelper {
   Future<Map<String, dynamic>> singIn(
       String setEmail, String setPassword) async {
     Map<String, dynamic> userSessionMap = {};
-    bool status = false;
 
     try {
       final data = await db.supabase.auth
           .signInWithPassword(email: setEmail, password: setPassword);
-      status = true;
+
       userSessionMap.addAll({
         'id': data.user?.id,
         'accessToken': data.session!.accessToken,
         'refreshToken': data.session!.refreshToken,
-        'status': status
       });
       return userSessionMap;
     } catch (e) {
-      status = false;
-      userSessionMap.addAll({'id': "", 'status': status.toString()});
+      userSessionMap.addAll({
+        'id': "",
+      });
       return userSessionMap;
     }
   }
@@ -70,32 +69,20 @@ class DbHelper {
   ///Kullanıcı Adını, Soyadını ve Role getiriyor.
   ///SingIn fonksiyonu supabase farklı bir table olduğu için
   ///Bu fonksiyona ihtiyaç var.
-  Future<Kullanici> fetchNameSurnameRole(String? uuid) async {
-    Kullanici selectedKullanici;
+  Future<Map<String, dynamic>> fetchNameSurnameRole(String userId) async {
+    try {
+      final res = await db.supabase
+          .from('users')
+          .select('name,last_name,role')
+          .eq('id', userId)
+          .single();
 
-    if (uuid == null) {
-      selectedKullanici = Kullanici.nameSurnameRole(
-          name: 'Null', lastName: 'Null', role: 'Null');
-      return selectedKullanici;
-    } else {
-      try {
-        final resData = await db.supabase
-            .from('users')
-            .select<List<Map<String, dynamic>>>('name,last_name,role')
-            .eq('user_uuid', uuid);
+      print("Dönen role ve isimler : $res");
 
-        selectedKullanici = Kullanici.nameSurnameRole(
-            name: resData[0]['name'],
-            lastName: resData[0]['last_name'],
-            role: resData[0]['role'].toString());
-        return selectedKullanici;
-      } on PostgrestException catch (e) {
-        debugPrint("hata : ${e.message}");
-        selectedKullanici = Kullanici.nameSurnameRole(
-            name: 'Null', lastName: 'Null', role: 'Null');
-
-        return selectedKullanici;
-      }
+      return res;
+    } on PostgrestException catch (e) {
+      debugPrint("hata role,isim ve soyisim : ${e.message}");
+      return {'Hata': e.message};
     }
   }
 
@@ -157,8 +144,8 @@ class DbHelper {
       //Kullanıcı Role Kaydı
       final roleIdJson = await db.supabase
           .from('roles')
-          .select('role_id')
-          .eq('role_type', kullanici.role);
+          .select('id')
+          .eq('name', kullanici.role);
       String roleIdString = Map.from(roleIdJson[0])
           .values
           .toString()
@@ -181,11 +168,11 @@ class DbHelper {
           'last_name': kullanici.lastName,
           'email': kullanici.email,
           'encrypt_password':
-              shareFunc.hashSha512ConvertToString(kullanici.password!),
-          'user_uuid': resAuth.user!.id,
+              shareFunc.hashSha256ConvertToString(kullanici.password!),
+          'id': resAuth.user!.id,
           'role': roleIdString,
           'partner': kullanici.isPartner,
-          'active_user': kullanici.activeUser,
+          'active_user': kullanici.isActiveUser,
           'status': true
         }
       ]);
@@ -218,7 +205,7 @@ class DbHelper {
   Future<List<String>> getRoles() async {
     final List<String> rolesList = [];
     try {
-      final resData = await supabase.from('roles').select('role_type');
+      final resData = await supabase.from('roles').select('type');
       final dropdownYetkiListe = <String>[];
       // Burada veritabanından gelen "data" değişkenine atanıyor.
       // Liste içinde map geliyor.
@@ -789,7 +776,7 @@ class DbHelper {
       final resData = await supabase
           .from('users')
           .select('encrypt_password')
-          .match({'user_uuid': uuid}).single();
+          .match({'id': uuid}).single();
 
       return resData['encrypt_password'];
     } on PostgrestException catch (e) {
@@ -805,8 +792,8 @@ class DbHelper {
     print("encrypt : ${shareFunc.hashSha512ConvertToString(newPassword!)}"); */
     try {
       await supabase.from('users').update({
-        'encrypt_password': shareFunc.hashSha512ConvertToString(newPassword!)
-      }).eq('user_uuid', userId);
+        'encrypt_password': shareFunc.hashSha256ConvertToString(newPassword!)
+      }).eq('id', userId);
 
       return "";
     } on PostgrestException catch (e) {
@@ -998,7 +985,7 @@ class DbHelper {
       final resData = await db.supabase
           .from('users')
           .select('name,last_name')
-          .eq('user_uuid', uuid)
+          .eq('id', uuid)
           .single();
 
       resSellerName = resData['name'] + " " + resData['last_name'];
@@ -1017,7 +1004,7 @@ class DbHelper {
     try {
       res = await db.supabase
           .from('customer_sole_trader')
-          .select('name,last_name,type,phone');
+          .select('name,last_name,type,phone,country_code');
       return res;
     } on PostgrestException catch (e) {
       debugPrint("Hata Cari Sahıs: ${e.message}");
@@ -1028,8 +1015,9 @@ class DbHelper {
   Future<List<dynamic>> fetchCustomerCompany() async {
     List<dynamic> res = [];
     try {
-      res =
-          await db.supabase.from('customer_company').select('name,type,phone');
+      res = await db.supabase
+          .from('customer_company')
+          .select('name,type,phone,country_code');
 
       return res;
     } on PostgrestException catch (e) {
@@ -1288,7 +1276,7 @@ class DbHelper {
       var sellerName = await db.supabase
           .from('users')
           .select('name,last_name')
-          .eq('user_uuid', res['seller'])
+          .eq('id', res['seller'])
           .single();
       res.addAll(resCustomerInfo);
       res['seller'] = sellerName['name'] + " " + sellerName['last_name'];
@@ -1360,7 +1348,8 @@ class DbHelper {
   Future<List<dynamic>> fetchCariSuppliers() async {
     List<dynamic> res = [];
     try {
-      res = await db.supabase.from('suppliers').select('name,phone');
+      res =
+          await db.supabase.from('suppliers').select('name,phone,country_code');
       return res;
     } on PostgrestException catch (e) {
       debugPrint("Hata Cari Tedarikci: ${e.message}");
@@ -1511,7 +1500,7 @@ class DbHelper {
         final resSellerName = await db.supabase
             .from('users')
             .select('name,last_name')
-            .eq('user_uuid', res['seller'])
+            .eq('id', res['seller'])
             .single();
 
         res['seller'] =
@@ -1717,7 +1706,7 @@ class DbHelper {
 
       return resCashBox;
     } on PostgrestException catch (e) {
-      debugPrint("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata fetchCariCapital: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1784,7 +1773,7 @@ class DbHelper {
 
       return resCashBox;
     } on PostgrestException catch (e) {
-      debugPrint("Kasa hata: ${e.message}");
+      debugPrint("Kasa hata fetchCashBox: ${e.message}");
       return {'Hata': e.message};
     }
   }
@@ -1809,7 +1798,7 @@ class DbHelper {
     try {
       resAllPartner = await db.supabase
           .from('users')
-          .select<List<Map<String, dynamic>>>('user_uuid,name,last_name')
+          .select<List<Map<String, dynamic>>>('id,name,last_name')
           .eq('partner', true);
       return resAllPartner;
     } on PostgrestException catch (e) {
@@ -1830,10 +1819,10 @@ class DbHelper {
 
       final tempName = await db.fetchNameSurnameRole(uuid);
       for (Map<String, dynamic> element in res) {
-        element.addAll({
+        /*  element.addAll({
           'name':
-              "${tempName.name!.toUpperCaseTr()} ${tempName.lastName!.toUpperCaseTr()}"
-        });
+              "${tempName['name'].toUpperCaseTr()} ${tempName['last_name'].toUpperCaseTr()}"
+        }); */
       }
 
       return res;
@@ -2074,7 +2063,7 @@ class DbHelper {
       allUsers = await db.supabase
           .from('users')
           .select<List<Map<String, dynamic>>>(
-              'user_uuid,name,last_name,email,partner,role,status');
+              'id,name,last_name,email,partner,role,status');
 
       ///Şahıs Müşterileri tabloda isim ile soyism farklı kolonda tutluyor.Bu yüzden
       ///birleştiriliyor.
@@ -2103,19 +2092,38 @@ class DbHelper {
     }
   }
 
-  ///Reset Password
-  Future<String> updateResetPasswordByAdmin(
-      String userId, String newPassword) async {
+  ///Kullanıcı Bilgilerin güncellenmesi
+  Future<String> updateUserInfoForUsersDataBase(Kullanici userInfo) async {
     try {
-      final data = await db.supabase.auth.admin.updateUserById(userId,
-          attributes: AdminUserAttributes(password: newPassword));
+      //Kullanıcı Role Kaydı
+      final roleIdJson = await db.supabase
+          .from('roles')
+          .select('role_id')
+          .eq('role_type', userInfo.role);
 
-      print("dönüt: $data");
+      print(userInfo.name);
+      print(userInfo.lastName);
+      print(userInfo.isPartner);
+      print(userInfo.status);
+      print(userInfo.isActiveUser);
+      print(userInfo.id);
+      print(roleIdJson[0]['role_id']);
+      final res = db.supabase.from('users').update({
+        'name': userInfo.name,
+        'last_name': userInfo.lastName,
+        'partner': userInfo.isPartner,
+        'status': userInfo.status,
+        'active_user': userInfo.isActiveUser,
+        'role': roleIdJson[0]['role_id']
+      }).eq('id', userInfo.id);
+      print("deger : $res");
       return "";
     } on PostgrestException catch (e) {
-      return "Hata şifre Resetleme : ${e.message}";
+      debugPrint("HATA Kullanıcı Bilgi Güncelleme : ${e.message}");
+      return e.message;
     }
   }
+
   /*--------------------------------------------------------------------- */
 }
 

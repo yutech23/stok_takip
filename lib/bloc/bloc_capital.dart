@@ -115,7 +115,7 @@ class BlocCapital {
     final temp = await db.fetchAllPartner();
     for (var element in temp) {
       _allPartner.add({
-        'uuid': element['user_uuid'],
+        'uuid': element['id'],
         'name':
             "${element['name'].toString().toUpperCaseTr()} ${element['last_name'].toString().toUpperCaseTr()}"
       });

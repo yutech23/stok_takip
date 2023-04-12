@@ -8,7 +8,8 @@ class Kullanici {
   String? token;
   String? refreshToken;
   bool? isPartner;
-  String? activeUser;
+  bool? status;
+  String? isActiveUser;
 
   Kullanici();
 

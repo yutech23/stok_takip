@@ -440,13 +440,13 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
                           _blocCari.setterSelectedCustomer = {
                             'type': convertMap[0],
                             'name': convertMap[1],
-                            'phone': convertMap[2]
+                            'phone': convertMap[2].split(' ')[1]
                           };
                         } else {
                           _blocCari.setterSelectedCustomer = {
                             'type': convertMap[0],
                             'name': convertMap[1],
-                            'phone': convertMap[2]
+                            'phone': convertMap[2].split(' ')[1]
                           };
                         }
                         _focusSearchCustomer.unfocus();

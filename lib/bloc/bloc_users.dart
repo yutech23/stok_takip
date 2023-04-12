@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:stok_takip/models/user.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:turkish/turkish.dart';
 
 import '../data/database_helper.dart';
@@ -68,7 +70,8 @@ class BlocUsers {
     return await db.updateResetPassword(userEmail);
   }
 
-  Future<String> resetPasswordAdmin(String userId, String newPassword) async {
-    return await db.updateResetPasswordByAdmin(userId, newPassword);
+  updateUser(Kullanici updateUser) async {
+    db.updateUserInfoForUsersDataBase(updateUser);
+    getAllUsers();
   }
 }

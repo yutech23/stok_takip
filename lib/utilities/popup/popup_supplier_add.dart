@@ -24,7 +24,7 @@ class PopupSupplierRegister extends StatefulWidget {
 class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final GlobalKey<FormState> _formKeySupplier = GlobalKey<FormState>();
   final _controllerCargoName = TextEditingController();
-  final _controllerPhoneNumber = TextEditingController();
+
   final _controlleraddress = TextEditingController();
   final _controllerTaxNumber = TextEditingController();
   final _controllerCargoCode = TextEditingController();
@@ -146,7 +146,6 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
 
   @override
   void dispose() {
-    _controllerPhoneNumber.dispose();
     _controlleraddress.dispose();
     _controllerTaxNumber.dispose();
     _controllerCargoCode.dispose();
@@ -271,7 +270,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -302,7 +301,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İlk Önce İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -329,11 +328,11 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
         ),
         const Divider(color: Colors.transparent),
         shareWidget.widgetTextFieldInput(
-            controller: _controlleraddress,
-            etiket: "Adres",
-            skipTravelFocusValue: false,
-            karakterGostermeDurumu: false,
-            validationFunc: validateAddress),
+          controller: _controlleraddress,
+          etiket: "Adres",
+          skipTravelFocusValue: false,
+          karakterGostermeDurumu: false,
+        ),
       ],
     );
   }
@@ -465,7 +464,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
                 supplierName: _controllerSupplierName.text,
                 bankName: _controllerBankName.text,
                 iban: iban,
-                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                countryCode: _phoneController.value!.countryCode,
+                phone: _phoneController.value!.nsn,
                 city: _selectedCity,
                 district: _selectDistrict,
                 address: _controlleraddress.text,
@@ -485,7 +485,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
               _controllerSupplierName.clear();
               _controllerBankName.clear();
               _controllerIban.clear();
-              _controllerPhoneNumber.clear();
+              _phoneController.reset();
               _controlleraddress.clear();
               _controllerTaxNumber.clear();
               _controllerCargoName.clear();

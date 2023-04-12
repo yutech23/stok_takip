@@ -201,7 +201,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
           if (sessionUserId!.user.id != null) {
             /// veritabanında şifrelenmiş şifreyi eşleşme kontrolü ediyor.
             db.getPassword(sessionUserId.user.id).then((userPassword) {
-              if (shareFunc.hashSha512ConvertToString(
+              if (shareFunc.hashSha256ConvertToString(
                       _controllerCurrentPassword.text) ==
                   userPassword) {
                 ///password güncelliyor ama sadece supabase user içinde yapıyor.

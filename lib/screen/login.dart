@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -248,38 +249,51 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
 
               ///kontrol sonrası dönen değerin içinde status baklıyor.
               /// true ise giriş başarılı ve veriler Storage yazılıyor.
-              if (userInfo['status'] == true) {
+              if (userInfo['id'] != "") {
                 // ignore: use_build_context_synchronously
-                context.noticeBarTrue("Giriş başarılı.", 1);
+
+                //isAuth = true yaparak s ayfa yönlenmesine auth_guard izin veriyor.
                 authController.setAuthTrue();
                 /*  SecurityStorageUser.setUserId(userInfo['id'].toString());
                 print("ana veri tipi: ${userInfo['id'].runtimeType}");
-                print("ana veri : ${userInfo['id']}");
+              
 
                 print("store : ${await SecurityStorageUser.getUserId()}"); */
-
+                //id hive database kaydediliyor.
                 dbHive.putToBox('uuid', userInfo['id']);
 
                 SecurityStorageUser.setUserAccessToken(
                     userInfo['accessToken']!);
                 SecurityStorageUser.setUserRefleshToken(
                     userInfo['refreshToken']!);
+
+                /// User tablosundan verileri almada async yüzünden sorun yaşıyor.
+                /// Verilerin çekilebilmesi için ilk önce loggin olunması gerekiyor.
+                /// bu yüzden yavaşlatmak için Timer kullanıldı.
                 Timer(
                   const Duration(milliseconds: 200),
                   () async {
                     final userNameSurnameRole =
                         await db.fetchNameSurnameRole(userInfo['id']);
 
-                    authController.role = userNameSurnameRole.role!;
+                    ///Role Cache tutulduğu için String olmak zorunda oluyor. Ama Veritabından
+                    ///int değer olarak tutuluyor.
+                    authController.role =
+                        userNameSurnameRole['role'].toString();
                     //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
                     final roleList =
                         await db.fetchPageInfoByRole(authController.role);
                     await SecurityStorageUser.setPageList(roleList);
 
-                    SecurityStorageUser.setUserName(userNameSurnameRole.name!);
+                    SecurityStorageUser.setUserName(
+                        userNameSurnameRole['name']);
                     SecurityStorageUser.setUserLastName(
-                        userNameSurnameRole.lastName!);
-                    SecurityStorageUser.setUserRole(userNameSurnameRole.role!);
+                        userNameSurnameRole['last_name']);
+                    SecurityStorageUser.setUserRole(
+                        userNameSurnameRole['role'].toString());
+
+                    // ignore: use_build_context_synchronously
+                    await context.noticeBarTrue("Giriş başarılı.", 1);
                     if (authController.role == '1') {
                       // ignore: use_build_context_synchronously
                       context.router.pushNamed(ConstRoute.caseSnapshot);

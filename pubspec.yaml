@@ -41,7 +41,7 @@ dependencies:
   intl_phone_field: ^3.1.0
   pretty_qr_code: ^2.0.3
   shared_preferences: ^2.0.15
-  supabase_flutter: ^1.4.0
+  supabase_flutter: ^1.6.2
   turkish: ^0.2.1
   url_strategy: ^0.2.0
   xml: ^6.1.0

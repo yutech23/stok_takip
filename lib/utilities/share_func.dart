@@ -53,10 +53,10 @@ class ShareFunc {
     return DateFormat('dd/MM/yyyy').format(dateTime);
   }
 
-  ///Şifrelemek için SHA512 kullanılıyor Stringe dönüştürüyor
-  String hashSha512ConvertToString(String password) {
+  ///Şifrelemek için SHA256 kullanılıyor Stringe dönüştürüyor
+  String hashSha256ConvertToString(String password) {
     final bytes = utf8.encode(password);
-    final diges = sha512.convert(bytes);
+    final diges = sha256.convert(bytes);
     final hashPass = diges.toString();
     return hashPass;
   }
