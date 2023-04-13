@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:adaptivex/adaptivex.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +18,6 @@ import '../models/category.dart';
 import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-
 import '../utilities/convert_string_currency_digits.dart';
 import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
@@ -28,6 +28,7 @@ import '../validations/format_decimal_limit.dart';
 import '../validations/format_upper_case_text_format.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
+
 
 class ScreenStockEdit extends StatefulWidget {
   const ScreenStockEdit({Key? key}) : super(key: key);
@@ -73,6 +74,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   final _controllerBankValue = TextEditingController();
   final _controllerEftHavaleValue = TextEditingController();
 
+  final String _labelPageHeader = "Stok Güncelleme Ekranı";
   final String _totalPayment = "Toplam Tutarı Giriniz";
   final String _balance = "Kalan Tutar : ";
   final String _paid = "Ödenen Toplam Tutar : ";
@@ -394,7 +396,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("Stok Güncelleme Ekranı"),
+        title: Text(_labelPageHeader),
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         actions: [
           ShareWidgetAppbarSetting(),

@@ -4,8 +4,9 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
 import '../utilities/constants.dart';
+import '../utilities/navigation/navigation_manager.dart';
+import '../utilities/navigation/navigation_manager.gr.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -19,32 +20,31 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   String nameAndLastnameFirstLatter = '';
   String nameAndLastNameCapitalFirst = '';
-  final String _labelCustomerSave = 'Müşteri ve Tedarikçi İşlemleri';
-  final String _labelNewUserAdd = 'Yeni Kullanıcı Ekle';
-  final String _labelCategoryAdd = 'Kategori Düzenleme';
+  final String _labelSale = "Satış";
+  final String _labelCheckingAccount = "Cariler";
+  final String _labelExpenses = "Giderler";
+  final String _labelCustomerSave = 'Müşteri & Tedarikçi';
+  final String _labelStockEdit = 'Stok';
   final String _labelNewProductAdd = 'Yeni Ürün Ekle';
-  final String _labelStockEdit = 'Stok Düzenleme';
+  final String _labelCategoryAdd = 'Kategori İşlemleri';
+  final String _labelCapital = "Sermaye İşlemleri";
+  final String _labelUsers = "Kullanıcılar";
+  final String _labelCaseSnapshot = "Kasa Durum";
   final String _labelTest = 'Test';
   final String _labelExit = 'Güvenli Çıkış';
-  final String _labelSale = "Satış Ekranı";
-  final String _labelCaseSnapshot = "Kasa Durum";
-  final String _labelCapital = "Sermaye İşlemleri";
-  final String _labelExpenses = "Giderler";
-  final String _labelUsers = "Kullanıcılar";
 
   //Menü Sırasını belirliyorum.
   final List<String> _orderMenu = <String>[
     'RouteSale',
     'RouteCari',
+    'RouteExpenses',
+    'RouteCustomerRegister',
     'RouteStockEdit',
     'RouteProductAdd',
-    'RouteCustomerRegister',
     'RouteCategoryEdit',
-    'RouteSignUp',
-    'RouteCaseSnapshot',
     'RouteCapital',
-    'RouteExpenses',
     'RouteUsers',
+    'RouteCaseSnapshot',
     'Test',
   ];
 
@@ -268,10 +268,7 @@ class _MyDrawerState extends State<MyDrawer> {
                   const RouteCustomerRegister(),
                   Icons.people_alt,
                   _labelCustomerSave));
-              break;
-            case "RouteSignUp":
-              listWidgetMenuByRole.add(widgetMenuItem(context,
-                  const RouteSignUp(), Icons.add_reaction, _labelNewUserAdd));
+
               break;
             case "RouteProductAdd":
               listWidgetMenuByRole.add(widgetMenuItem(context,
@@ -295,7 +292,7 @@ class _MyDrawerState extends State<MyDrawer> {
             case "RouteCari":
               listWidgetMenuByRole.add(widgetMenuItemSubcategory(
                   context,
-                  "Cari İşlemler",
+                  _labelCheckingAccount,
                   ["Müşteri", "Tedarikçi"],
                   Icons.person_search,
                   [const RouteCariCustomer(), const RouteCariSupplier()]));
@@ -322,7 +319,7 @@ class _MyDrawerState extends State<MyDrawer> {
               break;
             case "Test":
               listWidgetMenuByRole.add(widgetMenuItem(
-                  context, const Test(), Icons.try_sms_star, _labelTest));
+                  context, const RouteTest(), Icons.try_sms_star, _labelTest));
               break;
             default:
           }

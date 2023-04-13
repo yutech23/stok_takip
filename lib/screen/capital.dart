@@ -1,4 +1,5 @@
 import 'package:adaptivex/adaptivex.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:searchfield/searchfield.dart';

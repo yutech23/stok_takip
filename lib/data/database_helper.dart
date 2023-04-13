@@ -8,6 +8,7 @@ import 'package:stok_takip/models/customer.dart';
 import 'package:stok_takip/models/expense.dart';
 import 'package:stok_takip/models/payment.dart';
 import 'package:stok_takip/models/sale.dart';
+import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category.dart';
@@ -57,8 +58,8 @@ class DbHelper {
   ///Şifrenin Resetlenmesi
   Future<String> resetPasswordByEmail(String email) async {
     try {
-      db.supabase.auth.resetPasswordForEmail(email,
-          redirectTo: "http://localhost:3000/resetPassword");
+      db.supabase.auth
+          .resetPasswordForEmail(email, redirectTo: sabitler.resetPasswordPath);
       return "";
     } on PostgrestException catch (e) {
       debugPrint("Hata Email gönderilme : ${e.message}");
@@ -137,6 +138,7 @@ class DbHelper {
   //Üye kayıt Fonksiyonu
   Future<String> signUpMy(Kullanici kullanici) async {
     //Auth. kayıt sağlar. Burada Kullanıca UUid belirlenir.
+
     try {
       final resAuth = await db.supabase.auth.signUpWithoutLogin(
           email: kullanici.email!, password: kullanici.password!);
@@ -145,11 +147,13 @@ class DbHelper {
       final roleIdJson = await db.supabase
           .from('roles')
           .select('id')
-          .eq('name', kullanici.role);
-      String roleIdString = Map.from(roleIdJson[0])
+          .eq('type', kullanici.role)
+          .single();
+
+      /*  String roleIdString = Map.from(roleIdJson[0])
           .values
           .toString()
-          .replaceAll(RegExp(r"[)(]"), '');
+          .replaceAll(RegExp(r"[)(]"), ''); */
 
       /*   debugPrint("**********");
       debugPrint(kullanici.name);
@@ -164,16 +168,16 @@ class DbHelper {
       //Kulanıcı Bilgileri Kayıt
       await db.supabase.from('users').insert([
         {
+          'id': resAuth.user!.id,
           'name': kullanici.name,
           'last_name': kullanici.lastName,
           'email': kullanici.email,
+          'partner': kullanici.isPartner,
+          'role': roleIdJson['id'],
+          'active_user': kullanici.isActiveUser,
           'encrypt_password':
               shareFunc.hashSha256ConvertToString(kullanici.password!),
-          'id': resAuth.user!.id,
-          'role': roleIdString,
-          'partner': kullanici.isPartner,
-          'active_user': kullanici.isActiveUser,
-          'status': true
+          'status': kullanici.status
         }
       ]);
       return "";
@@ -184,17 +188,17 @@ class DbHelper {
   }
 
   Future<String> controllerUserEmail(String newEmail) async {
-    String res;
     try {
-      final resList = await db.supabase
+      final res = await db.supabase
           .from('users')
           .select('email')
           .eq('email', newEmail)
           .single();
-
-      res = resList['email'];
-      debugPrint(res);
-      return res;
+      if (res == null) {
+        return '';
+      } else {
+        return res['email'];
+      }
     } on PostgrestException catch (e) {
       debugPrint("Kullanıcı Email adresi arama Hata: ${e.message}");
       return "";
@@ -2084,7 +2088,7 @@ class DbHelper {
   Future<String> updateResetPassword(String userEmail) async {
     try {
       final data = await db.supabase.auth.resetPasswordForEmail(userEmail,
-          redirectTo: 'http://localhost:3000/resetPassword');
+          redirectTo: sabitler.resetPasswordPath);
 
       return "";
     } on PostgrestException catch (e) {
@@ -2101,13 +2105,13 @@ class DbHelper {
           .select('role_id')
           .eq('role_type', userInfo.role);
 
-      print(userInfo.name);
+      /*   print(userInfo.name);
       print(userInfo.lastName);
       print(userInfo.isPartner);
       print(userInfo.status);
       print(userInfo.isActiveUser);
       print(userInfo.id);
-      print(roleIdJson[0]['role_id']);
+      print(roleIdJson[0]['role_id']); */
       final res = db.supabase.from('users').update({
         'name': userInfo.name,
         'last_name': userInfo.lastName,
@@ -2116,7 +2120,7 @@ class DbHelper {
         'active_user': userInfo.isActiveUser,
         'role': roleIdJson[0]['role_id']
       }).eq('id', userInfo.id);
-      print("deger : $res");
+      // print("deger : $res");
       return "";
     } on PostgrestException catch (e) {
       debugPrint("HATA Kullanıcı Bilgi Güncelleme : ${e.message}");

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_final_fields
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,7 @@ import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_3by3_financial.dart';
 import '../validations/format_upper_case_text_format.dart';
+
 
 class ScreenProductAdd extends StatefulWidget {
   const ScreenProductAdd({Key? key}) : super(key: key);

@@ -28,6 +28,7 @@ class Sabitler {
   ];
 
   final productTaxList = <String>['% 0', '% 8', '% 18'];
+  final resetPasswordPath = "https://erp.esnaficin.com/resetPassword";
 }
 
 class ConstRoute {

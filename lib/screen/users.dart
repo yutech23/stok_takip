@@ -1,4 +1,5 @@
 import 'package:adaptivex/adaptivex.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:phone_form_field/phone_form_field.dart';
@@ -558,6 +559,7 @@ class _ScreenCustomerSave extends State with Validation {
 
           String checkEmail =
               await db.controllerUserEmail(_controllerEmail.text);
+          print(" chechemail : $checkEmail");
           if (checkEmail == "") {
             if (_formKey.currentState!.validate()) {
               //oturm açık olan kullanıcı id alıyor.
@@ -568,6 +570,7 @@ class _ScreenCustomerSave extends State with Validation {
               kullanici.password = _controllerPassword.text;
               kullanici.role = _role;
               kullanici.isPartner = _switchPartnerValue;
+              kullanici.status = _switchStatusValue;
               db.signUpMy(kullanici).then((value) {
                 if (value.isEmpty) {
                   ///Tabloyu güncelleniyor.
@@ -591,7 +594,7 @@ class _ScreenCustomerSave extends State with Validation {
               context.noticeBarError("Gerekli Alanları Doldurun.", 2);
             }
           } else {
-            context.noticeBarError("Kullanıcı adı kayıtlı.", 3);
+            context.noticeBarError("Email Adresi kayıtlı.", 3);
           }
         },
         child: Container(

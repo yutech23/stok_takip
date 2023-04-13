@@ -15,7 +15,7 @@ import '../../screen/cari_customer.dart';
 import '../../screen/category.dart';
 import '../../screen/customer_register.dart';
 import '../../screen/reset_password.dart';
-import '../../screen/sign_up.dart';
+
 import '../../screen/test.dart';
 import '../../screen/user_setting.dart';
 import 'auth_guard.dart';
@@ -26,6 +26,7 @@ import 'auth_guard.dart';
     page: ScreenLogin,
     path: ConstRoute.login,
   ),
+
   AutoRoute(
     page: ScreenResetPassword,
     path: ConstRoute.resetPassword,
@@ -42,11 +43,6 @@ import 'auth_guard.dart';
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
   CustomRoute(
-      page: ScreenSignUp,
-      path: ConstRoute.signUp,
-      guards: [AuthGuard],
-      customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
-  CustomRoute(
       page: ScreenCategoryEdit,
       path: ConstRoute.categoryEdit,
       guards: [AuthGuard],
@@ -60,11 +56,6 @@ import 'auth_guard.dart';
   CustomRoute(
       page: ScreenUserSetting,
       path: ConstRoute.userSetting,
-      guards: [AuthGuard],
-      customRouteBuilder:
-          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
-  CustomRoute(
-      page: Test,
       guards: [AuthGuard],
       customRouteBuilder:
           RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
@@ -107,5 +98,13 @@ import 'auth_guard.dart';
       path: ConstRoute.users,
       guards: [AuthGuard],
       customRouteBuilder: RolePermissionCustomRouter.customRouteBuilderAdmin),
+
+  CustomRoute(
+      page: ScreenTest,
+      guards: [AuthGuard],
+      customRouteBuilder:
+          RolePermissionCustomRouter.customRouteBuilderAdminAndUser),
+
+  RedirectRoute(path: '*', redirectTo: ConstRoute.login)
 ])
 class $AppRouter {}

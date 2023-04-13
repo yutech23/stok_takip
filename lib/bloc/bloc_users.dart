@@ -24,6 +24,7 @@ class BlocUsers {
   List<Map<String, dynamic>> _allUsers = [];
   List<Map<String, dynamic>> _searchUsersList = [];
 
+  ///Tüm kullanıcıları getiriyor
   getAllUsers() async {
     _allUsers.clear();
     _allUsers = await db.fetchAllUsers();
@@ -56,6 +57,7 @@ class BlocUsers {
     _streamControllerAllUsers.sink.add(_allUsers);
   }
 
+  ///İsim ile arama yaparak liste güncelleniyoru
   searchList(String searchValue) async {
     _searchUsersList = _allUsers
         .where(

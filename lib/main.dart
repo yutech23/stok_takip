@@ -5,7 +5,6 @@ import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'data/database_mango.dart';
 import 'utilities/navigation/auth_guard.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -93,11 +92,11 @@ class MyApp extends StatelessWidget {
                   ),
                   textStyle: MaterialStateProperty.all(Theme.of(context)
                       .textTheme
-                      .titleLarge!
+                      .headline6!
                       .copyWith(color: Colors.white)))),
           textTheme: const TextTheme(
-            displaySmall: TextStyle(color: Colors.black),
-            headlineMedium:
+            headline3: TextStyle(color: Colors.black),
+            headline4:
                 TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           primaryColor: Colors.blue,

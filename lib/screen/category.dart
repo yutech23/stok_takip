@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/bloc/bloc_categorty.dart';
 import 'package:stok_takip/screen/drawer.dart';
@@ -41,7 +42,8 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text("Kategori Ekranı"),
+      appBar: AppBar(
+          title: const Text("Kategori Ekranı"),
           // ignore: prefer_const_literals_to_create_immutables
           actions: [
             const ShareWidgetAppbarSetting(),

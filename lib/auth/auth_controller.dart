@@ -41,7 +41,7 @@ class AuthController {
         print("role nedir : $role");
       } else if (AuthChangeEvent.tokenRefreshed == event) {
         Session? userSession = data.session;
-        db.supabase.auth.setSession(userSession!.refreshToken!);
+        // db.supabase.auth.setSession(userSession!.refreshToken!);
         isAuth = true;
       } else if (AuthChangeEvent.passwordRecovery == event) {
         resetPasswordButtonActive = true;

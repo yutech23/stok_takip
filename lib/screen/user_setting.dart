@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/screen/drawer.dart';
 import 'package:stok_takip/utilities/share_func.dart';
@@ -10,8 +11,9 @@ import '../utilities/dimension_font.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'package:crypto/crypto.dart';
 
+
 class ScreenUserSetting extends StatefulWidget {
-  ScreenUserSetting({Key? key}) : super(key: key);
+  const ScreenUserSetting({super.key});
 
   @override
   State<ScreenUserSetting> createState() => _ScreenUserSettingState();

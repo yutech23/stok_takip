@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_stream_builder/multiple_stream_builder.dart';
 import 'package:stok_takip/data/database_helper.dart';
@@ -5,16 +6,17 @@ import 'package:searchfield/searchfield.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Test extends StatefulWidget {
-  const Test({super.key});
+
+class ScreenTest extends StatefulWidget {
+  const ScreenTest({super.key});
 
   @override
-  State<Test> createState() => _TestState();
+  State<ScreenTest> createState() => _ScreenTestState();
 }
 
 String sum = "none";
 
-class _TestState extends State<Test> {
+class _ScreenTestState extends State<ScreenTest> {
   ValueNotifier<double> valueNotifierProductBuyWithoutTax =
       ValueNotifier<double>(0);
   ValueNotifier<double> valueNotifierPaid = ValueNotifier<double>(0);
