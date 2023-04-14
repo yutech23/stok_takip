@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:stok_takip/models/user.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:turkish/turkish.dart';
 
 import '../data/database_helper.dart';
@@ -68,12 +67,16 @@ class BlocUsers {
     _streamControllerAllUsers.add(_searchUsersList);
   }
 
+  ///Şifre Resetleme işlemleri  yapılan kodlar (Şuanlık kkullanılmıyor)
   Future<String> resetPassword(String userEmail) async {
     return await db.updateResetPassword(userEmail);
   }
 
-  updateUser(Kullanici updateUser) async {
-    db.updateUserInfoForUsersDataBase(updateUser);
+  ///Güncellenme işlemi.
+  Future<String> updateUser(Kullanici updateUser) async {
+    final res = await db.updateUserInfoForUsersDataBase(updateUser);
     getAllUsers();
+
+    return res;
   }
 }

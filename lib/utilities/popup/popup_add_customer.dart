@@ -398,15 +398,6 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     );
   }
 
-  ///Deprecated Sadece Türkçe numara için özel widget yapısı.
-  widgetPhoneNumber() {
-    return Container(
-      child: shareWidget.widgetTextFormFieldPhone(
-          controllerPhoneNumber: _controllerPhoneNumber,
-          validateFunc: validateNotEmpty),
-    );
-  }
-
   String? dialCode;
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {

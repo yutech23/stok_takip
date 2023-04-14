@@ -12,7 +12,7 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> main() async {
-  usePathUrlStrategy();
+  setUrlStrategy(PathUrlStrategy());
   WidgetsFlutterBinding.ensureInitialized();
   await DbHelper.dbBaslat();
   await dbHive.initDbHive(Sabitler.dbHiveBoxName);
@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
                   ),
                   textStyle: MaterialStateProperty.all(Theme.of(context)
                       .textTheme
-                      .headline6!
+                      .titleLarge!
                       .copyWith(color: Colors.white)))),
           textTheme: const TextTheme(
             headline3: TextStyle(color: Colors.black),
@@ -104,7 +104,7 @@ class MyApp extends StatelessWidget {
 
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
         // if (authController.role == '') const RouteLogin(),
-        if (authController.role == '1') const RouteUsers(),
+        if (authController.role == '1') const RouteCustomerRegister(),
         if (authController.role == '2') const RouteSale()
       ]),
       // AutoRouterDelegate(_appRouter,initialRoutes: [const RouteCariSupplier()]),

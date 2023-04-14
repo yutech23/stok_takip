@@ -1,21 +1,14 @@
-import 'dart:js';
-
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:phone_form_field/phone_form_field.dart';
-import 'package:stok_takip/utilities/constants.dart';
-import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/formatter_iban.dart';
 import 'package:stok_takip/validations/validation.dart';
-import 'package:stok_takip/validations/validation_phone_number.dart';
 
 class ShareWidget with Validation {
   final String _labelIBANName = "IBAN Numarası";
-
+  final double _inputHeight = 55;
   //Widget - inputlar
-  TextFormField widgetTextFieldInput(
+  widgetTextFieldInput(
       {TextEditingController? controller,
       required String etiket,
       bool? karakterGostermeDurumu = false,
@@ -28,51 +21,32 @@ class ShareWidget with Validation {
       TextStyle? style
       // Color borderSideColor,
       }) {
-    return TextFormField(
-      onChanged: onChanged,
-      maxLength: maxCharacter,
-      obscureText: karakterGostermeDurumu!,
-      controller: controller,
-      validator: validationFunc,
-      style: style,
+    return SizedBox(
+      height: _inputHeight,
+      child: TextFormField(
+        onChanged: onChanged,
+        maxLength: maxCharacter,
+        obscureText: karakterGostermeDurumu!,
+        controller: controller,
+        validator: validationFunc,
+        style: style,
 
-      // autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-          counterText: "",
-          labelText: etiket,
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          )),
-      focusNode: FocusNode(skipTraversal: skipTravelFocusValue!),
-      keyboardType: keyboardInputType,
-      inputFormatters: inputFormat,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: InputDecoration(
+            isDense: true,
+            counterText: "",
+            labelText: etiket,
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            )),
+        focusNode: FocusNode(skipTraversal: skipTravelFocusValue!),
+        keyboardType: keyboardInputType,
+        inputFormatters: inputFormat,
+      ),
     );
   }
 
-  ///[Sadece Türkiye telefonu için ayarlanmış özeli format 5xx-xxx-xx-xx]
-  ///Widget -  Telefon numarası alanı ŞUAN KULLANILMIYOR AŞAĞIDAKİ KULLANILIYOR
-  TextFormField widgetTextFormFieldPhone(
-      {TextEditingController? controllerPhoneNumber,
-      String? Function(String?)? validateFunc,
-      String? intialNumber}) {
-    return TextFormField(
-      initialValue: intialNumber,
-      controller: controllerPhoneNumber,
-      keyboardType: TextInputType.phone,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp("[0-9,-]")),
-        CardFormatter(sample: 'xxx-xxx-xx-xx', separator: '-')
-      ],
-      decoration: const InputDecoration(
-          hintText: "5XX-XXX-XX-XX",
-          labelText: " Telefon numarınızı giriniz",
-          border: OutlineInputBorder()),
-      onFieldSubmitted: (value) => print(value.replaceAll(RegExp(r"[-]"), '')),
-      validator: validateFunc,
-    );
-  }
-
-/* //Aktif Telefon Numara giriş bölmü kullanılıyor
+  /* //Aktif Telefon Numara giriş bölmü kullanılıyor
   IntlPhoneField widgetIntlPhoneField(
       {TextEditingController? controllerPhoneNumber,
       Function(String?)? selectedCountryCode}) {
@@ -106,23 +80,27 @@ class ShareWidget with Validation {
   widgetPhoneFormField({
     PhoneController? controllerPhoneNumber,
   }) {
-    return PhoneFormField(
-        validator: (phoneNumber) {
-          if (phoneNumber?.nsn == null) {
-            return validateNotEmpty("");
-          } else {
-            return validateNotEmpty(phoneNumber?.nsn);
-          }
-        },
-        defaultCountry: IsoCode.TR,
-        isCountryChipPersistent: true,
-        autocorrect: false,
-        controller: controllerPhoneNumber,
-        decoration: const InputDecoration(
-            labelText: 'Telefon Numarısı Giriniz',
-            border: OutlineInputBorder(
-              borderSide: BorderSide(),
-            )));
+    return SizedBox(
+      height: _inputHeight,
+      child: PhoneFormField(
+          validator: (phoneNumber) {
+            if (phoneNumber?.nsn == null) {
+              return validateNotEmpty("");
+            } else {
+              return validateNotEmpty(phoneNumber?.nsn);
+            }
+          },
+          defaultCountry: IsoCode.TR,
+          isCountryChipPersistent: true,
+          autocorrect: false,
+          controller: controllerPhoneNumber,
+          decoration: const InputDecoration(
+              isDense: true,
+              labelText: 'Telefon Numarısı Giriniz',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(),
+              ))),
+    );
   }
 
   ///Elevated Button
@@ -137,25 +115,29 @@ class ShareWidget with Validation {
     );
   }
 
-  TextFormField widgetTextFieldIban({
+  widgetTextFieldIban({
     TextEditingController? controller,
     bool? focusValue = false,
     String? Function(String?)? validationFunc,
     TextInputType? keyboardInputType,
   }) {
-    return TextFormField(
-      maxLength: 32,
-      controller: controller,
-      validator: validationFunc,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-          counterText: "",
-          labelText: _labelIBANName,
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          )),
-      focusNode: FocusNode(skipTraversal: focusValue!),
-      inputFormatters: [FormatterIbanInput()],
+    return SizedBox(
+      height: _inputHeight,
+      child: TextFormField(
+        maxLength: 32,
+        controller: controller,
+        validator: validationFunc,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: InputDecoration(
+            isDense: true,
+            counterText: "",
+            labelText: _labelIBANName,
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            )),
+        focusNode: FocusNode(skipTraversal: focusValue!),
+        inputFormatters: [FormatterIbanInput()],
+      ),
     );
   }
 }

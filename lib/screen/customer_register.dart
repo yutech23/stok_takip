@@ -50,9 +50,6 @@ class _ScreenCustomerSave extends State with Validation {
   final String _labelSupplierName = "Tedarikçi İsmini Giriniz";
   final String _labelTC = "TC Kimlik Numarası giriniz";
 
-  final double _sectionCustomerSaveWidthMin = 360;
-  final double _sectionCustomerSaveWidthMax = 500;
-  final double _sectionHeight = 800;
   late List<dynamic> listCustomerRegister;
 
   String? _selectedCity;
@@ -78,7 +75,6 @@ class _ScreenCustomerSave extends State with Validation {
 /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   final List<Map<String, dynamic>> _selecteds = [];
-  final double _dataTableWidth = 700;
 
   final TextEditingController _controllerSearchCustomerName =
       TextEditingController();
@@ -305,35 +301,36 @@ class _ScreenCustomerSave extends State with Validation {
   buildCustomerRegister() {
     return Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: context.extensionThemaGreyContainer(),
-            alignment: Alignment.center,
-            child: SingleChildScrollView(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: context.extensionWrapSpacing10(),
-                runSpacing: context.extensionWrapSpacing10(),
-                children: [
-                  ///Müşteri Tablosu Bulunduğu yer.
-                  Container(
-                    width: _dataTableWidth,
-                    height: _sectionHeight,
-                    padding: context.extensionPadding20(),
-                    decoration: context.extensionThemaWhiteContainer(),
-                    child: widgetDateTable(),
-                  ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: context.extensionThemaGreyContainer(),
+          alignment: Alignment.center,
+          child: SingleChildScrollView(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: context.extensionWrapSpacing10(),
+              runSpacing: context.extensionWrapSpacing10(),
+              children: [
+                ///Müşteri Tablosu Bulunduğu yer.
+                Container(
+                  height: dimension.heightSection,
+                  padding: context.extensionPadding20(),
+                  decoration: context.extensionThemaWhiteContainer(),
+                  child: widgetDateTable(),
+                ),
 
-                  ///Müşteri Kayıt Bölümü
-                  Column(
+                ///Müşteri Kayıt Bölümü
+                SizedBox(
+                  width: dimension.widthSideSection,
+                  height: dimension.heightSection,
+                  child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
+                      ///Yeni Müşteri Ekle Buttonu
                       Container(
-                        constraints: BoxConstraints(
-                            minWidth: _sectionCustomerSaveWidthMin,
-                            maxWidth: _sectionCustomerSaveWidthMax),
+                        width: dimension.widthSideSection,
                         height: 40,
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
@@ -383,73 +380,90 @@ class _ScreenCustomerSave extends State with Validation {
                           })),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(15),
-                                bottomRight: Radius.circular(15)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.5),
-                                  blurRadius: 8)
-                            ]),
-                        constraints: BoxConstraints(
-                            minWidth: _sectionCustomerSaveWidthMin,
-                            maxWidth: _sectionCustomerSaveWidthMax),
-                        height: _sectionHeight - 40,
-                        child: Column(children: [
-                          const Divider(),
-                          widgetDropdownSelectCustomerType(),
-                          widgetListCustomerInformationInput(),
-                          widgetRowCityAndDistrict(),
-                          const Divider(),
-                          _customerType != "Şahıs"
-                              ? widgetTaxOfficeAndTaxCodeInfo()
-                              : const SizedBox(),
-                          _customerType != "Şahıs"
-                              ? const Divider()
-                              : const SizedBox(),
-                          _customerType != "Şahıs"
-                              ? widgetCargoCompanyAndCargoCode()
-                              : const SizedBox(),
-                          _customerType != "Şahıs"
-                              ? const Divider()
-                              : const SizedBox(),
-                          Visibility(
-                            visible: _isNewCustomerSaveButton,
-                            child: widgetCustomerSaveButton(),
-                          ),
-                          Visibility(
-                            visible: _isUpdateButton,
-                            child: widgetCustomerUpdateButton(),
-                          ),
-                        ]),
+
+                      ///Müşteri Ekleme Bölümü
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15)),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.5),
+                                    blurRadius: 8)
+                              ]),
+                          child: Column(children: [
+                            const Divider(
+                              height: 10,
+                            ),
+                            widgetDropdownSelectCustomerType(),
+                            widgetListCustomerInformationInput(),
+                            widgetRowCityAndDistrict(),
+                            const Divider(
+                              height: 10,
+                            ),
+                            _customerType != "Şahıs"
+                                ? widgetTaxOfficeAndTaxCodeInfo()
+                                : const SizedBox(
+                                    height: 10,
+                                  ),
+                            _customerType != "Şahıs"
+                                ? const Divider()
+                                : const SizedBox(
+                                    height: 10,
+                                  ),
+                            _customerType != "Şahıs"
+                                ? widgetCargoCompanyAndCargoCode()
+                                : const SizedBox(
+                                    height: 10,
+                                  ),
+                            _customerType != "Şahıs"
+                                ? const Divider(
+                                    height: 10,
+                                  )
+                                : const SizedBox(
+                                    height: 10,
+                                  ),
+                            Visibility(
+                              visible: _isNewCustomerSaveButton,
+                              child: widgetCustomerSaveButton(),
+                            ),
+                            Visibility(
+                              visible: _isUpdateButton,
+                              child: widgetCustomerUpdateButton(),
+                            ),
+                          ]),
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ));
   }
 
-  ShareDropdown widgetDropdownSelectCustomerType() {
-    return ShareDropdown(
-        hint: "Müşteri Tipini Seçiniz.",
-        itemList: customerTypeitems,
-        selectValue: _customerType,
-        getShareDropdownCallbackFunc: _getCustomerType,
-        isDisable: _isDisableCustomerType);
+  widgetDropdownSelectCustomerType() {
+    return SizedBox(
+      height: 40,
+      child: ShareDropdown(
+          hint: "Müşteri Tipini Seçiniz.",
+          itemList: customerTypeitems,
+          selectValue: _customerType,
+          getShareDropdownCallbackFunc: _getCustomerType,
+          isDisable: _isDisableCustomerType),
+    );
   }
 
   /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
   widgetDateTable() {
     return SizedBox(
-      width: _dataTableWidth,
+      width: dimension.widthTableSection,
       child: Card(
         margin: const EdgeInsets.only(top: 5),
         elevation: 5,
@@ -467,6 +481,8 @@ class _ScreenCustomerSave extends State with Validation {
                 selecteds: _selecteds,
                 expanded: _blocCustomerRegister.getterDatatableExpanded,
                 autoHeight: false,
+                skipFocusNode: true,
+                rowHeight: 40,
                 actions: [
                   Expanded(
                       child: TextField(
@@ -583,6 +599,7 @@ class _ScreenCustomerSave extends State with Validation {
           return Center(child: listCustomerRegister[index]);
         }),
         separatorBuilder: (context, index) => const Divider(
+              height: 10,
               color: Colors.transparent,
             ));
   }
@@ -595,48 +612,53 @@ class _ScreenCustomerSave extends State with Validation {
             titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold)),
       ),
-      child: DropdownSearch<String>(
-        asyncItems: (value) => db.getCities(value),
-        selectedItem: _selectedCity,
-        popupProps: const PopupProps.menu(
-          menuProps: MenuProps(
-            elevation: 50,
+      child: SizedBox(
+        height: dimension.heightInputTextAnDropdown50,
+        child: DropdownSearch<String>(
+          asyncItems: (value) => db.getCities(value),
+          selectedItem: _selectedCity,
+          popupProps: const PopupProps.menu(
+            menuProps: MenuProps(
+              elevation: 50,
+            ),
+            showSearchBox: true,
+            showSelectedItems: true,
+            searchFieldProps: TextFieldProps(
+                autofocus: true,
+                decoration: InputDecoration(
+                    isDense: true,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.black,
+                      size: 35,
+                    ))),
           ),
-          showSearchBox: true,
-          showSelectedItems: true,
-          searchFieldProps: TextFieldProps(
-              autofocus: true,
-              decoration: InputDecoration(
-                  prefixIcon: Icon(
-                Icons.search_rounded,
-                color: Colors.black,
-                size: 35,
-              ))),
-        ),
-        dropdownDecoratorProps: DropDownDecoratorProps(
-          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          dropdownSearchDecoration: InputDecoration(
-              hintText: "İl Seçiniz",
-              hintStyle: context.theme.titleLarge!
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1))),
-        ),
-        onChanged: (value) {
-          _selectedCity = value;
-          setState(() {
-            if (!_visibleDistrict) {
-              _visibleDistrict = true;
-            }
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            baseStyle: const TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            dropdownSearchDecoration: InputDecoration(
+                isDense: true,
+                hintText: "İl Seçiniz",
+                hintStyle: context.theme.titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+                enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 1))),
+          ),
+          onChanged: (value) {
+            _selectedCity = value;
+            setState(() {
+              if (!_visibleDistrict) {
+                _visibleDistrict = true;
+              }
 
-            GetKeys.keyDistrict.currentState
-                ?.changeSelectedItem("İlçe Seçiniz");
-          });
-        },
+              GetKeys.keyDistrict.currentState
+                  ?.changeSelectedItem("İlçe Seçiniz");
+            });
+          },
+        ),
       ),
     );
   }
@@ -649,41 +671,47 @@ class _ScreenCustomerSave extends State with Validation {
             titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold)),
       ),
-      child: DropdownSearch<String>(
-        enabled: _visibleDistrict,
-        asyncItems: (value) => db.getDistricts(value, _selectedCity!),
-        selectedItem: _selectDistrict,
-        popupProps: const PopupProps.menu(
-          menuProps: MenuProps(
-            elevation: 50,
+      child: SizedBox(
+        height: dimension.heightInputTextAnDropdown50,
+        child: DropdownSearch<String>(
+          enabled: _visibleDistrict,
+          asyncItems: (value) => db.getDistricts(value, _selectedCity!),
+          selectedItem: _selectDistrict,
+          popupProps: const PopupProps.menu(
+            menuProps: MenuProps(
+              elevation: 50,
+            ),
+            showSearchBox: true,
+            showSelectedItems: true,
+            searchFieldProps: TextFieldProps(
+                autofocus: true,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    isDense: true,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.black,
+                      size: 35,
+                    ))),
           ),
-          showSearchBox: true,
-          showSelectedItems: true,
-          searchFieldProps: TextFieldProps(
-              autofocus: true,
-              decoration: InputDecoration(
-                  prefixIcon: Icon(
-                Icons.search_rounded,
-                color: Colors.black,
-                size: 35,
-              ))),
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            baseStyle: const TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            dropdownSearchDecoration: InputDecoration(
+                isDense: true,
+                hintText: "İlk Önce İl Seçiniz",
+                hintStyle: context.theme.titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+                enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 1))),
+          ),
+          onChanged: (value) {
+            _selectDistrict = value;
+          },
         ),
-        dropdownDecoratorProps: DropDownDecoratorProps(
-          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          dropdownSearchDecoration: InputDecoration(
-              hintText: "İlk Önce İl Seçiniz",
-              hintStyle: context.theme.titleLarge!
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1))),
-        ),
-        onChanged: (value) {
-          _selectDistrict = value;
-        },
       ),
     );
   }
@@ -701,43 +729,16 @@ class _ScreenCustomerSave extends State with Validation {
             Expanded(child: widgetSearchDropdownDistrict()),
           ],
         ),
-        const Divider(color: Colors.transparent),
+        const Divider(
+          color: Colors.transparent,
+          height: 10,
+        ),
 
         ///Adres giriş bölümü
-        TextFormField(
-          controller: _controllerAddress,
-          // validator: validateAddress,
-          decoration: InputDecoration(
-              counterText: "",
-              labelText: _labelAddress,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              )),
-        ),
-      ],
-    );
-  }
-
-  //İl ve İlçe Satır Fonksiyonu
-  widgetRowCityAndDistrictColumn() {
-    return Column(
-      children: [
-        widgetSearchDropdownCities(),
-        context.extensionHighSizedBox10(),
-        widgetSearchDropdownDistrict(),
-        const Divider(color: Colors.transparent),
-
-        ///Adres giriş bölümü
-        TextFormField(
-          controller: _controllerAddress,
-          validator: validateAddress,
-          decoration: InputDecoration(
-              counterText: "",
-              labelText: _labelAddress,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              )),
-        ),
+        shareWidget.widgetTextFieldInput(
+            controller: _controllerAddress,
+            validationFunc: validateAddress,
+            etiket: _labelAddress),
       ],
     );
   }
@@ -750,40 +751,45 @@ class _ScreenCustomerSave extends State with Validation {
             titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold)),
       ),
-      child: DropdownSearch<String>(
-        asyncItems: (value) => db.getTaxOfficeList(value, _selectedCity!),
-        selectedItem: _selectedTaxOffice,
-        popupProps: const PopupProps.menu(
-          menuProps: MenuProps(
-            elevation: 50,
+      child: SizedBox(
+        height: dimension.heightInputTextAnDropdown50,
+        child: DropdownSearch<String>(
+          asyncItems: (value) => db.getTaxOfficeList(value, _selectedCity!),
+          selectedItem: _selectedTaxOffice,
+          popupProps: const PopupProps.menu(
+            menuProps: MenuProps(
+              elevation: 50,
+            ),
+            showSearchBox: true,
+            showSelectedItems: true,
+            searchFieldProps: TextFieldProps(
+                autofocus: true,
+                decoration: InputDecoration(
+                    isDense: true,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.black,
+                      size: 35,
+                    ))),
           ),
-          showSearchBox: true,
-          showSelectedItems: true,
-          searchFieldProps: TextFieldProps(
-              autofocus: true,
-              decoration: InputDecoration(
-                  prefixIcon: Icon(
-                Icons.search_rounded,
-                color: Colors.black,
-                size: 35,
-              ))),
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            baseStyle: const TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            dropdownSearchDecoration: InputDecoration(
+                isDense: true,
+                hintText: "Vergi Dairesi",
+                hintStyle: context.theme.titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+                enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 1))),
+          ),
+          onChanged: (value) {
+            _selectedTaxOffice = value;
+          },
         ),
-        dropdownDecoratorProps: DropDownDecoratorProps(
-          baseStyle: const TextStyle(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          dropdownSearchDecoration: InputDecoration(
-              hintText: "Vergi Dairesini Seçiniz",
-              hintStyle: context.theme.titleLarge!
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-              enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 1))),
-        ),
-        onChanged: (value) {
-          _selectedTaxOffice = value;
-        },
       ),
     );
   }
@@ -797,10 +803,11 @@ class _ScreenCustomerSave extends State with Validation {
         Expanded(
             child: shareWidget.widgetTextFieldInput(
                 controller: _controllerTaxNumber,
-                etiket: "Vergi Numaranızı Giriniz",
+                etiket: "Vergi Numarası",
                 skipTravelFocusValue: false,
                 karakterGostermeDurumu: false,
                 maxCharacter: 11,
+                style: context.theme.titleSmall,
                 validationFunc: validateTaxNumber,
                 inputFormat: [
               FilteringTextInputFormatter.allow(RegExp("[0-9]"))
@@ -867,16 +874,16 @@ class _ScreenCustomerSave extends State with Validation {
       children: [
         Expanded(
           child: shareWidget.widgetTextFieldInput(
-            controller: _controllerCargoName,
-            etiket: "Kargo Firma Adını Giriniz",
-          ),
+              controller: _controllerCargoName,
+              etiket: "Kargo Firma Adı",
+              style: context.theme.titleSmall),
         ),
         context.extensionWidhSizedBox20(),
         Expanded(
           child: shareWidget.widgetTextFieldInput(
-            controller: _controllerCargoCode,
-            etiket: "Kargo Kodu Giriniz",
-          ),
+              controller: _controllerCargoCode,
+              etiket: "Kargo Kodu",
+              style: context.theme.titleSmall),
         ),
       ],
     );
@@ -887,6 +894,7 @@ class _ScreenCustomerSave extends State with Validation {
 //Country Telefon Numarası widget Search kısmına autoFocus Eklendi Kütüphaneden
   widgetCountryPhoneNumber() {
     return Container(
+      // height: dimension.heightSection,
       child: shareWidget.widgetPhoneFormField(
         controllerPhoneNumber: _phoneController,
       ),
@@ -894,369 +902,320 @@ class _ScreenCustomerSave extends State with Validation {
   }
 
   widgetCustomerSaveButton() {
-    return ElevatedButton(
-        onPressed: () async {
-          setState(() {
-            if (_formKey.currentState!.validate()) {
-              if (_customerType == 'Şahıs') {
-                _customer = Customer.soleTrader(
-                  soleTraderName: _controllerName.text,
-                  soleTraderLastName: _controllerLastName.text,
-                  countryCode: _phoneController.value!.countryCode,
-                  phone: _phoneController.value!.nsn,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  address: _controllerAddress.text,
-                  TCno: _controllerTC.text,
-                );
-
-                db.saveCustomerSoleTrader(_customer!).then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-
-                    _controllerAddress.clear();
-                    _controllerTC.clear();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
-                    _blocCustomerRegister.getAllCustomer();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
-                  } else {
-                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
-                  }
-                });
-
-                ///Firma Kaydetme İşlemi
-              } else if (_customerType == 'Firma') {
-                _customer = Customer.company(
-                    companyName: _controllerCompanyName.text,
+    return SizedBox(
+      width: double.infinity,
+      height: dimension.heightInputTextAnDropdown40,
+      child: ElevatedButton(
+          onPressed: () async {
+            setState(() {
+              if (_formKey.currentState!.validate()) {
+                if (_customerType == 'Şahıs') {
+                  _customer = Customer.soleTrader(
+                    soleTraderName: _controllerName.text,
+                    soleTraderLastName: _controllerLastName.text,
                     countryCode: _phoneController.value!.countryCode,
                     phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
+                    TCno: _controllerTC.text,
+                  );
 
-                db.saveCustomerCompany(_customer!).then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-                    _controllerAddress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
-                    _blocCustomerRegister.getAllCustomer();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                  db.saveCustomerSoleTrader(_customer!).then((resValue) {
+                    if (resValue.isEmpty) {
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+
+                      _controllerAddress.clear();
+                      _controllerTC.clear();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+                      _blocCustomerRegister.getAllCustomer();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError(
+                          "Kayıt Başarısız :\n $resValue", 2);
+                    }
+                  });
+
+                  ///Firma Kaydetme İşlemi
+                } else if (_customerType == 'Firma') {
+                  _customer = Customer.company(
+                      companyName: _controllerCompanyName.text,
+                      countryCode: _phoneController.value!.countryCode,
+                      phone: _phoneController.value!.nsn,
+                      city: _selectedCity,
+                      district: _selectDistrict,
+                      address: _controllerAddress.text,
+                      taxOffice: _selectedTaxOffice,
+                      taxNumber: _controllerTaxNumber.text,
+                      cargoName: _controllerCargoName.text,
+                      cargoNumber: _controllerCargoCode.text);
+
+                  db.saveCustomerCompany(_customer!).then((resValue) {
+                    if (resValue.isEmpty) {
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+                      _controllerAddress.clear();
+                      _controllerTaxNumber.clear();
+                      _controllerCargoName.clear();
+                      _controllerCargoCode.clear();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+                      _blocCustomerRegister.getAllCustomer();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError(
+                          "Kayıt Başarısız :\n $resValue", 2);
+                    }
+                  });
+
+                  ///Tedarikçi Kaydetme işlemi
+                } else if (_customerType == 'Tedarikçi') {
+                  String? iban;
+                  if (_controllerIban.text.length > 2) {
+                    iban = _controllerIban.text.replaceAll(" ", "");
                   } else {
-                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
+                    iban = null;
                   }
-                });
+                  _customer = Customer.supplier(
+                      supplierName: _controllerSupplierName.text,
+                      bankName: _controllerBankName.text,
+                      iban: iban,
+                      countryCode: _phoneController.value!.countryCode,
+                      phone: _phoneController.value!.nsn,
+                      city: _selectedCity,
+                      district: _selectDistrict,
+                      address: _controllerAddress.text,
+                      taxOffice: _selectedTaxOffice,
+                      taxNumber: _controllerTaxNumber.text,
+                      cargoName: _controllerCargoName.text,
+                      cargoNumber: _controllerCargoCode.text);
 
-                ///Tedarikçi Kaydetme işlemi
-              } else if (_customerType == 'Tedarikçi') {
-                String? iban;
-                if (_controllerIban.text.length > 2) {
-                  iban = _controllerIban.text.replaceAll(" ", "");
-                } else {
-                  iban = null;
+                  db.saveSuppliers(_customer!).then((resValue) {
+                    if (resValue.isEmpty) {
+                      _controllerSupplierName.clear();
+                      _controllerBankName.clear();
+                      _controllerIban.clear();
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+                      _controllerAddress.clear();
+                      _controllerTaxNumber.clear();
+                      _controllerCargoName.clear();
+                      _controllerCargoCode.clear();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+                      _blocCustomerRegister.getAllCustomer();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError(
+                          "Kayıt Başarısız :\n $resValue", 2);
+                    }
+                  });
+                } else if (_customerType == null) {
+                  context.extensionShowErrorSnackBar(
+                      message: "Lütfen Firma Türünü Seçiniz");
                 }
-                _customer = Customer.supplier(
-                    supplierName: _controllerSupplierName.text,
-                    bankName: _controllerBankName.text,
-                    iban: iban,
-                    countryCode: _phoneController.value!.countryCode,
-                    phone: _phoneController.value!.nsn,
-                    city: _selectedCity,
-                    district: _selectDistrict,
-                    address: _controllerAddress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
 
-                db.saveSuppliers(_customer!).then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerSupplierName.clear();
-                    _controllerBankName.clear();
-                    _controllerIban.clear();
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-                    _controllerAddress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
-                    _blocCustomerRegister.getAllCustomer();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
-                  } else {
-                    context.noticeBarError("Kayıt Başarısız :\n $resValue", 2);
-                  }
-                });
-              } else if (_customerType == null) {
-                context.extensionShowErrorSnackBar(
-                    message: "Lütfen Firma Türünü Seçiniz");
+                /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
+                /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
+                /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
+                /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
+                /// dönen değer 1 eşitleniyor.
               }
-
-              /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
-              /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
-              /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
-              /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
-              /// dönen değer 1 eşitleniyor.
-            }
-          });
-        },
-        child: Container(
-          alignment: Alignment.center,
-          height: 50,
-          // ignore: prefer_const_constructors
+            });
+          },
           child: Text(
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20),
+            style: context.theme.titleMedium!.copyWith(color: Colors.white),
             _labelNewCustomerSave,
-          ),
-        ));
+          )),
+    );
   }
 
   ///Güncelleme Button bölümü
   widgetCustomerUpdateButton() {
-    return ElevatedButton(
-        onPressed: () async {
-          setState(() {
-            if (_formKey.currentState!.validate()) {
-              ///Şahıs Veri Güncelleme
-              if (_customerType == 'Şahıs') {
-                _customer = Customer.soleTrader(
-                  soleTraderName: _controllerName.text,
-                  soleTraderLastName: _controllerLastName.text,
-                  countryCode: _phoneController.value!.countryCode,
-                  phone: _phoneController.value!.nsn,
-                  city: _selectedCity,
-                  district: _selectDistrict,
-                  address: _controllerAddress.text,
-                  TCno: _controllerTC.text,
-                );
-
-                db
-                    .updateCustomerSoleTrader(_customer!,
-                        customerId: _customerId)
-                    .then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
-                    _controllerAddress.clear();
-                    _controllerTC.clear();
-
-                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
-                    ///veriler çekiliyor.
-                    _blocCustomerRegister.getAllCustomer();
-                    _controllerSearchCustomerName.clear();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
-                  } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
-                  }
-                });
-
-                ///Firma Veri Güncelleme
-              } else if (_customerType == 'Firma') {
-                _customer = Customer.company(
-                    companyName: _controllerCompanyName.text,
+    return SizedBox(
+      height: dimension.heightInputTextAnDropdown50,
+      child: ElevatedButton(
+          onPressed: () async {
+            setState(() {
+              if (_formKey.currentState!.validate()) {
+                ///Şahıs Veri Güncelleme
+                if (_customerType == 'Şahıs') {
+                  _customer = Customer.soleTrader(
+                    soleTraderName: _controllerName.text,
+                    soleTraderLastName: _controllerLastName.text,
                     countryCode: _phoneController.value!.countryCode,
                     phone: _phoneController.value!.nsn,
                     city: _selectedCity,
                     district: _selectDistrict,
                     address: _controllerAddress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
+                    TCno: _controllerTC.text,
+                  );
 
-                db
-                    .updateCustomerCompany(_customer!, customerId: _customerId)
-                    .then((resValue) {
-                  if (resValue.isEmpty) {
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-                    _controllerAddress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
-                    _phoneController.reset();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
+                  db
+                      .updateCustomerSoleTrader(_customer!,
+                          customerId: _customerId)
+                      .then((resValue) {
+                    if (resValue.isEmpty) {
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+                      _controllerAddress.clear();
+                      _controllerTC.clear();
 
-                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
-                    ///veriler çekiliyor.
-                    _blocCustomerRegister.getAllCustomer();
-                    _controllerSearchCustomerName.clear();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
+                      ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                      ///veriler çekiliyor.
+                      _blocCustomerRegister.getAllCustomer();
+                      _controllerSearchCustomerName.clear();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError("Kayıt Başarısız", 2);
+                    }
+                  });
+
+                  ///Firma Veri Güncelleme
+                } else if (_customerType == 'Firma') {
+                  _customer = Customer.company(
+                      companyName: _controllerCompanyName.text,
+                      countryCode: _phoneController.value!.countryCode,
+                      phone: _phoneController.value!.nsn,
+                      city: _selectedCity,
+                      district: _selectDistrict,
+                      address: _controllerAddress.text,
+                      taxOffice: _selectedTaxOffice,
+                      taxNumber: _controllerTaxNumber.text,
+                      cargoName: _controllerCargoName.text,
+                      cargoNumber: _controllerCargoCode.text);
+
+                  db
+                      .updateCustomerCompany(_customer!,
+                          customerId: _customerId)
+                      .then((resValue) {
+                    if (resValue.isEmpty) {
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+                      _controllerAddress.clear();
+                      _controllerTaxNumber.clear();
+                      _controllerCargoName.clear();
+                      _controllerCargoCode.clear();
+                      _phoneController.reset();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+
+                      ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                      ///veriler çekiliyor.
+                      _blocCustomerRegister.getAllCustomer();
+                      _controllerSearchCustomerName.clear();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError("Kayıt Başarısız", 2);
+                    }
+                  });
+
+                  /// tedarikçi veri Güncelleme
+                } else if (_customerType == 'Tedarikçi') {
+                  String? iban;
+                  if (_controllerIban.text.length > 2) {
+                    iban = _controllerIban.text.replaceAll(" ", "");
                   } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
+                    iban = null;
                   }
-                });
+                  _customer = Customer.supplier(
+                      supplierName: _controllerSupplierName.text,
+                      bankName: _controllerBankName.text,
+                      iban: iban,
+                      countryCode: _phoneController.value!.countryCode,
+                      phone: _phoneController.value!.nsn,
+                      city: _selectedCity,
+                      district: _selectDistrict,
+                      address: _controllerAddress.text,
+                      taxOffice: _selectedTaxOffice,
+                      taxNumber: _controllerTaxNumber.text,
+                      cargoName: _controllerCargoName.text,
+                      cargoNumber: _controllerCargoCode.text);
 
-                /// tedarikçi veri Güncelleme
-              } else if (_customerType == 'Tedarikçi') {
-                String? iban;
-                if (_controllerIban.text.length > 2) {
-                  iban = _controllerIban.text.replaceAll(" ", "");
-                } else {
-                  iban = null;
+                  db
+                      .updateSuppliers(_customer!, customerId: _customerId)
+                      .then((value) {
+                    if (value.isEmpty) {
+                      _controllerSupplierName.clear();
+                      _controllerBankName.clear();
+                      _controllerIban.clear();
+                      _controllerName.clear();
+                      _controllerLastName.clear();
+                      _controllerCompanyName.clear();
+                      _phoneController.reset();
+                      _controllerAddress.clear();
+                      _controllerTaxNumber.clear();
+                      _controllerCargoName.clear();
+                      _controllerCargoCode.clear();
+                      _phoneController.reset();
+                      setState(() {
+                        _selectDistrict = null;
+                        _selectedCity = null;
+                        _selectedTaxOffice = null;
+                      });
+
+                      ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
+                      ///veriler çekiliyor.
+                      _blocCustomerRegister.getAllCustomer();
+                      _controllerSearchCustomerName.clear();
+                      context.noticeBarTrue("Kayıt Başarılı", 2);
+                    } else {
+                      context.noticeBarError("Kayıt Başarısız", 2);
+                    }
+                  });
+                } else if (_customerType == null) {
+                  context.extensionShowErrorSnackBar(
+                      message: "Lütfen Firma Türünü Seçiniz");
                 }
-                _customer = Customer.supplier(
-                    supplierName: _controllerSupplierName.text,
-                    bankName: _controllerBankName.text,
-                    iban: iban,
-                    countryCode: _phoneController.value!.countryCode,
-                    phone: _phoneController.value!.nsn,
-                    city: _selectedCity,
-                    district: _selectDistrict,
-                    address: _controllerAddress.text,
-                    taxOffice: _selectedTaxOffice,
-                    taxNumber: _controllerTaxNumber.text,
-                    cargoName: _controllerCargoName.text,
-                    cargoNumber: _controllerCargoCode.text);
 
-                db
-                    .updateSuppliers(_customer!, customerId: _customerId)
-                    .then((value) {
-                  if (value.isEmpty) {
-                    _controllerSupplierName.clear();
-                    _controllerBankName.clear();
-                    _controllerIban.clear();
-                    _controllerName.clear();
-                    _controllerLastName.clear();
-                    _controllerCompanyName.clear();
-                    _phoneController.reset();
-                    _controllerAddress.clear();
-                    _controllerTaxNumber.clear();
-                    _controllerCargoName.clear();
-                    _controllerCargoCode.clear();
-                    _phoneController.reset();
-                    setState(() {
-                      _selectDistrict = null;
-                      _selectedCity = null;
-                      _selectedTaxOffice = null;
-                    });
-
-                    ///Güncellemeden sonra değişiklik ekrana yansıması için tekrar
-                    ///veriler çekiliyor.
-                    _blocCustomerRegister.getAllCustomer();
-                    _controllerSearchCustomerName.clear();
-                    context.noticeBarTrue("Kayıt Başarılı", 2);
-                  } else {
-                    context.noticeBarError("Kayıt Başarısız", 2);
-                  }
-                });
-              } else if (_customerType == null) {
-                context.extensionShowErrorSnackBar(
-                    message: "Lütfen Firma Türünü Seçiniz");
+                /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
+                /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
+                /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
+                /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
+                /// dönen değer 1 eşitleniyor.
               }
-
-              /// save yapar iken Firma Türü seçilmediğinde veya eksik validate
-              /// olduğunda doldurulan değerleri sıfırlıyor. var responce; degeri
-              /// ataması yapıldığında database değer dönmediğinde gene Null oluyor.
-              /// buda sıfırlama yapıyor. Bu yüzden int? degeri belirlenmesi ve database
-              /// dönen değer 1 eşitleniyor.
-            }
-          });
-        },
-        child: Container(
-          alignment: Alignment.center,
-          height: 50,
-          // ignore: prefer_const_constructors
-          child: Text(
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20),
-            _labelUpdate,
-          ),
-        ));
-  }
-
-  ///Silme popup bölümü
-  popupDelete(
-      Map<String?, dynamic> serviceId, TextEditingController controllerSearch) {
-    return AlertDialog(
-      title: Text('UYARI',
-          textAlign: TextAlign.center,
-          style:
-              context.theme.titleLarge!.copyWith(fontWeight: FontWeight.bold)),
-      alignment: Alignment.center,
-      content: Text(_header,
-          style:
-              context.theme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
-      actionsAlignment: MainAxisAlignment.spaceEvenly,
-      actions: <Widget>[
-        SizedBox(
-          width: 100,
-          height: 30,
-          child: ElevatedButton(
-              onPressed: () async {
-                ///Stok bitmeden silmeyi engelliyor.
-
-                String res =
-                    await _blocCustomerRegister.deleteCustomer(serviceId);
-                if (res.isEmpty) {
-                  controllerSearch.clear();
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context);
-                  // ignore: use_build_context_synchronously
-                  await context.noticeBarTrue("İşlem başarılı.", 2);
-
-                  // ignore: use_build_context_synchronously
-                } else {
-                  // ignore: use_build_context_synchronously
-                  context.noticeBarError("Hata $res", 3);
-                }
-              },
-              child: Text(_yesText,
-                  style:
-                      context.theme.titleSmall!.copyWith(color: Colors.white))),
-        ),
-        SizedBox(
-          width: 100,
-          height: 30,
-          child: ElevatedButton(
-            child: Text("İptal",
-                style: context.theme.titleSmall!.copyWith(color: Colors.white)),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ],
+            });
+          },
+          child: Container(
+            alignment: Alignment.center,
+            height: 50,
+            // ignore: prefer_const_constructors
+            child: Text(
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20),
+              _labelUpdate,
+            ),
+          )),
     );
   }
 

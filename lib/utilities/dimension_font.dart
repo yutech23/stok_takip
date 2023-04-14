@@ -165,3 +165,14 @@ extension CapExtension on String {
   String get inCaps => '${this[0].toUpperCase()}${substring(1)}';
   String get allInCaps => toUpperCase();
 }
+
+class Dimension {
+  final double widthTableSection = 830;
+  final double heightSection = 720;
+  final double paddingTable = 20;
+  final double widthSideSection = 360;
+  final double heightInputTextAnDropdown50 = 50;
+  final double heightInputTextAnDropdown40 = 40;
+}
+
+Dimension dimension = Dimension();

@@ -2087,7 +2087,7 @@ class DbHelper {
   ///Reset Password
   Future<String> updateResetPassword(String userEmail) async {
     try {
-      final data = await db.supabase.auth.resetPasswordForEmail(userEmail,
+      await db.supabase.auth.resetPasswordForEmail(userEmail,
           redirectTo: sabitler.resetPasswordPath);
 
       return "";
@@ -2102,25 +2102,28 @@ class DbHelper {
       //Kullanıcı Role Kaydı
       final roleIdJson = await db.supabase
           .from('roles')
-          .select('role_id')
-          .eq('role_type', userInfo.role);
+          .select('id')
+          .eq('type', userInfo.role)
+          .single();
 
-      /*   print(userInfo.name);
+      /*
+       print(roleIdJson['id']);
+       print(userInfo.name);
       print(userInfo.lastName);
       print(userInfo.isPartner);
       print(userInfo.status);
       print(userInfo.isActiveUser);
       print(userInfo.id);
-      print(roleIdJson[0]['role_id']); */
-      final res = db.supabase.from('users').update({
+      print(roleIdJson['id']); */
+      await db.supabase.from('users').update({
         'name': userInfo.name,
         'last_name': userInfo.lastName,
         'partner': userInfo.isPartner,
         'status': userInfo.status,
         'active_user': userInfo.isActiveUser,
-        'role': roleIdJson[0]['role_id']
+        'role': roleIdJson['id']
       }).eq('id', userInfo.id);
-      // print("deger : $res");
+
       return "";
     } on PostgrestException catch (e) {
       debugPrint("HATA Kullanıcı Bilgi Güncelleme : ${e.message}");

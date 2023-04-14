@@ -112,8 +112,8 @@ mixin Validation {
   String? validateAddress(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı boş bırakmayınız';
-    } else if (value.length <= 9) {
-      return '10 haneden küçük olamaz';
+    } else if (value.length <= 5) {
+      return '5 haneden küçük olamaz';
     }
     return null;
   }

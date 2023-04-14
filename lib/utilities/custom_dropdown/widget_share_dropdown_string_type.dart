@@ -30,7 +30,7 @@ class ShareDropdown extends StatelessWidget {
       dropdownMenuitemList.add(DropdownMenuItem(
           value: item,
           child: Container(
-            height: 50,
+            height: 40,
             alignment: Alignment.center,
             child: Text(item),
           )));
@@ -63,7 +63,7 @@ class ShareDropdown extends StatelessWidget {
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1),
         hint: Container(
-          height: 50,
+          height: 40,
           alignment: Alignment.center,
           child: Text(hint,
               style: context.theme.bodyMedium!.copyWith(
@@ -75,7 +75,7 @@ class ShareDropdown extends StatelessWidget {
         icon: const Icon(
           Icons.arrow_drop_down_circle_sharp,
           color: Colors.white,
-          size: 30,
+          size: 20,
         ),
         isExpanded: true,
         isDense: true,
