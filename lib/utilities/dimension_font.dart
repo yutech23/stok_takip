@@ -97,6 +97,9 @@ extension DimensionFont on BuildContext {
           boxShadow: const [
             BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
           ]);
+
+  List<BoxShadow> extensionBoxShadow() =>
+      [const BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)];
   dynamic extensionGetPercentageOfNumber(dynamic number, dynamic percentage) =>
       number * (1 + percentage / 100);
 

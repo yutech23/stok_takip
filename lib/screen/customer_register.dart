@@ -305,8 +305,8 @@ class _ScreenCustomerSave extends State with Validation {
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: context.extensionThemaGreyContainer(),
           alignment: Alignment.center,
+          decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
             child: Wrap(
               alignment: WrapAlignment.center,

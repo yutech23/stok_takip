@@ -235,7 +235,6 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         key: _formKeyCari,
         child: Container(
           width: MediaQuery.of(context).size.width,
-          alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
               child: Container(
