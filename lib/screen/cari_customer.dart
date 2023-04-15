@@ -33,7 +33,6 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   final _formKeyCari = GlobalKey<FormState>();
   late double _screenWidth;
   final double _shareMinWidth = 360;
-  final double _shareMaxWidth = 1200;
   final double _shareHeightInputTextField = 40;
   final String _labelHeading = "Müşteri Cari Ekranı";
   final String _labelInvoice = "Fatura No";
@@ -63,8 +62,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
-  final double _dataTableWidth = 745;
-  final double _dataTableHeight = 580;
+  final double _heightTableDesktop = 560;
+  final double _heightTableMobil = 470;
 /*------------------------------------------------------------------------- */
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
 
@@ -77,7 +76,6 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   final String _bankCard = "Kart İle Ödenen Tutar";
   final String _labelPaymentInfo = "Ödeme Bilgileri";
   final String _labelGetPay = "Ödeme Al";
-  final String _labelPay = "Ödeme Yap";
 
 /*--------------------------------------------------------------------------- */
   /*------------ BAŞLANGIÇ - PARABİRİMİ SEÇİMİ------------------- */
@@ -250,6 +248,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
+          alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
               child: Wrap(
@@ -257,57 +256,66 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
             spacing: context.extensionWrapSpacing10(),
             runSpacing: context.extensionWrapSpacing10(),
             children: [
-              Container(
-                width: dimension.widthTableSection,
-                height: dimension.heightSection,
-                padding: context.extensionPadding20(),
-                decoration: context.extensionThemaWhiteContainer(),
-                child: Wrap(
-                    alignment: WrapAlignment.center,
-                    runSpacing: context.extensionWrapSpacing10(),
-                    spacing: context.extensionWrapSpacing20(),
-                    direction: Axis.horizontal,
-                    children: [
-                      Column(mainAxisSize: MainAxisSize.min, children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          runSpacing: context.extensionWrapSpacing10(),
-                          spacing: 25,
-                          children: [
-                            //Tarih Bölümü Seçme
-                            widgetRangeSelectDateTime(),
-                            //Fatura Kodu ile Arama Bölümü
-                            Wrap(
-                              direction: Axis.vertical,
-                              verticalDirection: VerticalDirection.down,
-                              alignment: WrapAlignment.center,
-                              spacing: context.extensionWrapSpacing20(),
-                              runSpacing: context.extensionWrapSpacing10(),
-                              children: [
-                                widgetSearchFieldInvoice(),
-                              ],
-                            ),
-                          ],
-                        ),
-                        context.extensionHighSizedBox10(),
-                        widgetGetCariByName(),
-                        context.extensionHighSizedBox10(),
-                        widgetDateTable(),
-                      ]),
-                    ]),
-              ),
+              _screenWidth <= 500
+                  ? widgetMobilMainSection()
+                  : widgetDesktopMainSection(),
               widgetPaymentInformationSection()
             ],
           )),
         ));
   }
 
+  Container widgetDesktopMainSection() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Column(mainAxisSize: MainAxisSize.max, children: [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            widgetRangeSelectDateTime(),
+            context.extensionWidhSizedBox20(),
+            //Fatura Kodu ile Arama Bölümü
+            widgetSearchFieldInvoice(),
+          ],
+        ),
+        context.extensionHighSizedBox10(),
+        widgetGetCariByNameDesktop(),
+        context.extensionHighSizedBox10(),
+        widgetDateTable(),
+      ]),
+    );
+  }
+
+  Container widgetMobilMainSection() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          direction: Axis.horizontal,
+          runSpacing: 10,
+          children: [
+            widgetRangeSelectDateTime(),
+            widgetSearchFieldInvoice(),
+            widgetGetCariByNameMobil(),
+            widgetDateTable(),
+          ]),
+    );
+  }
+
   ///Fatura no ile arama
   widgetSearchFieldInvoice() {
     return SizedBox(
-      width: _screenWidth <= 450 ? _shareMinWidth : 400,
-      height: _shareHeightInputTextField,
-      child: Row(children: [
+      width: _screenWidth <= 500
+          ? dimension.widthMobilButtonAndTextfield
+          : dimension.widthMainSectionInsideHalfOfTheRow,
+      height: dimension.heightInputTextAnDropdown40,
+      child: Row(mainAxisSize: MainAxisSize.max, children: [
         Expanded(
             child: shareWidget.widgetTextFieldInput(
                 controller: _controllerInvoiceNo, etiket: _labelInvoice)),
@@ -329,9 +337,12 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   ///Zaman Aralı Seçildiği yer
   widgetRangeSelectDateTime() {
     return SizedBox(
-      width: _shareMinWidth,
-      height: _shareHeightInputTextField,
+      width: _screenWidth <= 500
+          ? dimension.widthMobilButtonAndTextfield
+          : dimension.widthMainSectionInsideHalfOfTheRow,
+      height: dimension.heightInputTextAnDropdown40,
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
           shareWidgetSaveDateTimeTextFormField(
               _controllerStartDate, _labelStartDate, (value) {
@@ -394,86 +405,152 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   }
 
   ///isim ile cari getirme
-  widgetGetCariByName() {
-    return SizedBox(
-        width: dimension.widthTableSection,
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 10,
-          runSpacing: 10,
-          direction: Axis.horizontal,
-          runAlignment: WrapAlignment.center,
-          children: [
-            StreamBuilder<List<Map<String, String>>>(
-                stream: _blocCari.getStreamAllCustomer,
-                builder: (context, snapshot) {
-                  List<SearchFieldListItem<String>> listSearch =
-                      <SearchFieldListItem<String>>[];
-                  listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+  widgetGetCariByNameDesktop() {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        StreamBuilder<List<Map<String, String>>>(
+            stream: _blocCari.getStreamAllCustomer,
+            builder: (context, snapshot) {
+              List<SearchFieldListItem<String>> listSearch =
+                  <SearchFieldListItem<String>>[];
+              listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
 
-                  if (snapshot.hasData && !snapshot.hasError) {
-                    listSearch.clear();
+              if (snapshot.hasData && !snapshot.hasError) {
+                listSearch.clear();
 
-                    for (var element in snapshot.data!) {
-                      listSearch.add(SearchFieldListItem(
-                          "${element['type']} - ${element['name']!}",
-                          item: element['type']));
-                    }
-                  }
-                  return SizedBox(
-                    width: _screenWidth <= 450 ? 360 : 595,
-                    child: SearchField(
-                      itemHeight: _searchByNameItemHeight,
-                      searchInputDecoration: InputDecoration(
-                          isDense: true,
-                          errorBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(),
-                          ),
-                          label: Text(_labelSearchCustomerName),
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.black),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(),
-                          )),
-                      controller: _controllerSearchByName,
-                      suggestions: listSearch,
-                      focusNode: _focusSearchCustomer,
-                      searchStyle: const TextStyle(
-                        fontSize: 14,
-                        overflow: TextOverflow.fade,
+                for (var element in snapshot.data!) {
+                  listSearch.add(SearchFieldListItem(
+                      "${element['type']} - ${element['name']!}",
+                      item: element['type']));
+                }
+              }
+              return Expanded(
+                child: SearchField(
+                  itemHeight: _searchByNameItemHeight,
+                  searchInputDecoration: InputDecoration(
+                      isDense: true,
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
                       ),
-                      onSuggestionTap: (p0) {
-                        ///Her şeçimde müşteri bilgileri atanıyor.
-                        List<String> convertMap = p0.searchKey.split(' - ');
+                      label: Text(_labelSearchCustomerName),
+                      prefixIcon: const Icon(Icons.search, color: Colors.black),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      )),
+                  controller: _controllerSearchByName,
+                  suggestions: listSearch,
+                  focusNode: _focusSearchCustomer,
+                  searchStyle: const TextStyle(
+                    fontSize: 14,
+                    overflow: TextOverflow.fade,
+                  ),
+                  onSuggestionTap: (p0) {
+                    ///Her şeçimde müşteri bilgileri atanıyor.
+                    List<String> convertMap = p0.searchKey.split(' - ');
 
-                        if (convertMap[0] == 'Şahıs') {
-                          _blocCari.setterSelectedCustomer = {
-                            'type': convertMap[0],
-                            'name': convertMap[1],
-                            'phone': convertMap[2].split(' ')[1]
-                          };
-                        } else {
-                          _blocCari.setterSelectedCustomer = {
-                            'type': convertMap[0],
-                            'name': convertMap[1],
-                            'phone': convertMap[2].split(' ')[1]
-                          };
-                        }
-                        _focusSearchCustomer.unfocus();
-                      },
-                      maxSuggestionsInViewPort: 6,
-                    ),
-                  );
-                }),
-            widgetButtonCariGetir(),
-          ],
-        ));
+                    if (convertMap[0] == 'Şahıs') {
+                      _blocCari.setterSelectedCustomer = {
+                        'type': convertMap[0],
+                        'name': convertMap[1],
+                        'phone': convertMap[2].split(' ')[1]
+                      };
+                    } else {
+                      _blocCari.setterSelectedCustomer = {
+                        'type': convertMap[0],
+                        'name': convertMap[1],
+                        'phone': convertMap[2].split(' ')[1]
+                      };
+                    }
+                    _focusSearchCustomer.unfocus();
+                  },
+                  maxSuggestionsInViewPort: 6,
+                ),
+              );
+            }),
+        context.extensionWidhSizedBox20(),
+        widgetButtonCariGetir(),
+      ],
+    );
+  }
+
+  ///isim ile cari getirme
+  widgetGetCariByNameMobil() {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        StreamBuilder<List<Map<String, String>>>(
+            stream: _blocCari.getStreamAllCustomer,
+            builder: (context, snapshot) {
+              List<SearchFieldListItem<String>> listSearch =
+                  <SearchFieldListItem<String>>[];
+              listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+
+              if (snapshot.hasData && !snapshot.hasError) {
+                listSearch.clear();
+
+                for (var element in snapshot.data!) {
+                  listSearch.add(SearchFieldListItem(
+                      "${element['type']} - ${element['name']!}",
+                      item: element['type']));
+                }
+              }
+              return SizedBox(
+                width: dimension.widthMobilButtonAndTextfield,
+                height: dimension.heightInputTextAnDropdown50,
+                child: SearchField(
+                  itemHeight: _searchByNameItemHeight,
+                  searchInputDecoration: InputDecoration(
+                      isDense: true,
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      ),
+                      label: Text(_labelSearchCustomerName),
+                      prefixIcon: const Icon(Icons.search, color: Colors.black),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(),
+                      )),
+                  controller: _controllerSearchByName,
+                  suggestions: listSearch,
+                  focusNode: _focusSearchCustomer,
+                  searchStyle: const TextStyle(
+                    fontSize: 14,
+                    overflow: TextOverflow.fade,
+                  ),
+                  onSuggestionTap: (p0) {
+                    ///Her şeçimde müşteri bilgileri atanıyor.
+                    List<String> convertMap = p0.searchKey.split(' - ');
+
+                    if (convertMap[0] == 'Şahıs') {
+                      _blocCari.setterSelectedCustomer = {
+                        'type': convertMap[0],
+                        'name': convertMap[1],
+                        'phone': convertMap[2].split(' ')[1]
+                      };
+                    } else {
+                      _blocCari.setterSelectedCustomer = {
+                        'type': convertMap[0],
+                        'name': convertMap[1],
+                        'phone': convertMap[2].split(' ')[1]
+                      };
+                    }
+                    _focusSearchCustomer.unfocus();
+                  },
+                  maxSuggestionsInViewPort: 6,
+                ),
+              );
+            }),
+        context.extensionHighSizedBox10(),
+        widgetButtonCariGetir(),
+      ],
+    );
   }
 
   ///Button Cari Getir
   widgetButtonCariGetir() {
     return SizedBox(
-      width: (_screenWidth >= 450) ? 180 : 360,
+      width: _screenWidth <= 500 ? dimension.widthMobilButtonAndTextfield : 180,
       height: _shareHeightInputTextField,
       child: ElevatedButton.icon(
           icon: const Icon(Icons.format_list_bulleted_sharp),
@@ -510,8 +587,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   ///cari Liste tablosu
   widgetDateTable() {
     return SizedBox(
-      width: dimension.widthTableSection,
-      height: 550,
+      width: dimension.widthTable,
+      height: _screenWidth <= 500 ? _heightTableMobil : _heightTableDesktop,
       child: Card(
         margin: const EdgeInsets.only(top: 5),
         elevation: 5,
@@ -1187,5 +1264,9 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
       );
       return pdf.save();
     }));
+  }
+
+  getResponseWidth() {
+    double currentWidth = MediaQuery.of(context).size.width;
   }
 }

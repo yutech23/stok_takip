@@ -315,6 +315,7 @@ class _ScreenCustomerSave extends State with Validation {
               children: [
                 ///Müşteri Tablosu Bulunduğu yer.
                 Container(
+                  width: dimension.widthMainSection,
                   height: dimension.heightSection,
                   padding: context.extensionPadding20(),
                   decoration: context.extensionThemaWhiteContainer(),
@@ -462,129 +463,125 @@ class _ScreenCustomerSave extends State with Validation {
 
   /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
   widgetDateTable() {
-    return SizedBox(
-      width: dimension.widthTableSection,
-      child: Card(
-        margin: const EdgeInsets.only(top: 5),
-        elevation: 5,
-        shadowColor: Colors.black,
-        clipBehavior: Clip.none,
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _blocCustomerRegister.getStremAllCustomer,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && !snapshot.hasError) {}
+    return Card(
+      margin: const EdgeInsets.only(top: 5),
+      elevation: 5,
+      shadowColor: Colors.black,
+      clipBehavior: Clip.none,
+      child: StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _blocCustomerRegister.getStremAllCustomer,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {}
 
-              return ResponsiveDatatable(
-                reponseScreenSizes: const [ScreenSize.xs],
-                headers: _headers,
-                source: snapshot.data,
-                selecteds: _selecteds,
-                expanded: _blocCustomerRegister.getterDatatableExpanded,
-                autoHeight: false,
-                skipFocusNode: true,
-                rowHeight: 40,
-                actions: [
-                  Expanded(
-                      child: TextField(
-                    controller: _controllerSearchCustomerName,
-                    onChanged: (value) {
-                      _blocCustomerRegister.searchList(value);
-                    },
-                    decoration: InputDecoration(
-                      hintText: _labelSearchHint,
-                      prefixIcon: const Icon(Icons.search),
-                    ),
-                  ))
-                ],
-                dropContainer: (value) {
-                  if (value['type'] == "Şahıs") {
-                    return Container(
-                        padding: const EdgeInsets.all(10),
-                        color: Colors.grey.shade100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            widgetRichTextDetail(_labelTcNo, value['tc_no']),
-                            widgetRichTextDetail(_labelAddress,
-                                "${value['address']} \n ${value['city']}/${value['district']}"),
-                          ],
-                        ));
-                  } else if (value['type'] == "Firma") {
-                    return Container(
-                        padding: const EdgeInsets.all(10),
-                        color: Colors.grey.shade100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                widgetRichTextDetail(
-                                    _labelTaxNumber, value['tax_number']),
-                                widgetRichTextDetail(
-                                    _labelTaxOffice, value['tax_office']),
-                                widgetRichTextDetail(_labelAddress,
-                                    "${value['address']} \n ${value['city']}/${value['district']}"),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                widgetRichTextDetail(
-                                    _labelCargoCompany, value['cargo_company']),
-                                widgetRichTextDetail(
-                                    _labelCargoNo, value['cargo_number']),
-                              ],
-                            )
-                          ],
-                        ));
-                  } else {
-                    return Container(
-                        padding: const EdgeInsets.all(10),
-                        color: Colors.grey.shade100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                widgetRichTextDetail(
-                                    _labelTaxNumber, value['tax_number']),
-                                widgetRichTextDetail(
-                                    _labelTaxOffice, value['tax_office']),
-                                widgetRichTextDetail(_labelAddress,
-                                    "${value['address']} \n ${value['city']}/${value['district']}"),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                widgetRichTextDetail(
-                                    _labelCargoCompany, value['cargo_company']),
-                                widgetRichTextDetail(
-                                    _labelCargoNo, value['cargo_number']),
-                                widgetRichTextDetail(
-                                    _labelDropdownBankName, value['bank_name']),
-                                widgetRichTextDetail(_labelIban, value['iban']),
-                              ],
-                            )
-                          ],
-                        ));
-                  }
-                },
-                sortAscending: true,
-                headerDecoration: BoxDecoration(
-                    color: Colors.blueGrey.shade900,
-                    border: const Border(
-                        bottom: BorderSide(color: Colors.red, width: 1))),
-                selectedDecoration: const BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
-                  color: Colors.green,
-                ),
-                headerTextStyle:
-                    context.theme.titleMedium!.copyWith(color: Colors.white),
-                rowTextStyle: context.theme.titleSmall,
-                selectedTextStyle: const TextStyle(color: Colors.grey),
-              );
-            }),
-      ),
+            return ResponsiveDatatable(
+              reponseScreenSizes: const [ScreenSize.xs],
+              headers: _headers,
+              source: snapshot.data,
+              selecteds: _selecteds,
+              expanded: _blocCustomerRegister.getterDatatableExpanded,
+              autoHeight: false,
+              skipFocusNode: true,
+              rowHeight: 40,
+              actions: [
+                Expanded(
+                    child: TextField(
+                  controller: _controllerSearchCustomerName,
+                  onChanged: (value) {
+                    _blocCustomerRegister.searchList(value);
+                  },
+                  decoration: InputDecoration(
+                    hintText: _labelSearchHint,
+                    prefixIcon: const Icon(Icons.search),
+                  ),
+                ))
+              ],
+              dropContainer: (value) {
+                if (value['type'] == "Şahıs") {
+                  return Container(
+                      padding: const EdgeInsets.all(10),
+                      color: Colors.grey.shade100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          widgetRichTextDetail(_labelTcNo, value['tc_no']),
+                          widgetRichTextDetail(_labelAddress,
+                              "${value['address']} \n ${value['city']}/${value['district']}"),
+                        ],
+                      ));
+                } else if (value['type'] == "Firma") {
+                  return Container(
+                      padding: const EdgeInsets.all(10),
+                      color: Colors.grey.shade100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              widgetRichTextDetail(
+                                  _labelTaxNumber, value['tax_number']),
+                              widgetRichTextDetail(
+                                  _labelTaxOffice, value['tax_office']),
+                              widgetRichTextDetail(_labelAddress,
+                                  "${value['address']} \n ${value['city']}/${value['district']}"),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              widgetRichTextDetail(
+                                  _labelCargoCompany, value['cargo_company']),
+                              widgetRichTextDetail(
+                                  _labelCargoNo, value['cargo_number']),
+                            ],
+                          )
+                        ],
+                      ));
+                } else {
+                  return Container(
+                      padding: const EdgeInsets.all(10),
+                      color: Colors.grey.shade100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              widgetRichTextDetail(
+                                  _labelTaxNumber, value['tax_number']),
+                              widgetRichTextDetail(
+                                  _labelTaxOffice, value['tax_office']),
+                              widgetRichTextDetail(_labelAddress,
+                                  "${value['address']} \n ${value['city']}/${value['district']}"),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              widgetRichTextDetail(
+                                  _labelCargoCompany, value['cargo_company']),
+                              widgetRichTextDetail(
+                                  _labelCargoNo, value['cargo_number']),
+                              widgetRichTextDetail(
+                                  _labelDropdownBankName, value['bank_name']),
+                              widgetRichTextDetail(_labelIban, value['iban']),
+                            ],
+                          )
+                        ],
+                      ));
+                }
+              },
+              sortAscending: true,
+              headerDecoration: BoxDecoration(
+                  color: Colors.blueGrey.shade900,
+                  border: const Border(
+                      bottom: BorderSide(color: Colors.red, width: 1))),
+              selectedDecoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                color: Colors.green,
+              ),
+              headerTextStyle:
+                  context.theme.titleMedium!.copyWith(color: Colors.white),
+              rowTextStyle: context.theme.titleSmall,
+              selectedTextStyle: const TextStyle(color: Colors.grey),
+            );
+          }),
     );
   }
 

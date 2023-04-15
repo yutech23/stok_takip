@@ -3,7 +3,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:stok_takip/bloc/bloc_users.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/format_lower_case_text_format.dart';
 import 'package:stok_takip/validations/format_upper_case_text_format.dart';
@@ -191,6 +190,7 @@ class _ScreenCustomerSave extends State with Validation {
               children: [
                 ///Müşteri Tablosu Bulunduğu yer.
                 Container(
+                  width: dimension.widthMainSection,
                   height: dimension.heightSection,
                   padding: context.extensionPadding20(),
                   decoration: context.extensionThemaWhiteContainer(),
@@ -339,55 +339,51 @@ class _ScreenCustomerSave extends State with Validation {
 
   /*--------------Müşteri Gösterme,Düzenleme, Silme Tablosu ---------------- */
   widgetDateTable() {
-    return SizedBox(
-      width: dimension.widthTableSection,
-      child: Card(
-        margin: const EdgeInsets.only(top: 5),
-        elevation: 5,
-        shadowColor: Colors.black,
-        clipBehavior: Clip.none,
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _blocUsers.getStremAllUsers,
-            builder: (context, snapshot) {
-              if (snapshot.hasData && !snapshot.hasError) {}
+    return Card(
+      margin: const EdgeInsets.only(top: 5),
+      elevation: 5,
+      shadowColor: Colors.black,
+      clipBehavior: Clip.none,
+      child: StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _blocUsers.getStremAllUsers,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {}
 
-              return ResponsiveDatatable(
-                reponseScreenSizes: const [ScreenSize.xs],
-                headers: _headers,
-                source: snapshot.data,
-                selecteds: _selecteds,
-                expanded: _blocUsers.getterDatatableExpanded,
-                autoHeight: false,
-                skipFocusNode: true,
-                actions: [
-                  Expanded(
-                      child: TextField(
-                    controller: _controllerSearchCustomerName,
-                    onChanged: (value) {
-                      _blocUsers.searchList(value);
-                    },
-                    decoration: InputDecoration(
-                      hintText: _labelSearchHint,
-                      prefixIcon: const Icon(Icons.search),
-                    ),
-                  ))
-                ],
-                headerDecoration: BoxDecoration(
-                    color: Colors.blueGrey.shade900,
-                    border: const Border(
-                        bottom: BorderSide(color: Colors.red, width: 1))),
-                selectedDecoration: const BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: Colors.red, width: 1)),
-                  color: Colors.green,
-                ),
-                headerTextStyle:
-                    context.theme.titleMedium!.copyWith(color: Colors.white),
-                rowTextStyle: context.theme.titleSmall,
-                selectedTextStyle: const TextStyle(color: Colors.grey),
-              );
-            }),
-      ),
+            return ResponsiveDatatable(
+              reponseScreenSizes: const [ScreenSize.xs],
+              headers: _headers,
+              source: snapshot.data,
+              selecteds: _selecteds,
+              expanded: _blocUsers.getterDatatableExpanded,
+              autoHeight: false,
+              skipFocusNode: true,
+              actions: [
+                Expanded(
+                    child: TextField(
+                  controller: _controllerSearchCustomerName,
+                  onChanged: (value) {
+                    _blocUsers.searchList(value);
+                  },
+                  decoration: InputDecoration(
+                    hintText: _labelSearchHint,
+                    prefixIcon: const Icon(Icons.search),
+                  ),
+                ))
+              ],
+              headerDecoration: BoxDecoration(
+                  color: Colors.blueGrey.shade900,
+                  border: const Border(
+                      bottom: BorderSide(color: Colors.red, width: 1))),
+              selectedDecoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.red, width: 1)),
+                color: Colors.green,
+              ),
+              headerTextStyle:
+                  context.theme.titleMedium!.copyWith(color: Colors.white),
+              rowTextStyle: context.theme.titleSmall,
+              selectedTextStyle: const TextStyle(color: Colors.grey),
+            );
+          }),
     );
   }
 

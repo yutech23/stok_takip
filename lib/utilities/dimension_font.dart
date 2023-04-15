@@ -170,12 +170,15 @@ extension CapExtension on String {
 }
 
 class Dimension {
-  final double widthTableSection = 830;
+  final double widthMainSection = 870;
   final double heightSection = 720;
-  final double paddingTable = 20;
+  final double paddingMainAndSide = 20;
   final double widthSideSection = 360;
   final double heightInputTextAnDropdown50 = 50;
   final double heightInputTextAnDropdown40 = 40;
+  final double widthMainSectionInsideHalfOfTheRow = 405;
+  final double widthTable = 840;
+  final double widthMobilButtonAndTextfield = 340;
 }
 
 Dimension dimension = Dimension();
