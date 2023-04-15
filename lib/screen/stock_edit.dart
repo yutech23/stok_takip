@@ -18,7 +18,6 @@ import '../models/category.dart';
 import '../models/product.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
-import '../utilities/convert_string_currency_digits.dart';
 import '../utilities/custom_dropdown/widget_dropdown_map_type.dart';
 import '../utilities/custom_dropdown/widget_share_dropdown_string_type.dart';
 import '../utilities/share_widgets.dart';
@@ -28,7 +27,6 @@ import '../validations/format_decimal_limit.dart';
 import '../validations/format_upper_case_text_format.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
-
 
 class ScreenStockEdit extends StatefulWidget {
   const ScreenStockEdit({Key? key}) : super(key: key);
@@ -40,7 +38,7 @@ class ScreenStockEdit extends StatefulWidget {
 class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final double _shareHeight = 50;
+  final double _shareHeight = 55;
   final double _shareWidth = 250;
 
   late final List<Map<int, String>> _category1;
@@ -193,7 +191,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
   late List<Map<String, dynamic>> _sourceProductTableFiltreRange;
 
   late List<List<Map<String, dynamic>>> _sourceList;
-
+  final double _heightTableDesktop = 510;
   static bool _editState = false;
   int _status = 0;
   int _totalNumberOfProduct = 0;
@@ -412,18 +410,24 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         key: _formKey,
         child: Container(
           width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
               child: Container(
-            constraints: const BoxConstraints(minWidth: 360, maxWidth: 1000),
+            constraints: BoxConstraints(
+                minWidth: 360,
+                maxWidth:
+                    dimension.widthMainSection + dimension.widthSideSection),
+            height: dimension.heightSection,
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Column(
               children: [
                 Text(
                   "KATEGORİ FİLTRE",
-                  style: context.theme.headlineMedium,
+                  style: context.theme.headlineSmall!
+                      .copyWith(color: Colors.grey.shade600),
                 ),
                 const Divider(),
                 widgetCategoryFiltreSection(),
@@ -636,9 +640,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(0),
-      constraints: const BoxConstraints(
-        maxHeight: 600,
-      ),
+      height: _heightTableDesktop,
       child: Card(
         elevation: 5,
         shadowColor: Colors.black,
@@ -1084,6 +1086,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         widgetSaveDateTimeTextFormField(setState),
 
                         widgetSearchTextFieldSupplier(),
+                        Spacer(),
                         widgetDividerHeader(_paymentSections),
                         widgetPaymentOptions(
                             controllerProductAmountOfStockNewValue,
@@ -2126,7 +2129,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           ),
         ),
         Text(header,
-            style: context.theme.headline6!.copyWith(
+            style: context.theme.titleLarge!.copyWith(
                 color: context.extensionDefaultColor,
                 fontWeight: FontWeight.bold)),
         Expanded(

@@ -177,7 +177,7 @@ class Dimension {
   final double heightInputTextAnDropdown50 = 50;
   final double heightInputTextAnDropdown40 = 40;
   final double widthMainSectionInsideHalfOfTheRow = 405;
-  final double widthTable = 840;
+  final double widthTable = 830;
   final double widthMobilButtonAndTextfield = 340;
 }
 

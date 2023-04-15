@@ -11,6 +11,7 @@ import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/popup/popup_cari_supplier_payment.dart';
 import 'package:stok_takip/utilities/share_widgets.dart';
+import 'package:stok_takip/validations/format_upper_case_text_format.dart';
 import '../modified_lib/datatable_header.dart';
 import '../modified_lib/responsive_datatable.dart';
 import '../utilities/share_func.dart';
@@ -34,7 +35,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   final _formKeyCari = GlobalKey<FormState>();
   late double _screenWidth;
   final double _shareMinWidth = 360;
-  final double _shareMaxWidth = 1200;
+
   final double _shareHeightInputTextField = 40;
   final String _labelHeading = "Tedarikçi Cari Ekranı";
   final String _labelInvoice = "Fatura No";
@@ -64,8 +65,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
-  final double _dataTableWidth = 745;
-  final double _dataTableHeight = 710;
+  final double _heightTableDesktop = 560;
+  final double _heightTableMobil = 470;
 /*------------------------------------------------------------------------- */
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
 
@@ -235,61 +236,81 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
         key: _formKeyCari,
         child: Container(
           width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
-              child: Container(
-            constraints: BoxConstraints(
-                minWidth: _shareMinWidth, maxWidth: _shareMaxWidth),
-            padding: context.extensionPadding20(),
-            decoration: context.extensionThemaWhiteContainer(),
-            child: Wrap(
-                alignment: WrapAlignment.center,
-                runSpacing: context.extensionWrapSpacing10(),
-                spacing: context.extensionWrapSpacing20(),
-                direction: Axis.horizontal,
-                children: [
-                  Column(children: [
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      runSpacing: context.extensionWrapSpacing10(),
-                      spacing: 25,
-                      children: [
-                        //Tarih Bölümü Seçme
-                        widgetRangeSelectDateTime(),
-                        //Fatura Kodu ile Arama Bölümü
-                        Wrap(
-                          direction: Axis.vertical,
-                          verticalDirection: VerticalDirection.down,
-                          alignment: WrapAlignment.center,
-                          spacing: context.extensionWrapSpacing20(),
-                          runSpacing: context.extensionWrapSpacing10(),
-                          children: [
-                            widgetSearchFieldInvoice(),
-                          ],
-                        ),
-                      ],
-                    ),
-                    context.extensionHighSizedBox10(),
-                    widgetGetCariByName(),
-                    context.extensionHighSizedBox10(),
-                    widgetDateTable(),
-                  ]),
-                  widgetPaymentInformationSection()
-                ]),
+              child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: context.extensionWrapSpacing10(),
+            runSpacing: context.extensionWrapSpacing10(),
+            children: [
+              _screenWidth <= 500
+                  ? widgetMainSectionMobil()
+                  : widgetMainSectionDesktop(),
+              widgetPaymentInformationSection()
+            ],
           )),
         ));
+  }
+
+  Container widgetMainSectionDesktop() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Column(mainAxisSize: MainAxisSize.max, children: [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            widgetRangeSelectDateTime(),
+            context.extensionWidhSizedBox20(),
+            //Fatura Kodu ile Arama Bölümü
+            widgetSearchFieldInvoice(),
+          ],
+        ),
+        context.extensionHighSizedBox10(),
+        widgetGetCariByName(),
+        context.extensionHighSizedBox10(),
+        widgetDateTable(),
+      ]),
+    );
+  }
+
+  Container widgetMainSectionMobil() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          direction: Axis.horizontal,
+          runSpacing: 10,
+          children: [
+            widgetRangeSelectDateTime(),
+            widgetSearchFieldInvoice(),
+            widgetGetCariByNameMobil(),
+            widgetDateTable(),
+          ]),
+    );
   }
 
   ///Fatura no ile arama
   widgetSearchFieldInvoice() {
     return SizedBox(
-      width: _shareMinWidth,
-      height: _shareHeightInputTextField,
-      child: Row(children: [
+      width: _screenWidth <= 500
+          ? dimension.widthMobilButtonAndTextfield
+          : dimension.widthMainSectionInsideHalfOfTheRow,
+      height: dimension.heightInputTextAnDropdown40,
+      child: Row(mainAxisSize: MainAxisSize.max, children: [
         Expanded(
             child: shareWidget.widgetTextFieldInput(
-                controller: _controllerInvoiceNo, etiket: _labelInvoice)),
-        context.extensionWidhSizedBox10(),
+                controller: _controllerInvoiceNo,
+                etiket: _labelInvoice,
+                inputFormat: [FormatterUpperCaseTextFormatter()])),
+        context.extensionWidhSizedBox20(),
         SizedBox(
           width: 180,
           child: ElevatedButton.icon(
@@ -308,8 +329,10 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   ///Zaman Aralı Seçildiği yer
   widgetRangeSelectDateTime() {
     return SizedBox(
-      width: _shareMinWidth,
-      height: _shareHeightInputTextField,
+      width: _screenWidth <= 500
+          ? dimension.widthMobilButtonAndTextfield
+          : dimension.widthMainSectionInsideHalfOfTheRow,
+      height: dimension.heightInputTextAnDropdown40,
       child: Row(
         children: [
           shareWidgetDateTimeTextFormField(
@@ -375,77 +398,127 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
 
   ///isim ile cari getirme
   widgetGetCariByName() {
-    return SizedBox(
-        width: _dataTableWidth,
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 10,
-          runSpacing: 10,
-          direction: Axis.horizontal,
-          runAlignment: WrapAlignment.center,
-          children: [
-            StreamBuilder<List<Map<String, String>>>(
-                stream: _blocCariSupplier.getStreamSuppliers,
-                builder: (context, snapshot) {
-                  List<SearchFieldListItem<String>> listSearch =
-                      <SearchFieldListItem<String>>[];
-                  listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+    return Row(mainAxisSize: MainAxisSize.max, children: [
+      StreamBuilder<List<Map<String, String>>>(
+          stream: _blocCariSupplier.getStreamSuppliers,
+          builder: (context, snapshot) {
+            List<SearchFieldListItem<String>> listSearch =
+                <SearchFieldListItem<String>>[];
+            listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
 
-                  if (snapshot.hasData && !snapshot.hasError) {
-                    listSearch.clear();
+            if (snapshot.hasData && !snapshot.hasError) {
+              listSearch.clear();
 
-                    for (var element in snapshot.data!) {
-                      listSearch.add(SearchFieldListItem(element['name']!,
-                          item: element['phone']));
-                    }
-                  }
-                  return SizedBox(
-                    width: _screenWidth <= 450 ? 360 : 555,
-                    child: SearchField(
-                      itemHeight: _searchByNameItemHeight,
-                      searchInputDecoration: InputDecoration(
-                          isDense: true,
-                          errorBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(),
-                          ),
-                          label: Text(_labelSearchCustomerName),
-                          prefixIcon:
-                              const Icon(Icons.search, color: Colors.black),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(),
-                          )),
-                      controller: _controllerSearchByName,
-                      suggestions: listSearch,
-                      focusNode: _focusSearchSupplier,
-                      searchStyle: const TextStyle(
-                        fontSize: 14,
-                        overflow: TextOverflow.fade,
-                      ),
-                      onSuggestionTap: (p0) {
-                        ///Her şeçimde müşteri bilgileri atanıyor.
-                        List<String> convertMap = p0.searchKey.split(' - ');
-
-                        _blocCariSupplier.setterSelectedSupplier = {
-                          'name': convertMap[0],
-                          'phone': convertMap[1]
-                        };
-
-                        _focusSearchSupplier.unfocus();
-                      },
-                      maxSuggestionsInViewPort: 6,
+              for (var element in snapshot.data!) {
+                listSearch.add(SearchFieldListItem(element['name']!,
+                    item: element['phone']));
+              }
+            }
+            return Expanded(
+              child: SearchField(
+                itemHeight: _searchByNameItemHeight,
+                searchInputDecoration: InputDecoration(
+                    isDense: true,
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
                     ),
-                  );
-                }),
-            widgetButtonCariGetir(),
-          ],
-        ));
+                    label: Text(_labelSearchCustomerName),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    )),
+                controller: _controllerSearchByName,
+                suggestions: listSearch,
+                focusNode: _focusSearchSupplier,
+                searchStyle: const TextStyle(
+                  fontSize: 14,
+                  overflow: TextOverflow.fade,
+                ),
+                onSuggestionTap: (p0) {
+                  ///Her şeçimde müşteri bilgileri atanıyor.
+                  List<String> convertMap = p0.searchKey.split(' - ');
+
+                  _blocCariSupplier.setterSelectedSupplier = {
+                    'name': convertMap[0],
+                    'phone': convertMap[1]
+                  };
+
+                  _focusSearchSupplier.unfocus();
+                },
+                maxSuggestionsInViewPort: 6,
+              ),
+            );
+          }),
+      context.extensionWidhSizedBox20(),
+      widgetButtonCariGetir(),
+    ]);
+  }
+
+  ///isim ile cari getirme
+  widgetGetCariByNameMobil() {
+    return Column(mainAxisSize: MainAxisSize.max, children: [
+      StreamBuilder<List<Map<String, String>>>(
+          stream: _blocCariSupplier.getStreamSuppliers,
+          builder: (context, snapshot) {
+            List<SearchFieldListItem<String>> listSearch =
+                <SearchFieldListItem<String>>[];
+            listSearch.add(SearchFieldListItem("Veriler Yükleniyor"));
+
+            if (snapshot.hasData && !snapshot.hasError) {
+              listSearch.clear();
+
+              for (var element in snapshot.data!) {
+                listSearch.add(SearchFieldListItem(element['name']!,
+                    item: element['phone']));
+              }
+            }
+            return SizedBox(
+              width: dimension.widthMobilButtonAndTextfield,
+              height: dimension.heightInputTextAnDropdown50,
+              child: SearchField(
+                itemHeight: _searchByNameItemHeight,
+                searchInputDecoration: InputDecoration(
+                    isDense: true,
+                    errorBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    ),
+                    label: Text(_labelSearchCustomerName),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(),
+                    )),
+                controller: _controllerSearchByName,
+                suggestions: listSearch,
+                focusNode: _focusSearchSupplier,
+                searchStyle: const TextStyle(
+                  fontSize: 14,
+                  overflow: TextOverflow.fade,
+                ),
+                onSuggestionTap: (p0) {
+                  ///Her şeçimde müşteri bilgileri atanıyor.
+                  List<String> convertMap = p0.searchKey.split(' - ');
+
+                  _blocCariSupplier.setterSelectedSupplier = {
+                    'name': convertMap[0],
+                    'phone': convertMap[1]
+                  };
+
+                  _focusSearchSupplier.unfocus();
+                },
+                maxSuggestionsInViewPort: 6,
+              ),
+            );
+          }),
+      context.extensionHighSizedBox10(),
+      widgetButtonCariGetir(),
+    ]);
   }
 
   ///Button Cari Getir
   widgetButtonCariGetir() {
     return SizedBox(
-      width: (_screenWidth >= 450) ? 180 : 360,
-      height: _shareHeightInputTextField,
+      width: _screenWidth <= 500 ? dimension.widthMobilButtonAndTextfield : 180,
+      height: dimension.heightInputTextAnDropdown40,
       child: ElevatedButton.icon(
           icon: const Icon(Icons.format_list_bulleted_sharp),
           style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
@@ -481,8 +554,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   ///cari Liste tablosu
   widgetDateTable() {
     return SizedBox(
-      width: _dataTableWidth,
-      height: _dataTableHeight,
+      width: dimension.widthTable,
+      height: _screenWidth <= 500 ? _heightTableMobil : _heightTableDesktop,
       child: Card(
         margin: const EdgeInsets.only(top: 5),
         elevation: 5,
@@ -620,149 +693,150 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
   widgetPaymentInformationSection() {
     return SizedBox(
-      width: _shareMinWidth,
-      child: Card(
-        margin: EdgeInsets.zero,
-        elevation: 5,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
-          context.extensionHighSizedBox20(),
-          widgetSaveDateTimeTextFormField(),
-          const Divider(
-            color: Colors.grey,
-            thickness: 1.5,
-            endIndent: 20,
-            indent: 20,
-            height: 40,
+      width: dimension.widthSideSection,
+      height: dimension.heightSection,
+      child: Column(children: [
+        partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),
+        Expanded(
+            child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15)),
+              boxShadow: context.extensionBoxShadow()),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              widgetSaveDateTimeTextFormField(),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1.5,
+                endIndent: 20,
+                indent: 20,
+                height: 40,
+              ),
+              Container(child: widgetCurrencySelectSection()),
+              widgetPaymentOptionsTextFieldAndButton(),
+            ],
           ),
-          Container(child: widgetCurrencySelectSection()),
-          widgetPaymentOptionsTextFieldAndButton(),
-        ]),
-      ),
+        ))
+      ]),
     );
   }
 
   ///Ödeme verilerin alındığı yer.
   widgetPaymentOptionsTextFieldAndButton() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      alignment: Alignment.center,
-      width: _shareMinWidth,
-      height: 320,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        direction: Axis.vertical,
-        spacing: 10,
-        children: [
-          ///Nakit Ödeme
-          sharedTextFormField(
-            width: _shareMinWidth - 20,
-            labelText: _cash,
-            controller: _controllerCashValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                _blocCariSupplier.setPaymentCashValue(value);
-              } else {
-                _blocCariSupplier.setPaymentCashValue("0");
-              }
-            },
-          ),
-          //Bankakartı Ödeme Widget
-          sharedTextFormField(
-            width: _shareMinWidth - 20,
-            labelText: _bankCard,
-            controller: _controllerBankValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                _blocCariSupplier.setPaymentBankCardValue(value);
-              } else {
-                _blocCariSupplier.setPaymentBankCardValue("0");
-              }
-            },
-          ),
-          //EFTveHavale Ödeme Widget
-          sharedTextFormField(
-            width: _shareMinWidth - 20,
-            labelText: _eftHavale,
-            controller: _controllerEftHavaleValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                _blocCariSupplier.setPaymentEftHavaleValue(value);
-              } else {
-                _blocCariSupplier.setPaymentEftHavaleValue("0");
-              }
-            },
-          ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      direction: Axis.vertical,
+      spacing: 20,
+      children: [
+        ///Nakit Ödeme
+        sharedTextFormField(
+          labelText: _cash,
+          controller: _controllerCashValue,
+          onChanged: (value) {
+            if (value.isNotEmpty) {
+              _blocCariSupplier.setPaymentCashValue(value);
+            } else {
+              _blocCariSupplier.setPaymentCashValue("0");
+            }
+          },
+        ),
+        //Bankakartı Ödeme Widget
+        sharedTextFormField(
+          labelText: _bankCard,
+          controller: _controllerBankValue,
+          onChanged: (value) {
+            if (value.isNotEmpty) {
+              _blocCariSupplier.setPaymentBankCardValue(value);
+            } else {
+              _blocCariSupplier.setPaymentBankCardValue("0");
+            }
+          },
+        ),
+        //EFTveHavale Ödeme Widget
+        sharedTextFormField(
+          labelText: _eftHavale,
+          controller: _controllerEftHavaleValue,
+          onChanged: (value) {
+            if (value.isNotEmpty) {
+              _blocCariSupplier.setPaymentEftHavaleValue(value);
+            } else {
+              _blocCariSupplier.setPaymentEftHavaleValue("0");
+            }
+          },
+        ),
 
-          ///Button Ödeme Al
-          shareWidget.widgetElevatedButton(
-              buttonStyle: ElevatedButton.styleFrom(
-                  fixedSize: Size(_shareMinWidth - 20, 40)),
-              onPressedDoSomething: () async {
-                ///Müşteri seçilme veya seçildikten sonra silinme durumunda
-                ///uyarı veriyor.
-                if (_blocCariSupplier.getterSelectedSupplier['name'] == null ||
-                    _controllerSearchByName.text == "") {
-                  context.noticeBarError("Lütfen tedarikçi seçiniz.", 3);
+        ///Button Ödeme Al
+        shareWidget.widgetElevatedButton(
+            buttonStyle: ElevatedButton.styleFrom(fixedSize: Size(320, 40)),
+            onPressedDoSomething: () async {
+              ///Müşteri seçilme veya seçildikten sonra silinme durumunda
+              ///uyarı veriyor.
+              if (_blocCariSupplier.getterSelectedSupplier['name'] == null ||
+                  _controllerSearchByName.text == "") {
+                context.noticeBarError("Lütfen tedarikçi seçiniz.", 3);
 
-                  ///Ödeme için bir veri girilmediyse kayıt olmaması için.
-                } else if (_controllerEftHavaleValue.text == "" &&
-                    _controllerBankValue.text == "" &&
-                    _controllerCashValue.text == "") {
-                  context.noticeBarError("Ödeme alanı boş.", 3);
+                ///Ödeme için bir veri girilmediyse kayıt olmaması için.
+              } else if (_controllerEftHavaleValue.text == "" &&
+                  _controllerBankValue.text == "" &&
+                  _controllerCashValue.text == "") {
+                context.noticeBarError("Ödeme alanı boş.", 3);
 
-                  ///veri kaydediliyor Burada.
+                ///veri kaydediliyor Burada.
+              } else {
+                ///Dönen Veride "hata" null dönerse veri kaydediliyor.
+                ///null dönmezse hata mesajı dönüyor.
+                final ret = await _blocCariSupplier
+                    .savePayment(_selectUnitOfCurrencyAbridgment);
+                if (ret['hata'] == null) {
+                  _blocCariSupplier.resetPaymentsValue();
+                  _controllerBankValue.clear();
+                  _controllerCashValue.clear();
+                  _controllerEftHavaleValue.clear();
+                  _controllerStartDate.clear();
+                  _controllerEndDate.clear();
+
+                  _blocCariSupplier.getPaymentListOfSelectedSupplier();
+
+                  ///Bura aktif olur ise ödeme alındığında kendi alanında kalır.
+                  /*  ///Sadece Müşteri seçildiğinde
+                  if (_controllerSearchByName.text.isNotEmpty &&
+                      _controllerStartDate.text == "" &&
+                      _controllerEndDate.text == "") {
+                    _blocCari.getSoldListOfSelectedCustomer();
+                    //Müşteri ve Tarihler seçildiğinde
+                  } else if (_controllerSearchByName.text.isNotEmpty &&
+                      _controllerStartDate.text.isNotEmpty &&
+                      _controllerEndDate.text.isNotEmpty) {
+                    await _blocCari.getSoldListOfSelectedCustomer();
+                    await _blocCari.filtreSoldListByDateTime();
+                    //Sadece Tarih seçildiğinde
+                  } else if (_controllerStartDate.text.isNotEmpty &&
+                      _controllerEndDate.text.isNotEmpty &&
+                      _controllerSearchByName.text == "") {
+                    await _blocCari.getOnlyUseDateTimeForSoldList();
+                    //Tümü Boş iken buda o günkü satışları getirir
+                  } else if (_controllerSearchByName.text == "" &&
+                      _controllerStartDate.text == "" &&
+                      _controllerEndDate.text == "") {
+                    _blocCari.setToday();
+                    await _blocCari.getOnlyUseDateTimeForSoldList();
+                  } */
+
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarTrue("Ödeme başarılı.", 2);
                 } else {
-                  ///Dönen Veride "hata" null dönerse veri kaydediliyor.
-                  ///null dönmezse hata mesajı dönüyor.
-                  final ret = await _blocCariSupplier
-                      .savePayment(_selectUnitOfCurrencyAbridgment);
-                  if (ret['hata'] == null) {
-                    _blocCariSupplier.resetPaymentsValue();
-                    _controllerBankValue.clear();
-                    _controllerCashValue.clear();
-                    _controllerEftHavaleValue.clear();
-                    _controllerStartDate.clear();
-                    _controllerEndDate.clear();
-
-                    _blocCariSupplier.getPaymentListOfSelectedSupplier();
-
-                    ///Bura aktif olur ise ödeme alındığında kendi alanında kalır.
-                    /*  ///Sadece Müşteri seçildiğinde
-                    if (_controllerSearchByName.text.isNotEmpty &&
-                        _controllerStartDate.text == "" &&
-                        _controllerEndDate.text == "") {
-                      _blocCari.getSoldListOfSelectedCustomer();
-                      //Müşteri ve Tarihler seçildiğinde
-                    } else if (_controllerSearchByName.text.isNotEmpty &&
-                        _controllerStartDate.text.isNotEmpty &&
-                        _controllerEndDate.text.isNotEmpty) {
-                      await _blocCari.getSoldListOfSelectedCustomer();
-                      await _blocCari.filtreSoldListByDateTime();
-                      //Sadece Tarih seçildiğinde
-                    } else if (_controllerStartDate.text.isNotEmpty &&
-                        _controllerEndDate.text.isNotEmpty &&
-                        _controllerSearchByName.text == "") {
-                      await _blocCari.getOnlyUseDateTimeForSoldList();
-                      //Tümü Boş iken buda o günkü satışları getirir
-                    } else if (_controllerSearchByName.text == "" &&
-                        _controllerStartDate.text == "" &&
-                        _controllerEndDate.text == "") {
-                      _blocCari.setToday();
-                      await _blocCari.getOnlyUseDateTimeForSoldList();
-                    } */
-
-                    // ignore: use_build_context_synchronously
-                    context.noticeBarTrue("Ödeme başarılı.", 2);
-                  } else {
-                    // ignore: use_build_context_synchronously
-                    context.noticeBarError(ret['hata'], 3);
-                  }
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarError(ret['hata'], 3);
                 }
-              },
-              label: _labelPay),
-        ],
-      ),
+              }
+            },
+            label: _labelPay),
+      ],
     );
   }
 
@@ -817,14 +891,13 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
 
   ///PaymentSystem textfield
   sharedTextFormField(
-      {required double width,
-      required String labelText,
+      {required String labelText,
       required TextEditingController controller,
       required void Function(String)? onChanged,
       String? Function(String?)? validator}) {
     return Container(
+      width: 320,
       padding: context.extensionPadding10(),
-      width: width,
       child: TextFormField(
         validator: validator,
         onChanged: onChanged,

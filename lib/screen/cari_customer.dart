@@ -257,15 +257,15 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
             runSpacing: context.extensionWrapSpacing10(),
             children: [
               _screenWidth <= 500
-                  ? widgetMobilMainSection()
-                  : widgetDesktopMainSection(),
+                  ? widgetMainSectionMobil()
+                  : widgetMainSectionDesktop(),
               widgetPaymentInformationSection()
             ],
           )),
         ));
   }
 
-  Container widgetDesktopMainSection() {
+  Container widgetMainSectionDesktop() {
     return Container(
       width: dimension.widthMainSection,
       height: dimension.heightSection,
@@ -289,7 +289,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
     );
   }
 
-  Container widgetMobilMainSection() {
+  Container widgetMainSectionMobil() {
     return Container(
       width: dimension.widthMainSection,
       height: dimension.heightSection,
@@ -551,7 +551,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   widgetButtonCariGetir() {
     return SizedBox(
       width: _screenWidth <= 500 ? dimension.widthMobilButtonAndTextfield : 180,
-      height: _shareHeightInputTextField,
+      height: dimension.heightInputTextAnDropdown40,
       child: ElevatedButton.icon(
           icon: const Icon(Icons.format_list_bulleted_sharp),
           style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
@@ -887,7 +887,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   Container partOfWidgetHeader(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
+        context.theme.titleLarge!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
       width: _shareMinWidth,

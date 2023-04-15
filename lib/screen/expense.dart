@@ -27,15 +27,14 @@ class ScreenExpenses extends StatefulWidget {
 class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   final GlobalKey<FormState> _formKeyService = GlobalKey();
 
+  late double _widthScreen;
   late Expense _service;
   final String _labelHeading = "Gider Ekranı";
-  final double _firstContainerMaxWidth = 900;
-  final double _firstContainerMinWidth = 340;
   late BlocExpense _blocExpense;
-  final double _shareHeight = 40;
+
   /*-------------------BAŞLANGIÇ TARİH ARALIĞI SEÇİMİ ----------------------*/
 
-  final double _shareServiceWidth = 300;
+  final double _shareServiceWidth = 315;
 
   ///Hizmet ekleme bölümündeki tarih.
   DateTime? _selectedDateTime = DateTime.now();
@@ -67,10 +66,9 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
   List<Map<String, dynamic>> _selecteds = [];
-  final double _dataTableWidth = 800;
-  final double _dataTableHeight = 600;
+  final double _dataTableHeightDesktop = 600;
+  final double _dataTableHeightMobil = 510;
   final String _labelDescription = "Açıklama: ";
-
   final String _labelServiceSelect = "Hizmet Seçiniz";
   /*--------------------------ARAMA BÖLÜMÜ------------------------------- */
 
@@ -118,9 +116,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   void initState() {
     _blocExpense = BlocExpense();
     _service = Expense();
-
     _headers = [];
-
     _headers.add(DatatableHeader(
         text: "Tarih - Saat",
         value: "saveTime",
@@ -197,7 +193,6 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
           );
         },
         textAlign: TextAlign.center));
-
     super.initState();
   }
 
@@ -220,6 +215,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   buildSale() {
     ///ekran büyüklüğü tesbiti
+    _widthScreen = MediaQuery.of(context).size.width;
     getResponseWidth();
     return Form(
         key: _formKeyService,
@@ -233,57 +229,108 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             spacing: context.extensionWrapSpacing10(),
             runSpacing: context.extensionWrapSpacing10(),
             children: [
-              Container(
-                constraints: BoxConstraints(
-                    minWidth: _firstContainerMinWidth,
-                    maxWidth: _firstContainerMaxWidth),
-                padding: context.extensionPadding20(),
-                decoration: context.extensionThemaWhiteContainer(),
-                child: Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: context.extensionWrapSpacing20(),
-                    runSpacing: context.extensionWrapSpacing10(),
-                    children: [
-                      widgetDropdownGetServiceType(),
-                      widgetRangeSelectDateTime(),
-                      widgetButtonGetService(),
-                      widgetDateTable()
-                    ]),
-              ),
+              ///Ana Bölüm Tablonun Olduğu yer
+              _widthScreen <= 500
+                  ? widgetMainSectionTableMobil()
+                  : widgetMainSectionTableDesktop(),
 
               ///Hizmet Ekleme Bölümü
-              Container(
-                width: 340,
-                height: _dataTableHeight + 90,
-                padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-                decoration: context.extensionThemaWhiteContainer(),
-                child: Column(children: [
-                  widgetTextHeaderService(
-                      _labelHeaderServiceSection, Colors.grey),
-                  context.extensionHighSizedBox20(),
-                  shareWidgetDateTimeTextFormField(),
-                  context.extensionHighSizedBox10(),
-                  widgetDropdownSaveServiceType(),
-                  context.extensionHighSizedBox10(),
-                  widgetTextFieldDescription(_controllerDescription),
-                  context.extensionHighSizedBox10(),
-                  widgetRadioButtonPaymentType(),
-                  context.extensionHighSizedBox10(),
-                  widgetTextFieldTotal(_controllerServiceTotal),
-                  context.extensionHighSizedBox10(),
-                  widgetButtonAddService()
-                ]),
+              SizedBox(
+                width: dimension.widthSideSection,
+                height: dimension.heightSection,
+                child: Column(
+                  children: [
+                    widgetTextHeaderService(
+                        _labelHeaderServiceSection, Colors.grey),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(15),
+                                bottomRight: Radius.circular(15)),
+                            boxShadow: context.extensionBoxShadow()),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              context.extensionHighSizedBox20(),
+                              shareWidgetDateTimeTextFormField(),
+                              context.extensionHighSizedBox10(),
+                              widgetDropdownSaveServiceType(),
+                              context.extensionHighSizedBox10(),
+                              widgetTextFieldDescription(
+                                  _controllerDescription),
+                              context.extensionHighSizedBox10(),
+                              widgetRadioButtonPaymentType(),
+                              context.extensionHighSizedBox10(),
+                              widgetTextFieldTotal(_controllerServiceTotal),
+                              context.extensionHighSizedBox10(),
+                              SizedBox(
+                                width: double.infinity,
+                                child: widgetButtonAddService(),
+                              ),
+                            ]),
+                      ),
+                    ),
+                  ],
+                ),
               )
             ],
           )),
         ));
   }
 
+  Container widgetMainSectionTableDesktop() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      alignment: Alignment.center,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        direction: Axis.vertical,
+        spacing: 10,
+        children: [
+          Row(mainAxisSize: MainAxisSize.max, children: [
+            widgetDropdownGetServiceType(),
+            context.extensionWidhSizedBox20(),
+            widgetRangeSelectDateTime(),
+            context.extensionWidhSizedBox20(),
+            widgetButtonGetService(),
+          ]),
+          widgetDateTable()
+        ],
+      ),
+    );
+  }
+
+  Container widgetMainSectionTableMobil() {
+    return Container(
+      width: dimension.widthMainSection,
+      height: dimension.heightSection,
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: context.extensionWrapSpacing20(),
+          runSpacing: context.extensionWrapSpacing10(),
+          direction: Axis.horizontal,
+          children: [
+            widgetDropdownGetServiceType(),
+            widgetRangeSelectDateTime(),
+            widgetButtonGetService(),
+            widgetDateTable()
+          ]),
+    );
+  }
+
   ///Verileri Getiren Button
   widgetButtonGetService() {
     return SizedBox(
       width: getResponseWidth(),
-      height: _shareHeight,
+      height: dimension.heightInputTextAnDropdown40,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
             await _blocExpense.getServiceButton();
@@ -296,8 +343,10 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
     return Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.symmetric(vertical: 2),
-        width: _shareServiceWidth,
-        height: _shareHeight,
+        width: _widthScreen <= 500
+            ? dimension.widthMobilButtonAndTextfield
+            : _shareServiceWidth,
+        height: dimension.heightInputTextAnDropdown40,
         child: BasicDropdown(
           hint: _labelServiceSelect,
           selectValue: _blocExpense.selectedGetServiceDropdownValue,
@@ -310,8 +359,9 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   /*----------------------------Hizmet Tablosu ------------------------------ */
   widgetDateTable() {
     return SizedBox(
-      width: _dataTableWidth,
-      height: _dataTableHeight,
+      width: dimension.widthTable,
+      height:
+          _widthScreen <= 500 ? _dataTableHeightMobil : _dataTableHeightDesktop,
       child: Card(
         margin: const EdgeInsets.only(top: 5),
         elevation: 5,
@@ -369,8 +419,10 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   ///Zaman Aralı Seçildiği yer
   widgetRangeSelectDateTime() {
     return Container(
-        width: _shareServiceWidth,
-        height: _shareHeight,
+        width: _widthScreen <= 500
+            ? dimension.widthMobilButtonAndTextfield
+            : _shareServiceWidth,
+        height: dimension.heightInputTextAnDropdown40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
             border: Border.all(color: context.extensionDefaultColor),
@@ -398,6 +450,8 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
             end: _blocExpense.getterEndDate),
         firstDate: DateTime(2010),
         lastDate: DateTime(2035),
+        helpText: "Zaman Aralığı Seçiniz",
+        saveText: "Tamam",
         builder: (context, child) {
           return Column(
             children: <Widget>[
@@ -486,7 +540,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   widgetTextFieldTotal(TextEditingController controller) {
     return SizedBox(
       width: _shareServiceWidth,
-      height: _shareHeight,
+      height: dimension.heightInputTextAnDropdown40,
       child: TextFormField(
         decoration: InputDecoration(
             hintText: _labelServiceTotal,
@@ -537,7 +591,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   shareWidgetDateTimeTextFormField() {
     return Container(
         width: _shareServiceWidth,
-        height: _shareHeight,
+        height: dimension.heightInputTextAnDropdown40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
@@ -580,14 +634,13 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   widgetTextHeaderService(String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
+        context.theme.titleLarge!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
-      width: _shareServiceWidth,
+      width: dimension.widthSideSection,
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-        color: backgroundColor,
-      ),
+          color: backgroundColor, boxShadow: context.extensionBoxShadow()),
       child: Text(
         label,
         style: styleHeader,
@@ -599,7 +652,9 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   ///Ekran büyüklüğüne göre ayarlama
   double getResponseWidth() {
-    double resWidth = MediaQuery.of(context).size.width >= 500 ? 160 : 300;
+    double resWidth = MediaQuery.of(context).size.width >= 500
+        ? 160
+        : dimension.widthMobilButtonAndTextfield;
     return resWidth;
   }
 
@@ -626,7 +681,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
   widgetPopupDateTimeTextFormField(Function(void Function()) setState) {
     return Container(
         width: _shareServiceWidth,
-        height: _shareHeight,
+        height: dimension.heightInputTextAnDropdown40,
         alignment: Alignment.center,
         decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
@@ -820,5 +875,11 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         ),
       ],
     );
+  }
+
+  ///True demek Mobil Ekran false ise Masaüstü
+  bool getResponseScreen() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth <= 500 ? true : false;
   }
 }
