@@ -27,20 +27,20 @@ class AuthController {
 
   getRole() async {
     role = await SecurityStorageUser.getUserRole() ?? '';
-    print("role func içi : $role");
+    // print("role func içi : $role");
   }
 
   controllerAuth() async {
     await getRole();
     db.supabase.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
-      print("Auth durumu : $event");
+      //   print("Auth durumu : $event");
       if (AuthChangeEvent.signedIn == event) {
         isAuth = true;
 
-        print("role nedir : $role");
+        //     print("role nedir : $role");
       } else if (AuthChangeEvent.tokenRefreshed == event) {
-        Session? userSession = data.session;
+        //   Session? userSession = data.session;
         // db.supabase.auth.setSession(userSession!.refreshToken!);
         isAuth = true;
       } else if (AuthChangeEvent.passwordRecovery == event) {

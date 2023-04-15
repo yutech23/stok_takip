@@ -25,7 +25,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-
 class ScreenSale extends StatefulWidget {
   const ScreenSale({super.key});
 
@@ -68,18 +67,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   /*?????????????????????? SON - SATIŞ TABLO ?????????????????????????*/
 
-  final double _saleMinWidth = 360, _saleMaxWidth = 970;
-  final double _tableMaxWidth = 600;
+  late double _widthScreen;
   final double _shareHeight = 40;
   final double _searchItemHeight = 30;
   int tableRowIndex = 0;
-  final double _widthSearch = 340;
   int simpleIntInput = 0;
   final double _shareWidthPaymentSection = 340;
   final double _exchangeHeight = 70;
   Product? _selectProduct;
   late double _widthMediaQuery;
-  final double _paymentCardHeight = 415;
+  final double _paymentCardHeight = 420;
 
   /*----------------BAŞLANGIÇ - ÖDEME ALINDIĞI YER------------- */
 
@@ -153,12 +150,12 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
 
   @override
   Widget build(BuildContext context) {
+    _widthScreen = MediaQuery.of(context).size.width;
     getWidthScreenSize(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelHeading),
-
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         // ignore: prefer_const_literals_to_create_immutables
         actions: [
@@ -175,62 +172,98 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         key: _formKeySale,
         child: Container(
           width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
-              child: Container(
-            constraints: BoxConstraints(
-                minWidth: _saleMinWidth, maxWidth: _saleMaxWidth),
-            padding: context.extensionPadding20(),
-            decoration: context.extensionThemaWhiteContainer(),
-            child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: context.extensionWrapSpacing20(),
-                runSpacing: context.extensionWrapSpacing10(),
-                children: [
-                  Container(
-                    constraints: BoxConstraints(
-                        minWidth: _shareWidthPaymentSection,
-                        maxWidth: _tableMaxWidth),
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        verticalDirection: VerticalDirection.down,
-                        children: [
-                          Wrap(
-                            verticalDirection: VerticalDirection.down,
-                            alignment: WrapAlignment.center,
-                            runAlignment: WrapAlignment.start,
-                            spacing: 30,
-                            runSpacing: context.extensionWrapSpacing10(),
-                            children: [
-                              widgetSearchFieldCustomer(),
-                              widgetButtonNewCustomer(),
-                              widgetSearchFieldProductCode(),
-                              widgetButtonAddProduct(),
-                              WidgetSaleTable(
-                                selectUnitOfCurrencySymbol:
-                                    _selectUnitOfCurrencySymbol,
-                                listProduct: _listAddProduct,
-                                blocSale: blocSale,
-                              ),
-                            ],
-                          ),
-                        ]),
-                  ),
-                  Wrap(
-                      direction: Axis.vertical,
-                      alignment: WrapAlignment.center,
-                      runSpacing: context.extensionWrapSpacing10(),
-                      spacing: context.extensionWrapSpacing20(),
-                      children: [
-                        shareWidgetDateTimeTextFormField(),
-                        widgetExchangeRate(),
-                        widgetCurrencySelectSection(),
-                        widgetPaymentInformationSection(),
-                      ]),
-                ]),
+              child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: context.extensionWrapSpacing10(),
+            runSpacing: context.extensionWrapSpacing10(),
+            children: [
+              _widthScreen <= 500
+                  ? widgetMainSectionTableMobil()
+                  : widgetMainSectionTableDesktop(),
+              Container(
+                width: dimension.widthSideSectionAndMobil,
+                height: dimension.heightSection,
+                padding: EdgeInsets.all(dimension.paddingMainAndSide),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                    boxShadow: context.extensionBoxShadow()),
+                child: Wrap(
+                    direction: Axis.vertical,
+                    alignment: WrapAlignment.center,
+                    runSpacing: context.extensionWrapSpacing10(),
+                    spacing: context.extensionWrapSpacing20(),
+                    children: [
+                      shareWidgetDateTimeTextFormField(),
+                      widgetExchangeRate(),
+                      widgetCurrencySelectSection(),
+                      widgetPaymentInformationSection(),
+                    ]),
+              ),
+            ],
           )),
         ));
+  }
+
+  Container widgetMainSectionTableDesktop() {
+    return Container(
+      width: dimension.widthMainSection,
+      constraints: BoxConstraints(minHeight: dimension.heightSection),
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: context.extensionWrapSpacing20(),
+          runSpacing: context.extensionWrapSpacing10(),
+          children: [
+            Row(children: [
+              widgetSearchFieldCustomerDesktop(),
+              context.extensionWidhSizedBox20(),
+              widgetButtonNewCustomer(),
+            ]),
+            Row(children: [
+              widgetSearchFieldProductCodeDesktop(),
+              context.extensionWidhSizedBox20(),
+              widgetButtonAddProduct(),
+            ]),
+            WidgetSaleTable(
+              selectUnitOfCurrencySymbol: _selectUnitOfCurrencySymbol,
+              listProduct: _listAddProduct,
+              blocSale: blocSale,
+              tableWidth: dimension.widthTable,
+            ),
+          ]),
+    );
+  }
+
+  Container widgetMainSectionTableMobil() {
+    return Container(
+      width: dimension.widthSideSectionAndMobil,
+      constraints: BoxConstraints(minHeight: dimension.heightSection),
+      padding: context.extensionPadding20(),
+      decoration: context.extensionThemaWhiteContainer(),
+      child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: context.extensionWrapSpacing10(),
+          runSpacing: context.extensionWrapSpacing10(),
+          direction: Axis.vertical,
+          children: [
+            widgetSearchFieldCustomerMobil(),
+            widgetButtonNewCustomer(),
+            widgetSearchFieldProductCodeMobil(),
+            widgetButtonAddProduct(),
+            WidgetSaleTable(
+              selectUnitOfCurrencySymbol: _selectUnitOfCurrencySymbol,
+              listProduct: _listAddProduct,
+              blocSale: blocSale,
+              tableWidth: dimension.widthMobilButtonAndTextfield,
+            ),
+          ]),
+    );
   }
 
   ///Döviz Kurları Tablosu
@@ -241,7 +274,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Container(
-              width: _shareWidthPaymentSection,
+              width: dimension.widthMobilButtonAndTextfield,
               height: _exchangeHeight,
               decoration: BoxDecoration(
                   color: context.extensionDefaultColor,
@@ -279,10 +312,9 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         });
   }
 
-  ///Müşteri Search Listesi
-  widgetSearchFieldCustomer() {
-    return SizedBox(
-      width: _widthSearch,
+  ///Müşteri Search Listesi Desktop
+  widgetSearchFieldCustomerDesktop() {
+    return Expanded(
       child: StreamBuilder2(
         builder: (context, snapshot) {
           if (snapshot.snapshot1.hasData && snapshot.snapshot2.hasData) {
@@ -313,53 +345,50 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   "${element['type']} - ${element['name']!} - ${element['phone']}",
                   item: element['type']));
             }
-            return SizedBox(
-              height: _shareHeight,
-              child: SearchField(
-                scrollbarAlwaysVisible: true,
-                itemHeight: _searchItemHeight,
-                validator: validateNotEmpty,
-                controller: _controllerSearchCustomer,
-                searchInputDecoration: InputDecoration(
-                    isDense: true,
-                    errorBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(),
-                    ),
-                    label: Text(_labelSearchCustomer),
-                    prefixIcon: const Icon(Icons.search, color: Colors.black),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(),
-                    )),
-                suggestions: listSearch,
-                focusNode: _focusSearchCustomer,
-                searchStyle: const TextStyle(
-                  fontSize: 14,
-                  //  overflow: TextOverflow.fade,
-                ),
-                onSuggestionTap: (selectedValue) {
-                  ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
-                  var _customerInfoList = selectedValue.searchKey.split(' - ');
-                  //  print(_customerInfoList);
-                  _selectCustomerType = _customerInfoList[0];
-
-                  ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
-                  /// numarsı üzerinden id buluncak. telefon numarası unique.
-                  ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
-                  //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
-
-                  _customerPhone = _customerInfoList[2];
-                  // print(_customerPhone);
-                  /* for (var element in listCustomer) {
-                    if (element['name'] == selectedValue.searchKey) {
-                      _customerPhone = element['phone']!;
-                      break;
-                    }
-                  } */
-
-                  _focusSearchCustomer.unfocus();
-                },
-                maxSuggestionsInViewPort: 6,
+            return SearchField(
+              scrollbarAlwaysVisible: true,
+              itemHeight: _searchItemHeight,
+              validator: validateNotEmpty,
+              controller: _controllerSearchCustomer,
+              searchInputDecoration: InputDecoration(
+                  isDense: true,
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  label: Text(_labelSearchCustomer),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              suggestions: listSearch,
+              focusNode: _focusSearchCustomer,
+              searchStyle: const TextStyle(
+                fontSize: 14,
+                //  overflow: TextOverflow.fade,
               ),
+              onSuggestionTap: (selectedValue) {
+                ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
+                var _customerInfoList = selectedValue.searchKey.split(' - ');
+                //  print(_customerInfoList);
+                _selectCustomerType = _customerInfoList[0];
+
+                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
+                /// numarsı üzerinden id buluncak. telefon numarası unique.
+                ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
+                //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
+
+                _customerPhone = _customerInfoList[2];
+                // print(_customerPhone);
+                /* for (var element in listCustomer) {
+                  if (element['name'] == selectedValue.searchKey) {
+                    _customerPhone = element['phone']!;
+                    break;
+                  }
+                } */
+
+                _focusSearchCustomer.unfocus();
+              },
+              maxSuggestionsInViewPort: 6,
             );
           }
           return Container();
@@ -370,10 +399,99 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     );
   }
 
+  ///Müşteri Search Listesi Mobil
+  widgetSearchFieldCustomerMobil() {
+    return StreamBuilder2(
+      builder: (context, snapshot) {
+        if (snapshot.snapshot1.hasData && snapshot.snapshot2.hasData) {
+          final listCustomer = <Map<String, String>>[];
+          listCustomer.clear();
+
+          for (var item in snapshot.snapshot1.data) {
+            listCustomer.add({
+              'type': item['type'],
+              'name': "${item['name']} ${item['last_name']}",
+              'phone': item['phone']
+            });
+          }
+          for (var item in snapshot.snapshot2.data) {
+            listCustomer.add({
+              'type': item['type'],
+              'name': item['name'],
+              'phone': item['phone']
+            });
+          }
+
+          List<SearchFieldListItem<String>> listSearch =
+              <SearchFieldListItem<String>>[];
+
+          for (var element in listCustomer) {
+            ///item müşterinin type atıyorum.
+            listSearch.add(SearchFieldListItem(
+                "${element['type']} - ${element['name']!} - ${element['phone']}",
+                item: element['type']));
+          }
+          return SizedBox(
+            width: dimension.widthMobilButtonAndTextfield,
+            height: dimension.heightInputTextAnDropdown50,
+            child: SearchField(
+              scrollbarAlwaysVisible: true,
+              itemHeight: _searchItemHeight,
+              validator: validateNotEmpty,
+              controller: _controllerSearchCustomer,
+              searchInputDecoration: InputDecoration(
+                  isDense: true,
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  label: Text(_labelSearchCustomer),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              suggestions: listSearch,
+              focusNode: _focusSearchCustomer,
+              searchStyle: const TextStyle(
+                fontSize: 14,
+                //  overflow: TextOverflow.fade,
+              ),
+              onSuggestionTap: (selectedValue) {
+                ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
+                var _customerInfoList = selectedValue.searchKey.split(' - ');
+                //  print(_customerInfoList);
+                _selectCustomerType = _customerInfoList[0];
+
+                ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
+                /// numarsı üzerinden id buluncak. telefon numarası unique.
+                ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
+                //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
+
+                _customerPhone = _customerInfoList[2];
+                // print(_customerPhone);
+                /* for (var element in listCustomer) {
+                  if (element['name'] == selectedValue.searchKey) {
+                    _customerPhone = element['phone']!;
+                    break;
+                  }
+                } */
+
+                _focusSearchCustomer.unfocus();
+              },
+              maxSuggestionsInViewPort: 6,
+            ),
+          );
+        }
+        return Container();
+      },
+      streams: StreamTuple2(db.fetchSoloCustomerAndPhoneStream(),
+          db.fetchCompanyCustomerAndPhoneStream()),
+    );
+  }
+
   ///Yeni Müşteri Ekleme
   widgetButtonNewCustomer() {
     return SizedBox(
-      height: _shareHeight,
+      height: dimension.heightInputTextAnDropdown40,
       width: _widthMediaQuery,
       child: ElevatedButton.icon(
         //  style: ElevatedButton.styleFrom(minimumSize: const Size(220, 48)),
@@ -392,61 +510,111 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     );
   }
 
-  ///Ürün Search Listesi
-  widgetSearchFieldProductCode() {
-    return SizedBox(
-      width: _widthSearch,
+  ///Ürün Search Listesi Desktop
+  widgetSearchFieldProductCodeDesktop() {
+    return Expanded(
       child: FutureBuilder<List<String>>(
         builder: (context, snapshot) {
           if (!snapshot.hasError && snapshot.hasData) {
-            return SizedBox(
-              height: _shareHeight,
-              child: SearchField(
-                itemHeight: _searchItemHeight,
-                validator: validateNotEmpty,
-                controller: _controllerSearchProductCode,
-                searchInputDecoration: InputDecoration(
-                    isDense: true,
-                    errorBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(),
-                    ),
-                    label: Text(_labelSearchProductCode),
-                    prefixIcon: const Icon(Icons.search, color: Colors.black),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(),
-                    )),
-                suggestions: snapshot.data!.map((e) {
-                  return SearchFieldListItem(e);
-                }).toList(),
-                focusNode: _focusSearchProductCode,
-                onSuggestionTap: (selectedValue) {
-                  _focusSearchProductCode.unfocus();
-                },
-                searchStyle: const TextStyle(
-                  fontSize: 14,
-                  //  overflow: TextOverflow.fade,
-                ),
-                onSubmit: (p0) async {
-                  if (p0.isNotEmpty) {
-                    //seçilen ürün kodunun özellikleri alınıyor.
-                    if (snapshot.data!.contains(p0)) {
-                      _selectProduct = await db.fetchProductDetailForSale(
-                          _controllerSearchProductCode.text);
-                      blocSale.addProduct(_selectProduct!);
-                      blocSale
-                          .getTotalPriceSection(_selectUnitOfCurrencySymbol);
-                      blocSale.balance();
-                    }
-                  }
-                },
-                maxSuggestionsInViewPort: 6,
+            return SearchField(
+              itemHeight: _searchItemHeight,
+              validator: validateNotEmpty,
+              controller: _controllerSearchProductCode,
+              searchInputDecoration: InputDecoration(
+                  isDense: true,
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  label: Text(_labelSearchProductCode),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              suggestions: snapshot.data!.map((e) {
+                return SearchFieldListItem(e);
+              }).toList(),
+              focusNode: _focusSearchProductCode,
+              onSuggestionTap: (selectedValue) {
+                _focusSearchProductCode.unfocus();
+              },
+              searchStyle: const TextStyle(
+                fontSize: 14,
+                //  overflow: TextOverflow.fade,
               ),
+              onSubmit: (p0) async {
+                if (p0.isNotEmpty) {
+                  //seçilen ürün kodunun özellikleri alınıyor.
+                  if (snapshot.data!.contains(p0)) {
+                    _selectProduct = await db.fetchProductDetailForSale(
+                        _controllerSearchProductCode.text);
+                    blocSale.addProduct(_selectProduct!);
+                    blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
+                    blocSale.balance();
+                  }
+                }
+              },
+              maxSuggestionsInViewPort: 6,
             );
           }
           return Container();
         },
         future: db.getProductCode(),
       ),
+    );
+  }
+
+  ///Ürün Search Listesi Mobil
+  widgetSearchFieldProductCodeMobil() {
+    return FutureBuilder<List<String>>(
+      builder: (context, snapshot) {
+        if (!snapshot.hasError && snapshot.hasData) {
+          return SizedBox(
+            width: dimension.widthMobilButtonAndTextfield,
+            height: dimension.heightInputTextAnDropdown50,
+            child: SearchField(
+              itemHeight: _searchItemHeight,
+              validator: validateNotEmpty,
+              controller: _controllerSearchProductCode,
+              searchInputDecoration: InputDecoration(
+                  isDense: true,
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  label: Text(_labelSearchProductCode),
+                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              suggestions: snapshot.data!.map((e) {
+                return SearchFieldListItem(e);
+              }).toList(),
+              focusNode: _focusSearchProductCode,
+              onSuggestionTap: (selectedValue) {
+                _focusSearchProductCode.unfocus();
+              },
+              searchStyle: const TextStyle(
+                fontSize: 14,
+                //  overflow: TextOverflow.fade,
+              ),
+              onSubmit: (p0) async {
+                if (p0.isNotEmpty) {
+                  //seçilen ürün kodunun özellikleri alınıyor.
+                  if (snapshot.data!.contains(p0)) {
+                    _selectProduct = await db.fetchProductDetailForSale(
+                        _controllerSearchProductCode.text);
+                    blocSale.addProduct(_selectProduct!);
+                    blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
+                    blocSale.balance();
+                  }
+                }
+              },
+              maxSuggestionsInViewPort: 6,
+            ),
+          );
+        }
+        return Container();
+      },
+      future: db.getProductCode(),
     );
   }
 
@@ -493,7 +661,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         Positioned(
           child: Container(
             alignment: Alignment.center,
-            width: _shareWidthPaymentSection,
+            width: dimension.widthMobilButtonAndTextfield,
             height: 50,
             margin: const EdgeInsets.only(top: 10),
             padding: const EdgeInsets.only(top: 10),
@@ -519,9 +687,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                               context.extensionDefaultColor;
                           _colorBackgroundCurrencyEUR =
                               context.extensionDefaultColor;
-                          print("ilk deger : $_selectUnitOfCurrencySymbol");
 
-                          print(_selectUnitOfCurrencySymbol);
                           blocSale.getTotalPriceSection(
                               _selectUnitOfCurrencySymbol);
                         }
@@ -588,7 +754,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ),
         ),
         Positioned(
-          left: 60,
+          left: 100,
           child: Container(
             padding: EdgeInsets.zero,
             color: Colors.white,
@@ -620,7 +786,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.headline5!.copyWith(
+            style: context.theme.headlineSmall!.copyWith(
               color: Colors.white,
             ),
           ),
@@ -630,7 +796,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
   widgetPaymentInformationSection() {
     return SizedBox(
-      width: _shareWidthPaymentSection,
+      width: dimension.widthMobilButtonAndTextfield,
       height: _paymentCardHeight,
       child: Card(
         margin: EdgeInsets.zero,
@@ -647,10 +813,11 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   Container partOfWidgetHeader(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
+        context.theme.titleLarge!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
       width: _shareWidthPaymentSection,
+      height: dimension.heightInputTextAnDropdown40,
       decoration: BoxDecoration(
         color: backgroundColor,
       ),
@@ -666,7 +833,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
     return Container(
       padding: const EdgeInsets.only(bottom: 10),
       alignment: Alignment.center,
-      width: _shareWidthPaymentSection,
+      width: dimension.widthMobilButtonAndTextfield,
       child: Wrap(
         alignment: WrapAlignment.center,
         direction: Axis.vertical,
@@ -674,7 +841,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         children: [
           ///Nakit Ödeme
           sharedTextFormField(
-            width: _shareWidthPaymentSection,
+            width: dimension.widthMobilButtonAndTextfield,
             labelText: _cash,
             controller: _controllerCashValue,
             onChanged: (value) {
@@ -687,7 +854,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ),
           //Bankakartı Ödeme Widget
           sharedTextFormField(
-            width: _shareWidthPaymentSection,
+            width: dimension.widthMobilButtonAndTextfield,
             labelText: _bankCard,
             controller: _controllerBankValue,
             onChanged: (value) {
@@ -700,7 +867,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
           ),
           //EFTveHavale Ödeme Widget
           sharedTextFormField(
-            width: _shareWidthPaymentSection,
+            width: dimension.widthMobilButtonAndTextfield,
             labelText: _eftHavale,
             controller: _controllerEftHavaleValue,
             onChanged: (value) {
@@ -722,7 +889,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
             builder: (context, value, child) {
               return Container(
                 padding: context.extensionPadding10(),
-                width: _shareWidthPaymentSection,
+                width: dimension.widthMobilButtonAndTextfield,
                 child: shareWidget.widgetElevatedButton(
                     onPressedDoSomething:
                         _valueNotifierButtonDateTimeState.value
@@ -755,7 +922,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   partOfwidgetStreamBuilderPaid() {
     return Container(
       alignment: Alignment.center,
-      width: _shareWidthPaymentSection,
+      width: dimension.widthMobilButtonAndTextfield,
       child: StreamBuilder<double>(
           stream: blocSale.getStreamPaymentSystem,
           initialData: 0,
@@ -801,7 +968,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   Container widgetButtonSale(BuildContext context) {
     return Container(
       padding: context.extensionPaddingHorizantal10(),
-      width: _shareWidthPaymentSection,
+      width: dimension.widthMobilButtonAndTextfield,
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
             if (_controllerSearchCustomer.text != "" &&
@@ -895,7 +1062,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       );
 
   void getWidthScreenSize(BuildContext context) {
-    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 340 : 190;
+    _widthMediaQuery = MediaQuery.of(context).size.width < 500 ? 320 : 200;
   }
 
   /*-------------------------TARİH BÖLÜMÜ ARAMA BÖLÜMÜ --------------------- */
@@ -903,7 +1070,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
   ///Zaman Text
   shareWidgetDateTimeTextFormField() {
     return Container(
-        width: _shareWidthPaymentSection,
+        width: dimension.widthMobilButtonAndTextfield,
         height: _shareHeight,
         alignment: Alignment.center,
         decoration: BoxDecoration(

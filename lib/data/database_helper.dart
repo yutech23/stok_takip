@@ -1544,7 +1544,7 @@ class DbHelper {
       res = await db.supabase
           .from('payment')
           .select<Map<String, dynamic>>('*')
-          .eq('invoice_code', invoiceNo)
+          .eq('invoice_code', invoiceNo.toUpperCaseTr())
           .single();
 
       return res;

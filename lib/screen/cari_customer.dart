@@ -705,7 +705,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
   widgetPaymentInformationSection() {
     return SizedBox(
-      width: dimension.widthSideSection,
+      width: dimension.widthSideSectionAndMobil,
       height: dimension.heightSection,
       child: Column(
         children: [

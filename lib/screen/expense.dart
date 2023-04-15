@@ -236,7 +236,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
               ///Hizmet Ekleme Bölümü
               SizedBox(
-                width: dimension.widthSideSection,
+                width: dimension.widthSideSectionAndMobil,
                 height: dimension.heightSection,
                 child: Column(
                   children: [
@@ -637,7 +637,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
         context.theme.titleLarge!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
-      width: dimension.widthSideSection,
+      width: dimension.widthSideSectionAndMobil,
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
           color: backgroundColor, boxShadow: context.extensionBoxShadow()),

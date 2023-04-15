@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:stok_takip/bloc/bloc_cari_supplier.dart';
 import 'package:stok_takip/data/database_helper.dart';
-import 'package:stok_takip/data/database_mango.dart';
 import 'package:stok_takip/models/cari_get_pay.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/utilities/popup/popup_cari_supplier_payment.dart';
@@ -18,7 +17,6 @@ import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_3by3_financial.dart';
-import '../validations/format_decimal_limit.dart';
 import 'drawer.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -693,7 +691,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   //Ödemenin Alındığı Yer - Ödeme Bilgisi
   widgetPaymentInformationSection() {
     return SizedBox(
-      width: dimension.widthSideSection,
+      width: dimension.widthSideSectionAndMobil,
       height: dimension.heightSection,
       child: Column(children: [
         partOfWidgetHeader(context, _labelPaymentInfo, Colors.grey),

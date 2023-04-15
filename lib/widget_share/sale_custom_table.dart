@@ -8,24 +8,27 @@ import '../validations/format_convert_point_comma.dart';
 
 // ignore: must_be_immutable
 class WidgetSaleTable extends StatefulWidget {
-  String selectUnitOfCurrencySymbol;
-  List<Product> listProduct;
-  BlocSale blocSale;
-
   WidgetSaleTable(
       {super.key,
       required this.selectUnitOfCurrencySymbol,
       required this.listProduct,
-      required this.blocSale});
+      required this.blocSale,
+      required this.tableWidth});
+
+  String selectUnitOfCurrencySymbol;
+  List<Product> listProduct;
+  BlocSale blocSale;
+  double tableWidth;
 
   @override
   State<WidgetSaleTable> createState() => _WidgetSaleTableState();
 }
 
 class _WidgetSaleTableState extends State<WidgetSaleTable> {
-  final double _tableWidth = 570, _tableHeight = 543;
+  final double _tableHeight = 570;
   final double _shareheight = 40;
   late double _responceWidth;
+
   /*-------------------BAŞLANGIÇ TOPLAM TUTAR BÖLMÜ-------------------- */
   final String _labelTotalprice = "Toplam Tutar";
   final String _labelTaxRate = "KDV %";
@@ -49,7 +52,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
   buildProdcutSaleList() {
     return SingleChildScrollView(
         child: SizedBox(
-      width: _tableWidth,
+      width: widget.tableWidth,
       height: _tableHeight,
       child: Card(
         margin: EdgeInsets.zero,
@@ -137,8 +140,9 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   ///Toplam Tutar, Kdv Ve Genel toplam tutarı Tablosu
   widgetTableTotalPriceSection() {
-    return SizedBox(
-      height: _responceWidth <= 450 ? 70 : 35,
+    return Container(
+      // color: Colors.amber,
+      height: _responceWidth <= 500 ? 60 : 35,
       child: StreamBuilder<Map<String, num>>(
           stream: widget.blocSale.getStreamTotalPriceSection,
           initialData: const {
@@ -149,6 +153,11 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Table(
+                border: _responceWidth <= 500
+                    ? TableBorder.symmetric(
+                        outside:
+                            BorderSide(color: context.extensionDefaultColor))
+                    : null,
                 columnWidths: const {
                   0: FlexColumnWidth(2),
                   1: FlexColumnWidth(2),

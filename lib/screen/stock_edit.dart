@@ -192,9 +192,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   late List<List<Map<String, dynamic>>> _sourceList;
   final double _heightTableDesktop = 510;
+  final double _heightTableMobil = 400;
   static bool _editState = false;
   int _status = 0;
   int _totalNumberOfProduct = 0;
+  late double _widthScreen;
 
   final List<Map<String, dynamic>> _selected = [];
   final List<int> _rowPerPages = [10, 20, 50, 100];
@@ -255,13 +257,18 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
     _stream = db.fetchProductDetail();
     _headers = [];
     _headers.add(DatatableHeader(
-        text: "Ürün Kodu",
-        value: "productCode",
-        show: true,
-        flex: 2,
-        sortable: true,
-        editable: false,
-        textAlign: TextAlign.left));
+      text: "Ürün Kodu",
+      value: "productCode",
+      show: true,
+      flex: 2,
+      sortable: true,
+      editable: false,
+      textAlign: TextAlign.left,
+      sourceBuilder: (value, row) => Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Text(value),
+      ),
+    ));
     _headers.add(DatatableHeader(
         text: "Alış Fiyatı(KDV Hariç)",
         value: "buyingPriceWithoutTax",
@@ -299,8 +306,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
         sortable: false,
         sourceBuilder: (value, row) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
             children: [
               ///Update Buttonu
               IconButton(
@@ -391,13 +398,14 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
 
   @override
   Widget build(BuildContext context) {
+    _widthScreen = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(_labelPageHeader),
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
         actions: [
-          ShareWidgetAppbarSetting(),
+          const ShareWidgetAppbarSetting(),
         ],
       ),
       body: buildStockEdit(),
@@ -417,17 +425,18 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               child: Container(
             constraints: BoxConstraints(
                 minWidth: 360,
-                maxWidth:
-                    dimension.widthMainSection + dimension.widthSideSection),
-            height: dimension.heightSection,
+                maxWidth: dimension.widthMainSection +
+                    dimension.widthSideSectionAndMobil,
+                minHeight: dimension.heightSection),
             padding: context.extensionPadding20(),
             decoration: context.extensionThemaWhiteContainer(),
             child: Column(
               children: [
                 Text(
                   "KATEGORİ FİLTRE",
-                  style: context.theme.headlineSmall!
-                      .copyWith(color: Colors.grey.shade600),
+                  style: context.theme.headlineSmall!.copyWith(
+                      color: context.extensionDefaultColor,
+                      fontWeight: FontWeight.bold),
                 ),
                 const Divider(),
                 widgetCategoryFiltreSection(),

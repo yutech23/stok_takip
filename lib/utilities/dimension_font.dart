@@ -173,12 +173,12 @@ class Dimension {
   final double widthMainSection = 870;
   final double heightSection = 720;
   final double paddingMainAndSide = 20;
-  final double widthSideSection = 360;
+  final double widthSideSectionAndMobil = 360;
   final double heightInputTextAnDropdown50 = 50;
   final double heightInputTextAnDropdown40 = 40;
   final double widthMainSectionInsideHalfOfTheRow = 405;
   final double widthTable = 830;
-  final double widthMobilButtonAndTextfield = 340;
+  final double widthMobilButtonAndTextfield = 320;
 }
 
 Dimension dimension = Dimension();

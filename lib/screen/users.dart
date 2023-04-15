@@ -199,7 +199,7 @@ class _ScreenCustomerSave extends State with Validation {
 
                 ///Müşteri Kayıt Bölümü
                 SizedBox(
-                  width: dimension.widthSideSection,
+                  width: dimension.widthSideSectionAndMobil,
                   height: dimension.heightSection,
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
@@ -302,7 +302,7 @@ class _ScreenCustomerSave extends State with Validation {
   ///Yeni kayıt textButton Bölümü
   Container widgetTextButtonNewUser() {
     return Container(
-      width: dimension.widthSideSection,
+      width: dimension.widthSideSectionAndMobil,
       height: 40,
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
