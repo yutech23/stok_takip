@@ -78,8 +78,6 @@ class DbHelper {
           .eq('id', userId)
           .single();
 
-      print("Dönen role ve isimler : $res");
-
       return res;
     } on PostgrestException catch (e) {
       debugPrint("hata role,isim ve soyisim : ${e.message}");
@@ -1822,11 +1820,11 @@ class DbHelper {
           .eq('uuid_fk', uuid);
 
       final tempName = await db.fetchNameSurnameRole(uuid);
+
       for (Map<String, dynamic> element in res) {
-        /*  element.addAll({
-          'name':
-              "${tempName['name'].toUpperCaseTr()} ${tempName['last_name'].toUpperCaseTr()}"
-        }); */
+        element.addAll({
+          'name': "${tempName['name']} ${tempName['last_name']}".toUpperCaseTr()
+        });
       }
 
       return res;

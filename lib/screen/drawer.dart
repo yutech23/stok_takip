@@ -6,7 +6,6 @@ import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import '../utilities/constants.dart';
 import '../utilities/navigation/navigation_manager.dart';
-import '../utilities/navigation/navigation_manager.gr.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -45,7 +44,7 @@ class _MyDrawerState extends State<MyDrawer> {
     'RouteCapital',
     'RouteUsers',
     'RouteCaseSnapshot',
-    'Test',
+    // 'Test',
   ];
 
   late List<Widget> listWidgetMenuByRole = [];

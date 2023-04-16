@@ -6,7 +6,7 @@ import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
 
-
+@RoutePage()
 class ScreenResetPassword extends StatefulWidget {
   const ScreenResetPassword({super.key});
 
@@ -168,7 +168,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
     );
   }
 
-  //Kayıt Buttonu
+  //Uygulama Buttonu
   DecoratedBox widgetButtonSaveNewPassword(BuildContext context) {
     print("deger : ${authController.resetPasswordButtonActive}");
     return DecoratedBox(

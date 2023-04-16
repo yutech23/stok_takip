@@ -17,6 +17,7 @@ import '../utilities/share_func.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
 
+@RoutePage()
 class ScreenExpenses extends StatefulWidget {
   const ScreenExpenses({super.key});
 

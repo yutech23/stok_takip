@@ -1,445 +1,319 @@
-// **************************************************************************
-// AutoRouteGenerator
-// **************************************************************************
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
-// AutoRouteGenerator
+// AutoRouterGenerator
 // **************************************************************************
-//
+
 // ignore_for_file: type=lint
+// coverage:ignore-file
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i16;
-import 'package:flutter/material.dart' as _i17;
+part of 'navigation_manager.dart';
 
-import '../../screen/capital.dart' as _i12;
-import '../../screen/cari_customer.dart' as _i9;
-import '../../screen/cari_supplier.dart' as _i10;
-import '../../screen/case_snapshot.dart' as _i11;
-import '../../screen/category.dart' as _i5;
-import '../../screen/customer_register.dart' as _i6;
-import '../../screen/expense.dart' as _i13;
-import '../../screen/login.dart' as _i1;
-import '../../screen/product_add.dart' as _i4;
-import '../../screen/reset_password.dart' as _i2;
-import '../../screen/sale.dart' as _i8;
-import '../../screen/stock_edit.dart' as _i3;
-import '../../screen/test.dart' as _i15;
-import '../../screen/user_setting.dart' as _i7;
-import '../../screen/users.dart' as _i14;
-import 'auth_guard.dart' as _i18;
-import 'custom_router_builder.dart' as _i19;
-
-class AppRouter extends _i16.RootStackRouter {
-  AppRouter({
-    _i17.GlobalKey<_i17.NavigatorState>? navigatorKey,
-    required this.authGuard,
-  }) : super(navigatorKey);
-
-  final _i18.AuthGuard authGuard;
+abstract class _$NavigationManager extends RootStackRouter {
+  // ignore: unused_element
+  _$NavigationManager({super.navigatorKey});
 
   @override
-  final Map<String, _i16.PageFactory> pagesMap = {
-    RouteLogin.name: (routeData) {
-      return _i16.MaterialPageX<dynamic>(
+  final Map<String, PageFactory> pagesMap = {
+    RouteCapital.name: (routeData) {
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i1.ScreenLogin(),
-      );
-    },
-    RouteResetPassword.name: (routeData) {
-      return _i16.MaterialPageX<dynamic>(
-        routeData: routeData,
-        child: const _i2.ScreenResetPassword(),
-      );
-    },
-    RouteStockEdit.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i3.ScreenStockEdit(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
-      );
-    },
-    RouteProductAdd.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i4.ScreenProductAdd(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
-        opaque: true,
-        barrierDismissible: false,
-      );
-    },
-    RouteCategoryEdit.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i5.ScreenCategoryEdit(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
-        opaque: true,
-        barrierDismissible: false,
-      );
-    },
-    RouteCustomerRegister.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i6.ScreenCustomerRegister(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
-      );
-    },
-    RouteUserSetting.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i7.ScreenUserSetting(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
-      );
-    },
-    RouteSale.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
-        routeData: routeData,
-        child: const _i8.ScreenSale(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenCapital(),
       );
     },
     RouteCariCustomer.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i9.ScreenCariCustomer(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenCariCustomer(),
       );
     },
     RouteCariSupplier.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i10.ScreenCariSupplier(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenCariSupplier(),
       );
     },
     RouteCaseSnapshot.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i11.ScreenCaseSnapshot(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenCaseSnapshot(),
       );
     },
-    RouteCapital.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+    RouteCategoryEdit.name: (routeData) {
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i12.ScreenCapital(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenCategoryEdit(),
+      );
+    },
+    RouteCustomerRegister.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenCustomerRegister(),
       );
     },
     RouteExpenses.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i13.ScreenExpenses(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenExpenses(),
       );
     },
-    RouteUsers.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+    RouteLogin.name: (routeData) {
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i14.ScreenUsers(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdmin,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenLogin(),
+      );
+    },
+    RouteProductAdd.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenProductAdd(),
+      );
+    },
+    RouteResetPassword.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenResetPassword(),
+      );
+    },
+    RouteSale.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenSale(),
+      );
+    },
+    RouteStockEdit.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenStockEdit(),
       );
     },
     RouteTest.name: (routeData) {
-      return _i16.CustomPage<dynamic>(
+      return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i15.ScreenTest(),
-        customRouteBuilder:
-            _i19.RolePermissionCustomRouter.customRouteBuilderAdminAndUser,
-        opaque: true,
-        barrierDismissible: false,
+        child: const ScreenTest(),
+      );
+    },
+    RouteUsers.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenUsers(),
+      );
+    },
+    RouteUserSetting.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ScreenUserSetting(),
       );
     },
   };
-
-  @override
-  List<_i16.RouteConfig> get routes => [
-        _i16.RouteConfig(
-          RouteLogin.name,
-          path: '/',
-        ),
-        _i16.RouteConfig(
-          RouteResetPassword.name,
-          path: '/resetPassword',
-        ),
-        _i16.RouteConfig(
-          RouteStockEdit.name,
-          path: '/stockEdit',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteProductAdd.name,
-          path: '/productAdd',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCategoryEdit.name,
-          path: '/categoryEdit',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCustomerRegister.name,
-          path: '/customerRegister',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteUserSetting.name,
-          path: '/userSetting',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteSale.name,
-          path: '/sale',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCariCustomer.name,
-          path: '/cariCustomer',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCariSupplier.name,
-          path: '/cariSupplier',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCaseSnapshot.name,
-          path: '/caseSnapshot',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteCapital.name,
-          path: '/capital',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteExpenses.name,
-          path: '/expenses',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteUsers.name,
-          path: '/usersEdit',
-          guards: [authGuard],
-        ),
-        _i16.RouteConfig(
-          RouteTest.name,
-          path: '/screen-test',
-          guards: [authGuard],
-        ),
-      ];
 }
 
 /// generated route for
-/// [_i1.ScreenLogin]
-class RouteLogin extends _i16.PageRouteInfo<void> {
-  const RouteLogin()
-      : super(
-          RouteLogin.name,
-          path: '/',
-        );
-
-  static const String name = 'RouteLogin';
-}
-
-/// generated route for
-/// [_i2.ScreenResetPassword]
-class RouteResetPassword extends _i16.PageRouteInfo<void> {
-  const RouteResetPassword()
-      : super(
-          RouteResetPassword.name,
-          path: '/resetPassword',
-        );
-
-  static const String name = 'RouteResetPassword';
-}
-
-/// generated route for
-/// [_i3.ScreenStockEdit]
-class RouteStockEdit extends _i16.PageRouteInfo<void> {
-  const RouteStockEdit()
-      : super(
-          RouteStockEdit.name,
-          path: '/stockEdit',
-        );
-
-  static const String name = 'RouteStockEdit';
-}
-
-/// generated route for
-/// [_i4.ScreenProductAdd]
-class RouteProductAdd extends _i16.PageRouteInfo<void> {
-  const RouteProductAdd()
-      : super(
-          RouteProductAdd.name,
-          path: '/productAdd',
-        );
-
-  static const String name = 'RouteProductAdd';
-}
-
-/// generated route for
-/// [_i5.ScreenCategoryEdit]
-class RouteCategoryEdit extends _i16.PageRouteInfo<void> {
-  const RouteCategoryEdit()
-      : super(
-          RouteCategoryEdit.name,
-          path: '/categoryEdit',
-        );
-
-  static const String name = 'RouteCategoryEdit';
-}
-
-/// generated route for
-/// [_i6.ScreenCustomerRegister]
-class RouteCustomerRegister extends _i16.PageRouteInfo<void> {
-  const RouteCustomerRegister()
-      : super(
-          RouteCustomerRegister.name,
-          path: '/customerRegister',
-        );
-
-  static const String name = 'RouteCustomerRegister';
-}
-
-/// generated route for
-/// [_i7.ScreenUserSetting]
-class RouteUserSetting extends _i16.PageRouteInfo<void> {
-  const RouteUserSetting()
-      : super(
-          RouteUserSetting.name,
-          path: '/userSetting',
-        );
-
-  static const String name = 'RouteUserSetting';
-}
-
-/// generated route for
-/// [_i8.ScreenSale]
-class RouteSale extends _i16.PageRouteInfo<void> {
-  const RouteSale()
-      : super(
-          RouteSale.name,
-          path: '/sale',
-        );
-
-  static const String name = 'RouteSale';
-}
-
-/// generated route for
-/// [_i9.ScreenCariCustomer]
-class RouteCariCustomer extends _i16.PageRouteInfo<void> {
-  const RouteCariCustomer()
-      : super(
-          RouteCariCustomer.name,
-          path: '/cariCustomer',
-        );
-
-  static const String name = 'RouteCariCustomer';
-}
-
-/// generated route for
-/// [_i10.ScreenCariSupplier]
-class RouteCariSupplier extends _i16.PageRouteInfo<void> {
-  const RouteCariSupplier()
-      : super(
-          RouteCariSupplier.name,
-          path: '/cariSupplier',
-        );
-
-  static const String name = 'RouteCariSupplier';
-}
-
-/// generated route for
-/// [_i11.ScreenCaseSnapshot]
-class RouteCaseSnapshot extends _i16.PageRouteInfo<void> {
-  const RouteCaseSnapshot()
-      : super(
-          RouteCaseSnapshot.name,
-          path: '/caseSnapshot',
-        );
-
-  static const String name = 'RouteCaseSnapshot';
-}
-
-/// generated route for
-/// [_i12.ScreenCapital]
-class RouteCapital extends _i16.PageRouteInfo<void> {
-  const RouteCapital()
+/// [ScreenCapital]
+class RouteCapital extends PageRouteInfo<void> {
+  const RouteCapital({List<PageRouteInfo>? children})
       : super(
           RouteCapital.name,
-          path: '/capital',
+          initialChildren: children,
         );
 
   static const String name = 'RouteCapital';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i13.ScreenExpenses]
-class RouteExpenses extends _i16.PageRouteInfo<void> {
-  const RouteExpenses()
+/// [ScreenCariCustomer]
+class RouteCariCustomer extends PageRouteInfo<void> {
+  const RouteCariCustomer({List<PageRouteInfo>? children})
+      : super(
+          RouteCariCustomer.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteCariCustomer';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenCariSupplier]
+class RouteCariSupplier extends PageRouteInfo<void> {
+  const RouteCariSupplier({List<PageRouteInfo>? children})
+      : super(
+          RouteCariSupplier.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteCariSupplier';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenCaseSnapshot]
+class RouteCaseSnapshot extends PageRouteInfo<void> {
+  const RouteCaseSnapshot({List<PageRouteInfo>? children})
+      : super(
+          RouteCaseSnapshot.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteCaseSnapshot';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenCategoryEdit]
+class RouteCategoryEdit extends PageRouteInfo<void> {
+  const RouteCategoryEdit({List<PageRouteInfo>? children})
+      : super(
+          RouteCategoryEdit.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteCategoryEdit';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenCustomerRegister]
+class RouteCustomerRegister extends PageRouteInfo<void> {
+  const RouteCustomerRegister({List<PageRouteInfo>? children})
+      : super(
+          RouteCustomerRegister.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteCustomerRegister';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenExpenses]
+class RouteExpenses extends PageRouteInfo<void> {
+  const RouteExpenses({List<PageRouteInfo>? children})
       : super(
           RouteExpenses.name,
-          path: '/expenses',
+          initialChildren: children,
         );
 
   static const String name = 'RouteExpenses';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i14.ScreenUsers]
-class RouteUsers extends _i16.PageRouteInfo<void> {
-  const RouteUsers()
+/// [ScreenLogin]
+class RouteLogin extends PageRouteInfo<void> {
+  const RouteLogin({List<PageRouteInfo>? children})
       : super(
-          RouteUsers.name,
-          path: '/usersEdit',
+          RouteLogin.name,
+          initialChildren: children,
         );
 
-  static const String name = 'RouteUsers';
+  static const String name = 'RouteLogin';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i15.ScreenTest]
-class RouteTest extends _i16.PageRouteInfo<void> {
-  const RouteTest()
+/// [ScreenProductAdd]
+class RouteProductAdd extends PageRouteInfo<void> {
+  const RouteProductAdd({List<PageRouteInfo>? children})
+      : super(
+          RouteProductAdd.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteProductAdd';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenResetPassword]
+class RouteResetPassword extends PageRouteInfo<void> {
+  const RouteResetPassword({List<PageRouteInfo>? children})
+      : super(
+          RouteResetPassword.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteResetPassword';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenSale]
+class RouteSale extends PageRouteInfo<void> {
+  const RouteSale({List<PageRouteInfo>? children})
+      : super(
+          RouteSale.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteSale';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenStockEdit]
+class RouteStockEdit extends PageRouteInfo<void> {
+  const RouteStockEdit({List<PageRouteInfo>? children})
+      : super(
+          RouteStockEdit.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteStockEdit';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenTest]
+class RouteTest extends PageRouteInfo<void> {
+  const RouteTest({List<PageRouteInfo>? children})
       : super(
           RouteTest.name,
-          path: '/screen-test',
+          initialChildren: children,
         );
 
   static const String name = 'RouteTest';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenUsers]
+class RouteUsers extends PageRouteInfo<void> {
+  const RouteUsers({List<PageRouteInfo>? children})
+      : super(
+          RouteUsers.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteUsers';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ScreenUserSetting]
+class RouteUserSetting extends PageRouteInfo<void> {
+  const RouteUserSetting({List<PageRouteInfo>? children})
+      : super(
+          RouteUserSetting.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RouteUserSetting';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/constants.dart';
-import 'package:stok_takip/utilities/navigation/navigation_manager.gr.dart';
+import 'package:stok_takip/utilities/navigation/navigation_manager.dart';
 import 'data/database_mango.dart';
 import 'utilities/navigation/auth_guard.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,7 +21,7 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-final _appRouter = AppRouter(authGuard: AuthGuard());
+final _appRouter = NavigationManager();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

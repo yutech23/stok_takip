@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart';
 import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/data/database_mango.dart';
@@ -12,9 +11,9 @@ import 'package:stok_takip/data/user_security_storage.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:stok_takip/validations/validation.dart';
-
 import '../bloc/bloc_login.dart';
 
+@RoutePage()
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({super.key});
 
@@ -26,14 +25,11 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
   late BlocLogin _blocLogin;
   final _controllerEmail = TextEditingController();
   final _controllerSifre = TextEditingController();
-  final _controllerResetEmail = TextEditingController();
-
-  final FocusNode _focusResetEmail = FocusNode();
   final FocusNode _focusLoginButton = FocusNode();
   final FocusNode _focusEmail = FocusNode();
   final FocusNode _focusPassword = FocusNode();
-  bool _switchLoginToForgetPassword = false;
 
+  bool _switchLoginToForgetPassword = false;
   final String _labelHeaderLogin = "HOŞGELDİNİZ";
   final String _labelHeaderResetPassword = "ŞİFREMİ UNUTTUM";
   final String _labelResetEmail = "Email Adresinizi Giriniz";
@@ -340,7 +336,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               if (res.isEmpty) {
                 _controllerEmail.clear();
                 // ignore: use_build_context_synchronously
-                context.noticeBarTrue(_labelNoticeResetPassword, 2);
+                await context.noticeBarTrue(_labelNoticeResetPassword, 2);
 
                 setState(() {
                   _switchLoginToForgetPassword = false;

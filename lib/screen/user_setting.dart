@@ -11,7 +11,7 @@ import '../utilities/dimension_font.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'package:crypto/crypto.dart';
 
-
+@RoutePage()
 class ScreenUserSetting extends StatefulWidget {
   const ScreenUserSetting({super.key});
 

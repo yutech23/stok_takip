@@ -24,7 +24,7 @@ import '../validations/format_convert_point_comma.dart';
 import '../validations/format_decimal_3by3_financial.dart';
 import '../validations/format_upper_case_text_format.dart';
 
-
+@RoutePage()
 class ScreenProductAdd extends StatefulWidget {
   const ScreenProductAdd({Key? key}) : super(key: key);
 

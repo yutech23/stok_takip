@@ -28,6 +28,7 @@ import '../validations/format_upper_case_text_format.dart';
 import '../validations/validation.dart';
 import 'drawer.dart';
 
+@RoutePage()
 class ScreenStockEdit extends StatefulWidget {
   const ScreenStockEdit({Key? key}) : super(key: key);
 
@@ -1095,7 +1096,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                         widgetSaveDateTimeTextFormField(setState),
 
                         widgetSearchTextFieldSupplier(),
-                        Spacer(),
+
                         widgetDividerHeader(_paymentSections),
                         widgetPaymentOptions(
                             controllerProductAmountOfStockNewValue,

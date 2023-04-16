@@ -8,6 +8,7 @@ import 'package:stok_takip/utilities/widget_category_edit.dart';
 import 'package:stok_takip/validations/validation.dart';
 import '../utilities/widget_appbar_setting.dart';
 
+@RoutePage()
 class ScreenCategoryEdit extends StatefulWidget {
   const ScreenCategoryEdit({Key? key}) : super(key: key);
 

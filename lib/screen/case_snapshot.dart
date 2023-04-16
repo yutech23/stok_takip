@@ -7,6 +7,7 @@ import 'package:stok_takip/validations/format_convert_point_comma.dart';
 import '../utilities/widget_appbar_setting.dart';
 import 'drawer.dart';
 
+@RoutePage()
 class ScreenCaseSnapshot extends StatefulWidget {
   const ScreenCaseSnapshot({super.key});
 

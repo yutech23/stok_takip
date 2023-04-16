@@ -22,6 +22,7 @@ import 'package:printing/printing.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pdf/widgets.dart' as pw;
 
+@RoutePage()
 class ScreenCariCustomer extends StatefulWidget {
   const ScreenCariCustomer({super.key});
 
@@ -319,7 +320,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
         Expanded(
             child: shareWidget.widgetTextFieldInput(
                 controller: _controllerInvoiceNo, etiket: _labelInvoice)),
-        context.extensionWidhSizedBox10(),
+        context.extensionWidhSizedBox20(),
         SizedBox(
           width: 180,
           child: ElevatedButton.icon(

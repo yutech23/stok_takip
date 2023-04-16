@@ -19,6 +19,7 @@ import '../utilities/widget_appbar_setting.dart';
 import 'package:phone_number_metadata/phone_number_metadata.dart';
 import 'drawer.dart';
 
+@RoutePage()
 class ScreenCustomerRegister extends StatefulWidget {
   const ScreenCustomerRegister({Key? key}) : super(key: key);
 

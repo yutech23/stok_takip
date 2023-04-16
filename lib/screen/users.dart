@@ -25,6 +25,7 @@ class ScreenUsers extends StatefulWidget {
   }
 }
 
+@RoutePage()
 class _ScreenCustomerSave extends State with Validation {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late final TextEditingController _controllerName;

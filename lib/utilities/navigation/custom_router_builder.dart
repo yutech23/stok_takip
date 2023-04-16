@@ -15,7 +15,7 @@ Widget nonPermissionScreen(BuildContext context) {
 
 class RolePermissionCustomRouter {
   static Route<T> customRouteBuilderAdmin<T>(
-      BuildContext context, Widget child, CustomPage page) {
+      BuildContext context, Widget child, page) {
     return PageRouteBuilder(
       fullscreenDialog: page.fullscreenDialog,
       settings: page,
@@ -30,7 +30,7 @@ class RolePermissionCustomRouter {
   }
 
   static Route<T> customRouteBuilderAdminAndUser<T>(
-      BuildContext context, Widget child, CustomPage page) {
+      BuildContext context, Widget child, page) {
     return PageRouteBuilder(
       fullscreenDialog: page.fullscreenDialog,
       settings: page,

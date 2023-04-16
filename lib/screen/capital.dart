@@ -19,6 +19,7 @@ import 'package:printing/printing.dart';
 // ignore: depend_on_referenced_packages
 import 'package:pdf/widgets.dart' as pw;
 
+@RoutePage()
 class ScreenCapital extends StatefulWidget {
   const ScreenCapital({super.key});
 
@@ -232,7 +233,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             padding: const EdgeInsets.all(4),
             child: Text(
               _labelCashBoxHeader,
-              style: context.theme.headline6!.copyWith(color: Colors.white),
+              style: context.theme.titleLarge!.copyWith(color: Colors.white),
             ),
           ),
           StreamBuilder<Map<String, dynamic>>(
@@ -259,7 +260,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                     ],
                   );
                 }
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }),
         ],
       ),
@@ -499,7 +500,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             title: Text(
               textAlign: TextAlign.center,
               _labelAddbalance,
-              style: context.theme.headline5!
+              style: context.theme.headlineSmall!
                   .copyWith(fontWeight: FontWeight.bold),
             ),
             content: SingleChildScrollView(
@@ -632,7 +633,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
             title: Text(
               textAlign: TextAlign.center,
               _labelLeadingAndCreditHeader,
-              style: context.theme.headline5!
+              style: context.theme.headlineSmall!
                   .copyWith(fontWeight: FontWeight.bold),
             ),
             content: SingleChildScrollView(
@@ -646,6 +647,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                   child: Column(children: [
                     widgetSearchPartnerLeadingAndBorrow(
                         _blocCapital.getterAllParter),
+                    context.extensionHighSizedBox10(),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
