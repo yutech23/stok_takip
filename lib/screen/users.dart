@@ -178,6 +178,7 @@ class _ScreenCustomerSave extends State with Validation {
   buildUser() {
     return Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,

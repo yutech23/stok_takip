@@ -69,7 +69,7 @@ class BlocUsers {
 
   ///Şifre Resetleme işlemleri  yapılan kodlar (Şuanlık kkullanılmıyor)
   Future<String> resetPassword(String userEmail) async {
-    return await db.updateResetPassword(userEmail);
+    return await db.resetPasswordByEmail(userEmail);
   }
 
   ///Güncellenme işlemi.
