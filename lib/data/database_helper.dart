@@ -2095,18 +2095,6 @@ class DbHelper {
     }
   }
 
-  ///Reset Password
-  Future<String> updateResetPassword(String userEmail) async {
-    try {
-      await db.supabase.auth.resetPasswordForEmail(userEmail,
-          redirectTo: sabitler.resetPasswordPath);
-
-      return "";
-    } on PostgrestException catch (e) {
-      return "Hata şifre Resetleme : ${e.message}";
-    }
-  }
-
   ///Kullanıcı Bilgilerin güncellenmesi
   Future<String> updateUserInfoForUsersDataBase(Kullanici userInfo) async {
     try {
