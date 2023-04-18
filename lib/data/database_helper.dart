@@ -47,10 +47,11 @@ class DbHelper {
         'refreshToken': data.session!.refreshToken,
       });
       return userSessionMap;
-    } catch (e) {
+    } on AuthException catch (e) {
       userSessionMap.addAll({
         'id': "",
       });
+      debugPrint("Hata signIn: ${e.message}");
       return userSessionMap;
     }
   }
@@ -182,6 +183,18 @@ class DbHelper {
     } on PostgrestException catch (e) {
       debugPrint("Hata SignUp : ${e.message}");
       return e.message;
+    }
+  }
+
+  Future<bool> chechStatusUser(String userId) async {
+    try {
+      List<dynamic> res =
+          await db.supabase.from('users').select('status').eq('id', userId);
+
+      return res.first['status'];
+    } on PostgrestException catch (e) {
+      debugPrint("Hata chechStatus : ${e.message}");
+      return false;
     }
   }
 

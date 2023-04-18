@@ -246,59 +246,66 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
               ///kontrol sonrası dönen değerin içinde status baklıyor.
               /// true ise giriş başarılı ve veriler Storage yazılıyor.
               if (userInfo['id'] != "") {
-                // ignore: use_build_context_synchronously
+                bool? userStatus;
+                Timer(const Duration(milliseconds: 100), () async {
+                  userStatus = await db.chechStatusUser(userInfo['id']);
 
-                //isAuth = true yaparak s ayfa yönlenmesine auth_guard izin veriyor.
-                authController.setAuthTrue();
-                /*  SecurityStorageUser.setUserId(userInfo['id'].toString());
-                print("ana veri tipi: ${userInfo['id'].runtimeType}");
-              
+                  ///Kullanıcılardan aktif pasif durumunu göre girişe izin veriyor
+                  ///2 ayrı user tablosu olması yüzünden. Login oluyor session silmek gerekiyor.
+                  if (userStatus!) {
+                    authController.setAuthTrue();
+                    /*  SecurityStorageUser.setUserId(userInfo['id'].toString());
+                    print("ana veri tipi: ${userInfo['id'].runtimeType}");
+                    print("store : ${await SecurityStorageUser.getUserId()}"); */
+                    //id hive database kaydediliyor.
+                    dbHive.putToBox('uuid', userInfo['id']);
 
-                print("store : ${await SecurityStorageUser.getUserId()}"); */
-                //id hive database kaydediliyor.
-                dbHive.putToBox('uuid', userInfo['id']);
+                    SecurityStorageUser.setUserAccessToken(
+                        userInfo['accessToken']!);
+                    SecurityStorageUser.setUserRefleshToken(
+                        userInfo['refreshToken']!);
 
-                SecurityStorageUser.setUserAccessToken(
-                    userInfo['accessToken']!);
-                SecurityStorageUser.setUserRefleshToken(
-                    userInfo['refreshToken']!);
+                    /// User tablosundan verileri almada async yüzünden sorun yaşıyor.
+                    /// Verilerin çekilebilmesi için ilk önce loggin olunması gerekiyor.
+                    /// bu yüzden yavaşlatmak için Timer kullanıldı.
+                    Timer(
+                      const Duration(milliseconds: 200),
+                      () async {
+                        final userNameSurnameRole =
+                            await db.fetchNameSurnameRole(userInfo['id']);
 
-                /// User tablosundan verileri almada async yüzünden sorun yaşıyor.
-                /// Verilerin çekilebilmesi için ilk önce loggin olunması gerekiyor.
-                /// bu yüzden yavaşlatmak için Timer kullanıldı.
-                Timer(
-                  const Duration(milliseconds: 200),
-                  () async {
-                    final userNameSurnameRole =
-                        await db.fetchNameSurnameRole(userInfo['id']);
+                        ///Role Cache tutulduğu için String olmak zorunda oluyor. Ama Veritabından
+                        ///int değer olarak tutuluyor.
+                        authController.role =
+                            userNameSurnameRole['role'].toString();
+                        //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
+                        final roleList =
+                            await db.fetchPageInfoByRole(authController.role);
+                        await SecurityStorageUser.setPageList(roleList);
 
-                    ///Role Cache tutulduğu için String olmak zorunda oluyor. Ama Veritabından
-                    ///int değer olarak tutuluyor.
-                    authController.role =
-                        userNameSurnameRole['role'].toString();
-                    //Kullanı rolüne göre izinli olduğu sayfaların listesi geliyor.
-                    final roleList =
-                        await db.fetchPageInfoByRole(authController.role);
-                    await SecurityStorageUser.setPageList(roleList);
+                        SecurityStorageUser.setUserName(
+                            userNameSurnameRole['name']);
+                        SecurityStorageUser.setUserLastName(
+                            userNameSurnameRole['last_name']);
+                        SecurityStorageUser.setUserRole(
+                            userNameSurnameRole['role'].toString());
 
-                    SecurityStorageUser.setUserName(
-                        userNameSurnameRole['name']);
-                    SecurityStorageUser.setUserLastName(
-                        userNameSurnameRole['last_name']);
-                    SecurityStorageUser.setUserRole(
-                        userNameSurnameRole['role'].toString());
-
-                    // ignore: use_build_context_synchronously
-                    await context.noticeBarTrue("Giriş başarılı.", 1);
-                    if (authController.role == '1') {
-                      // ignore: use_build_context_synchronously
-                      context.router.pushNamed(ConstRoute.caseSnapshot);
-                    } else if (authController.role == '2') {
-                      // ignore: use_build_context_synchronously
-                      context.router.pushNamed(ConstRoute.sale);
-                    }
-                  },
-                );
+                        // ignore: use_build_context_synchronously
+                        await context.noticeBarTrue("Giriş başarılı.", 1);
+                        if (authController.role == '1') {
+                          // ignore: use_build_context_synchronously
+                          context.router.pushNamed(ConstRoute.caseSnapshot);
+                        } else if (authController.role == '2') {
+                          // ignore: use_build_context_synchronously
+                          context.router.pushNamed(ConstRoute.sale);
+                        }
+                      },
+                    );
+                  } else {
+                    await context.noticeBarError("Kullanıcı silinmiştir.", 3);
+                    await db.signOut();
+                  }
+                });
               } else {
                 // ignore: use_build_context_synchronously
                 context.noticeBarError("Giriş başarısız.", 1);
