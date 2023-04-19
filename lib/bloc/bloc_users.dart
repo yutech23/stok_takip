@@ -44,9 +44,9 @@ class BlocUsers {
 
       ///Veritabanından durum değeri bool olarak geliyor.
       if (user['status']) {
-        user['status'] = "Evet";
+        user['status'] = "Aktif";
       } else {
-        user['status'] = "Hayır";
+        user['status'] = "Pasif";
       }
 
       ///Veritabanından isim bölümü üyük harfler çeviriliyor..

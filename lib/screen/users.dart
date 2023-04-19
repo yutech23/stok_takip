@@ -139,7 +139,7 @@ class _ScreenCustomerSave extends State with Validation {
                 _controllerLastName.text = row['last_name'];
 
                 _switchPartnerValue = row['partner'] == 'Evet' ? true : false;
-                _switchStatusValue = row['status'] == 'Evet' ? true : false;
+                _switchStatusValue = row['status'] == 'Aktif' ? true : false;
                 _role = row['role'];
               });
             },
