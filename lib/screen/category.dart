@@ -67,61 +67,70 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
             mainAxisSize: MainAxisSize.min,
             children: [
               ///Kategori silme bölümü
-              widgetCardCategoryDelete(),
+              Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: widgetCardCategoryDelete()),
               context.extensionHighSizedBox10(),
 
               ///TabBar Bölümü
               Container(
-                constraints: const BoxConstraints(maxWidth: 850),
-                decoration: BoxDecoration(
-                    color: Colors.blueGrey.shade100,
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
-                    ]),
-                padding: const EdgeInsets.all(8),
-                child: TabBar(
-                    controller: _controllerTab,
-                    unselectedLabelColor: context.extensionDefaultColor,
-                    labelColor: Colors.white,
-                    indicatorColor: Colors.blueGrey.shade600,
-                    labelStyle: context.theme.titleMedium,
-                    indicator: BoxDecoration(
-                        color: context.extensionDefaultColor,
-                        boxShadow: const [
-                          BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.5),
-                              blurRadius: 8)
-                        ]),
-                    tabs: [
-                      widgetTab(_labelNewCategoryAdd),
-                      widgetTab(_labelCategoryEdit),
-                    ]),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  decoration: BoxDecoration(
+                      color: Colors.blueGrey.shade100,
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
+                      ]),
+                  padding: const EdgeInsets.all(8),
+                  child: TabBar(
+                      controller: _controllerTab,
+                      unselectedLabelColor: context.extensionDefaultColor,
+                      labelColor: Colors.white,
+                      indicatorColor: Colors.blueGrey.shade600,
+                      labelStyle: context.theme.titleMedium,
+                      indicator: BoxDecoration(
+                          color: context.extensionDefaultColor,
+                          boxShadow: const [
+                            BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.5),
+                                blurRadius: 8)
+                          ]),
+                      tabs: [
+                        widgetTab(_labelNewCategoryAdd),
+                        widgetTab(_labelCategoryEdit),
+                      ]),
+                ),
               ),
               Container(
-                height: _tabHeight,
-                constraints: const BoxConstraints(minWidth: 360, maxWidth: 850),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(15),
-                        bottomRight: Radius.circular(15)),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
-                    ]),
-                child: TabBarView(
-                  controller: _controllerTab,
-                  children: [
-                    SingleChildScrollView(
-                      child: WidgetCategoryAdd(_blocCategory),
-                    ),
-                    SingleChildScrollView(
-                      child: WidgetCategoryEdit(_blocCategory),
-                    ),
-                  ],
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: _tabHeight,
+                  constraints:
+                      const BoxConstraints(minWidth: 360, maxWidth: 850),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(15),
+                          bottomRight: Radius.circular(15)),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.5), blurRadius: 8)
+                      ]),
+                  child: TabBarView(
+                    controller: _controllerTab,
+                    children: [
+                      SingleChildScrollView(
+                        child: WidgetCategoryAdd(_blocCategory),
+                      ),
+                      SingleChildScrollView(
+                        child: WidgetCategoryEdit(_blocCategory),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

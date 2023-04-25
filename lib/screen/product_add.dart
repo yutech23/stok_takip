@@ -179,75 +179,68 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           alignment: Alignment.center,
           decoration: context.extensionThemaGreyContainer(),
           child: SingleChildScrollView(
-              child: Wrap(
-            direction: Axis.vertical,
-            alignment: WrapAlignment.end,
-            spacing: 10,
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                    minWidth: _containerMainMinWidth,
-                    maxWidth: _containerMainMaxWidth),
-                padding: context.extensionPadding20(),
-                decoration: context.extensionThemaWhiteContainer(),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.only(right: 20),
-                      child: SizedBox(
-                          width: 200,
-                          height: 40,
-                          child: shareWidgetDateTimeTextFormField()),
-                    ),
-                    context.extensionHighSizedBox10(),
-                    Wrap(
-                        alignment: WrapAlignment.center,
-                        direction: Axis.horizontal,
-                        spacing: 30,
-                        runSpacing: 10,
-                        children: [
-                          Wrap(
-                            direction: Axis.horizontal,
-                            spacing: context.extensionWrapSpacing20(),
-                            runSpacing: context.extensionWrapSpacing10(),
-                            children: [
-                              widgetWrapTextFieldMinAndMaxWidth(
-                                  widgetSearchTextFieldProductCodeUpperCase()),
-                              widgetWrapTextFieldMinAndMaxWidth(
-                                widgetInvoiceCode(),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: widgetSearchTextFieldSupplier(),
-                          )
-                        ]),
-                    widgetDividerHeader(_categorySections, 35),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      child: widgetCategorySelectSection(),
-                    ),
-                    const Divider(),
-                    widgetDividerHeader(_paymentSections, null),
-                    widgetPaymentOptions(),
-                    Divider(
-                        color: context.extensionLineColor,
-                        endIndent: 30,
-                        indent: 30,
-                        thickness: 2.5,
-                        height: 20),
-                    const Divider(),
-                    widgetProductUnitSection(),
-                    const Divider(),
-                    widgetSaveProduct(),
-                  ],
+              child: Container(
+            constraints: BoxConstraints(
+                minWidth: _containerMainMinWidth,
+                maxWidth: _containerMainMaxWidth),
+            padding: context.extensionPadding20(),
+            decoration: context.extensionThemaWhiteContainer(),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: SizedBox(
+                      width: 200,
+                      height: 40,
+                      child: shareWidgetDateTimeTextFormField()),
                 ),
-              ),
-            ],
+                context.extensionHighSizedBox10(),
+                Wrap(
+                    alignment: WrapAlignment.center,
+                    direction: Axis.horizontal,
+                    spacing: 30,
+                    runSpacing: 10,
+                    children: [
+                      Wrap(
+                        direction: Axis.horizontal,
+                        spacing: context.extensionWrapSpacing20(),
+                        runSpacing: context.extensionWrapSpacing10(),
+                        children: [
+                          widgetWrapTextFieldMinAndMaxWidth(
+                              widgetSearchTextFieldProductCodeUpperCase()),
+                          widgetWrapTextFieldMinAndMaxWidth(
+                            widgetInvoiceCode(),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: widgetSearchTextFieldSupplier(),
+                      )
+                    ]),
+                widgetDividerHeader(_categorySections, 35),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: widgetCategorySelectSection(),
+                ),
+                const Divider(),
+                widgetDividerHeader(_paymentSections, null),
+                widgetPaymentOptions(),
+                Divider(
+                    color: context.extensionLineColor,
+                    endIndent: 30,
+                    indent: 30,
+                    thickness: 2.5,
+                    height: 20),
+                const Divider(),
+                widgetProductUnitSection(),
+                const Divider(),
+                widgetSaveProduct(),
+              ],
+            ),
           )),
         ));
   }
