@@ -551,6 +551,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                     blocSale.addProduct(_selectProduct!);
                     blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
                     blocSale.balance();
+                    //enter yapıldıktan sonra ürün kod bölümü temizleniyor.
+                    _controllerSearchProductCode.clear();
                   }
                 }
               },
@@ -606,6 +608,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                     blocSale.addProduct(_selectProduct!);
                     blocSale.getTotalPriceSection(_selectUnitOfCurrencySymbol);
                     blocSale.balance();
+                    //enter yapıldıktan sonra ürün kod bölümü temizleniyor.
+                    _controllerSearchProductCode.clear();
                   }
                 }
               },
@@ -648,6 +652,8 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 _listAddProduct.add(_selectProduct!);
               });
             } */
+            //enter yapıldıktan sonra ürün kod bölümü temizleniyor.
+            _controllerSearchProductCode.clear();
           }
         },
         label: Text(_labelAddProduct),
