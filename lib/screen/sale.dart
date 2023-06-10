@@ -553,10 +553,11 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                     blocSale.balance();
                     //enter yapıldıktan sonra ürün kod bölümü temizleniyor.
                     _controllerSearchProductCode.clear();
+                    _focusSearchProductCode.requestFocus();
                   }
                 }
               },
-              maxSuggestionsInViewPort: 6,
+              maxSuggestionsInViewPort: 3,
             );
           }
           return Container();
