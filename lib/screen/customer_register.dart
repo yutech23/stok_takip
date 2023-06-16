@@ -302,7 +302,7 @@ class _ScreenCustomerSave extends State with Validation {
   buildCustomerRegister() {
     return Form(
         key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        // autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -852,16 +852,19 @@ class _ScreenCustomerSave extends State with Validation {
   }
 
   listeEklemeSupplier() {
+    //Şirket Adı
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         inputFormat: [FormatterUpperCaseTextFormatter()],
         controller: _controllerSupplierName,
         etiket: _labelSupplierName,
         maxCharacter: 100,
         validationFunc: validateCompanyName));
+    //Banka Adı
     listCustomerRegister.add(shareWidget.widgetTextFieldInput(
         keyboardInputType: TextInputType.name,
         controller: _controllerBankName,
         etiket: _labelBankName));
+    //IBAN Bölümü
     listCustomerRegister
         .add(shareWidget.widgetTextFieldIban(controller: _controllerIban));
     listCustomerRegister.add(widgetCountryPhoneNumber());

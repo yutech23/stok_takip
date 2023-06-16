@@ -24,6 +24,7 @@ class ShareWidget with Validation {
     return SizedBox(
       height: _inputHeight,
       child: TextFormField(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: onChanged,
         maxLength: maxCharacter,
         obscureText: karakterGostermeDurumu!,
