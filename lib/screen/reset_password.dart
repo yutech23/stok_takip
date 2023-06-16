@@ -170,7 +170,7 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
 
   //Uygulama Buttonu
   DecoratedBox widgetButtonSaveNewPassword(BuildContext context) {
-    print("deger : ${authController.resetPasswordButtonActive}");
+    // print("deger : ${authController.resetPasswordButtonActive}");
     return DecoratedBox(
         decoration: context.extensionThemaButton(),
         child: ElevatedButton(
@@ -179,7 +179,49 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
               disabledBackgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
             ),
-            onPressed: authController.resetPasswordButtonActive
+            onPressed: () async {
+              ///girilen şifrelerin bir biri ile eşleşmesini kontrol ediyor.
+              if (_controllerNewPassword.text ==
+                      _controllerReNewPassword.text &&
+                  _formKey.currentState!.validate()) {
+                ///password güncelliyor ama sadece supabase user içinde yapıyor.
+                ///şifreyi kullanıcılar tablosunda tutuluyor. göstermek için.
+                final resValue = await db
+                    .updateUserInformation(_controllerReNewPassword.text);
+
+                if (resValue.isEmpty) {
+                  _controllerNewPassword.clear();
+                  _controllerReNewPassword.clear();
+                  // ignore: use_build_context_synchronously
+                  await context.noticeBarTrue(
+                      "Şifreniz başarı ile değişmiştir.", 2);
+                  // ignore: use_build_context_synchronously
+                  context.router.pushNamed(ConstRoute.login);
+                } else {
+                  // ignore: use_build_context_synchronously
+                  context.noticeBarError("HATA\n $resValue", 3);
+                }
+              } else {
+                context.noticeBarError('Girdiğiniz şifreler eşleşmedi', 2);
+              }
+            },
+            child: Container(
+              alignment: Alignment.center,
+              height: 50,
+              child: Text(
+                textAlign: TextAlign.center,
+                style:
+                    context.theme.headlineSmall!.copyWith(color: Colors.white),
+                _labelSaveButton,
+              ),
+            )));
+  }
+}
+
+/** Burada token geldiğinde uygula buttonu aktif olacaktı ama sorun
+ * çıktığı için iptal ettim
+ * 
+ * onPressed: authController.resetPasswordButtonActive
                 ? () async {
                     ///girilen şifrelerin bir biri ile eşleşmesini kontrol ediyor.
                     if (_controllerNewPassword.text ==
@@ -208,15 +250,4 @@ class _ScreenResetPasswordState extends State<ScreenResetPassword>
                     }
                   }
                 : null,
-            child: Container(
-              alignment: Alignment.center,
-              height: 50,
-              child: Text(
-                textAlign: TextAlign.center,
-                style:
-                    context.theme.headlineSmall!.copyWith(color: Colors.white),
-                _labelSaveButton,
-              ),
-            )));
-  }
-}
+ */

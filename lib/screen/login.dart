@@ -85,7 +85,7 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
     );
   }
 
-  /*  //Mehmed Abi
+  //Mehmed Abi
   widgetCustomerLogo() {
     return Image.asset(
       fit: BoxFit.fitWidth,
@@ -93,16 +93,16 @@ class _ScreenLoginState extends State<ScreenLogin> with Validation {
       width: 300,
       height: 100,
     );
-  } */
+  }
 
-  ///Toplu Site için
+/*   ///Toplu Site için
   widgetCustomerLogo() {
     return const Icon(
       Icons.dashboard,
       color: Colors.white,
       size: 120,
     );
-  }
+  } */
 
 //E-mail, sifre ve KayıtButton bölümü
   Container widgetSignInContainer() {
