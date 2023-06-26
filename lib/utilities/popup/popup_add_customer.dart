@@ -418,7 +418,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
               _customer = Customer.soleTrader(
                 soleTraderName: _controllerName.text,
                 soleTraderLastName: _controllerLastName.text,
-                phone: Sabitler.countryCode + _controllerPhoneNumber.text,
+                countryCode: _phoneController.value!.countryCode,
+                phone: _phoneController.value!.nsn,
                 city: _selectedCity,
                 district: _selectDistrict,
                 address: _controlleraddress.text,

@@ -980,7 +980,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
       child: shareWidget.widgetElevatedButton(
           onPressedDoSomething: () async {
             if (_controllerSearchCustomer.text != "" &&
-                _controllerSearchProductCode.text != "" &&
+                // _controllerSearchProductCode.text != "" &&
                 // ignore: prefer_is_empty
                 blocSale.listProduct.length >= 1) {
               String? userId = dbHive.getValues('uuid');
