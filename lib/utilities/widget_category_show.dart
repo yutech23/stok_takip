@@ -71,7 +71,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
   }
 
   widgetCategory1Show(ScrollController controllerScroll) {
-    return Container(
+    return SizedBox(
       width: 120,
       height: 175,
       child: Card(
@@ -85,10 +85,10 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
             if (!snapshot.hasError && snapshot.hasData) {
               ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
               ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-              List<Map<int, String>> _category1Name = [];
+              List<Map<int, String>> category1Name = [];
 
               for (var element in snapshot.data!) {
-                _category1Name.add({element['category1_id']: element['name']});
+                category1Name.add({element['category1_id']: element['name']});
               }
 
               return Scrollbar(
@@ -102,7 +102,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                   child: ListView.builder(
                     shrinkWrap: true,
                     controller: controllerScroll,
-                    itemCount: _category1Name.length,
+                    itemCount: category1Name.length,
                     itemBuilder: (context, index) {
                       return Container(
                           decoration: const BoxDecoration(
@@ -118,7 +118,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
 
                                 ///Map i value değerini bir listeye dönüşüyor.
                                 Text(
-                                    _category1Name[index]
+                                    category1Name[index]
                                         .values
                                         .toString()
                                         .replaceAll(RegExp(r"[)(]"), ''),
@@ -152,7 +152,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                                 }
 
                                 widget._category.category1 =
-                                    _category1Name[index];
+                                    category1Name[index];
                                 if (_temp[0] !=
                                     widget._category.category1!.values.first) {
                                   widget._category.category2 = null;
@@ -194,7 +194,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
     if (widget._category.category1 == null) {
       return Container();
     } else {
-      return Container(
+      return SizedBox(
         width: 120,
         height: 175,
         child: Card(
@@ -208,11 +208,10 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
               if (!snapshot.hasError && snapshot.hasData) {
                 ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                 ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                List<Map<int, String>> _category2Name = [];
+                List<Map<int, String>> category2Name = [];
 
                 for (var element in snapshot.data!) {
-                  _category2Name
-                      .add({element['category2_id']: element['name']});
+                  category2Name.add({element['category2_id']: element['name']});
                 }
 
                 return Scrollbar(
@@ -226,7 +225,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: controllerScroll,
-                      itemCount: _category2Name.length,
+                      itemCount: category2Name.length,
                       itemBuilder: (context, index) {
                         return Container(
                             decoration: const BoxDecoration(
@@ -242,7 +241,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
 
                                   ///Map i value değerini bir listeye dönüşüyor.
                                   Text(
-                                      _category2Name[index]
+                                      category2Name[index]
                                           .values
                                           .toString()
                                           .replaceAll(RegExp(r"[)(]"), ''),
@@ -271,7 +270,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                                   }
 
                                   widget._category.category2 =
-                                      _category2Name[index];
+                                      category2Name[index];
                                   if (_temp[1] !=
                                       widget
                                           ._category.category2!.values.first) {
@@ -315,7 +314,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
     if (widget._category.category2 == null) {
       return Container();
     } else {
-      return Container(
+      return SizedBox(
         width: 120,
         height: 175,
         child: Card(
@@ -329,11 +328,10 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
               if (!snapshot.hasError && snapshot.hasData) {
                 ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                 ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                List<Map<int, String>> _category3Name = [];
+                List<Map<int, String>> category3Name = [];
 
                 for (var element in snapshot.data!) {
-                  _category3Name
-                      .add({element['category3_id']: element['name']});
+                  category3Name.add({element['category3_id']: element['name']});
                 }
 
                 return Scrollbar(
@@ -347,7 +345,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: controllerScroll,
-                      itemCount: _category3Name.length,
+                      itemCount: category3Name.length,
                       itemBuilder: (context, index) {
                         return Container(
                             decoration: const BoxDecoration(
@@ -363,7 +361,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
 
                                     ///Map i value değerini bir listeye dönüşüyor.
                                     Text(
-                                  _category3Name[index].values.first,
+                                  category3Name[index].values.first,
                                   style: TextStyle(
                                     color: _listSelectIndex[2] == index
                                         ? Colors.white
@@ -394,7 +392,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                                     }
 
                                     widget._category.category3 =
-                                        _category3Name[index];
+                                        category3Name[index];
                                     if (_temp[2] !=
                                         widget._category.category3!.values
                                             .first) {
@@ -438,7 +436,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
     if (widget._category.category3 == null) {
       return Container();
     } else {
-      return Container(
+      return SizedBox(
         width: 120,
         height: 175,
         child: Card(
@@ -452,11 +450,10 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
               if (!snapshot.hasError && snapshot.hasData) {
                 ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                 ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                List<Map<int, String>> _category4Name = [];
+                List<Map<int, String>> category4Name = [];
 
                 for (var element in snapshot.data!) {
-                  _category4Name
-                      .add({element['category4_id']: element['name']});
+                  category4Name.add({element['category4_id']: element['name']});
                 }
 
                 return Scrollbar(
@@ -470,7 +467,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: controllerScroll,
-                      itemCount: _category4Name.length,
+                      itemCount: category4Name.length,
                       itemBuilder: (context, index) {
                         return Container(
                             decoration: const BoxDecoration(
@@ -486,7 +483,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
 
                                     ///Map i value değerini bir listeye dönüşüyor.
                                     Text(
-                                  _category4Name[index].values.first,
+                                  category4Name[index].values.first,
                                   style: TextStyle(
                                     color: _listSelectIndex[3] == index
                                         ? Colors.white
@@ -509,7 +506,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                                     }
 
                                     widget._category.category4 =
-                                        _category4Name[index];
+                                        category4Name[index];
                                     if (_temp[3] !=
                                         widget._category.category4!.values
                                             .first) {
@@ -551,7 +548,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
     if (widget._category.category4 == null) {
       return Container();
     } else {
-      return Container(
+      return SizedBox(
         width: 120,
         height: 175,
         child: Card(
@@ -565,11 +562,10 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
               if (!snapshot.hasError && snapshot.hasData) {
                 ///Buradaki listeyi oluşturma sebebi gelen veriyi Map<int,String>
                 ///dönüştürme bu şekilde categorinin id tutmuş oluyoruz.
-                List<Map<int, String>> _category5Name = [];
+                List<Map<int, String>> category5Name = [];
 
                 for (var element in snapshot.data!) {
-                  _category5Name
-                      .add({element['category5_id']: element['name']});
+                  category5Name.add({element['category5_id']: element['name']});
                 }
 
                 return Scrollbar(
@@ -583,7 +579,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: controllerScroll,
-                      itemCount: _category5Name.length,
+                      itemCount: category5Name.length,
                       itemBuilder: (context, index) {
                         return Container(
                             decoration: const BoxDecoration(
@@ -599,7 +595,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
 
                                   ///Map i value değerini bir listeye dönüşüyor.
                                   Text(
-                                _category5Name[index].values.first,
+                                category5Name[index].values.first,
                                 style: TextStyle(
                                   color: _listSelectIndex[4] == index
                                       ? Colors.white
@@ -615,7 +611,7 @@ class _WidgetCategoryShowState extends State<WidgetCategoryShow> {
                                 });
 
                                 widget._category.category5 =
-                                    _category5Name[index];
+                                    category5Name[index];
                               },
                             ));
                       },

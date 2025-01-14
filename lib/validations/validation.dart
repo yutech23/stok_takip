@@ -31,7 +31,7 @@ mixin Validation {
   }
 
   String? validatePassword(String? value) {
-    this.password = value;
+    password = value;
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı boş bırakmayınız';
     } else if (value.length < 6) {
@@ -54,43 +54,49 @@ mixin Validation {
   String? validateRoleSelectFunc(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen bir yetki türü seçiniz.';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateNotEmpty(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen alanı doldurun.';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateNotEmptyAddText(String? value, {required String message}) {
     if (value == null || value.isEmpty) {
       return 'Lütfen $message';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateNotEmptySelect(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen seçim yapınız.';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateCity(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen İl seçiniz';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateDistrict(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen İlçe seçiniz';
-    } else
+    } else {
       return null;
+    }
   }
 
   String? validateTaxNumber(String? value) {

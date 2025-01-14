@@ -173,7 +173,7 @@ class _ScreenUserSettingState extends State<ScreenUserSetting> with Validation {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: "Yeni şifrenizi doğrulayın",
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
             focusNode: FocusNode(skipTraversal: true),
             onPressed: () {

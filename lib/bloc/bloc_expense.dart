@@ -16,7 +16,7 @@ class BlocExpense {
   }
 
   List<Expense> listExpense = <Expense>[];
-  List<Map<String, dynamic>> _listService = [
+  final List<Map<String, dynamic>> _listService = [
     {
       'id': '0',
       'saveTime': '',

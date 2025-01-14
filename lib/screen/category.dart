@@ -68,13 +68,13 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
             children: [
               ///Kategori silme bölümü
               Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: widgetCardCategoryDelete()),
               context.extensionHighSizedBox10(),
 
               ///TabBar Bölümü
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 850),
                   decoration: BoxDecoration(
@@ -104,7 +104,7 @@ class _ScreenCategoryEditState extends State<ScreenCategoryEdit>
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   height: _tabHeight,
                   constraints:

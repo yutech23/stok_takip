@@ -106,7 +106,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
               Center(
                 child: Text(
                   _labelPopupHeader,
-                  style: context.theme.headline5!
+                  style: context.theme.headlineSmall!
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -114,7 +114,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
                 alignment: Alignment.centerRight,
                 child: IconButton(
                   color: context.extensionDisableColor,
-                  icon: Icon(Icons.print),
+                  icon: const Icon(Icons.print),
                   onPressed: () async => createPdfInvoice(),
                 ),
               ),
@@ -190,8 +190,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
           0: FixedColumnWidth(140),
           1: FixedColumnWidth(135),
         },
-        border: TableBorder.symmetric(
-            inside: const BorderSide(color: Colors.white)),
+        border: TableBorder.symmetric(inside: BorderSide(color: Colors.white)),
         children: [
           TableRow(
               decoration: BoxDecoration(
@@ -311,7 +310,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
     if (widget.blocCari.getterSaleInfo['customer_type'] == "Şahıs") {
       return Container(
         height: 98,
-        padding: EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         alignment: Alignment.centerLeft,
         width: _widthShareRow,
         decoration: BoxDecoration(
@@ -425,7 +424,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.centerRight,
                     child: Text(
                       header,
@@ -435,7 +434,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4),
+                    padding: const EdgeInsets.fromLTRB(15, 4, 0, 4),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       value,
@@ -452,7 +451,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       header,
@@ -462,7 +461,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       value,
@@ -792,7 +791,7 @@ class _ScreenCustomerSave extends State<PopupSaleDetail> with Validation {
   widgetButtonPrint() {
     return ElevatedButton.icon(
         onPressed: () async => createPdfInvoice(),
-        icon: Icon(Icons.print),
-        label: Text("Yazdır"));
+        icon: const Icon(Icons.print),
+        label: const Text("Yazdır"));
   }
 }

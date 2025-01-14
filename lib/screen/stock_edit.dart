@@ -405,8 +405,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
       appBar: AppBar(
         title: Text(_labelPageHeader),
         actionsIconTheme: IconThemeData(color: Colors.blueGrey.shade100),
-        actions: [
-          const ShareWidgetAppbarSetting(),
+        actions: const [
+          ShareWidgetAppbarSetting(),
         ],
       ),
       body: buildStockEdit(),
@@ -501,7 +501,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               category2.add({element['category2_id']: element['name']});
             }
             //   _selectedCategory2Id = _category2[0].keys.first;
-            return Container(
+            return SizedBox(
               width: 220,
               child: ShareDropdownFiltre(
                 disable: _disableCategory2,
@@ -513,7 +513,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             );
           } else {
             _selectedCategory2Id = null;
-            return Container(
+            return SizedBox(
               width: 220,
               child: ShareDropdownFiltre(
                 disable: true,
@@ -540,7 +540,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
               category3.add({element['category3_id']: element['name']});
             }
 
-            return Container(
+            return SizedBox(
               width: 220,
               child: ShareDropdownFiltre(
                 disable: _disableCategory3,
@@ -552,7 +552,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             );
           } else {
             _selectedCategory3Id = null;
-            return Container(
+            return SizedBox(
               width: 220,
               child: ShareDropdownFiltre(
                 disable: true,
@@ -579,7 +579,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             category4.add({element['category4_id']: element['name']});
           }
 
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: _disableCategory4,
@@ -591,7 +591,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           );
         } else {
           _selectedCategory4Id = null;
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: true,
@@ -619,7 +619,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             category5.add({element['category5_id']: element['name']});
           }
           //  _selectedCategory5Id = _category5[0].keys.first;
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: _disableCategory5,
@@ -631,7 +631,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           );
         } else {
           _selectedCategory5Id = null;
-          return Container(
+          return SizedBox(
             width: 220,
             child: ShareDropdownFiltre(
               disable: true,
@@ -938,7 +938,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                 print("statu degeri : $_statu"); */
 
                 return ResponsiveDatatable(
-                  reponseScreenSizes: [ScreenSize.xs],
+                  reponseScreenSizes: const [ScreenSize.xs],
 
                   ///Search kısmını oluşturuyoruz.
                   actions: [
@@ -976,11 +976,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                       child: RichText(
                         text: TextSpan(
                             text: "Toplam ürün sayısı : ",
-                            style: context.theme.headline6,
+                            style: context.theme.titleLarge,
                             children: [
                               TextSpan(
                                   text: _totalNumberOfProduct.toString(),
-                                  style: context.theme.headline6!.copyWith(
+                                  style: context.theme.titleLarge!.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red)),
                             ]),
@@ -1002,10 +1002,11 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                   headerTextStyle:
                       context.theme.titleMedium!.copyWith(color: Colors.white),
                   rowTextStyle: context.theme.titleSmall,
-                  selectedTextStyle: TextStyle(color: Colors.white),
+                  selectedTextStyle: const TextStyle(color: Colors.white),
                 );
-              } else
-                return Container(child: Text('Database bağlanamadı'));
+              } else {
+                return Container(child: const Text('Database bağlanamadı'));
+              }
             }),
       ),
     );
@@ -1359,7 +1360,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
                             'Lütfen bilgileri eksiksiz giriniz.', 5);
                       }
                     },
-                    child: Text('Güncelle'))
+                    child: const Text('Güncelle'))
               ],
             ),
           );
@@ -1376,7 +1377,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
             title: Text(
                 textAlign: TextAlign.center,
                 'Ürünü silmek istediğinizden emin misiniz?',
-                style: context.theme.headline6!
+                style: context.theme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold)),
             actions: [
               Row(
@@ -1563,8 +1564,8 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           value: _numberOfRowsPerPage,
           items: _rowPerPages
               .map((e) => DropdownMenuItem<int>(
-                    child: Text("$e"),
                     value: e,
+                    child: Text("$e"),
                   ))
               .toList(),
           onChanged: (dynamic value) {
@@ -2242,7 +2243,7 @@ class _ScreenStockEditState extends State<ScreenStockEdit> with Validation {
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.headline5!.copyWith(
+            style: context.theme.headlineSmall!.copyWith(
               color: Colors.white,
             ),
           ),

@@ -207,7 +207,7 @@ class _WidgetExpansesTableState extends State<WidgetExpansesTable> {
     if (MediaQuery.of(context).size.width < 500) {
       styleHeader = context.theme.titleMedium!.copyWith(color: Colors.white);
     } else {
-      styleHeader = context.theme.headline6!.copyWith(color: Colors.white);
+      styleHeader = context.theme.titleLarge!.copyWith(color: Colors.white);
     }
     return styleHeader;
   }

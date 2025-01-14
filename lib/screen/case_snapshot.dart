@@ -130,7 +130,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _labelCurrentStatus,
-                  style: context.theme.headline6!
+                  style: context.theme.titleLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -162,7 +162,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                     padding: const EdgeInsets.all(4),
                                     child: Text(
                                       _labelDailySnapshoot,
-                                      style: context.theme.headline6!
+                                      style: context.theme.titleLarge!
                                           .copyWith(color: Colors.white),
                                     ),
                                   ),
@@ -280,7 +280,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                   padding: const EdgeInsets.all(4),
                                   child: Text(
                                     _labelCashBoxHeader,
-                                    style: context.theme.headline6!
+                                    style: context.theme.titleLarge!
                                         .copyWith(color: Colors.white),
                                   ),
                                 ),
@@ -335,7 +335,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
                                   padding: const EdgeInsets.all(4),
                                   child: Text(
                                     _labelGeneralSituation,
-                                    style: context.theme.headline6!
+                                    style: context.theme.titleLarge!
                                         .copyWith(color: Colors.white),
                                   ),
                                 ),
@@ -389,7 +389,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
               alignment: Alignment.centerLeft,
               child: Text(
                 _labelCollectionHeader,
-                style: context.theme.headline6!
+                style: context.theme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold),
               ),
             ),
@@ -455,7 +455,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
               alignment: Alignment.centerLeft,
               child: Text(
                 _labelPaymentHeader,
-                style: context.theme.headline6!
+                style: context.theme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold),
               ),
             ),
@@ -510,14 +510,14 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
   }
 
   TableRow buildRowRight(String header, String value) => TableRow(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               // color: context.extensionDisableColor,
               ),
           children: [
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.centerRight,
                     child: Text(
                       header,
@@ -527,7 +527,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4),
+                    padding: const EdgeInsets.fromLTRB(15, 4, 0, 4),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       value,
@@ -544,7 +544,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       header,
@@ -554,7 +554,7 @@ class _ScreenCaseSnapshotState extends State<ScreenCaseSnapshot> {
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       value,

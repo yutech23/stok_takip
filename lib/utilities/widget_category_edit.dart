@@ -1,10 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:stok_takip/bloc/bloc_categorty.dart';
 import 'package:stok_takip/data/database_fetch_category.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
-import 'package:stok_takip/utilities/share_widgets.dart';
 import '../validations/format_upper_case_capital_text_format.dart';
 import '../validations/validation.dart';
 

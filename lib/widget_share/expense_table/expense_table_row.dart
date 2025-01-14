@@ -72,7 +72,7 @@ class _ExpensesTableRowState extends State<ExpensesTableRow> with Validation {
               flex: 2,
               child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: TextField(
+                  child: const TextField(
                     decoration: InputDecoration(),
                     maxLines: null,
                     expands: true,

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 class FormatterDecimalLimit extends TextInputFormatter {
   FormatterDecimalLimit({required this.decimalRange})
-      : assert(decimalRange == null || decimalRange > 0);
+      : assert(decimalRange > 0);
 
   final int decimalRange;
 
@@ -35,7 +35,7 @@ class FormatterDecimalLimit extends TextInputFormatter {
         newSelection = oldValue.selection;
       }
       if (value.indexOf(",") == 0) {
-        truncated = "0" + truncated;
+        truncated = "0$truncated";
         newSelection = newValue.selection.copyWith(
           baseOffset: math.min(truncated.length, truncated.length + 1),
           extentOffset: math.min(truncated.length, truncated.length + 1),

@@ -15,12 +15,13 @@ class ShareDropdownFiltre extends StatelessWidget {
   bool disable;
 
   ShareDropdownFiltre(
-      {required this.hint,
+      {super.key,
+      required this.hint,
       required this.itemList,
       this.validator,
       required this.selectValue,
       this.getShareDropdownCallbackFunc,
-      this.disable=false});
+      this.disable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -32,18 +33,15 @@ class ShareDropdownFiltre extends StatelessWidget {
       dropdownMenuitemList.add(DropdownMenuItem(
           value: item.keys.first,
           child: Container(
-
             height: 50,
             alignment: Alignment.center,
             child: Text(item.values.first),
           )));
     }
     return DropdownButtonFormField<int>(
-
       decoration: InputDecoration(
-
         enabled: false,
-        fillColor:this.disable ? Colors.grey : null,
+        fillColor: disable ? Colors.grey : null,
         isDense: false,
         contentPadding: const EdgeInsets.only(right: 5, bottom: 15),
         focusedBorder: OutlineInputBorder(
@@ -61,11 +59,9 @@ class ShareDropdownFiltre extends StatelessWidget {
       hint: Container(
         height: 50,
         alignment: Alignment.center,
-
-        child: Text(
-            hint,
+        child: Text(hint,
             style: context.theme.bodyMedium!.copyWith(
-                color:Colors.white,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1)),
       ),
@@ -83,10 +79,12 @@ class ShareDropdownFiltre extends StatelessWidget {
       dropdownColor: Colors.blueGrey.shade200,
       items: dropdownMenuitemList,
       value: selectValue,
-      onChanged: this.disable ? null:(value) {
-        selectValue = value;
-        getShareDropdownCallbackFunc!(selectValue!);
-      },
+      onChanged: disable
+          ? null
+          : (value) {
+              selectValue = value;
+              getShareDropdownCallbackFunc!(selectValue!);
+            },
       validator: validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
     );

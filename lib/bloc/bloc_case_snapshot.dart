@@ -3,10 +3,10 @@ import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/share_func.dart';
 
 class BlocCaseSnapshot {
-  DateTime _startTime =
+  final DateTime _startTime =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
-  DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
+  final DateTime _endTime = DateTime(DateTime.now().year, DateTime.now().month,
       DateTime.now().day, 23, 59, 59);
 
   Map<String, double> _collectionData = {
@@ -23,13 +23,13 @@ class BlocCaseSnapshot {
     'Kalan': 0
   };
 
-  Map<String, num> _calculateCashBox = {
+  final Map<String, num> _calculateCashBox = {
     'snapshootCash': 0,
     'snapshootBank': 0,
     'snapshootTotal': 0
   };
 
-  Map<String, num> _calculatePaymentDaily = {
+  final Map<String, num> _calculatePaymentDaily = {
     'totalSale': 0,
     'totalCollectionBySale': 0,
     'totalCollectionLate': 0,
@@ -39,19 +39,19 @@ class BlocCaseSnapshot {
     'totalPaymentAndExpense': 0
   };
 
-  Map<String, num> _calculateDailySnapshoot = {
+  final Map<String, num> _calculateDailySnapshoot = {
     'totalPay': 0,
     'totalCollectionBySale': 0,
     'totalCollectionLate': 0,
     'totalCollection': 0,
   };
 
-  Map<String, num> _calculateGeneralSituation = {
+  final Map<String, num> _calculateGeneralSituation = {
     'totalStockPrice': 0,
     'totalProfit': 0,
   };
 
-  Map<String, num> _calculateService = {
+  final Map<String, num> _calculateService = {
     'totalCash': 0,
     'totalBank': 0,
   };
@@ -128,7 +128,6 @@ class BlocCaseSnapshot {
 
         /*    print(shareFunc.calculateWithKDV(
             item['total_payment_without_tax'], item['kdv_rate'])); */
-
       }
     }
 
@@ -155,7 +154,6 @@ class BlocCaseSnapshot {
 
         /*    print(shareFunc.calculateWithKDV(
             item['total_payment_without_tax'], item['kdv_rate'])); */
-
       }
     }
 

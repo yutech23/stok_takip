@@ -539,7 +539,7 @@ class _ResponsiveDatatableState extends State<ResponsiveDatatable> {
                       if (widget.source != null && widget.source!.isNotEmpty)
                         ...mobileList(),
                       if (widget.source == null || widget.source!.isEmpty)
-                        Center(
+                        const Center(
                           child: Text(""),
                         )
                     ],

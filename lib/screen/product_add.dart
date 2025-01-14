@@ -401,7 +401,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       onPressed: () => widgetCategorySelectPopUp(),
                       child: Text(
                         "Kategori Seçiniz",
-                        style: context.theme.headline6!
+                        style: context.theme.titleLarge!
                             .copyWith(color: Colors.white),
                       ),
                     ),
@@ -447,7 +447,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                           child: Text(
                             "Seçilen Kategori",
                             textAlign: TextAlign.center,
-                            style: context.theme.headline6!.copyWith(
+                            style: context.theme.titleLarge!.copyWith(
                                 fontWeight: FontWeight.w100,
                                 color: Colors.white),
                           ),
@@ -455,7 +455,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                       } else {
                         return Text(
                           "    ${_categoryList[index - 1]}",
-                          style: context.theme.headline6!.copyWith(
+                          style: context.theme.titleLarge!.copyWith(
                               leadingDistribution:
                                   TextLeadingDistribution.even),
                         );
@@ -483,7 +483,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   child: Text(
                     "Kategori Seçilmedi.",
                     textAlign: TextAlign.center,
-                    style: context.theme.headline6!
+                    style: context.theme.titleLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                   )),
         ],
@@ -527,7 +527,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
                   child: Text(
                     "Kategori Seçilmedi.",
                     style:
-                        context.theme.headline6!.copyWith(color: Colors.white),
+                        context.theme.titleLarge!.copyWith(color: Colors.white),
                   ),
                 ),
         ],
@@ -552,15 +552,15 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           text: TextSpan(children: [
         TextSpan(
             text: "Seçilen Kategori: ",
-            style: context.theme.subtitle1!.copyWith(color: Colors.white)),
+            style: context.theme.titleMedium!.copyWith(color: Colors.white)),
         for (int i = 0; i < _categoryList.length - 1; i++)
           TextSpan(
             text: "${_categoryList[i]}> ",
-            style: context.theme.subtitle1!.copyWith(color: Colors.white),
+            style: context.theme.titleMedium!.copyWith(color: Colors.white),
           ),
         TextSpan(
             text: _categoryList[_categoryList.length - 1],
-            style: context.theme.subtitle1!.copyWith(color: Colors.white)),
+            style: context.theme.titleMedium!.copyWith(color: Colors.white)),
       ])),
     );
   }
@@ -587,7 +587,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           title: Text(
               textAlign: TextAlign.center,
               'Kategori Seçiniz',
-              style: context.theme.headline5!
+              style: context.theme.headlineSmall!
                   .copyWith(fontWeight: FontWeight.bold)),
           content: Container(
             width: 600,
@@ -669,7 +669,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
         return AlertDialog(
           title: Text('UYARI',
               textAlign: TextAlign.center,
-              style: context.theme.headline4!
+              style: context.theme.headlineMedium!
                   .copyWith(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -678,22 +678,22 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
               RichText(
                 text: TextSpan(
                     text: "Kayıtlı olan ürün kodu seçtiniz.",
-                    style: context.theme.headline6!
+                    style: context.theme.titleLarge!
                         .copyWith(fontWeight: FontWeight.bold),
                     children: [
                       TextSpan(
                           text:
                               "\nEğer stok güncellemesi yapacaksanız. Lütfen ",
-                          style: context.theme.headline6!
+                          style: context.theme.titleLarge!
                               .copyWith(color: Colors.redAccent)),
                       TextSpan(
                           text: "\"Stok Güncelleme Ekranın'dan\"",
-                          style: context.theme.headline6!.copyWith(
+                          style: context.theme.titleLarge!.copyWith(
                               color: Colors.redAccent,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
                           text: " yapınız.",
-                          style: context.theme.headline6!
+                          style: context.theme.titleLarge!
                               .copyWith(color: Colors.redAccent))
                     ]),
                 textAlign: TextAlign.center,
@@ -727,7 +727,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           ),
         ),
         Text(header,
-            style: context.theme.headline6!.copyWith(
+            style: context.theme.titleLarge!.copyWith(
                 color: context.extensionDefaultColor,
                 fontWeight: FontWeight.bold)),
         Expanded(
@@ -1267,7 +1267,7 @@ class _ScreenProductAddState extends State<ScreenProductAdd>
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.headline5!.copyWith(
+            style: context.theme.headlineSmall!.copyWith(
               color: Colors.white,
             ),
           ),

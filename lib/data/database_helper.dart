@@ -1580,7 +1580,7 @@ class DbHelper {
       resSales.addAll(resCari);
 
       return resSales;
-    } on PostgrestException catch (e) {
+    } on PostgrestException {
       return resSales;
     }
   }
@@ -1599,7 +1599,7 @@ class DbHelper {
       resPayment.addAll(resSupplierCari);
 
       return resPayment;
-    } on PostgrestException catch (e) {
+    } on PostgrestException {
       return resPayment;
     }
   }

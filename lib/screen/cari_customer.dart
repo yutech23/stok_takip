@@ -62,7 +62,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _heightTableDesktop = 560;
   final double _heightTableMobil = 470;
 /*------------------------------------------------------------------------- */
@@ -398,6 +398,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
       _controllerEndDate.text =
           dateTimeConvertFormatString(_blocCari.getterEndDate);
     }
+    return null;
   }
 
   ///-----Textfield ekranına basmak için DateTime verisini String çeviriyor.
@@ -789,7 +790,8 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
 
         ///Button Ödeme Al
         shareWidget.widgetElevatedButton(
-            buttonStyle: ElevatedButton.styleFrom(fixedSize: Size(320, 40)),
+            buttonStyle:
+                ElevatedButton.styleFrom(fixedSize: const Size(320, 40)),
             onPressedDoSomething: () async {
               ///Müşteri seçilme veya seçildikten sonra silinme durumunda
               ///uyarı veriyor.
@@ -1019,7 +1021,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.headline5!.copyWith(
+            style: context.theme.headlineSmall!.copyWith(
               color: Colors.white,
             ),
           ),
@@ -1037,7 +1039,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
             title: Text(
                 textAlign: TextAlign.center,
                 'Ürünü silmek istediğinizden emin misiniz?',
-                style: context.theme.headline6!
+                style: context.theme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold)),
             actions: [
               Row(
@@ -1105,7 +1107,7 @@ class _ScreenCariCustomerState extends State<ScreenCariCustomer> {
             printPDF(_headers, snapshot.data, _blocCari.getterCalculationRow);
           }
         },
-        icon: Icon(
+        icon: const Icon(
           Icons.print_rounded,
           color: Colors.grey,
         ));

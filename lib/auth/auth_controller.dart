@@ -18,7 +18,7 @@ class AuthController {
   bool resetPasswordButtonActive = false;
 
   ///isAuth degeri otamatik sayfa yönlendirme için kullanılıyor.
-  /* bool isAuth = true;
+/*   bool isAuth = true;
   String role = '1'; */
 
   setAuthTrue() {

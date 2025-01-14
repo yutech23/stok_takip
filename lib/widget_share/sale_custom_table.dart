@@ -140,7 +140,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
 
   ///Toplam Tutar, Kdv Ve Genel toplam tutarı Tablosu
   widgetTableTotalPriceSection() {
-    return Container(
+    return SizedBox(
       // color: Colors.amber,
       height: _responceWidth <= 500 ? 60 : 35,
       child: StreamBuilder<Map<String, num>>(
@@ -293,12 +293,11 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
               widget.blocSale
                   .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
               widget.blocSale.balance();
-            } else if (value != null) {
+            } else
               widget.blocSale.setKdv = "0";
-              widget.blocSale
-                  .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
-              widget.blocSale.balance();
-            }
+            widget.blocSale
+                .getTotalPriceSection(widget.selectUnitOfCurrencySymbol);
+            widget.blocSale.balance();
           },
         ));
   }
@@ -309,7 +308,7 @@ class _WidgetSaleTableState extends State<WidgetSaleTable> {
     if (MediaQuery.of(context).size.width < 500) {
       styleHeader = context.theme.titleMedium!.copyWith(color: Colors.white);
     } else {
-      styleHeader = context.theme.headline6!.copyWith(color: Colors.white);
+      styleHeader = context.theme.titleLarge!.copyWith(color: Colors.white);
     }
     return styleHeader;
   }

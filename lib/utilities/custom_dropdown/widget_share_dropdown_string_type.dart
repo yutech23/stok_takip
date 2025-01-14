@@ -14,7 +14,8 @@ class ShareDropdown extends StatelessWidget {
   bool isDisable;
 
   ShareDropdown(
-      {required this.hint,
+      {super.key,
+      required this.hint,
       required this.itemList,
       this.validator,
       this.selectValue,

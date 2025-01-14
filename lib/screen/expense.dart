@@ -66,7 +66,7 @@ class _ScreenExpensesState extends State<ScreenExpenses> with Validation {
 
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _dataTableHeightDesktop = 600;
   final double _dataTableHeightMobil = 510;
   final String _labelDescription = "Açıklama: ";

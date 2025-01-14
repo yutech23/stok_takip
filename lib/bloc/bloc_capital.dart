@@ -32,7 +32,7 @@ class BlocCapital {
   Stream<Map<String, dynamic>> get getStreamCashBox =>
       _streamControllerCashBox.stream;
 
-  List<Map<String, dynamic>> _allPartner = [];
+  final List<Map<String, dynamic>> _allPartner = [];
 
   List<Map<String, dynamic>> get getterAllParter => _allPartner;
 

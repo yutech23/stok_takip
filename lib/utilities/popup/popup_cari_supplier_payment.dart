@@ -14,9 +14,8 @@ class PopupCariSupplierPayment extends StatefulWidget {
   Map<String, dynamic> blocCariSupplierInfo;
 
   PopupCariSupplierPayment(
-    this.blocCariSupplierPayment,
-    this.blocCariSupplierInfo,
-  );
+      this.blocCariSupplierPayment, this.blocCariSupplierInfo,
+      {super.key});
 
   @override
   State<PopupCariSupplierPayment> createState() => _ScreenCustomerSave();
@@ -118,7 +117,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
               Center(
                 child: Text(
                   _labelPopupHeader,
-                  style: context.theme.headline5!
+                  style: context.theme.headlineSmall!
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -195,8 +194,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
           0: FixedColumnWidth(140),
           1: FixedColumnWidth(135),
         },
-        border: TableBorder.symmetric(
-            inside: const BorderSide(color: Colors.white)),
+        border: TableBorder.symmetric(inside: BorderSide(color: Colors.white)),
         children: [
           TableRow(
               decoration: BoxDecoration(
@@ -275,7 +273,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
             headers: _headers,
             source: _sourceDateTable,
             selecteds: _selected,
-            expanded: [false],
+            expanded: const [false],
             autoHeight: false,
             headerDecoration: BoxDecoration(
                 color: Colors.blueGrey.shade900,
@@ -388,7 +386,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.centerRight,
                     child: Text(
                       header,
@@ -398,7 +396,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4),
+                    padding: const EdgeInsets.fromLTRB(15, 4, 0, 4),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       value,
@@ -415,7 +413,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       header,
@@ -425,7 +423,7 @@ class _ScreenCustomerSave extends State<PopupCariSupplierPayment>
             TableCell(
                 child: Container(
                     margin: EdgeInsets.zero,
-                    padding: EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     child: Text(
                       value,

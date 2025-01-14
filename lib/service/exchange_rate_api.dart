@@ -9,13 +9,14 @@ class ServiceExchangeRateApi {
         '${Env.exchangeRateUrl}?api_key=${Env.exchangeRateApiKey}&base=TRY&target=USD,EUR');
 
     if (response.statusCode == 200) {
-      final _rest = response.data;
+      final rest = response.data;
 
-      print(_rest);
+      print(rest);
 
       return 'basarili';
-    } else
+    } else {
       return null;
+    }
   }
 
   Future<String?> getExchangeRateUSD() async {
@@ -23,25 +24,27 @@ class ServiceExchangeRateApi {
         '${Env.exchangeRateUrl}?api_key=${Env.exchangeRateApiKey}&base=USD&target=TRY');
 
     if (responseUSD.statusCode == 200) {
-      final _rest1 = responseUSD.data;
+      final rest1 = responseUSD.data;
 
-      print(_rest1);
+      print(rest1);
 
       return 'basarili';
-    } else
+    } else {
       return null;
+    }
   }
 
   Future<String?> getExchangeRateEUR() async {
     Response responseEUR = await _dio.get(
         '${Env.exchangeRateUrl}?api_key=${Env.exchangeRateApiKey}&base=EUR&target=TRY');
     if (responseEUR.statusCode == 200) {
-      final _rest2 = responseEUR.data;
+      final rest2 = responseEUR.data;
 
-      print(_rest2);
+      print(rest2);
       return 'basarili';
-    } else
+    } else {
       return null;
+    }
   }
 }
 

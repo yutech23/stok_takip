@@ -67,7 +67,7 @@ class _MyDrawerState extends State<MyDrawer> {
     String lastName = await SecurityStorageUser.getUserLastName() ?? 'O';
 
     setState(() {
-      nameAndLastNameCapitalFirst = name.inCaps + ' ' + lastName.inCaps;
+      nameAndLastNameCapitalFirst = '${name.inCaps} ${lastName.inCaps}';
       nameAndLastnameFirstLatter =
           name[0].toUpperCase() + lastName[0].toUpperCase();
     });

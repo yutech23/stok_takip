@@ -50,9 +50,9 @@ class BlocCariSuppleirs {
   };
 
   final List<Map<String, dynamic>> _paymentInfo = [];
-  List<bool> _expandedSaleDetailList = [false];
+  final List<bool> _expandedSaleDetailList = [false];
 
-  String _saleCurrencySembol = "";
+  final String _saleCurrencySembol = "";
   Map<String?, dynamic> _rowCustomerInfo = {};
 
   BlocCariSuppleirs() {

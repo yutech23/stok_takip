@@ -35,7 +35,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
   final _controllerCompanyName = TextEditingController();
   final _controllerIban = TextEditingController();
   final _controllerTC = TextEditingController();
-  PhoneController _phoneController = PhoneController(null);
+  final PhoneController _phoneController = PhoneController(null);
 
   final String _labelCustomerName = "Müşteri adını giriniz";
   final String _labelCustomerLastname = "Müşteri Soyadını giriniz";
@@ -74,7 +74,8 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
       title: Text(
         textAlign: TextAlign.center,
         _customerRegisterHeader,
-        style: context.theme.headline5!.copyWith(fontWeight: FontWeight.bold),
+        style:
+            context.theme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: Form(
@@ -160,7 +161,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -189,7 +190,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -214,7 +215,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -244,7 +245,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İlk Önce İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -310,7 +311,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -339,7 +340,7 @@ class _ScreenCustomerSave extends State<PopupCustomerAdd> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "Vergi Dairesini Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),

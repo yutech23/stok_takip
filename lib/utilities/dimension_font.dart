@@ -50,7 +50,7 @@ extension DimensionFont on BuildContext {
           height: 50,
           child: Text(message, style: const TextStyle(fontSize: 20))),
       backgroundColor: backgroundColor,
-      duration: Duration(seconds: 4),
+      duration: const Duration(seconds: 4),
     ));
   }
 

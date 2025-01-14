@@ -10,7 +10,7 @@ import 'package:stok_takip/utilities/dimension_font.dart';
 */
 
 Widget nonPermissionScreen(BuildContext context) {
-  return Center(child: Text("İzniniz Yok", style: context.theme.headline1));
+  return Center(child: Text("İzniniz Yok", style: context.theme.displayLarge));
 }
 
 class RolePermissionCustomRouter {

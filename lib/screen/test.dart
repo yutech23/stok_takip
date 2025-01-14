@@ -6,7 +6,6 @@ import 'package:searchfield/searchfield.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class ScreenTest extends StatefulWidget {
   const ScreenTest({super.key});
 
@@ -41,7 +40,7 @@ class _ScreenTestState extends State<ScreenTest> {
     super.initState();
   }
 
-  PhoneController _controllerPhone = PhoneController(null);
+  final PhoneController _controllerPhone = PhoneController(null);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,8 +81,8 @@ class _ScreenTestState extends State<ScreenTest> {
               final res = await db.supabase.from('auth').select();
               print(res);
             },
-            child: Text("dene")),
-        SizedBox(
+            child: const Text("dene")),
+        const SizedBox(
           height: 40,
         ),
         SizedBox(
@@ -91,7 +90,8 @@ class _ScreenTestState extends State<ScreenTest> {
           child: PhoneFormField(
               defaultCountry: IsoCode.TR,
               isCountryChipPersistent: true,
-              countrySelectorNavigator: CountrySelectorNavigator.bottomSheet(),
+              countrySelectorNavigator:
+                  const CountrySelectorNavigator.bottomSheet(),
               controller: _controllerPhone,
               decoration: const InputDecoration(
                   labelText: 'Telefon Numarısı Giriniz',
@@ -104,7 +104,7 @@ class _ScreenTestState extends State<ScreenTest> {
               print(_controllerPhone.value!.countryCode);
               print(_controllerPhone.value!.nsn);
             },
-            child: Text("dene")),
+            child: const Text("dene")),
       ],
     ));
   }

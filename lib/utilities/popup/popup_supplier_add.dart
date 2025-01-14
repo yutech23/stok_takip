@@ -31,7 +31,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
   final _controllerSupplierName = TextEditingController();
   final _controllerIban = TextEditingController();
   final _controllerBankName = TextEditingController();
-  PhoneController _phoneController = PhoneController(null);
+  final PhoneController _phoneController = PhoneController(null);
 
   late AutovalidateMode _autovalidateMode;
 
@@ -167,7 +167,8 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
       title: Text(
         textAlign: TextAlign.center,
         _headerSupplier,
-        style: context.theme.headline5!.copyWith(fontWeight: FontWeight.bold),
+        style:
+            context.theme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),
       ),
       content: SingleChildScrollView(
         child: Form(
@@ -215,7 +216,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -245,7 +246,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "İl Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),
@@ -357,7 +358,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
     return Theme(
       data: ThemeData(
         textTheme: const TextTheme(
-            subtitle1: TextStyle(
+            titleMedium: TextStyle(
                 locale: Locale('tr', 'TR'),
                 color: Colors.black,
                 fontSize: 16,
@@ -387,7 +388,7 @@ class _ScreenCustomerSave extends State<PopupSupplierRegister> with Validation {
           textAlign: TextAlign.center,
           dropdownSearchDecoration: InputDecoration(
               hintText: "Vergi Dairesini Seçiniz",
-              hintStyle: context.theme.headline6!
+              hintStyle: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold, fontSize: 16),
               enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.blue, width: 1))),

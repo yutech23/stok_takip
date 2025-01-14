@@ -14,7 +14,7 @@ class ShareWidgetAppbarSetting extends StatelessWidget {
       itemBuilder: (context) => [
         PopupMenuItem(
             value: 0,
-            child: Text("Şifre Değiştirme", style: context.theme.headline6)),
+            child: Text("Şifre Değiştirme", style: context.theme.titleLarge)),
       ],
     );
   }

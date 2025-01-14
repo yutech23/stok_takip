@@ -11,6 +11,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
+//Deneme commit
+
 Future<void> main() async {
   setUrlStrategy(PathUrlStrategy());
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +32,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "ERP Sistemi",
-
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -45,7 +46,6 @@ class MyApp extends StatelessWidget {
         PointerDeviceKind.stylus,
         PointerDeviceKind.unknown
       }),
-
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.blueGrey.shade900),
@@ -95,19 +95,20 @@ class MyApp extends StatelessWidget {
                       .titleLarge!
                       .copyWith(color: Colors.white)))),
           textTheme: const TextTheme(
-            headline3: TextStyle(color: Colors.black),
-            headline4:
+            displaySmall: TextStyle(color: Colors.black),
+            headlineMedium:
                 TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           primaryColor: Colors.blue,
           dividerColor: Colors.transparent),
-
       routerDelegate: AutoRouterDelegate(_appRouter, initialRoutes: [
         // if (authController.role == '') const RouteLogin(),
         if (authController.role == '1') const RouteCaseSnapshot(),
         if (authController.role == '2') const RouteSale()
       ]),
-      // AutoRouterDelegate(_appRouter,initialRoutes: [const RouteCariSupplier()]),
+
+      /*  AutoRouterDelegate(_appRouter,
+              initialRoutes: [const RouteCariSupplier()]), */
       routeInformationParser: _appRouter.defaultRouteParser(),
     );
   }

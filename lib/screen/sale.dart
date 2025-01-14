@@ -285,7 +285,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 children: [
                   Text(
                       "USD : ${FormatterConvert().pointToCommaAndDecimalTwo(snapshot.data!['USD']!, 4)}",
-                      style: context.theme.headline6!
+                      style: context.theme.titleLarge!
                           .copyWith(color: Colors.white)),
                   const Divider(
                       color: Colors.white,
@@ -294,7 +294,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                       height: 8),
                   Text(
                       "EUR : ${FormatterConvert().pointToCommaAndDecimalTwo(snapshot.data!['EUR']!, 4)}",
-                      style: context.theme.headline6!
+                      style: context.theme.titleLarge!
                           .copyWith(color: Colors.white)),
                 ],
               ),
@@ -369,16 +369,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               ),
               onSuggestionTap: (selectedValue) {
                 ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
-                var _customerInfoList = selectedValue.searchKey.split(' - ');
+                var customerInfoList = selectedValue.searchKey.split(' - ');
                 //  print(_customerInfoList);
-                _selectCustomerType = _customerInfoList[0];
+                _selectCustomerType = customerInfoList[0];
 
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
                 /// numarsı üzerinden id buluncak. telefon numarası unique.
                 ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
 
-                _customerPhone = _customerInfoList[2];
+                _customerPhone = customerInfoList[2];
                 // print(_customerPhone);
                 /* for (var element in listCustomer) {
                   if (element['name'] == selectedValue.searchKey) {
@@ -458,16 +458,16 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
               ),
               onSuggestionTap: (selectedValue) {
                 ///seçilen search tümleşik olarak type-isim-numara geliyor.Burada ayırıyoruz.
-                var _customerInfoList = selectedValue.searchKey.split(' - ');
+                var customerInfoList = selectedValue.searchKey.split(' - ');
                 //  print(_customerInfoList);
-                _selectCustomerType = _customerInfoList[0];
+                _selectCustomerType = customerInfoList[0];
 
                 ///Burası müşterinin id sini öğrenmek için yapılıyor. Telefon
                 /// numarsı üzerinden id buluncak. telefon numarası unique.
                 ///  Müşteri seçer iken id çekmiyoruz güvenlik için.
                 //Bunun ilk olmasının sebebi telefon numarası seçilirse diye.
 
-                _customerPhone = _customerInfoList[2];
+                _customerPhone = customerInfoList[2];
                 // print(_customerPhone);
                 /* for (var element in listCustomer) {
                   if (element['name'] == selectedValue.searchKey) {
@@ -983,7 +983,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                 // _controllerSearchProductCode.text != "" &&
                 // ignore: prefer_is_empty
                 blocSale.listProduct.length >= 1) {
-              String? userId = dbHive.getValues('uuid');
+              String userId = dbHive.getValues('uuid');
 
               final res = await blocSale.save(
                   saleTime: _selectedSaleDateTime,
@@ -994,7 +994,7 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
                   bankcardPayment: _controllerBankValue.text,
                   eftHavalePayment: _controllerEftHavaleValue.text,
                   paymentNextDate: _selectNextPaymentDateTimeString,
-                  userId: userId!);
+                  userId: userId);
 
               ///BAŞARILI kAYIT
               if (res['hata'] == null) {
@@ -1456,10 +1456,10 @@ class _ScreenSallingState extends State<ScreenSale> with Validation {
         return AlertDialog(
           title: Text('UYARI',
               textAlign: TextAlign.center,
-              style: context.theme.headline5!
+              style: context.theme.headlineSmall!
                   .copyWith(fontWeight: FontWeight.bold)),
           content: Text("İrsaliye Faturası yazdırmak ister misin?",
-              style: context.theme.headline6!
+              style: context.theme.titleLarge!
                   .copyWith(fontWeight: FontWeight.bold)),
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: <Widget>[

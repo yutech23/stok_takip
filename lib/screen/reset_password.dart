@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:stok_takip/auth/auth_controller.dart';
 import 'package:stok_takip/data/database_helper.dart';
 import 'package:stok_takip/utilities/constants.dart';
 import 'package:stok_takip/utilities/dimension_font.dart';

@@ -63,7 +63,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   /*--------------------------------------------------------------------- */
   /*------------------DATATABLE ----------------------------------------*/
   late final List<DatatableHeader> _headers;
-  List<Map<String, dynamic>> _selecteds = [];
+  final List<Map<String, dynamic>> _selecteds = [];
   final double _heightTableDesktop = 560;
   final double _heightTableMobil = 470;
 /*------------------------------------------------------------------------- */
@@ -388,6 +388,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
       _controllerEndDate.text =
           dateTimeConvertFormatString(_blocCariSupplier.getterEndDate);
     }
+    return null;
   }
 
   ///-----Textfield ekranına basmak için DateTime verisini String çeviriyor.
@@ -592,7 +593,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                       ),
                     );
                   }
-                  return Text("");
+                  return const Text("");
                 },
                 footerDecoration:
                     BoxDecoration(color: context.extensionDefaultColor),
@@ -771,7 +772,8 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
 
         ///Button Ödeme Al
         shareWidget.widgetElevatedButton(
-            buttonStyle: ElevatedButton.styleFrom(fixedSize: Size(320, 40)),
+            buttonStyle:
+                ElevatedButton.styleFrom(fixedSize: const Size(320, 40)),
             onPressedDoSomething: () async {
               ///Müşteri seçilme veya seçildikten sonra silinme durumunda
               ///uyarı veriyor.
@@ -922,7 +924,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
   Container partOfWidgetHeader(
       BuildContext context, String label, Color backgroundColor) {
     TextStyle styleHeader =
-        context.theme.headline6!.copyWith(color: Colors.white);
+        context.theme.titleLarge!.copyWith(color: Colors.white);
     return Container(
       alignment: Alignment.center,
       width: _shareMinWidth,
@@ -1054,7 +1056,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
           height: 30,
           child: Text(
             sembol,
-            style: context.theme.headline5!.copyWith(
+            style: context.theme.headlineSmall!.copyWith(
               color: Colors.white,
             ),
           ),
@@ -1072,7 +1074,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
             title: Text(
                 textAlign: TextAlign.center,
                 'Ürünü silmek istediğinizden emin misiniz?',
-                style: context.theme.headline6!
+                style: context.theme.titleLarge!
                     .copyWith(fontWeight: FontWeight.bold)),
             actions: [
               Row(
@@ -1144,7 +1146,7 @@ class _ScreenCariSupplierState extends State<ScreenCariSupplier> {
                 _blocCariSupplier.getterCalculationRow);
           }
         },
-        icon: Icon(
+        icon: const Icon(
           Icons.print_rounded,
           color: Colors.grey,
         ));

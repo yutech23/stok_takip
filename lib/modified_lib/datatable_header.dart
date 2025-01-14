@@ -35,13 +35,13 @@ class DatatableHeader {
         sourceBuilder: map['sourceBuilder'],
       );
   Map<String, dynamic> toMap() => {
-        "text": this.text,
-        "value": this.value,
-        "sortable": this.sortable,
-        "show": this.show,
-        "textAlign": this.textAlign,
-        "flex": this.flex,
-        "headerBuilder": this.headerBuilder,
-        "sourceBuilder": this.sourceBuilder,
+        "text": text,
+        "value": value,
+        "sortable": sortable,
+        "show": show,
+        "textAlign": textAlign,
+        "flex": flex,
+        "headerBuilder": headerBuilder,
+        "sourceBuilder": sourceBuilder,
       };
 }

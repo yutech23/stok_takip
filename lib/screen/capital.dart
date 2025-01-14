@@ -248,7 +248,7 @@ class _ScreenCapitalState extends State<ScreenCapital> {
                       2: FlexColumnWidth(1),
                     },
                     border: TableBorder.symmetric(
-                        inside: const BorderSide(color: Colors.white)),
+                        inside: BorderSide(color: Colors.white)),
                     children: [
                       buildRowHeader(
                           [_labelCash, _labelBank, _labelCashBoxTotal]),
